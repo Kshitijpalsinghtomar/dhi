@@ -10,7 +10,7 @@ import argparse
 from pathlib import Path
 
 from DHI_v1.benchmark.runner import run_pilot_benchmark
-from DHI_v1.environment.agent_runner import client_from_env
+from DHI_v1.environment.agent_runner import client_from_env, tool_handlers_from_client
 
 
 def main() -> int:
@@ -23,6 +23,7 @@ def main() -> int:
     args = parser.parse_args()
 
     client, model_name = client_from_env()
+    tool_handlers = tool_handlers_from_client(client)
 
     report = run_pilot_benchmark(
         client,
@@ -32,6 +33,7 @@ def main() -> int:
         output_root=args.output,
         max_model_turns=args.max_model_turns,
         max_tool_calls=args.max_tool_calls,
+        tool_handlers=tool_handlers,
     )
     print(
         f"DHI pilot: {report['passed_cases']}/{report['case_count']} "
