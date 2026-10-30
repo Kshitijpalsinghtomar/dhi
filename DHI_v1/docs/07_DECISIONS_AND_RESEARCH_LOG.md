@@ -176,3 +176,20 @@ GitHub Actions runs triggered by the earlier push workflow failed before job exe
 - Updated case 006 to test a transient search failure and subsequent recovery. Cases 005 and 007 now have explicit fixture variant/postconditions.
 - Added evaluator checks for answer content, required tool calls, required discoveries, no-op/changed-path constraints, and successful recovery after a failed tool.
 - Local tests: 42 passed; compileall passed. The model benchmark has not run because there is no configured inference endpoint.
+
+
+## 2026-10-31 — No-tool restraint promoted into executable pilot
+
+- Promoted case `policy-001-no-tool-needed` into the executable file-workspace suite. It asks a stable arithmetic fact while a repository is available, and requires zero tool calls, zero changed paths, and a correct answer.
+- The evaluator rejects a correct answer if the model unnecessarily calls `catalog.search` or any other tool.
+- The pilot now has eight supported file-workspace cases and four unsupported external-runtime cases.
+- Local suite: 44 passed; compileall passed.
+
+## 2026-10-31 — Adaption task-specification seed launched
+
+- Dataset: `DHI-v1 Repository Agent Task Specifications — Diagnostic Candidate 120`.
+- Dataset ID: `1eccaa36-bdc7-4d6e-ac8d-41b20d9425e2`.
+- Type: invented instruction task specifications; 120 requested rows; code/technology domains.
+- Estimate: 12 credits; 87 credits available at estimate/launch. The 200-row alternative was estimated at 20 credits and was not launched.
+- Latest status check: running; row_count, processed_rows, progress, and columns all null. No evaluation/export is available yet.
+- The dataset prompt prohibits invented tool outputs/results. Its intended use is candidate task specifications only. Do not convert its text into ground-truth action trajectories or training data until rows are inspected and each task is executable/gradable in the environment.
