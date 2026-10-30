@@ -171,6 +171,10 @@ class DHIEnvironment:
                 pass
             else:
                 raise ValueError("trace_path must be outside the workspace snapshot")
+            if self.trace_path.exists():
+                raise FileExistsError(
+                    f"trace file already exists; use a new path to avoid mixing trajectories: {self.trace_path}"
+                )
             self.trace_path.parent.mkdir(parents=True, exist_ok=True)
 
         if max_file_bytes <= 0:
@@ -260,7 +264,16 @@ class DHIEnvironment:
             if unknown:
                 raise ValueError(f"task visible_tool_ids contains unknown tools: {sorted(unknown)}")
         for protected_path in task.protected_paths:
-            self._safe_path(protected_path)
+            try:
+                protected_file = self._safe_path(protected_path, must_exist=True)
+            except DHIEnvironmentError as exc:
+                raise ValueError(
+                    f"protected path must already exist and be a regular file: {protected_path}"
+                ) from exc
+            if not protected_file.is_file():
+                raise ValueError(
+                    f"protected path must already exist and be a regular file: {protected_path}"
+                )
         self._active_task = task
         self._trajectory_id = task.trajectory_id
         self._sequence = 0
