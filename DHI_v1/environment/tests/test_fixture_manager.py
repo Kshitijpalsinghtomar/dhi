@@ -64,3 +64,17 @@ def test_materializer_rejects_fixture_source_nested_inside_destination(tmp_path)
     shutil.copytree(FIXTURE, nested_source)
     with pytest.raises(FixtureError, match="source must not be inside"):
         materialize_fixture(nested_source, destination)
+
+
+def test_generated_python_cache_does_not_change_pinned_fixture_inventory(tmp_path):
+    cache = FIXTURE / "src" / "__pycache__"
+    cache.mkdir(exist_ok=True)
+    generated = cache / "api.cpython-313.pyc"
+    generated.write_bytes(b"generated cache")
+
+    try:
+        result = validate_fixture(FIXTURE)
+        assert result["file_count"] == 3
+    finally:
+        generated.unlink(missing_ok=True)
+        cache.rmdir()
