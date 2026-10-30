@@ -108,3 +108,14 @@ python -m DHI_v1.benchmark.audit_invent_dataset --dataset-id 1eccaa36-bdc7-4d6e-
 ```
 
 This produces a JSON quality report and flagged-row CSV. It does not certify semantic correctness, solvability, or training eligibility.
+
+
+## Updated Invent method decision — 2026-10-31
+
+A second 120-row candidate, `be05757d-2f24-45d4-8768-659268d9d18e`, completed but scored Grade C / 6.6 (7.0 → 6.6, -5.7%). Message quality averaged 8.18 (28.9th percentile); completion quality averaged 5.03 (2.2nd percentile). The dataset page reported about 81 words per prompt and 368 words per completion. DCScore was 69.11 (normalized 0.691), versus 84.43 (0.844) for the first candidate. The second run's completion median was 2 with standard deviation 4.0.
+
+The current interpretation is a **target-format mismatch**: the requests asked Invent to pair realistic user tasks with long JSON benchmark contracts. The generated contract was the supervised completion, even though it was not the answer to the user request and did not represent an executed trajectory. The Invent research paper explicitly states that the current system generates instruction/preference data but does not generate tool-call traces or multi-step agentic trajectories. Its prompt/completion quality metrics do not test environment execution, task solvability, or verified closure.
+
+**Decision:** quarantine both Invent task-spec datasets; no training, no benchmark promotion, and no further 120-row generation with this format. Use the ORBIT codename for future generated rows and task IDs; do not include internal project branding in prompts or dataset names. See [ORBIT data-generation method review](../docs/08_ORBIT_DATA_GENERATION_METHOD_REVIEW.md) for the full reset: separate benchmark task contracts, optional single-step decision supervision, real environment-grounded trajectories, and later verified preference pairs.
+
+The row-level content for the second candidate is still unavailable through the connected Adaption MCP actions. Metadata and evaluator summaries alone do not certify individual task quality. The method mismatch is established from the requested target format and platform limitations; semantic row-level defects remain unassessed.
