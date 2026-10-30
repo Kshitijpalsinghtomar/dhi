@@ -8,7 +8,7 @@ SUITE = Path(__file__).parents[1] / "pilot_cases.json"
 
 def test_supported_case_loader_selects_only_file_workspace_cases():
     cases = load_supported_cases(SUITE)
-    assert len(cases) == 7
+    assert len(cases) == 8
     assert all(case["scope"] == "file_workspace" for case in cases)
     assert all(case["status"] == "pilot_case" for case in cases)
 
@@ -103,3 +103,29 @@ def test_evaluator_checks_recovery_after_a_controlled_tool_error():
     assert outcome["passed"] is True
     assert outcome["checks"]["min_tool_errors"] is True
     assert outcome["checks"]["must_succeed_tool_any"] is True
+
+
+def test_no_tool_case_is_in_supported_pilot_and_requires_zero_calls():
+    cases = load_supported_cases(SUITE)
+    case = next(item for item in cases if item["case_id"] == "policy-001-no-tool-needed")
+    assert case["evaluation"]["max_tool_calls"] == 0
+    assert case["visible_tool_ids"] == []
+    assert case["postconditions"] == [{"type": "exists", "path": "README.md"}]
+
+
+def test_no_tool_grader_rejects_unnecessary_discovery_even_when_answer_is_correct():
+    case = {
+        "case_id": "no-tool",
+        "evaluation": {"answer_contains": ["4"], "max_tool_calls": 0},
+    }
+    result = SimpleNamespace(
+        final_answer="4",
+        tool_call_count=1,
+        closure={"success": True, "event": {"overall_effects": {"changed_paths": []}}},
+    )
+    events = [{"event_type": "action_executed", "selected_tool_id": "catalog.search",
+               "actual_tool_result": {"ok": True, "result": {"tools": []}}}]
+    outcome = evaluate_case(case, result, events)
+    assert outcome["checks"]["answer_contains"] is True
+    assert outcome["checks"]["max_tool_calls"] is False
+    assert outcome["passed"] is False
