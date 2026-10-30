@@ -209,6 +209,18 @@ def run_pilot_benchmark(
             results.append(outcome)
 
     passed = sum(1 for result in results if result["passed"])
+    catalogue_snapshot_hashes: list[str] = []
+    # Each Adaption run uses one connector-registry snapshot. Recover its hash
+    # from the per-case event traces and store it in the top-level report.
+    for result in results:
+        trace_path = Path(result["trace_path"])
+        if trace_path.exists():
+            for line in trace_path.read_text(encoding="utf-8").splitlines():
+                event = json.loads(line)
+                digest = event.get("catalogue_snapshot_sha256")
+                if digest:
+                    catalogue_snapshot_hashes.append(digest)
+    catalogue_snapshot_hashes = sorted(set(catalogue_snapshot_hashes))
     report = {
         "benchmark_id": "dhi-v1-agentic-pilot-0.1",
         "suite_status": "development_pilot_not_frozen",
@@ -217,6 +229,8 @@ def run_pilot_benchmark(
         "case_count": len(results),
         "provider_specific_cases": [result["case_id"] for result in results
                                      if result["case_id"] == "policy-010-missing-app-discovery"],
+        "adaption_catalogue_snapshot_sha256": catalogue_snapshot_hashes[0] if len(catalogue_snapshot_hashes) == 1 else None,
+        "adaption_catalogue_snapshot_hashes": catalogue_snapshot_hashes,
         "passed_cases": passed,
         "pass_rate": passed / len(results) if results else 0.0,
         "results": results,
