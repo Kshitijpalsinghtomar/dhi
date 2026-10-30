@@ -313,3 +313,12 @@ The earlier statement that Adaption exposed no inference API was too broad. The 
 DHI now has `adaption_responses.py`, which translates its existing chat-style tool loop into the Responses API format, disables response storage and agentic memory during benchmark requests, and lists the exact hosted model IDs available to the API key. The current base-model comparison should use direct hosted model IDs rather than a stack, so stack-provided tools, datasets, and memory do not confound the model comparison.
 
 Local verification: 51 environment/benchmark tests passed, including seven new Adaption adapter tests; compileall passed; the 13-event scripted smoke pilot still passed closure and protected-file checks. No live Adaption API call has been made from this execution environment because no API key is available to the runner here. No model result or training result is claimed.
+
+
+### 2026-10-31 update — live Adaption connector catalogue
+
+The Adaption API also exposes `GET /api/v1/tools`. It returns the host-side connector catalogue with `server_label`, name, description, authentication type, connection method, default approval posture, required scope, availability, and an unavailable reason such as `not_implemented`, `disabled`, `requires_plan`, or `requires_scope`.
+
+DHI includes `AdaptionResponsesClient.list_tools_catalogue()` and `examples/list_adaption_tools.py` to inspect that registry read-only. This supplies grounded capability/availability evidence; it does not execute external connector actions. A live connector execution adapter still needs explicit approval handling, operation-level schema exposure, event tracing, and independently verifiable postconditions before those connectors enter the scored benchmark.
+
+Local suite: 54 tests passed; compileall passed. No live API key/model run has yet been performed.
