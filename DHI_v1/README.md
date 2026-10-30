@@ -36,7 +36,7 @@ This is a candidate selection, not a measured ranking. Base screening must prece
 
 The deterministic file-workspace harness has eight supported diagnostic cases: no-tool restraint, source inspection, hidden-tool discovery, multi-step editing, no-op handling, transient failure recovery, unavailable-resource honesty, and protected-file editing. Four additional cases require future runtime integrations and are currently excluded.
 
-Local verification on 2026-10-31: **51 tests passed** across environment and benchmark tests; Python compileall passed; the scripted smoke trace produced 13 events and passed the checked-in event schema. The smoke pilot is hand-scripted, not model-generated, and not training data.
+Local verification on 2026-10-31: **54 tests passed** across environment and benchmark tests; Python compileall passed; the scripted smoke trace produced 13 events and passed the checked-in event schema. The smoke pilot is hand-scripted, not model-generated, and not training data.
 
 ## Current status
 
@@ -45,7 +45,7 @@ Local verification on 2026-10-31: **51 tests passed** across environment and ben
 - [x] Deterministic file-workspace environment and pinned fixture implemented.
 - [x] Model-to-tool runner implemented with per-turn schema refresh after tool discovery.
 - [x] Eight-case executable pilot and observable evaluator implemented.
-- [x] Adaption Responses API client and hosted-model catalogue command implemented.
+- [x] Adaption Responses API client, hosted-model catalogue, and live connector catalogue commands implemented.
 - [x] Controlled transient tool failure and no-tool restraint cases added.
 - [ ] Set an Adaption API key, list available hosted model IDs, and run untouched candidate models through the Responses adapter under identical conditions.
 - [ ] Inspect and validate the Adaption-generated 120-task specification seed.
