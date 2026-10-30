@@ -222,3 +222,14 @@ No Adaption API key is present in this execution environment, so no live `GET /a
 - Added tests for available/unavailable connector records, including missing-scope reasons; also tested the Responses function schema request and rejected incomplete Responses results.
 - Local suite: 54 tests passed; compileall passed.
 - This is catalogue discovery only. It does not yet execute external connectors. DHI needs explicit approval integration, actual tool-level schemas, per-action trace records, and externally verifiable closure before connector execution is included in scored tasks.
+
+
+## 2026-10-31 — DHI model-driven Adaption connector discovery
+
+- Added `catalog.adaption_search` to the DHI environment as a read-only meta-tool exposed only when an Adaption Responses client is configured.
+- The model decides whether to search the Adaption host connector catalogue. The search returns real account-specific metadata: connector label/name/description, availability and unavailability reason, auth source, connection method, hosted-proxy/remote-MCP mode, required scope, and default approval posture.
+- The connector remains non-callable after discovery. No connector action is executed by this adapter, and task completion cannot be claimed from a catalogue record.
+- Added an Adaption-specific pilot task; baseline non-Adaption runs stay at eight common tasks, Adaption runs execute those eight plus the read-only connector-discovery case. Three tasks still await live-source, external permissioned-execution and cross-session integrations.
+- Added snapshot reproducibility: one live tool catalogue fetch per agent run, reused for every query/task, canonical JSON SHA-256 written in discovery events and benchmark report.
+- Added regression tests for meta-tool availability, allowlist/read-only behavior, ranked connector search, end-to-end discovery, event-schema validity, false external-completion claims, provider-specific case inclusion and per-run snapshot consistency.
+- Local test suite: 66 passed; compileall passed. No live Adaption API key was present, so no live inference result or connector inventory is claimed.
