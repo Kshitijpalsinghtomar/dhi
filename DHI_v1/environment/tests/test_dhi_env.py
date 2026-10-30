@@ -349,3 +349,56 @@ def test_fault_injection_rejects_unknown_tool_ids_at_task_start(tmp_path):
         env.begin_task(task)
 
     assert env.active_task_id is None
+
+
+def test_live_adaption_catalogue_tool_is_only_visible_when_handler_is_configured(tmp_path):
+    task = make_task(visible_tool_ids=["fs.read_file"])
+    no_adapter = DHIEnvironment(tmp_path / "without-adapter")
+    no_adapter.begin_task(task)
+    assert "catalog.adaption_search" not in {item["tool_id"] for item in no_adapter.list_tools(visible_only=True)}
+    blocked = no_adapter.run_action({
+        "tool_id": "catalog.adaption_search",
+        "arguments": {"query": "github issues"},
+    })
+    assert blocked.ok is False
+    assert "not currently visible" in blocked.error
+    no_adapter.close_task()
+
+    handler = lambda arguments: {
+        "catalogue_source": "adaption_api",
+        "query": arguments["query"],
+        "tools": [{"server_label": "github", "name": "GitHub", "available": True}],
+    }
+    with_adapter = DHIEnvironment(
+        tmp_path / "with-adapter",
+        tool_handlers={"catalog.adaption_search": handler},
+    )
+    with_adapter.begin_task(task)
+    assert "catalog.adaption_search" in {item["tool_id"] for item in with_adapter.list_tools(visible_only=True)}
+    found = with_adapter.run_action({
+        "tool_id": "catalog.adaption_search",
+        "arguments": {"query": "github issues"},
+    })
+    assert found.ok is True
+    assert found.result["tools"][0]["server_label"] == "github"
+    assert any(
+        event.get("event_type") == "tool_discovery"
+        and event.get("catalogue_source") == "adaption_api"
+        for event in with_adapter.events
+    )
+    with_adapter.close_task()
+
+
+def test_live_adaption_catalogue_discovery_respects_task_write_allowlist(tmp_path):
+    handler = lambda arguments: {"catalogue_source": "adaption_api", "tools": []}
+    env = DHIEnvironment(tmp_path, tool_handlers={"catalog.adaption_search": handler})
+    env.begin_task(make_task(allowed_tool_ids=["fs.read_file"]))
+
+    result = env.run_action({
+        "tool_id": "catalog.adaption_search",
+        "arguments": {"query": "issue tracker"},
+    })
+
+    assert result.ok is True
+    assert result.result["catalogue_source"] == "adaption_api"
+    env.close_task()
