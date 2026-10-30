@@ -299,3 +299,17 @@ The runner is an endpoint adapter, not evidence that a model has been connected.
 - Local suite after the no-tool addition: 44 tests passed; compileall passed.
 - The 120-row Adaption Invent task-specification candidate (dataset ID `1eccaa36-bdc7-4d6e-ac8d-41b20d9425e2`) is still reported as running with no row count/schema yet. It is not ready, not evaluated, and not training data.
 - No model inference endpoint is connected. No DHI-v1 base comparison or fine-tuning run has been launched.
+
+
+### 2026-10-31 correction — Adaption inference route verified
+
+The earlier statement that Adaption exposed no inference API was too broad. The connected Adaption MCP action list has no inference method, but the current Adaption REST documentation provides:
+
+- `POST https://api.prod.adaptionlabs.ai/api/v1/responses` for model responses.
+- `GET https://api.prod.adaptionlabs.ai/api/v1/models` to list the models, harnesses, and stacks visible to the caller's API key; `type=hosted` filters to hosted models.
+- `stack:<slug>` to call an existing Inference Stack. Stacks are created/managed in the Adaption app; the API calls but does not create or edit them.
+- Responses function-call items and function-call-output items for tool loops.
+
+DHI now has `adaption_responses.py`, which translates its existing chat-style tool loop into the Responses API format, disables response storage and agentic memory during benchmark requests, and lists the exact hosted model IDs available to the API key. The current base-model comparison should use direct hosted model IDs rather than a stack, so stack-provided tools, datasets, and memory do not confound the model comparison.
+
+Local verification: 51 environment/benchmark tests passed, including seven new Adaption adapter tests; compileall passed; the 13-event scripted smoke pilot still passed closure and protected-file checks. No live Adaption API call has been made from this execution environment because no API key is available to the runner here. No model result or training result is claimed.
