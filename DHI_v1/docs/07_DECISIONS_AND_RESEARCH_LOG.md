@@ -141,3 +141,13 @@ Build a pinned reset/replay fixture and diagnostic tasks, then connect untouched
 - Added two regression tests for these conditions.
 - Local suite: 17 passed. The fresh scripted pilot generated 13 events; all events validated against the checked-in JSON Schema, the predicted file delta matched the observed delta, and the final goal postcondition passed.
 - The pilot remains scripted and is not training data.
+
+
+## 2026-10-31 — Pinned fixture and diagnostic pilot added
+
+- Added a three-file repository fixture with a versioned SHA-256 manifest.
+- Added fixture validation and safe materialization into a new/empty workspace; it does not delete existing user files.
+- Added exact inventory/hash checks, traversal rejection, symlink checks, and generated-cache/vendor directory exclusions.
+- Added a 12-case hand-authored pilot suite. Seven cases match the current file-workspace environment; five are explicitly marked unsupported until live tool/app registry and cross-session runtime adapters exist.
+- Local suite: 26 tests pass, including compileall-cache regression. No model has executed these tasks; the case specs and scripted smoke pilot are not training trajectories.
+- Next: implement a task-case runner and structured action/decision outcomes, then connect a model inference endpoint for identical base screening. The current connected Adaption API does not expose model inference; this remains a deployment/inference-stack integration gate.
