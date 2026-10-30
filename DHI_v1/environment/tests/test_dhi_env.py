@@ -1,6 +1,8 @@
 import json
+from pathlib import Path
 
 import pytest
+from jsonschema import Draft202012Validator, FormatChecker
 
 from DHI_v1.environment.dhi_env import DHIEnvironment, TaskSpec
 
@@ -241,3 +243,27 @@ def test_symlink_inside_workspace_cannot_escape_boundary(tmp_path):
 
     assert result.ok is False
     assert "symlink" in result.error.lower()
+
+
+def test_generated_trace_events_validate_against_checked_in_schema(tmp_path):
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    (workspace / "README.md").write_text("# Demo\n", encoding="utf-8")
+    trace_path = tmp_path / "trace.jsonl"
+    env = DHIEnvironment(workspace, trace_path=trace_path)
+    env.begin_task(make_task())
+    result = env.run_action({
+        "tool_id": "fs.append_file",
+        "arguments": {"path": "README.md", "content": "\n## Installation\n"},
+        "expected_effects": {"changed_paths": ["README.md"], "unchanged_paths": []},
+    })
+    assert result.ok is True
+    assert env.close_task()["success"] is True
+
+    schema_path = Path(__file__).parents[1] / "schemas" / "trajectory-event.schema.json"
+    schema = json.loads(schema_path.read_text(encoding="utf-8"))
+    validator = Draft202012Validator(schema, format_checker=FormatChecker())
+    events = [json.loads(line) for line in trace_path.read_text(encoding="utf-8").splitlines()]
+    assert len(events) == 4
+    errors = [error for event in events for error in validator.iter_errors(event)]
+    assert errors == []
