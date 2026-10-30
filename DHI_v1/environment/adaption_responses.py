@@ -133,7 +133,7 @@ class AdaptionResponsesClient:
         self,
         *,
         api_key: str,
-        model: str,
+        model: str | None = None,
         base_url: str = DEFAULT_ADAPTION_API_BASE_URL,
         organization_id: str | None = None,
         timeout_seconds: float = 180.0,
@@ -142,14 +142,14 @@ class AdaptionResponsesClient:
     ) -> None:
         if not api_key:
             raise ValueError("Adaption API key is required")
-        if not isinstance(model, str) or not model.strip():
-            raise ValueError("Adaption model ID is required")
+        if model is not None and (not isinstance(model, str) or not model.strip()):
+            raise ValueError("Adaption model ID must be a non-empty string when supplied")
         if not base_url.startswith(("https://", "http://")):
             raise ValueError("base_url must be an HTTP(S) URL")
         if timeout_seconds <= 0 or max_output_tokens < 1 or not 1 <= max_tool_calls <= 64:
             raise ValueError("invalid timeout/output/tool-call limit")
         self.api_key = api_key
-        self.model = model.strip()
+        self.model = model.strip() if model is not None else None
         self.base_url = base_url.rstrip("/")
         self.organization_id = organization_id
         self.timeout_seconds = timeout_seconds
@@ -202,6 +202,8 @@ class AdaptionResponsesClient:
         tools: list[dict[str, Any]],
         temperature: float = 0.0,
     ) -> dict[str, Any]:
+        if not self.model:
+            raise ValueError("Adaption model ID is required for inference")
         body: dict[str, Any] = {
             "model": self.model,
             "input": messages_to_responses_input(messages),
