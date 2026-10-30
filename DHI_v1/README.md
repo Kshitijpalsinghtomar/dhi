@@ -41,7 +41,7 @@ This is a candidate choice, not a claim that Qwen is empirically best. All three
 - [Deterministic environment and pinned fixture](environment/README.md)
 - [12-case agentic pilot suite](../DHI_v1/benchmark/README.md)
 
-Local verification as of 2026-10-31: 26 tests pass, including fixture integrity, workspace materialization, hidden-tool discovery, state deltas, protected files, and trace validation. The hand-scripted smoke pilot is not model-generated or training data.
+Local verification as of 2026-10-31: 42 tests pass, including fixture integrity, workspace materialization, hidden-tool discovery, state deltas, protected files, and trace validation. The hand-scripted smoke pilot is not model-generated or training data.
 
 ## Read the controlling documents
 
@@ -53,6 +53,10 @@ Local verification as of 2026-10-31: 26 tests pass, including fixture integrity,
 6. [Benchmark protocol](docs/05_BENCHMARK_PROTOCOL.md)
 7. [Trajectory/data contract](docs/06_DATA_AND_TRAJECTORY_CONTRACT.md)
 8. [Decision log](docs/07_DECISIONS_AND_RESEARCH_LOG.md)
+
+## First executable benchmark
+
+The deterministic environment now has a model runner and a seven-case file-workspace pilot evaluator. The 12-case specification also contains five cases explicitly held out until live app/current-source/cross-session integrations exist. Local verification: 42 tests pass; compileall and schema checks pass. No model endpoint has been connected or scored yet.
 
 ## Current execution state
 
