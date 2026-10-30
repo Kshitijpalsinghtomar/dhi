@@ -151,3 +151,18 @@ Build a pinned reset/replay fixture and diagnostic tasks, then connect untouched
 - Added a 12-case hand-authored pilot suite. Seven cases match the current file-workspace environment; five are explicitly marked unsupported until live tool/app registry and cross-session runtime adapters exist.
 - Local suite: 26 tests pass, including compileall-cache regression. No model has executed these tasks; the case specs and scripted smoke pilot are not training trajectories.
 - Next: implement a task-case runner and structured action/decision outcomes, then connect a model inference endpoint for identical base screening. The current connected Adaption API does not expose model inference; this remains a deployment/inference-stack integration gate.
+
+
+## 2026-10-31 — Model runner and per-turn tool-schema control
+
+- Added `agent_runner.py`: bounded OpenAI-compatible chat-completions loop, model function schemas built from the current visible inventory, tool output handoff, and environment-backed closure.
+- Function names are mapped to internal tool IDs. Only visible schemas are sent; hidden tools are rejected until catalogue discovery. A tool discovered during one model response becomes available on the next turn, not retroactively within the same response.
+- Tool metadata (permission, side effects, preconditions, cost class, reversibility) is placed in each offered schema where available.
+- Optional pre-action effect forecasts are passed through `__dhi_expected_effects`; these are removed before actual tool argument validation and compared with observed file deltas.
+- Added an endpoint-backed example. It requires user-configured `DHI_MODEL_BASE_URL`, `DHI_MODEL_API_KEY`, and `DHI_MODEL_NAME`; no key is stored in the repository.
+- Added five integration tests. Local environment suite: 34 passed; compileall passed; scripted smoke generated 13 schema-valid events.
+- No base model has been connected because the current connected Adaption API does not expose inference. No v1 training run has been launched.
+
+## CI status note — 2026-10-31
+
+GitHub Actions runs triggered by the earlier push workflow failed before job execution: jobs reported runner_id=0, empty runner_name, and no steps. This is a runner-allocation/account configuration issue, not a reported test assertion failure. Local tests are passing. The workflow is changed to pull-request and manual dispatch triggers to avoid generating a failed run for every individual file commit; a functioning GitHub runner is still required for hosted CI.
