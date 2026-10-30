@@ -1,7 +1,7 @@
 # DHI-v1 — Predictive Agentic Intelligence
 
 **Created:** 2026-10-31  
-**Status:** Design / research phase. No DHI-v1 model, trajectory dataset, or positive benchmark result exists yet.
+**Status:** Research/design plus first runnable environment prototype. No DHI-v1 model, model-generated trajectory dataset, or positive benchmark result exists yet.
 
 ## North-star definition
 
@@ -53,7 +53,7 @@ This is a candidate choice, not a claim that Qwen is empirically best. All three
 - [x] Adaption model registry inspected.
 - [x] Three candidate backbones selected for comparative screening.
 - [x] Capability rubric and evaluation gates specified.
-- [ ] Deterministic tool/environment harness built.
+- [x] Deterministic tool/environment harness v0.1 built and locally tested (15 tests passed).
 - [ ] Base-model comparison run on the frozen DHI diagnostic suite.
 - [ ] Real trajectory pilot collected and independently validated.
 - [ ] Adaption SFT estimate and training run.
@@ -61,3 +61,19 @@ This is a candidate choice, not a claim that Qwen is empirically best. All three
 - [ ] Custom latent architecture investigation.
 
 No new Adaption dataset generation or training run is authorized by this plan alone.
+
+
+## First executable environment
+
+The first deterministic file-workspace tool environment is implemented under [environment/](environment/). It supports tool-catalogue discovery, file inspection/search/writes, action-start and action-result traces, SHA-256 state deltas, predicted-effect comparison, protected paths, and executable goal postconditions.
+
+- [Environment README](environment/README.md)
+- [Environment implementation](environment/dhi_env.py)
+- [15 unit/integration tests](environment/tests/test_dhi_env.py)
+- [Trajectory event JSON Schema](environment/schemas/trajectory-event.schema.json)
+- [Deterministic smoke pilot](environment/examples/run_pilot.py)
+- [GitHub Actions workflow](../../.github/workflows/dhi-v1-environment.yml)
+
+Local verification on 31 October 2026: **15 tests passed**; compileall passed; the scripted smoke pilot emitted 13 events and passed the README postcondition while preserving two protected files. The pilot is hand-scripted, not model-generated, and is not training data.
+
+The harness is deliberately file-only and is not an OS/container sandbox. Catalogue discovery is a lexical fixture, not a real app/plugin marketplace. No model is connected and no DHI-v1 training run has been launched.
