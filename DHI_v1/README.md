@@ -36,7 +36,7 @@ This is a candidate selection, not a measured ranking. Base screening must prece
 
 The deterministic file-workspace harness has eight supported diagnostic cases: no-tool restraint, source inspection, hidden-tool discovery, multi-step editing, no-op handling, transient failure recovery, unavailable-resource honesty, and protected-file editing. Four additional cases require future runtime integrations and are currently excluded.
 
-Local verification on 2026-10-31: **44 tests passed** across environment and benchmark tests; Python compileall passed; the scripted smoke trace produced 13 events and passed the checked-in event schema. The smoke pilot is hand-scripted, not model-generated, and not training data.
+Local verification on 2026-10-31: **51 tests passed** across environment and benchmark tests; Python compileall passed; the scripted smoke trace produced 13 events and passed the checked-in event schema. The smoke pilot is hand-scripted, not model-generated, and not training data.
 
 ## Current status
 
@@ -45,8 +45,9 @@ Local verification on 2026-10-31: **44 tests passed** across environment and ben
 - [x] Deterministic file-workspace environment and pinned fixture implemented.
 - [x] Model-to-tool runner implemented with per-turn schema refresh after tool discovery.
 - [x] Eight-case executable pilot and observable evaluator implemented.
+- [x] Adaption Responses API client and hosted-model catalogue command implemented.
 - [x] Controlled transient tool failure and no-tool restraint cases added.
-- [ ] Connect a real inference endpoint and compare untouched Qwen3.6-35B-A3B and GPT-OSS-20B under identical conditions.
+- [ ] Set an Adaption API key, list available hosted model IDs, and run untouched candidate models through the Responses adapter under identical conditions.
 - [ ] Inspect and validate the Adaption-generated 120-task specification seed.
 - [ ] Collect model-generated execution trajectories from a sandbox and independently verify them.
 - [ ] Estimate and run the first Adaption SFT experiment after data and benchmark gates pass.
@@ -55,7 +56,7 @@ Local verification on 2026-10-31: **44 tests passed** across environment and ben
 
 ## Important constraints
 
-The current connected Adaption API exposes dataset creation/adaptation and AutoScientist SFT/DPO, but no model inference operation or custom JEPA/latent-loss trainer. The OpenAI-compatible runner therefore needs a real model-serving endpoint; none is configured yet.
+The connected Adaption MCP tool set exposes dataset creation/adaptation and AutoScientist SFT/DPO, but not inference. The platform REST API does expose `POST /api/v1/responses` and `GET /api/v1/models`; DHI now has an adapter. A live API key and account-visible hosted model ID are still needed to exercise it. Adaption does not create or edit inference stacks through the API; those are configured in the app.
 
 The current file environment is not a production OS/container sandbox and its catalogue is a small lexical fixture, not a live app/plugin marketplace. No DHI-v1 model benchmark, training run, or architecture result is claimed.
 
