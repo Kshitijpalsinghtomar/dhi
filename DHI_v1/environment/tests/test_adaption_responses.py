@@ -1,4 +1,5 @@
 import json
+import urllib.error
 from unittest.mock import patch
 
 import pytest
@@ -179,13 +180,12 @@ def test_adaption_http_error_does_not_echo_secret_in_public_exception():
         base_url="https://api.test.invalid",
     )
 
-    class FakeHTTPError(Exception):
-        code = 401
+    error = urllib.error.HTTPError(
+        "https://api.test.invalid/api/v1/models", 401, "unauthorized", {}, None
+    )
+    error.fp = type("ErrorBody", (), {"read": lambda self, size=-1: b"unauthorized"})()
 
-        def read(self, size):
-            return b"unauthorized"
-
-    with patch("urllib.request.urlopen", side_effect=FakeHTTPError()):
+    with patch("urllib.request.urlopen", side_effect=error):
         with pytest.raises(ModelClientError, match="HTTP 401") as error:
             client.list_models()
 
