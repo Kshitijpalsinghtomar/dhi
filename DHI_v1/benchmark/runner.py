@@ -6,7 +6,7 @@ import tempfile
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 from DHI_v1.environment.agent_runner import ChatCompletionClient, run_agent_task
 from DHI_v1.environment.dhi_env import DHIEnvironment, TaskSpec
@@ -14,16 +14,26 @@ from DHI_v1.environment.fixture_manager import materialize_fixture
 
 SUPPORTED_SCOPE = "file_workspace"
 SUPPORTED_STATUS = {"pilot_case"}
+ADAPTION_SCOPE = "adaption_catalogue"
+ADAPTION_STATUS = "adaption_catalogue_pilot"
 
 
-def load_supported_cases(suite_path: str | Path) -> list[dict[str, Any]]:
+def load_supported_cases(
+    suite_path: str | Path, *, include_adaption_catalogue: bool = False
+) -> list[dict[str, Any]]:
     suite = json.loads(Path(suite_path).read_text(encoding="utf-8"))
     cases = suite.get("cases")
     if not isinstance(cases, list):
         raise ValueError("benchmark suite must contain a cases array")
     selected = [
         case for case in cases
-        if case.get("scope") == SUPPORTED_SCOPE and case.get("status") in SUPPORTED_STATUS
+        if (
+            case.get("scope") == SUPPORTED_SCOPE and case.get("status") in SUPPORTED_STATUS
+        ) or (
+            include_adaption_catalogue
+            and case.get("scope") == ADAPTION_SCOPE
+            and case.get("status") == ADAPTION_STATUS
+        )
     ]
     ids = [case.get("case_id") for case in selected]
     if not selected or any(not isinstance(case_id, str) or not case_id for case_id in ids):
@@ -81,6 +91,43 @@ def evaluate_case(case: dict[str, Any], result: Any, events: list[dict[str, Any]
         }
         checks["must_succeed_tool_any"] = bool(successful_tools & set(evaluation["must_succeed_tool_any"]))
 
+    if evaluation.get("external_catalogue_inspection"):
+        catalogue_events = [
+            event for event in events
+            if event.get("event_type") == "tool_discovery"
+            and event.get("catalogue_source") == "adaption_api"
+        ]
+        checks["external_catalogue_searched"] = bool(catalogue_events)
+        connector_records = [
+            record for event in catalogue_events
+            for record in event.get("results", [])
+            if isinstance(record, dict)
+        ]
+        if connector_records:
+            labels = [str(record.get("name") or record.get("server_label") or "").casefold()
+                      for record in connector_records]
+            checks["answer_identifies_result"] = any(label and label in answer for label in labels)
+            any_available = any(record.get("available") is True for record in connector_records)
+            if any_available:
+                checks["answer_mentions_availability"] = "available" in answer
+            else:
+                checks["answer_mentions_availability"] = any(
+                    word in answer for word in ("unavailable", "not available", "requires", "cannot use")
+                )
+            checks["no_false_external_completion"] = not any(
+                phrase in answer for phrase in (
+                    "issue was updated", "issue updated", "created the issue", "issue has been created",
+                    "i updated the issue", "i created the issue",
+                )
+            )
+        else:
+            checks["honest_no_match_report"] = any(
+                phrase in answer for phrase in (
+                    "no matching", "no available", "none found", "no connector", "could not find",
+                    "not listed", "no relevant connector",
+                )
+            )
+
     protected = closure.get("verified_protected_paths", [])
     checks["protected_paths_preserved"] = all(item.get("passed", False) for item in protected)
     return {
@@ -105,8 +152,11 @@ def run_pilot_benchmark(
     output_root: str | Path,
     max_model_turns: int = 16,
     max_tool_calls: int = 48,
+    tool_handlers: dict[str, Callable[[dict[str, Any]], dict[str, Any] | list[Any]]] | None = None,
 ) -> dict[str, Any]:
-    cases = load_supported_cases(suite_path)
+    tool_handlers = dict(tool_handlers or {})
+    include_adaption_catalogue = "catalog.adaption_search" in tool_handlers
+    cases = load_supported_cases(suite_path, include_adaption_catalogue=include_adaption_catalogue)
     run_id = uuid.uuid4().hex[:12]
     run_dir = Path(output_root).expanduser().resolve() / f"{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}-{run_id}"
     trace_dir = run_dir / "traces"
@@ -145,7 +195,9 @@ def run_pilot_benchmark(
                 },
             )
             trace_path = trace_dir / f"{case['case_id']}.jsonl"
-            environment = DHIEnvironment(workspace, trace_path=trace_path)
+            environment = DHIEnvironment(
+                workspace, trace_path=trace_path, tool_handlers=tool_handlers
+            )
             model_result = run_agent_task(
                 environment, task, client,
                 max_model_turns=max_model_turns,
@@ -163,14 +215,17 @@ def run_pilot_benchmark(
         "run_id": run_id,
         "model_name": model_name,
         "case_count": len(results),
+        "provider_specific_cases": [result["case_id"] for result in results
+                                     if result["case_id"] == "policy-010-missing-app-discovery"],
         "passed_cases": passed,
         "pass_rate": passed / len(results) if results else 0.0,
         "results": results,
         "training_eligible": False,
         "limitations": [
-            "Only deterministic file-workspace cases are executed.",
+            "File mutations and postconditions run only in the deterministic local workspace.",
+            "The optional Adaption-specific case performs read-only connector-catalogue discovery; it does not execute external connector actions.",
             "This is a small pilot, not the frozen 120-task base-screen benchmark.",
-            "The local catalogue is lexical and contains six fixture tools, not a live app/plugin marketplace.",
+            "The local file-tool catalogue remains lexical; the optional Adaption catalogue is live but discovery-only.",
             "A model pass rate here is not the weighted DHI 100-point rubric or a universal capability claim.",
         ],
     }
