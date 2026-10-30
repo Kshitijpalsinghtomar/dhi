@@ -213,3 +213,12 @@ The connected Adaption MCP action list contains dataset/training operations but 
 
 ### Remaining blocker
 No Adaption API key is present in this execution environment, so no live `GET /api/v1/models` or `POST /api/v1/responses` call was made. The user can run `python -m DHI_v1.environment.examples.list_adaption_models` with `ADAPTION_API_KEY` set, choose a visible hosted model ID, then run the benchmark with `DHI_MODEL_PROVIDER=adaption`. A stack can be used later for a system-level experiment, not the first base-model comparison.
+
+
+## 2026-10-31 — Live Adaption connector catalogue discovery
+
+- Verified Adaption's `GET /api/v1/tools` contract: list entries include connector/server label, type, auth source, connection flow, invocation mode, approval default, required scope, availability, and unavailable reason.
+- Added `AdaptionResponsesClient.list_tools_catalogue()` and `examples/list_adaption_tools.py` for read-only inventory discovery.
+- Added tests for available/unavailable connector records, including missing-scope reasons; also tested the Responses function schema request and rejected incomplete Responses results.
+- Local suite: 54 tests passed; compileall passed.
+- This is catalogue discovery only. It does not yet execute external connectors. DHI needs explicit approval integration, actual tool-level schemas, per-action trace records, and externally verifiable closure before connector execution is included in scored tasks.
