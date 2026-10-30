@@ -4,96 +4,402 @@
   "title": "DHI-v1 Environment Trajectory Event",
   "description": "One append-only event in a DHI-v1 task trajectory. Tool results and state hashes must originate from real environment execution.",
   "type": "object",
-  "required": ["trace_schema_version", "trajectory_id", "event_index", "timestamp_utc", "event_type"],
+  "required": [
+    "trace_schema_version",
+    "trajectory_id",
+    "event_index",
+    "timestamp_utc",
+    "event_type"
+  ],
   "properties": {
-    "trace_schema_version": {"const": "dhi.trajectory.v1"},
-    "trajectory_id": {"type": "string", "minLength": 1},
-    "event_index": {"type": "integer", "minimum": 1},
-    "timestamp_utc": {"type": "string", "format": "date-time"},
-    "event_type": {"enum": ["task_started", "tool_discovery", "action_started", "action_executed", "task_closed"]},
-    "task_id": {"type": ["string", "null"]},
-    "step_id": {"type": "integer", "minimum": 1},
-    "task_prompt": {"type": "string"},
-    "task_goal": {"type": "string"},
-    "hard_constraints": {"type": "array", "items": {"type": "string"}},
-    "preferences": {"type": "array", "items": {"type": "string"}},
-    "initial_state": {"$ref": "#/$defs/stateSnapshot"},
-    "final_state": {"$ref": "#/$defs/stateSnapshot"},
-    "observed_state_before": {"$ref": "#/$defs/stateSnapshot"},
-    "observed_state_after": {"$ref": "#/$defs/stateSnapshot"},
-    "environment_type": {"type": "string"},
-    "environment_version": {"type": "string"},
-    "tool_manifest": {"type": "array", "items": {"type": "object"}},
-    "postconditions": {"type": "array", "items": {"type": "object"}},
-    "protected_paths": {"type": "array", "items": {"type": "string"}},
-    "split": {"type": "string"},
-    "provenance": {"type": "object"},
-    "query": {"type": "string"},
-    "visible_tool_ids": {"type": "array", "items": {"type": "string"}},
-    "discovered_tool_ids": {"type": "array", "items": {"type": "string"}},
-    "results": {"type": "array", "items": {"type": "object"}},
-    "timestamp_started": {"type": "string", "format": "date-time"},
-    "timestamp_finished": {"type": "string", "format": "date-time"},
-    "selected_tool_id": {"type": "string"},
-    "arguments": {"type": "object"},
-    "presented_tool_ids": {"type": ["array", "null"], "items": {"type": "string"}},
-    "expected_effects": {"type": ["object", "null"]},
-    "actual_tool_result": {"$ref": "#/$defs/toolResult"},
-    "actual_effects": {"$ref": "#/$defs/stateDelta"},
-    "prediction_comparison": {"type": "object"},
-    "subgoal": {"type": ["string", "null"]},
-    "plan_version": {"type": "integer", "minimum": 1},
-    "safety_and_permission_check": {"type": "object"},
-    "overall_effects": {"$ref": "#/$defs/stateDelta"},
-    "closure": {"type": "object"}
+    "trace_schema_version": {
+      "const": "dhi.trajectory.v1"
+    },
+    "trajectory_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "event_index": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "timestamp_utc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "event_type": {
+      "enum": [
+        "task_started",
+        "tool_discovery",
+        "action_started",
+        "action_executed",
+        "task_closed"
+      ]
+    },
+    "task_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "step_id": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "task_prompt": {
+      "type": "string"
+    },
+    "task_goal": {
+      "type": "string"
+    },
+    "hard_constraints": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "preferences": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "initial_state": {
+      "$ref": "#/$defs/stateSnapshot"
+    },
+    "final_state": {
+      "$ref": "#/$defs/stateSnapshot"
+    },
+    "observed_state_before": {
+      "$ref": "#/$defs/stateSnapshot"
+    },
+    "observed_state_after": {
+      "$ref": "#/$defs/stateSnapshot"
+    },
+    "environment_type": {
+      "type": "string"
+    },
+    "environment_version": {
+      "type": "string"
+    },
+    "tool_manifest": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "postconditions": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "protected_paths": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "split": {
+      "type": "string"
+    },
+    "provenance": {
+      "type": "object"
+    },
+    "query": {
+      "type": "string"
+    },
+    "visible_tool_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "discovered_tool_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "results": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "timestamp_started": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "timestamp_finished": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "selected_tool_id": {
+      "type": "string"
+    },
+    "arguments": {
+      "type": "object"
+    },
+    "presented_tool_ids": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "expected_effects": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "actual_tool_result": {
+      "$ref": "#/$defs/toolResult"
+    },
+    "actual_effects": {
+      "$ref": "#/$defs/stateDelta"
+    },
+    "prediction_comparison": {
+      "type": "object"
+    },
+    "subgoal": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "plan_version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "safety_and_permission_check": {
+      "type": "object"
+    },
+    "overall_effects": {
+      "$ref": "#/$defs/stateDelta"
+    },
+    "closure": {
+      "type": "object"
+    },
+    "fault_injections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "tool_id",
+          "attempt",
+          "error"
+        ],
+        "properties": {
+          "tool_id": {
+            "type": "string"
+          },
+          "attempt": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "error": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "fault_injection": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "tool_id": {
+          "type": "string"
+        },
+        "attempt": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "error": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    }
   },
   "allOf": [
     {
-      "if": {"properties": {"event_type": {"const": "task_started"}}},
-      "then": {"required": ["task_id", "task_prompt", "task_goal", "initial_state", "tool_manifest", "postconditions", "split", "provenance"]}
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "task_started"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "task_id",
+          "task_prompt",
+          "task_goal",
+          "initial_state",
+          "tool_manifest",
+          "postconditions",
+          "split",
+          "provenance"
+        ]
+      }
     },
     {
-      "if": {"properties": {"event_type": {"const": "tool_discovery"}}},
-      "then": {"required": ["query", "visible_tool_ids", "discovered_tool_ids", "results"]}
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "tool_discovery"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "query",
+          "visible_tool_ids",
+          "discovered_tool_ids",
+          "results"
+        ]
+      }
     },
     {
-      "if": {"properties": {"event_type": {"const": "action_started"}}},
-      "then": {"required": ["task_id", "step_id", "selected_tool_id", "arguments", "observed_state_before"]}
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "action_started"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "task_id",
+          "step_id",
+          "selected_tool_id",
+          "arguments",
+          "observed_state_before"
+        ]
+      }
     },
     {
-      "if": {"properties": {"event_type": {"const": "action_executed"}}},
-      "then": {"required": ["task_id", "step_id", "selected_tool_id", "arguments", "actual_tool_result", "actual_effects", "prediction_comparison"]}
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "action_executed"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "task_id",
+          "step_id",
+          "selected_tool_id",
+          "arguments",
+          "actual_tool_result",
+          "actual_effects",
+          "prediction_comparison"
+        ]
+      }
     },
     {
-      "if": {"properties": {"event_type": {"const": "task_closed"}}},
-      "then": {"required": ["task_id", "final_state", "overall_effects", "closure"]}
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "task_closed"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "task_id",
+          "final_state",
+          "overall_effects",
+          "closure"
+        ]
+      }
     }
   ],
   "$defs": {
     "stateSnapshot": {
       "type": "object",
       "description": "Workspace-relative path to lowercase SHA-256 digest.",
-      "additionalProperties": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^[a-f0-9]{64}$"
+      }
     },
     "toolResult": {
       "type": "object",
-      "required": ["ok", "result", "error"],
+      "required": [
+        "ok",
+        "result",
+        "error"
+      ],
       "properties": {
-        "ok": {"type": "boolean"},
-        "result": {"type": ["object", "array", "null"]},
-        "error": {"type": ["string", "null"]}
+        "ok": {
+          "type": "boolean"
+        },
+        "result": {
+          "type": [
+            "object",
+            "array",
+            "null"
+          ]
+        },
+        "error": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
       },
       "additionalProperties": true
     },
     "stateDelta": {
       "type": "object",
-      "required": ["added_paths", "modified_paths", "deleted_paths", "changed_paths", "unchanged_paths"],
+      "required": [
+        "added_paths",
+        "modified_paths",
+        "deleted_paths",
+        "changed_paths",
+        "unchanged_paths"
+      ],
       "properties": {
-        "added_paths": {"type": "array", "items": {"type": "string"}},
-        "modified_paths": {"type": "array", "items": {"type": "string"}},
-        "deleted_paths": {"type": "array", "items": {"type": "string"}},
-        "changed_paths": {"type": "array", "items": {"type": "string"}},
-        "unchanged_paths": {"type": "array", "items": {"type": "string"}}
+        "added_paths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "modified_paths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "deleted_paths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "changed_paths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "unchanged_paths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
       },
       "additionalProperties": true
     }
