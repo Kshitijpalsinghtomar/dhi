@@ -132,3 +132,12 @@ The pilot was scripted to test the environment. It was not produced by a languag
 
 ### Next decision
 Build a pinned reset/replay fixture and diagnostic tasks, then connect untouched base models for identical benchmark screening. Do not launch Adaption SFT/DPO on this work until model screening, trajectory quality, and a current cost estimate pass.
+
+
+## 2026-10-31 — Trace and protected-file regression hardening
+
+- Protected paths must now exist as regular files before a task starts; nonexistent paths cannot pass through a None == None hash comparison.
+- Existing trace files are rejected at environment construction to prevent separate trajectories from silently mixing in one JSONL file.
+- Added two regression tests for these conditions.
+- Local suite: 17 passed. The fresh scripted pilot generated 13 events; all events validated against the checked-in JSON Schema, the predicted file delta matched the observed delta, and the final goal postcondition passed.
+- The pilot remains scripted and is not training data.
