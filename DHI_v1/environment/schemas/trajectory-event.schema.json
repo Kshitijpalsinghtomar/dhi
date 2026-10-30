@@ -36,6 +36,7 @@
     "timestamp_finished": {"type": "string", "format": "date-time"},
     "selected_tool_id": {"type": "string"},
     "arguments": {"type": "object"},
+    "presented_tool_ids": {"type": ["array", "null"], "items": {"type": "string"}},
     "expected_effects": {"type": ["object", "null"]},
     "actual_tool_result": {"$ref": "#/$defs/toolResult"},
     "actual_effects": {"$ref": "#/$defs/stateDelta"},
