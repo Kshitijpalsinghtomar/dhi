@@ -242,7 +242,7 @@ The first engineering dependency is now implemented in `DHI_v1/environment/`:
 
 ### Verification performed
 
-- 34 tests passed locally on 2026-10-31.
+- 42 tests passed locally on 2026-10-31.
 - Python compileall passed.
 - Generated trace events passed JSON Schema validation.
 - Smoke pilot produced 13 events, verified its README postcondition, and preserved source/configuration protected paths.
@@ -280,3 +280,13 @@ Add isolated workspace reset/materialization from a pinned fixture (materializat
 ### Inference integration boundary
 
 The runner is an endpoint adapter, not evidence that a model has been connected. The connected Adaption API currently exposes dataset/training calls but no model inference endpoint. A real OpenAI-compatible serving endpoint must be configured before base-model screening. No new training dataset or AutoScientist training run has been started for DHI-v1.
+
+
+### Added: executable pilot evaluator and controlled failure case — 2026-10-31
+
+- The 12-case seed suite now has seven executable file-workspace cases and five explicitly unsupported runtime cases.
+- Added observable case grading: environment closure, final-answer predicates, required tool usage, discovery events, changed-path limits, controlled error recovery, and protected path preservation.
+- Added one deterministic transient search-tool failure on attempt 1; a model must recover through a subsequent successful action. Fault schedule and injected failure are part of the trace.
+- Added a command to run the seven supported cases against an OpenAI-compatible served model and write a JSON report plus per-case traces. The result is a development pilot pass rate, not the weighted 100-point DHI grade.
+- Local suite: 42 tests passed; compileall passed; scripted smoke remains 13 schema-valid events.
+- The connected Adaption API still has no model inference operation; no model base-screen result exists, and no training run has been launched.
