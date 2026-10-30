@@ -233,3 +233,20 @@ No Adaption API key is present in this execution environment, so no live `GET /a
 - Added snapshot reproducibility: one live tool catalogue fetch per agent run, reused for every query/task, canonical JSON SHA-256 written in discovery events and benchmark report.
 - Added regression tests for meta-tool availability, allowlist/read-only behavior, ranked connector search, end-to-end discovery, event-schema validity, false external-completion claims, provider-specific case inclusion and per-run snapshot consistency.
 - Local test suite: 66 passed; compileall passed. No live Adaption API key was present, so no live inference result or connector inventory is claimed.
+
+
+## 2026-10-31 — Adaption Invent 120-row task-spec candidate evaluated
+
+### Actual platform result
+- Dataset `1eccaa36-bdc7-4d6e-ac8d-41b20d9425e2` completed successfully: 120 of 120 rows processed.
+- Dataset is tabular/invented. Evaluation column mapping: `enhanced_prompt -> invented_prompt`, `original_prompt -> prompt`, `enhanced_completion -> invent_completion`, `original_completion -> completion`.
+- Adaption quality result: Grade B before and after; score 8.0 → 7.7 (-3.7%). Message-quality percentile 28.9; completion-quality percentile 2.7; average message score 8.62; average completion score 6.8. Evaluation row-count sample: 100.
+- Decision: dataset quarantined. Do not promote as benchmark task set, SFT/DPO target, or execution ground truth. The unusually low completion percentile is a stop signal; task-spec quality is not established by successful row generation.
+
+### Access limitation and audit tooling
+- `get_dataset` and `get_dataset_evaluation` expose metadata/evaluation but not individual row content. `get_dataset_export_links` returns null because no external export was created.
+- Adaption's OpenAPI spec documents `GET /api/v1/datasets/{dataset_id}/download?fileFormat=jsonl` as a processed-row stream. The connected MCP interface does not expose it.
+- Added `DHI_v1/benchmark/audit_invent_dataset.py` with direct download using a key held in the user's local shell, JSONL/JSON/CSV support, prompt/completion mapping, normalized exact duplicate checks, missing/short fields, acceptance/constraint-language review, possible execution-report claim flags, coverage distributions and report/flagged-row output.
+- Added nine tests; combined local suite: 75 passed; compileall passed.
+- The audit is mechanical and will not verify semantic correctness, task solvability, or execution truth. It always emits `training_eligible=false`; promotion still requires human review and execution in DHI's pinned environment.
+- No individual Invent rows were available to inspect during this run, and no DHI-v1 model training has been launched.
