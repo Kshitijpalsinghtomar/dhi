@@ -2,7 +2,7 @@
 
 **Version:** 1.0  
 **Date:** 2026-10-31  
-**Status:** Proposed controlling plan; no v1 training run authorized yet.  
+**Status:** Active controlling plan; first deterministic environment prototype implemented. No v1 training run authorized yet.  
 **Programme:** DHI-v1 — Predictive Agentic Intelligence
 
 ## 1. The actual ambition
@@ -222,3 +222,36 @@ The immediate success is not a perfect universal model. It is a reproducible mod
 - independent re-scoring.
 
 A 100/100 score on a frozen, independently audited DHI challenge suite is the stretch objective. It cannot be represented as perfect real-world intelligence. Safety, authorization, and truthful completion are hard gates that cannot be traded for average score.
+
+
+## 11. Implementation update — 2026-10-31
+
+### Delivered: deterministic tool environment v0.1
+
+The first engineering dependency is now implemented in `DHI_v1/environment/`:
+
+- Dynamic task-level visible tool subset plus an always-available read-only `catalog.search` meta-tool.
+- File workspace tools: list, read, write, append, and text search.
+- Action-intent event recorded before execution and separate execution event with real result/error.
+- SHA-256 file snapshots and actual state deltas.
+- Pre-action predicted changed/unchanged path comparison.
+- Required postconditions and protected-path verification for task closure.
+- Tool argument schema checks, task allowlists, path-traversal and symlink rejection, bounded files/snapshots, and atomic writes.
+- JSONL trace contract and JSON Schema.
+- Deterministic hand-scripted smoke pilot.
+
+### Verification performed
+
+- 15 tests passed locally on 2026-10-31.
+- Python compileall passed.
+- Generated trace events passed JSON Schema validation.
+- Smoke pilot produced 13 events, verified its README postcondition, and preserved source/configuration protected paths.
+- GitHub Actions workflow added to run the tests on future changes.
+
+### Interpretation boundary
+
+This proves only that the deterministic harness and trace contract behave as tested. It does **not** prove that a language model can discover tools, plan tasks, or perform agentic work. The tool catalogue search is a lexical fixture and the smoke pilot is scripted, not model-generated. The environment is not an OS/container security sandbox.
+
+### Next engineering gate
+
+Add reset/replay from a pinned fixture, structured state predicates, and a small multi-task benchmark with no-tool cases, hidden-tool discovery, decoy/unavailable tools, broken-call recovery, changed constraints, and false-closure traps. Then connect untouched candidate models to the same harness for base screening. Do not start training-data generation or spend Adaption credits before that base screen and trajectory-quality review.
