@@ -64,7 +64,7 @@ def test_catalogue_discovers_capability_not_in_visible_tool_list(tmp_path):
     discovered = env.discover_tools("search text within files")
 
     assert any(tool["tool_id"] == "fs.search_text" for tool in discovered)
-    assert "fs.search_text" not in {tool["tool_id"] for tool in env.list_tools(visible_only=True)}
+    assert "fs.search_text" in {tool["tool_id"] for tool in env.list_tools(visible_only=True)}
     assert "fs.search_text" in {tool["tool_id"] for tool in env.list_tools(visible_only=False)}
     assert env.events[-1]["event_type"] == "tool_discovery"
 
@@ -130,8 +130,8 @@ def test_task_does_not_close_when_a_required_postcondition_is_missing(tmp_path):
 def test_search_returns_real_line_matches(tmp_path):
     (tmp_path / "src").mkdir()
     (tmp_path / "src" / "main.py").write_text("def run():\n    return 42\n", encoding="utf-8")
-    env = DHIEnvironment(tmp_path)
-    env.begin_task(make_task())
+    env = DHIEnvironment(tmp_path, visible_tool_ids={"fs.search_text"})
+    env.begin_task(make_task(visible_tool_ids=["fs.search_text"]))
 
     result = env.run_action({
         "tool_id": "fs.search_text",
@@ -289,3 +289,26 @@ def test_existing_trace_file_is_not_silently_appended(tmp_path):
         DHIEnvironment(workspace, trace_path=trace)
 
     assert trace.read_text(encoding="utf-8") == "previous trajectory\\n"
+
+
+def test_discovery_promotes_hidden_tool_into_visible_callable_inventory(tmp_path):
+    env = DHIEnvironment(tmp_path, visible_tool_ids={"fs.read_file", "fs.list_files"})
+    env.begin_task(make_task(visible_tool_ids=["fs.read_file", "fs.list_files"]))
+
+    before = {tool["tool_id"] for tool in env.list_tools(visible_only=True)}
+    env.discover_tools("search text within files")
+    after = {tool["tool_id"] for tool in env.list_tools(visible_only=True)}
+
+    assert "fs.search_text" not in before
+    assert "fs.search_text" in after
+
+
+def test_hidden_tool_cannot_be_called_before_discovery(tmp_path):
+    (tmp_path / "README.md").write_text("marker", encoding="utf-8")
+    env = DHIEnvironment(tmp_path, visible_tool_ids={"fs.read_file", "fs.list_files"})
+    env.begin_task(make_task(visible_tool_ids=["fs.read_file", "fs.list_files"]))
+
+    result = env.run_action({"tool_id": "fs.search_text", "arguments": {"query": "marker"}})
+
+    assert result.ok is False
+    assert "discover it first" in result.error.lower()
