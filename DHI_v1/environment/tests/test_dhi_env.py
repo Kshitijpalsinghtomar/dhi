@@ -267,3 +267,25 @@ def test_generated_trace_events_validate_against_checked_in_schema(tmp_path):
     assert len(events) == 4
     errors = [error for event in events for error in validator.iter_errors(event)]
     assert errors == []
+
+
+def test_missing_protected_path_is_rejected_before_task_starts(tmp_path):
+    env = DHIEnvironment(tmp_path)
+    task = make_task(protected_paths=["missing.txt"])
+
+    with pytest.raises(ValueError, match="protected path must already exist"):
+        env.begin_task(task)
+
+    assert env.active_task_id is None
+
+
+def test_existing_trace_file_is_not_silently_appended(tmp_path):
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    trace = tmp_path / "existing.jsonl"
+    trace.write_text("previous trajectory\\n", encoding="utf-8")
+
+    with pytest.raises(FileExistsError, match="trace file already exists"):
+        DHIEnvironment(workspace, trace_path=trace)
+
+    assert trace.read_text(encoding="utf-8") == "previous trajectory\\n"
