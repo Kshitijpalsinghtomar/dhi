@@ -250,3 +250,28 @@ No Adaption API key is present in this execution environment, so no live `GET /a
 - Added nine tests; combined local suite: 75 passed; compileall passed.
 - The audit is mechanical and will not verify semantic correctness, task solvability, or execution truth. It always emits `training_eligible=false`; promotion still requires human review and execution in DHI's pinned environment.
 - No individual Invent rows were available to inspect during this run, and no DHI-v1 model training has been launched.
+
+
+## 2026-10-31 — ORBIT Invent methodology reset
+
+### Decision
+Use **ORBIT** as the external codename for future generated task rows, IDs, and dataset names. Do not include the internal project name in generated data. Quarantine both 120-row Invent task-spec candidates. Do not train from them, promote them as benchmark cases, or launch another dataset run using the same task-spec-as-completion format.
+
+### Evidence
+- First dataset `1eccaa36-bdc7-4d6e-ac8d-41b20d9425e2`: 120/120; Grade B; 8.0 → 7.7 (-3.7%); message quality 8.62 (28.9th percentile); completion quality 6.80 (2.7th percentile); DCScore 84.43 (normalized 0.844).
+- Second dataset `be05757d-2f24-45d4-8768-659268d9d18e`: 120/120; Grade C; 7.0 → 6.6 (-5.7%); message quality 8.18 (28.9th percentile); completion quality 5.03 (2.2nd percentile); DCScore 69.11 (normalized 0.691). Dataset page reports average prompt length about 81 words and completion length about 368 words.
+- Both runs generated realistic user requests with long task-specification JSON as the completion. The completion was task metadata, not an answer to the user request and not an executed trajectory.
+- Invent's published paper (arXiv:2610.01674 v2, 2026-10-18) describes instruction/preference generation and quality/relevance/diversity metrics. Its Limitations section explicitly states that tool-call traces and multi-step agentic trajectories are not supported yet.
+
+### Method correction
+Separate:
+1. Benchmark task specifications: contracts and graders kept as metadata, created/validated separately from SFT completions.
+2. Optional ORBIT single-step decision supervision: prompt contains a full tool/state manifest and user goal; completion is only the next proposed action, direct answer, discovery decision, clarification, or safe stop. This is not an executed call or full trajectory.
+3. Primary SFT data: actual model-generated trajectories collected by the deterministic environment with real tool calls/results, state deltas, prediction comparisons, and independently verified postconditions.
+4. DPO: later same-task/same-initial-state chosen/rejected trajectories with independently verified outcomes.
+
+### Consequence
+No new Invent credits spent for this data until a focused one-step decision specification is independently validated and its completion format is a genuine answer to the row prompt. Do not expect Invent to produce multi-step tool traces. Do not use the LLM-generated benchmark contract as SFT completion. Full method and evidence are documented in `DHI_v1/docs/08_ORBIT_DATA_GENERATION_METHOD_REVIEW.md`.
+
+### Caveats
+The two run prompts/domains differed, so their diversity scores are not a controlled ablation. The second DCScore is about 18.1% lower than the first, an observed difference only. Row-level contents have not yet been inspected; individual task semantic quality remains unassessed. The data-target mismatch is established without claiming every generated row is semantically invalid.
