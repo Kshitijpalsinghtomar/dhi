@@ -249,3 +249,39 @@ def test_adaption_incomplete_response_is_not_returned_as_a_valid_answer():
     with patch("urllib.request.urlopen", side_effect=fake_urlopen):
         with pytest.raises(ModelClientError, match="did not complete"):
             client.complete(messages=[{"role": "user", "content": "Hi"}], tools=[])
+
+
+def test_search_tools_catalogue_ranks_available_connector_matches():
+    client = AdaptionResponsesClient(api_key="test-secret", base_url="https://api.test.invalid")
+    catalogue = [
+        {
+            "server_label": "github", "name": "GitHub", "description": "Source code repositories and issues",
+            "auth": "connection", "connect": "oauth", "mode": "remote_mcp",
+            "default_require_approval": "always", "required_scope": "mcp:github", "available": True,
+        },
+        {
+            "server_label": "slack", "name": "Slack", "description": "Team messaging",
+            "auth": "connection", "connect": "oauth", "mode": "remote_mcp",
+            "default_require_approval": "never", "required_scope": "mcp:slack", "available": False,
+            "unavailable_reason": "requires_scope",
+        },
+    ]
+    with patch.object(client, "list_tools_catalogue", return_value=catalogue):
+        results = client.search_tools_catalogue(query="github source code issues", available_only=True)
+        all_results = client.search_tools_catalogue(query="slack messaging", available_only=False)
+
+    assert results["catalogue_source"] == "adaption_api"
+    assert results["match_count"] == 1
+    assert results["tools"][0]["server_label"] == "github"
+    assert results["tools"][0]["available"] is True
+    assert all_results["tools"][0]["server_label"] == "slack"
+    assert all_results["tools"][0]["unavailable_reason"] == "requires_scope"
+    assert "no connector was invoked" in results["execution_note"].lower()
+
+
+def test_search_tools_catalogue_rejects_invalid_limits_and_blank_query():
+    client = AdaptionResponsesClient(api_key="test-secret", base_url="https://api.test.invalid")
+    with pytest.raises(ValueError, match="non-empty"):
+        client.search_tools_catalogue(query="  ")
+    with pytest.raises(ValueError, match="from 1 to 50"):
+        client.search_tools_catalogue(query="github", limit=100)
