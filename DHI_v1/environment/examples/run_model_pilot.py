@@ -14,7 +14,7 @@ import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
-from DHI_v1.environment.agent_runner import client_from_env, run_agent_task
+from DHI_v1.environment.agent_runner import client_from_env, run_agent_task, tool_handlers_from_client
 from DHI_v1.environment.dhi_env import DHIEnvironment, TaskSpec
 from DHI_v1.environment.fixture_manager import materialize_fixture
 
@@ -57,7 +57,7 @@ def main() -> int:
                 "training_eligible": False,
             },
         )
-        environment = DHIEnvironment(workspace, trace_path=trace_path)
+        environment = DHIEnvironment(workspace, trace_path=trace_path, tool_handlers=tool_handlers_from_client(client))
         result = run_agent_task(environment, task, client, max_model_turns=12, max_tool_calls=24)
 
     summary = {
