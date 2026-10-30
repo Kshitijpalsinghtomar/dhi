@@ -190,3 +190,62 @@ def test_adaption_http_error_does_not_echo_secret_in_public_exception():
             client.list_models()
 
     assert "never-print-this-secret" not in str(error.value)
+
+
+def test_adaption_client_sends_responses_function_tool_schema():
+    client = AdaptionResponsesClient(
+        api_key="test-secret", model="hosted-model", base_url="https://api.test.invalid"
+    )
+    captured = {}
+
+    def fake_urlopen(request, timeout):
+        captured["body"] = json.loads(request.data)
+        return FakeHTTPResponse({
+            "status": "completed",
+            "output": [{"type": "function_call", "call_id": "call-x", "name": "fs_read_file", "arguments": '{"path":"README.md"}'}],
+        })
+
+    with patch("urllib.request.urlopen", side_effect=fake_urlopen):
+        result = client.complete(
+            messages=[{"role": "user", "content": "Read README."}],
+            tools=[{"type": "function", "function": {
+                "name": "fs_read_file",
+                "description": "Read a file.",
+                "parameters": {"type": "object", "properties": {"path": {"type": "string"}}},
+            }}],
+        )
+
+    assert captured["body"]["tools"][0]["type"] == "function"
+    assert captured["body"]["tools"][0]["name"] == "fs_read_file"
+    assert result["choices"][0]["message"]["tool_calls"][0]["id"] == "call-x"
+
+
+def test_adaption_client_lists_live_tool_catalogue_with_availability():
+    client = AdaptionResponsesClient(api_key="test-secret", base_url="https://api.test.invalid")
+    payload = {"object": "list", "data": [
+        {"server_label": "github", "name": "GitHub", "available": True, "auth": "connection"},
+        {"server_label": "slack", "name": "Slack", "available": False, "unavailable_reason": "requires_scope"},
+    ]}
+    captured = {}
+
+    def fake_urlopen(request, timeout):
+        captured["url"] = request.full_url
+        return FakeHTTPResponse(payload)
+
+    with patch("urllib.request.urlopen", side_effect=fake_urlopen):
+        tools = client.list_tools_catalogue()
+
+    assert captured["url"] == "https://api.test.invalid/api/v1/tools"
+    assert tools[0]["available"] is True
+    assert tools[1]["unavailable_reason"] == "requires_scope"
+
+
+def test_adaption_incomplete_response_is_not_returned_as_a_valid_answer():
+    client = AdaptionResponsesClient(api_key="test-secret", model="hosted-model", base_url="https://api.test.invalid")
+
+    def fake_urlopen(request, timeout):
+        return FakeHTTPResponse({"status": "incomplete", "incomplete_details": {"reason": "max_output_tokens"}, "output": []})
+
+    with patch("urllib.request.urlopen", side_effect=fake_urlopen):
+        with pytest.raises(ModelClientError, match="did not complete"):
+            client.complete(messages=[{"role": "user", "content": "Hi"}], tools=[])
