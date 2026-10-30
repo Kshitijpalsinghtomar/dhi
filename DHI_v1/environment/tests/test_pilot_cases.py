@@ -27,6 +27,6 @@ def test_pilot_suite_explicitly_separates_supported_and_unsupported_cases():
     executable = [case for case in cases if case["scope"] == "file_workspace"]
     unsupported = [case for case in cases if case["status"] == "not_executable_in_file_workspace"]
 
-    assert len(executable) == 7
-    assert len(unsupported) == 5
+    assert len(executable) == 8
+    assert len(unsupported) == 4
     assert all(case["postconditions"] for case in executable if case["case_id"] != "file-007-unavailable-resource-honesty")
