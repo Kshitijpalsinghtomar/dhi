@@ -14,7 +14,7 @@ import tempfile
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
-from typing import Any, Iterable
+from typing import Any, Callable, Iterable
 
 TRACE_SCHEMA_VERSION = "dhi.trajectory.v1"
 DEFAULT_MAX_FILE_BYTES = 10_000_000
@@ -80,6 +80,32 @@ DEFAULT_TOOL_CATALOGUE: list[dict[str, Any]] = [
         "preconditions": ["tool catalogue is available"],
         "cost_class": "local_low",
         "reversible": True,
+    },
+    {
+        "tool_id": "catalog.adaption_search",
+        "name": "Search connected Adaption app and connector catalogue",
+        "description": (
+            "Search the live Adaption connector catalogue for external capabilities "
+            "and inspect their availability, auth requirements, permissions and approval defaults. "
+            "Read-only discovery; this tool does not execute any external connector action."
+        ),
+        "tags": ["adaption", "external", "catalogue", "connector", "integration", "app", "plugin", "mcp", "discover", "availability", "permission"],
+        "input_schema": {
+            "type": "object",
+            "required": ["query"],
+            "properties": {
+                "query": {"type": "string"},
+                "available_only": {"type": "boolean", "default": true},
+                "limit": {"type": "integer", "default": 10},
+            },
+            "additionalProperties": false,
+        },
+        "side_effects": "read_only",
+        "permission_scope": "connector_catalogue_read",
+        "preconditions": ["Adaption Responses client is configured"],
+        "cost_class": "external_api_request_cost_unverified",
+        "reversible": true,
+        "execution_boundary": "catalogue_discovery_only",
     },
     {
         "tool_id": "fs.list_files",
@@ -158,6 +184,7 @@ class DHIEnvironment:
         max_snapshot_bytes: int = 100_000_000,
         ignored_dirs: Iterable[str] | None = None,
         catalogue: list[dict[str, Any]] | None = None,
+        tool_handlers: dict[str, Callable[[dict[str, Any]], dict[str, Any] | list[Any]]] | None = None,
     ) -> None:
         self.workspace = Path(workspace).expanduser().resolve()
         self.workspace.mkdir(parents=True, exist_ok=True)
@@ -187,10 +214,16 @@ class DHIEnvironment:
         self.max_snapshot_bytes = max_snapshot_bytes
         self.ignored_dirs = set(ignored_dirs) if ignored_dirs is not None else set(DEFAULT_IGNORED_DIRS)
         self.catalogue = [dict(item) for item in (catalogue or DEFAULT_TOOL_CATALOGUE)]
+        self.tool_handlers = dict(tool_handlers or {})
         catalogue_ids = [item["tool_id"] for item in self.catalogue]
         if len(catalogue_ids) != len(set(catalogue_ids)):
             raise ValueError("tool catalogue contains duplicate tool_id values")
+        unknown_handlers = set(self.tool_handlers) - set(catalogue_ids)
+        if unknown_handlers:
+            raise ValueError(f"tool handlers reference unknown tools: {sorted(unknown_handlers)}")
         default_visible = {"catalog.search", "fs.list_files", "fs.read_file", "fs.write_file", "fs.append_file"}
+        if "catalog.adaption_search" in self.tool_handlers:
+            default_visible.add("catalog.adaption_search")
         self._default_visible = set(visible_tool_ids) if visible_tool_ids is not None else default_visible
         self._discovered_tool_ids: set[str] = set()
         self._tool_attempt_counts: dict[str, int] = {}
@@ -213,7 +246,13 @@ class DHIEnvironment:
             visible = set(self._default_visible)
         visible.update(self._discovered_tool_ids)
         visible.add("catalog.search")
-        tools = self.catalogue if not visible_only else [x for x in self.catalogue if x["tool_id"] in visible]
+        if "catalog.adaption_search" in self.tool_handlers:
+            visible.add("catalog.adaption_search")
+        available = [
+            item for item in self.catalogue
+            if item["tool_id"] != "catalog.adaption_search" or "catalog.adaption_search" in self.tool_handlers
+        ]
+        tools = available if not visible_only else [x for x in available if x["tool_id"] in visible]
         return [dict(item) for item in tools]
 
     def discover_tools(self, query: str, *, limit: int = 10) -> list[dict[str, Any]]:
@@ -232,6 +271,8 @@ class DHIEnvironment:
         scored: list[tuple[int, str, dict[str, Any]]] = []
         visible_ids = {x["tool_id"] for x in self.list_tools(visible_only=True)}
         for item in self.catalogue:
+            if item["tool_id"] == "catalog.adaption_search" and "catalog.adaption_search" not in self.tool_handlers:
+                continue
             searchable = " ".join([
                 item.get("tool_id", ""), item.get("name", ""),
                 item.get("description", ""), " ".join(item.get("tags", [])),
@@ -369,7 +410,8 @@ class DHIEnvironment:
         allowlist_passed = True
         fault_injection: dict[str, Any] | None = None
         try:
-            if (tool_id != "catalog.search" and self._active_task.allowed_tool_ids is not None
+            if (tool_id not in {"catalog.search", "catalog.adaption_search"}
+                    and self._active_task.allowed_tool_ids is not None
                     and tool_id not in self._active_task.allowed_tool_ids):
                 allowlist_passed = False
                 raise DHIEnvironmentError(f"tool {tool_id!r} is not allowed for this task")
@@ -531,6 +573,31 @@ class DHIEnvironment:
             return {
                 "tools": self.discover_tools(arguments["query"], limit=arguments.get("limit", 10)),
             }
+
+        if tool_id == "catalog.adaption_search":
+            handler = self.tool_handlers.get(tool_id)
+            if handler is None:
+                raise DHIEnvironmentError("live Adaption connector discovery is not configured")
+            payload = handler(arguments)
+            connectors = payload.get("tools", []) if isinstance(payload, dict) else []
+            if self._active_task is not None:
+                self._record({
+                    "event_type": "tool_discovery",
+                    "task_id": self.active_task_id,
+                    "query": arguments.get("query", ""),
+                    "visible_tool_ids": sorted(item["tool_id"] for item in self.list_tools(visible_only=True)),
+                    "discovered_tool_ids": [
+                        f"adaption:{item.get('server_label', 'unknown')}" for item in connectors
+                        if isinstance(item, dict)
+                    ],
+                    "results": [item for item in connectors if isinstance(item, dict)],
+                    "catalogue_source": "adaption_api",
+                    "available_only": arguments.get("available_only", True),
+                })
+            return payload
+
+        if tool_id in self.tool_handlers:
+            return self.tool_handlers[tool_id](arguments)
 
         if tool_id == "fs.list_files":
             path = arguments.get("path", "")
