@@ -1,0 +1,4 @@
+[project]
+name = "dhi-v1-fixture"
+version = "0.1.0"
+description = "Deterministic repository fixture for DHI-v1"
