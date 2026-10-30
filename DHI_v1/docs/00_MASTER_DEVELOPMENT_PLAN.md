@@ -334,3 +334,23 @@ Local suite: 54 tests passed; compileall passed. No live API key/model run has y
 - Cross-provider comparisons use the common eight. Adaption-specific comparison requires matching `adaption_catalogue_snapshot_sha256` between model runs.
 - Local test suite: 66 passed; compileall passed; deterministic smoke remains 13 schema-valid events with verified closure and protected-file preservation.
 - No live API key/model call, DHI-v1 model score or training run has yet occurred.
+
+
+### 2026-10-31 update — 120-row Invent dataset completed but rejected at quality gate
+
+- Adaption Invent dataset ID: `1eccaa36-bdc7-4d6e-ac8d-41b20d9425e2`, status succeeded, 120/120 rows processed.
+- The dataset is tabular/invented. Adaption's evaluation maps generated `invented_prompt` and `invent_completion` fields (with original prompt/completion references also present in the schema).
+- Evaluation: Grade B before and after; score 8.0 → 7.7 (-3.7%). Completion quality 6.8 average at the 2.7th percentile; message quality 8.62 average at the 28.9th percentile. The evaluation's row_counts reports a 100-row sample.
+- Decision: quarantine. Do not use for base benchmark, SFT, DPO, or ground-truth execution data. Low completion-quality percentile indicates the generated acceptance-criteria/completion side is not fit to promote without row inspection.
+- The connected Adaption MCP tools do not expose the processed-row download route. The public OpenAPI spec documents `GET /api/v1/datasets/{dataset_id}/download?fileFormat=jsonl` as a streaming download. DHI now includes a download-and-audit CLI that uses the user's local `ADAPTION_API_KEY` rather than requiring credentials in chat.
+- The audit outputs a JSON report and flagged-row CSV, checks missing/short fields, normalized exact duplicate prompt/pairs, task acceptance/constraint language, possible execution-claim language, and domain coverage. It explicitly labels semantic correctness and execution-ground-truth checks as unverified and keeps `training_eligible=false`.
+- Until a row export is downloaded and audited, no claim is made about the semantic quality or diversity of the 120 individual tasks.
+
+Command after setting the key in the local shell:
+
+```bash
+export ADAPTION_API_KEY="..."
+python -m DHI_v1.benchmark.audit_invent_dataset --dataset-id 1eccaa36-bdc7-4d6e-ac8d-41b20d9425e2
+```
+
+Local test suite after adding the audit module: 75 passed; compileall passed.
