@@ -36,6 +36,7 @@ class TaskSpec:
     protected_paths: list[str] = field(default_factory=list)
     allowed_tool_ids: list[str] | None = None
     visible_tool_ids: list[str] | None = None
+    fault_injections: list[dict[str, Any]] = field(default_factory=list)
     environment_version: str = "dhi-file-workspace.v1"
     split: str = "development"
     metadata: dict[str, Any] = field(default_factory=dict)
@@ -192,6 +193,8 @@ class DHIEnvironment:
         default_visible = {"catalog.search", "fs.list_files", "fs.read_file", "fs.write_file", "fs.append_file"}
         self._default_visible = set(visible_tool_ids) if visible_tool_ids is not None else default_visible
         self._discovered_tool_ids: set[str] = set()
+        self._tool_attempt_counts: dict[str, int] = {}
+        self._consumed_faults: set[int] = set()
         self._active_task: TaskSpec | None = None
         self._trajectory_id: str | None = None
         self._sequence = 0
@@ -268,6 +271,23 @@ class DHIEnvironment:
             unknown = set(task.visible_tool_ids) - known
             if unknown:
                 raise ValueError(f"task visible_tool_ids contains unknown tools: {sorted(unknown)}")
+        seen_faults: set[tuple[str, int]] = set()
+        for fault in task.fault_injections:
+            if not isinstance(fault, dict):
+                raise ValueError("each fault injection must be an object")
+            tool_id = fault.get("tool_id")
+            attempt = fault.get("attempt")
+            error = fault.get("error")
+            if tool_id not in known:
+                raise ValueError(f"fault injection references unknown tool: {tool_id}")
+            if not isinstance(attempt, int) or isinstance(attempt, bool) or attempt < 1:
+                raise ValueError("fault injection attempt must be a positive integer")
+            if not isinstance(error, str) or not error.strip():
+                raise ValueError("fault injection error must be a non-empty string")
+            fault_key = (tool_id, attempt)
+            if fault_key in seen_faults:
+                raise ValueError(f"duplicate fault injection for {tool_id} attempt {attempt}")
+            seen_faults.add(fault_key)
         for protected_path in task.protected_paths:
             try:
                 protected_file = self._safe_path(protected_path, must_exist=True)
@@ -281,6 +301,8 @@ class DHIEnvironment:
                 )
         self._active_task = task
         self._discovered_tool_ids.clear()
+        self._tool_attempt_counts.clear()
+        self._consumed_faults.clear()
         self._trajectory_id = task.trajectory_id
         self._sequence = 0
         self._initial_snapshot = self.snapshot()
@@ -297,6 +319,7 @@ class DHIEnvironment:
             "tool_manifest": self.list_tools(visible_only=True),
             "postconditions": task.postconditions,
             "protected_paths": task.protected_paths,
+            "fault_injections": task.fault_injections,
             "split": task.split,
             "provenance": task.metadata,
         })
@@ -344,6 +367,7 @@ class DHIEnvironment:
         result: dict[str, Any] | list[Any] | None = None
         error: str | None = None
         allowlist_passed = True
+        fault_injection: dict[str, Any] | None = None
         try:
             if (tool_id != "catalog.search" and self._active_task.allowed_tool_ids is not None
                     and tool_id not in self._active_task.allowed_tool_ids):
@@ -358,6 +382,15 @@ class DHIEnvironment:
                     "discover it and call it on the next turn"
                 )
             self._validate_arguments(tool_id, arguments)
+            attempt_number = self._tool_attempt_counts.get(tool_id, 0) + 1
+            self._tool_attempt_counts[tool_id] = attempt_number
+            for fault_index, fault in enumerate(self._active_task.fault_injections):
+                if (fault_index not in self._consumed_faults
+                        and fault["tool_id"] == tool_id
+                        and fault["attempt"] == attempt_number):
+                    self._consumed_faults.add(fault_index)
+                    fault_injection = dict(fault)
+                    raise DHIEnvironmentError(fault["error"])
             result = self._dispatch(tool_id, arguments)
         except (DHIEnvironmentError, OSError, UnicodeError, ValueError) as exc:
             error = str(exc)
@@ -376,6 +409,7 @@ class DHIEnvironment:
             "selected_tool_id": tool_id,
             "arguments": arguments,
             "expected_effects": expected_effects,
+            "fault_injection": fault_injection,
             "actual_tool_result": {"ok": error is None, "result": result, "error": error},
             "observed_state_after": after,
             "actual_effects": actual_effects,
