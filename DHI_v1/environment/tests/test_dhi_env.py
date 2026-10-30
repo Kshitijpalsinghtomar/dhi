@@ -312,3 +312,40 @@ def test_hidden_tool_cannot_be_called_before_discovery(tmp_path):
 
     assert result.ok is False
     assert "discover it first" in result.error.lower()
+
+
+def test_deterministic_fault_injection_fails_once_then_tool_can_recover(tmp_path):
+    (tmp_path / "src").mkdir()
+    (tmp_path / "src" / "main.py").write_text("def run():\n    return 7\n", encoding="utf-8")
+    env = DHIEnvironment(tmp_path, visible_tool_ids={"fs.search_text"})
+    task = make_task(visible_tool_ids=["fs.search_text"], fault_injections=[{
+        "tool_id": "fs.search_text",
+        "attempt": 1,
+        "error": "temporary search index outage",
+    }])
+    env.begin_task(task)
+
+    first = env.run_action({"tool_id": "fs.search_text", "arguments": {"query": "return 7"}})
+    second = env.run_action({"tool_id": "fs.search_text", "arguments": {"query": "return 7"}})
+    closure = env.close_task()
+
+    assert first.ok is False
+    assert "temporary search index outage" in first.error
+    assert first.event["fault_injection"]["attempt"] == 1
+    assert second.ok is True
+    assert second.result["count"] == 1
+    assert closure["success"] is False
+
+
+def test_fault_injection_rejects_unknown_tool_ids_at_task_start(tmp_path):
+    env = DHIEnvironment(tmp_path)
+    task = make_task(fault_injections=[{
+        "tool_id": "unknown.tool",
+        "attempt": 1,
+        "error": "temporary failure",
+    }])
+
+    with pytest.raises(ValueError, match="fault injection references unknown tool"):
+        env.begin_task(task)
+
+    assert env.active_task_id is None
