@@ -166,3 +166,13 @@ Build a pinned reset/replay fixture and diagnostic tasks, then connect untouched
 ## CI status note — 2026-10-31
 
 GitHub Actions runs triggered by the earlier push workflow failed before job execution: jobs reported runner_id=0, empty runner_name, and no steps. This is a runner-allocation/account configuration issue, not a reported test assertion failure. Local tests are passing. The workflow is changed to pull-request and manual dispatch triggers to avoid generating a failed run for every individual file commit; a functioning GitHub runner is still required for hosted CI.
+
+
+## 2026-10-31 — Executable pilot grading and transient failure injection
+
+- Added `DHI_v1/benchmark/runner.py` to execute only the seven supported file-workspace cases and score observable criteria.
+- Added `benchmark/run_pilot_benchmark.py` to run the pilot against an OpenAI-compatible served model and write JSON/per-case traces.
+- Added task-level deterministic fault injection: exact tool ID, attempt number, and error message. The schedule is recorded at task start, injected outcome at action execution; the next tool attempt may recover.
+- Updated case 006 to test a transient search failure and subsequent recovery. Cases 005 and 007 now have explicit fixture variant/postconditions.
+- Added evaluator checks for answer content, required tool calls, required discoveries, no-op/changed-path constraints, and successful recovery after a failed tool.
+- Local tests: 42 passed; compileall passed. The model benchmark has not run because there is no configured inference endpoint.
