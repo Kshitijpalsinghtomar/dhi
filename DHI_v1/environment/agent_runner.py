@@ -274,3 +274,31 @@ def run_agent_task(env: DHIEnvironment, task: TaskSpec, client: ChatCompletionCl
         closure["success"] = False
         closure["runner_completion_gate"] = "no final model response was produced"
     return AgentRunResult(final_answer, closure, tool_calls_used, turns_used, stopped_reason, error_text)
+
+
+
+def client_from_env() -> tuple[ChatCompletionClient, str]:
+    """Build a model client from DHI_MODEL_PROVIDER and its environment config.
+
+    Set DHI_MODEL_PROVIDER=adaption to use Adaption's Responses API; otherwise
+    the default is an OpenAI-compatible /chat/completions endpoint.
+    """
+    import os
+
+    provider = os.environ.get("DHI_MODEL_PROVIDER", "openai_compatible").strip().casefold()
+    model_name = os.environ.get("DHI_MODEL_NAME", "").strip()
+    if not model_name:
+        raise SystemExit("Set DHI_MODEL_NAME to an exact hosted model ID (or stack:<slug>).")
+
+    if provider in {"adaption", "adaption_responses"}:
+        from .adaption_responses import adaption_client_from_env
+        return adaption_client_from_env(), model_name
+
+    if provider not in {"openai", "openai_compatible", "openai-compatible"}:
+        raise SystemExit(f"Unsupported DHI_MODEL_PROVIDER: {provider}")
+    base_url = os.environ.get("DHI_MODEL_BASE_URL", "").strip()
+    api_key = os.environ.get("DHI_MODEL_API_KEY", "")
+    missing = [name for name, value in (("DHI_MODEL_BASE_URL", base_url), ("DHI_MODEL_API_KEY", api_key)) if not value]
+    if missing:
+        raise SystemExit("Missing model endpoint configuration: " + ", ".join(missing))
+    return OpenAICompatibleChatClient(base_url=base_url, api_key=api_key, model=model_name), model_name
