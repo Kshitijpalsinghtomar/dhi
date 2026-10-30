@@ -1,0 +1,26 @@
+name: DHI-v1 environment tests
+
+on:
+  push:
+    paths:
+      - "DHI_v1/environment/**"
+      - ".github/workflows/dhi-v1-environment.yml"
+  pull_request:
+    paths:
+      - "DHI_v1/environment/**"
+      - ".github/workflows/dhi-v1-environment.yml"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install development dependencies
+        run: python -m pip install -r DHI_v1/environment/requirements-dev.txt
+      - name: Run environment tests
+        run: python -m pytest -q DHI_v1/environment/tests
+      - name: Compile environment package
+        run: python -m compileall -q DHI_v1/environment
