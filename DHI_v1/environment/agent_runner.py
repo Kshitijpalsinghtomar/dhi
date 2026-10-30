@@ -7,6 +7,7 @@ No hidden chain-of-thought is requested or stored.
 from __future__ import annotations
 
 import json
+import hashlib
 import re
 import urllib.error
 import urllib.request
@@ -318,13 +319,29 @@ def tool_handlers_from_client(client: ChatCompletionClient) -> dict[str, Any]:
     if not callable(search_catalogue):
         return {}
 
+    catalogue_snapshot = None
+    snapshot_sha256 = None
+    list_catalogue = getattr(client, "list_tools_catalogue", None)
+    if callable(list_catalogue):
+        catalogue_snapshot = list_catalogue()
+        snapshot_sha256 = hashlib.sha256(
+            json.dumps(catalogue_snapshot, sort_keys=True, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+        ).hexdigest()
+
     def adaption_catalogue_search(arguments: dict[str, Any]) -> dict[str, Any]:
         try:
-            return search_catalogue(
-                query=arguments.get("query", ""),
-                available_only=arguments.get("available_only", True),
-                limit=arguments.get("limit", 10),
-            )
+            request = {
+                "query": arguments.get("query", ""),
+                "available_only": arguments.get("available_only", True),
+                "limit": arguments.get("limit", 10),
+            }
+            if catalogue_snapshot is not None:
+                request["catalogue_snapshot"] = catalogue_snapshot
+            result = search_catalogue(**request)
+            if snapshot_sha256 is not None:
+                result["catalogue_snapshot_sha256"] = snapshot_sha256
+                result["catalogue_snapshot_scope"] = "fixed_for_this_agent_run"
+            return result
         except (ModelClientError, ValueError) as exc:
             raise DHIEnvironmentError(str(exc)) from exc
 
