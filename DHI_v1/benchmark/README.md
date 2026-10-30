@@ -99,3 +99,12 @@ python -m DHI_v1.benchmark.audit_invent_dataset --input path/to/export.jsonl
 ```
 
 No rows have yet been inspected in this chat because no Adaption API key/export stream is available in the connected tools. Do not start SFT or use these rows as benchmark ground truth until the row audit, human review, and environment-execution checks pass.
+
+
+The mechanical row audit is available at [audit_invent_dataset.py](audit_invent_dataset.py). Set `ADAPTION_API_KEY` in the local shell, then run:
+
+```bash
+python -m DHI_v1.benchmark.audit_invent_dataset --dataset-id 1eccaa36-bdc7-4d6e-ac8d-41b20d9425e2
+```
+
+This produces a JSON quality report and flagged-row CSV. It does not certify semantic correctness, solvability, or training eligibility.
