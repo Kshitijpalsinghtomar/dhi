@@ -1,3 +1,4 @@
+from pathlib import Path
 from DHI_v1.environment.dhi_env import DHIEnvironment, TaskSpec
 from DHI_v1.environment.agent_runner import run_agent_task
 
@@ -187,3 +188,78 @@ def test_runner_records_and_scores_pre_action_effect_forecast(tmp_path):
     assert executed[0]["prediction_comparison"]["status"] == "matched"
     assert executed[0]["arguments"] == {"path": "README.md", "content": "\nhealthcheck: src/api.py\n"}
     assert result.closure["success"] is True
+
+
+class FakeAdaptionCatalogueClient(FakeToolCallingClient):
+    def search_tools_catalogue(self, *, query, available_only=True, limit=10):
+        records = [
+            {"server_label": "github", "name": "GitHub", "description": "Source repositories and issues",
+             "auth": "connection", "mode": "remote_mcp", "default_require_approval": "always",
+             "required_scope": "mcp:github", "available": True}
+        ]
+        return {"catalogue_source": "adaption_api", "query": query, "available_only": available_only,
+                "catalogue_count": 1, "searched_count": 1, "match_count": 1, "tools": records,
+                "execution_note": "Discovery only. No connector was invoked."}
+
+
+def test_agent_can_search_live_adaption_catalogue_via_read_only_meta_tool(tmp_path):
+    from DHI_v1.environment.agent_runner import tool_handlers_from_client
+
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    (workspace / "README.md").write_text("fixture", encoding="utf-8")
+    task = TaskSpec(
+        task_id="adaption-catalogue-discovery",
+        prompt="Check whether a connector is available for source repositories and issues. Do not update any issue.",
+        goal="Report one matching connector and its availability/permission requirements without executing it.",
+        visible_tool_ids=["fs.list_files"],
+        postconditions=[{"type": "exists", "path": "README.md"}],
+        hard_constraints=["Do not execute external connectors", "Do not claim an issue was updated"],
+    )
+    client = FakeAdaptionCatalogueClient([
+        tool_call("external-1", "catalog_adaption_search", {"query": "source repositories issues"}),
+        final_answer("GitHub is available for source repositories and issues, requires connection auth, and defaults to approval. No issue was changed."),
+    ])
+    env = DHIEnvironment(workspace, tool_handlers=tool_handlers_from_client(client))
+
+    result = run_agent_task(env, task, client, max_model_turns=4)
+
+    assert result.closure["success"] is True
+    assert result.tool_call_count == 1
+    discovery = [event for event in env.events if event.get("catalogue_source") == "adaption_api"]
+    assert len(discovery) == 1
+    assert discovery[0]["discovered_tool_ids"] == ["adaption:github"]
+    executed = [event for event in env.events if event.get("event_type") == "action_executed"]
+    assert executed[0]["selected_tool_id"] == "catalog.adaption_search"
+    assert executed[0]["actual_tool_result"]["ok"] is True
+
+
+def test_external_catalogue_discovery_event_validates_against_trace_schema(tmp_path):
+    import json
+    from jsonschema import Draft202012Validator, FormatChecker
+    from DHI_v1.environment.agent_runner import tool_handlers_from_client
+
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    (workspace / "README.md").write_text("fixture", encoding="utf-8")
+    task = TaskSpec(
+        task_id="adaption-catalogue-schema",
+        prompt="Inspect connectors for source-code repositories and issues.",
+        goal="Report connector availability without invoking any external connector.",
+        visible_tool_ids=["fs.list_files"],
+        postconditions=[{"type": "exists", "path": "README.md"}],
+    )
+    client = FakeAdaptionCatalogueClient([
+        tool_call("catalog-schema-1", "catalog_adaption_search", {"query": "source repositories issues"}),
+        final_answer("GitHub is available for source repositories and issues. No external action was taken."),
+    ])
+    env = DHIEnvironment(workspace, tool_handlers=tool_handlers_from_client(client))
+    result = run_agent_task(env, task, client, max_model_turns=3)
+
+    schema_path = Path(__file__).parents[1] / "schemas" / "trajectory-event.schema.json"
+    schema = json.loads(schema_path.read_text(encoding="utf-8"))
+    validator = Draft202012Validator(schema, format_checker=FormatChecker())
+    errors = [error for event in env.events for error in validator.iter_errors(event)]
+
+    assert result.closure["success"] is True
+    assert errors == []
