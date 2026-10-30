@@ -193,3 +193,23 @@ GitHub Actions runs triggered by the earlier push workflow failed before job exe
 - Estimate: 12 credits; 87 credits available at estimate/launch. The 200-row alternative was estimated at 20 credits and was not launched.
 - Latest status check: running; row_count, processed_rows, progress, and columns all null. No evaluation/export is available yet.
 - The dataset prompt prohibits invented tool outputs/results. Its intended use is candidate task specifications only. Do not convert its text into ground-truth action trajectories or training data until rows are inspected and each task is executable/gradable in the environment.
+
+
+## 2026-10-31 — Adaption Responses API route and DHI adapter
+
+### Correction
+The connected Adaption MCP action list contains dataset/training operations but no response-inference action. That does not mean the Adaption platform lacks inference. Current platform documentation exposes:
+- `POST /api/v1/responses` for hosted models or `stack:<slug>`.
+- `GET /api/v1/models` for the account's hosted models, harnesses, and stacks; use `type=hosted` to list hosted IDs available to the API key.
+- Responses function-call and function-call-output items for agent tool loops.
+- Inference Stack create/manage in the app; the API can call stacks but cannot create/edit them.
+
+### Implementation
+- Added `environment/adaption_responses.py`: API client, hosted-model catalogue reader, and mappings between DHI ChatCompletionClient messages/tools and Adaption Responses items.
+- Added `examples/list_adaption_models.py` so the exact callable model IDs are obtained from the user's own API key rather than guessed from the training registry.
+- Updated both one-task and eight-case pilot CLIs to select `DHI_MODEL_PROVIDER=adaption` or another OpenAI-compatible endpoint.
+- Disabled server-side response storage and agentic memory during these benchmark requests for isolation.
+- Added seven adapter tests. Local total: 51 tests pass; compileall passes; the scripted 13-event smoke task verifies goal closure and protected paths.
+
+### Remaining blocker
+No Adaption API key is present in this execution environment, so no live `GET /api/v1/models` or `POST /api/v1/responses` call was made. The user can run `python -m DHI_v1.environment.examples.list_adaption_models` with `ADAPTION_API_KEY` set, choose a visible hosted model ID, then run the benchmark with `DHI_MODEL_PROVIDER=adaption`. A stack can be used later for a system-level experiment, not the first base-model comparison.
