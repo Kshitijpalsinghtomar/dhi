@@ -113,3 +113,22 @@ The following work must be reviewed before claiming novelty:
 - Qwen3.6 model card: https://huggingface.co/Qwen/Qwen3.6-35B-A3B
 - GPT-OSS-20B official model details: https://developers.openai.com/api/docs/models/gpt-oss-20b
 - Gemma 4 model card: https://ai.google.dev/gemma/docs/core/model_card_4
+
+
+## 2026-10-31 — First deterministic DHI-v1 environment prototype
+
+### Delivered
+Added `DHI_v1/environment/` with a deterministic file-workspace environment, six tool IDs (including catalogue discovery), append-only JSONL trace events, SHA-256 snapshots/deltas, predicted-vs-actual file-change comparison, explicit postconditions, protected-path checks, tool schema validation, task allowlists, path/symlink protections, and a JSON Schema.
+
+### Verification
+- 15 unit/integration tests passed locally.
+- Python compileall passed.
+- A real scripted smoke execution generated 13 events and passed the JSON Schema validator.
+- The smoke task's README postcondition passed and both protected files remained unchanged.
+- GitHub Actions CI was added for Python 3.11.
+
+### Boundary
+The pilot was scripted to test the environment. It was not produced by a language model, is not evidence of agent capability, and must not enter the training set. Catalogue discovery uses a small lexical fixture; it does not yet search a live app/plugin marketplace. The harness has no arbitrary shell execution and is not an OS/container sandbox.
+
+### Next decision
+Build a pinned reset/replay fixture and diagnostic tasks, then connect untouched base models for identical benchmark screening. Do not launch Adaption SFT/DPO on this work until model screening, trajectory quality, and a current cost estimate pass.
