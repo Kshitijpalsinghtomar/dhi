@@ -290,3 +290,12 @@ The runner is an endpoint adapter, not evidence that a model has been connected.
 - Added a command to run the seven supported cases against an OpenAI-compatible served model and write a JSON report plus per-case traces. The result is a development pilot pass rate, not the weighted 100-point DHI grade.
 - Local suite: 42 tests passed; compileall passed; scripted smoke remains 13 schema-valid events.
 - The connected Adaption API still has no model inference operation; no model base-screen result exists, and no training run has been launched.
+
+
+### 2026-10-31 update — no-tool restraint and benchmark count
+
+- Added a direct stable-knowledge case that must be answered without any tool call; the grader enforces max_tool_calls=0 and no state changes.
+- The executable file-workspace pilot now contains **eight** supported cases; four external runtime cases remain unsupported and unscored.
+- Local suite after the no-tool addition: 44 tests passed; compileall passed.
+- The 120-row Adaption Invent task-specification candidate (dataset ID `1eccaa36-bdc7-4d6e-ac8d-41b20d9425e2`) is still reported as running with no row count/schema yet. It is not ready, not evaluated, and not training data.
+- No model inference endpoint is connected. No DHI-v1 base comparison or fine-tuning run has been launched.
