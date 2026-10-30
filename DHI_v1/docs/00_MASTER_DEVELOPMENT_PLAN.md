@@ -322,3 +322,15 @@ The Adaption API also exposes `GET /api/v1/tools`. It returns the host-side conn
 DHI includes `AdaptionResponsesClient.list_tools_catalogue()` and `examples/list_adaption_tools.py` to inspect that registry read-only. This supplies grounded capability/availability evidence; it does not execute external connector actions. A live connector execution adapter still needs explicit approval handling, operation-level schema exposure, event tracing, and independently verifiable postconditions before those connectors enter the scored benchmark.
 
 Local suite: 54 tests passed; compileall passed. No live API key/model run has yet been performed.
+
+
+### 2026-10-31 update — DHI model-driven live connector discovery and reproducibility
+
+- Added `catalog.adaption_search`, a read-only model-callable capability available only when an Adaption client is configured.
+- The model is given the connector catalogue search schema and decides whether discovery is warranted. Search returns live account connector metadata: label, description, availability/unavailable reason, auth type, connection method, provider mode, required scope and approval default.
+- The catalogue result does not add an external connector as a callable tool. DHI cannot claim the model updated an issue or performed any other external action from a catalogue listing alone.
+- The Adaption catalogue is fetched once per agent/benchmark run, reused for all queries and task cases, hashed, and recorded in tool-discovery events plus the benchmark report.
+- Benchmark split: eight common cases for any provider; one Adaption-only read-only discovery case; three currently unsupported cases (live current-source verification, decoy permissions across external providers, and cross-session resume).
+- Cross-provider comparisons use the common eight. Adaption-specific comparison requires matching `adaption_catalogue_snapshot_sha256` between model runs.
+- Local test suite: 66 passed; compileall passed; deterministic smoke remains 13 schema-valid events with verified closure and protected-file preservation.
+- No live API key/model call, DHI-v1 model score or training run has yet occurred.
