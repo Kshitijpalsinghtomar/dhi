@@ -76,3 +76,26 @@ The common `pass_rate` is the percentage of the eight provider-independent cases
 - One common case uses a declared deterministic transient failure; it is recorded in the trace.
 - Scripted smoke traces and pilot benchmark reports are diagnostic artifacts, not approved training data.
 - Freeze a larger, hidden, independently reviewed suite before confirmatory base-model comparisons.
+
+
+## Adaption Invent task-specification audit
+
+The 120-row candidate Invent dataset is `1eccaa36-bdc7-4d6e-ac8d-41b20d9425e2`. Adaption reports generation succeeded (120/120 rows). Its quality evaluation is **Grade B**, score **7.7** (down from 8.0; -3.7%); completion quality is at the **2.7th percentile**, and message quality at the 28.9th percentile. The evaluation sampled 100 input rows. This is a quality warning and the dataset is **quarantined**, not benchmark- or training-ready.
+
+Adaption's evaluation mapping identifies `invented_prompt` and `invent_completion` as the generated task-specification columns. The connected MCP tools expose summaries/evaluations but do not expose row download. The documented REST endpoint streams processed rows:
+
+```bash
+export ADAPTION_API_KEY="..."
+python -m DHI_v1.benchmark.audit_invent_dataset \\
+  --dataset-id 1eccaa36-bdc7-4d6e-ac8d-41b20d9425e2
+```
+
+The command downloads JSONL from `GET /api/v1/datasets/{dataset_id}/download?fileFormat=jsonl`, then writes a mechanical audit report and flagged-row CSV. It checks missing/short prompt/completion fields, normalized exact duplicate prompts and pairs, presence of acceptance/constraint language, possible execution-report claims, and domain/subdomain/difficulty coverage. Normalized exact duplicates are not semantic duplicates; phrase matches are review flags, not proof of fabricated results. The script never marks rows training-eligible.
+
+To audit an export already downloaded from Adaption:
+
+```bash
+python -m DHI_v1.benchmark.audit_invent_dataset --input path/to/export.jsonl
+```
+
+No rows have yet been inspected in this chat because no Adaption API key/export stream is available in the connected tools. Do not start SFT or use these rows as benchmark ground truth until the row audit, human review, and environment-execution checks pass.
