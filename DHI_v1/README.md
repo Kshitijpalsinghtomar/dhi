@@ -45,7 +45,7 @@ This is a candidate selection, not a measured ranking. Base screening must prece
 
 For Adaption runs, the connector catalogue is fetched once and reused throughout the run. Its SHA-256 snapshot is recorded so model comparisons can verify that both models saw the same available connectors. The Adaption meta-tool is read-only. The 120-row Invent task-spec seed has completed generation but failed the quality gate (Grade B, score 7.7, completion-quality percentile 2.7) and remains quarantined pending row-level review.
 
-Local verification on 2026-10-31: **66 tests passed** across environment and benchmark tests; Python compileall passed; the scripted smoke trace produced 13 events and passed the checked-in event schema. The smoke pilot is hand-scripted, not model-generated, and not training data.
+Local verification on 2026-10-31: **75 tests passed** across environment and benchmark tests; Python compileall passed; the scripted smoke trace produced 13 events and passed the checked-in event schema. The smoke pilot is hand-scripted, not model-generated, and not training data.
 
 ## Current status
 
