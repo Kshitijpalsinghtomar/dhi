@@ -1,9 +1,8 @@
-"""Run a model against the DHI-v1 pilot via an OpenAI-compatible endpoint.
+"""Run one model task through Adaption Responses or an OpenAI-compatible endpoint.
 
-Required environment variables:
-  DHI_MODEL_BASE_URL   Endpoint base URL (before /chat/completions)
-  DHI_MODEL_API_KEY    API key; never store it in the repository
-  DHI_MODEL_NAME       Exact served model ID
+For Adaption: set ADAPTION_API_KEY, DHI_MODEL_PROVIDER=adaption, and DHI_MODEL_NAME.
+For another provider: set DHI_MODEL_PROVIDER=openai_compatible, DHI_MODEL_BASE_URL,
+DHI_MODEL_API_KEY, and DHI_MODEL_NAME.
 
 This is an integration pilot, not a benchmark score or training-data exporter.
 """
@@ -21,16 +20,7 @@ from DHI_v1.environment.fixture_manager import materialize_fixture
 
 
 def main() -> int:
-    base_url = os.environ.get("DHI_MODEL_BASE_URL", "").strip()
-    api_key = os.environ.get("DHI_MODEL_API_KEY", "")
-    model_name = os.environ.get("DHI_MODEL_NAME", "").strip()
-    missing = [name for name, value in (
-        ("DHI_MODEL_BASE_URL", base_url),
-        ("DHI_MODEL_API_KEY", api_key),
-        ("DHI_MODEL_NAME", model_name),
-    ) if not value]
-    if missing:
-        raise SystemExit("Missing model endpoint configuration: " + ", ".join(missing))
+    client, model_name = client_from_env()
 
     repo_root = Path(__file__).resolve().parents[3]
     fixture_root = Path(__file__).parents[1] / "fixtures" / "basic_repo"
