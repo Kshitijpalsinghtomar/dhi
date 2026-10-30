@@ -21,18 +21,24 @@ Current-source/web verification, live app/plugin discovery, decoy-tool selection
 
 ## Run against a served model
 
-The model must be exposed through an OpenAI-compatible chat-completions endpoint with function/tool calling:
+The model can be called through Adaption's Responses API or any OpenAI-compatible chat-completions endpoint with function/tool calling. For Adaption, first list your account's exact hosted model IDs:
 
 ```bash
-export DHI_MODEL_BASE_URL="https://your-serving-endpoint/v1"
-export DHI_MODEL_API_KEY="..."
-export DHI_MODEL_NAME="your-served-model-id"
+export ADAPTION_API_KEY="..."
+python -m DHI_v1.environment.examples.list_adaption_models
+
+export DHI_MODEL_PROVIDER="adaption"
+export DHI_MODEL_NAME="EXACT_HOSTED_MODEL_ID_FROM_THE_LIST"
 python -m DHI_v1.benchmark.run_pilot_benchmark
 ```
 
+The Adaption adapter uses `POST /api/v1/responses`, disables response storage and agentic memory for controlled evaluation, and translates DHI tool calls through Responses function-call items. Use a direct hosted-model ID for base screening. `stack:<slug>` is supported for later system experiments, but a stack adds its configured tools/datasets/memory and therefore is not a clean base-model comparison.
+
+For another provider, set `DHI_MODEL_PROVIDER=openai_compatible` and provide `DHI_MODEL_BASE_URL`, `DHI_MODEL_API_KEY`, and `DHI_MODEL_NAME`.
+
 The command writes a JSON report and one JSONL trajectory per case under `outputs/pilot_benchmarks/<run-id>/`. It uses a fresh pinned fixture workspace per task. Existing outputs are never overwritten.
 
-The connected Adaption API currently exposes dataset and training operations but no inference call. This benchmark can run once a real model-serving endpoint is configured; no model has been evaluated by this runner yet.
+Adaption's connected MCP tool set does not expose inference, but the platform REST API does: DHI now includes a Responses API adapter. A live call still requires an Adaption API key and a hosted model ID available to that key; no model has been evaluated by this runner yet.
 
 ## Scoring
 
