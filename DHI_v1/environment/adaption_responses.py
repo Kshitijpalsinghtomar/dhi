@@ -195,6 +195,14 @@ class AdaptionResponsesClient:
             raise ModelClientError("Adaption model catalogue is missing data[]")
         return models
 
+    def list_tools_catalogue(self) -> list[dict[str, Any]]:
+        """List Adaption host-side MCP connectors and caller availability."""
+        result = self._request("GET", "tools")
+        tools = result.get("data")
+        if not isinstance(tools, list):
+            raise ModelClientError("Adaption tool catalogue is missing data[]")
+        return tools
+
     def complete(
         self,
         *,
@@ -221,6 +229,10 @@ class AdaptionResponsesClient:
             body["tool_choice"] = "none"
 
         result = self._request("POST", "responses", body)
+        status = result.get("status")
+        if status is not None and status != "completed":
+            details = result.get("error") or result.get("incomplete_details") or status
+            raise ModelClientError(f"Adaption response did not complete ({status}): {details}")
         if result.get("error"):
             error = result["error"]
             if isinstance(error, dict):
