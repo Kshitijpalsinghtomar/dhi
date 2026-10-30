@@ -593,6 +593,8 @@ class DHIEnvironment:
                     "results": [item for item in connectors if isinstance(item, dict)],
                     "catalogue_source": "adaption_api",
                     "available_only": arguments.get("available_only", True),
+                    "catalogue_snapshot_sha256": payload.get("catalogue_snapshot_sha256") if isinstance(payload, dict) else None,
+                    "catalogue_snapshot_scope": payload.get("catalogue_snapshot_scope") if isinstance(payload, dict) else None,
                 })
             return payload
 
