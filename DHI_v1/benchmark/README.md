@@ -26,13 +26,14 @@ The model can be called through Adaption's Responses API or any OpenAI-compatibl
 ```bash
 export ADAPTION_API_KEY="..."
 python -m DHI_v1.environment.examples.list_adaption_models
+python -m DHI_v1.environment.examples.list_adaption_tools
 
 export DHI_MODEL_PROVIDER="adaption"
 export DHI_MODEL_NAME="EXACT_HOSTED_MODEL_ID_FROM_THE_LIST"
 python -m DHI_v1.benchmark.run_pilot_benchmark
 ```
 
-The Adaption adapter uses `POST /api/v1/responses`, disables response storage and agentic memory for controlled evaluation, and translates DHI tool calls through Responses function-call items. Use a direct hosted-model ID for base screening. `stack:<slug>` is supported for later system experiments, but a stack adds its configured tools/datasets/memory and therefore is not a clean base-model comparison.
+The Adaption adapter uses `POST /api/v1/responses`, disables response storage and agentic memory for controlled evaluation, and translates DHI tool calls through Responses function-call items. `list_adaption_tools` reads `GET /api/v1/tools` to expose connector availability and any missing-scope/plan/disabled reason without executing a connector. Use a direct hosted-model ID for base screening. `stack:<slug>` is supported for later system experiments, but a stack adds its configured tools/datasets/memory and therefore is not a clean base-model comparison.
 
 For another provider, set `DHI_MODEL_PROVIDER=openai_compatible` and provide `DHI_MODEL_BASE_URL`, `DHI_MODEL_API_KEY`, and `DHI_MODEL_NAME`.
 
