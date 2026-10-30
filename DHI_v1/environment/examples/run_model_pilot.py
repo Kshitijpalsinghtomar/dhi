@@ -10,13 +10,12 @@ This is an integration pilot, not a benchmark score or training-data exporter.
 from __future__ import annotations
 
 import json
-import os
 import tempfile
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
-from DHI_v1.environment.agent_runner import OpenAICompatibleChatClient, run_agent_task
+from DHI_v1.environment.agent_runner import client_from_env, run_agent_task
 from DHI_v1.environment.dhi_env import DHIEnvironment, TaskSpec
 from DHI_v1.environment.fixture_manager import materialize_fixture
 
@@ -42,7 +41,6 @@ def main() -> int:
         f"{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}-{run_id}.jsonl"
     )
 
-    client = OpenAICompatibleChatClient(base_url=base_url, api_key=api_key, model=model_name)
     with tempfile.TemporaryDirectory(prefix="dhi-v1-model-pilot-") as temporary:
         workspace = Path(temporary) / "workspace"
         materialize_fixture(fixture_root, workspace)
