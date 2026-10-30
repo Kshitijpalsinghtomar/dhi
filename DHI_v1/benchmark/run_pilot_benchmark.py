@@ -1,7 +1,8 @@
 """Run supported DHI-v1 file-workspace pilot cases against a served model.
 
-Requires DHI_MODEL_BASE_URL, DHI_MODEL_API_KEY, and DHI_MODEL_NAME.
-The pilot is not the frozen 120-task benchmark or a training dataset.
+Provider selection: DHI_MODEL_PROVIDER=adaption with ADAPTION_API_KEY, or
+DHI_MODEL_PROVIDER=openai_compatible with DHI_MODEL_BASE_URL and DHI_MODEL_API_KEY.
+Both require DHI_MODEL_NAME. This is not the frozen 120-task benchmark.
 """
 from __future__ import annotations
 
