@@ -61,11 +61,13 @@ Local verification as of 2026-10-31: 26 tests pass, including fixture integrity,
 - [x] Three candidate backbones selected for comparative screening.
 - [x] Capability rubric and evaluation gates specified.
 - [x] Deterministic tool/environment harness v0.1 built and locally tested (15 tests passed).
-- [ ] Base-model comparison run on the frozen DHI diagnostic suite.
+- [ ] Connect an inference endpoint and compare untouched base models on the frozen DHI diagnostic suite.
 - [ ] Real trajectory pilot collected and independently validated.
 - [ ] Adaption SFT estimate and training run.
 - [ ] Predictive/closure ablations.
 - [ ] Custom latent architecture investigation.
+
+The OpenAI-compatible model runner is ready at [agent_runner.py](environment/agent_runner.py). The connected Adaption API currently lacks an inference method, so no model comparison has been run yet.
 
 No new Adaption dataset generation or training run is authorized by this plan alone.
 
