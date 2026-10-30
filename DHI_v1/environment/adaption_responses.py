@@ -10,6 +10,7 @@ No credential is read from source code or written to traces.
 from __future__ import annotations
 
 import json
+import hashlib
 import os
 import re
 import urllib.error
@@ -209,7 +210,12 @@ class AdaptionResponsesClient:
         return {token for token in re.findall(r"[a-z0-9_]+", value.casefold()) if len(token) > 1}
 
     def search_tools_catalogue(
-        self, *, query: str, available_only: bool = True, limit: int = 10
+        self,
+        *,
+        query: str,
+        available_only: bool = True,
+        limit: int = 10,
+        catalogue_snapshot: list[dict[str, Any]] | None = None,
     ) -> dict[str, Any]:
         """Search the live Adaption connector inventory; this never executes a connector."""
         if not isinstance(query, str) or not query.strip():
@@ -219,7 +225,12 @@ class AdaptionResponsesClient:
         if not isinstance(limit, int) or isinstance(limit, bool) or not 1 <= limit <= 50:
             raise ValueError("catalogue search limit must be an integer from 1 to 50")
 
-        catalogue = self.list_tools_catalogue()
+        catalogue = self.list_tools_catalogue() if catalogue_snapshot is None else catalogue_snapshot
+        if not isinstance(catalogue, list) or any(not isinstance(item, dict) for item in catalogue):
+            raise ValueError("catalogue_snapshot must be an array of connector objects")
+        catalogue_hash = hashlib.sha256(
+            json.dumps(catalogue, sort_keys=True, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+        ).hexdigest()
         query_terms = self._catalogue_tokens(query)
         scored: list[tuple[int, str, dict[str, Any]]] = []
         filtered_count = 0
@@ -242,6 +253,8 @@ class AdaptionResponsesClient:
             "query": query,
             "available_only": available_only,
             "catalogue_count": len(catalogue),
+            "catalogue_snapshot_sha256": catalogue_hash,
+            "catalogue_snapshot_mode": "provided_snapshot" if catalogue_snapshot is not None else "fetched_per_search",
             "searched_count": filtered_count,
             "match_count": len(matches),
             "tools": matches,
