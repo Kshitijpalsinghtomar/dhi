@@ -36,6 +36,13 @@ Qwen is selected as the initial build candidate because Adaption exposes reasoni
 
 This is a candidate choice, not a claim that Qwen is empirically best. All three base models must be compared on the same DHI diagnostic tasks before training.
 
+## First executable assets
+
+- [Deterministic environment and pinned fixture](environment/README.md)
+- [12-case agentic pilot suite](../DHI_v1/benchmark/README.md)
+
+Local verification as of 2026-10-31: 26 tests pass, including fixture integrity, workspace materialization, hidden-tool discovery, state deltas, protected files, and trace validation. The hand-scripted smoke pilot is not model-generated or training data.
+
 ## Read the controlling documents
 
 1. [Master development plan](docs/00_MASTER_DEVELOPMENT_PLAN.md)
