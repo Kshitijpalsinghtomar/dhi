@@ -1,7 +1,7 @@
 # DHI-v1 — Predictive Agentic Intelligence
 
 **Created:** 2026-10-31  
-**Status:** Research/design plus first runnable environment prototype. No DHI-v1 model, model-generated trajectory dataset, or positive benchmark result exists yet.
+**Status:** Active research and first executable prototype. No DHI-v1 model has been benchmarked yet.
 
 ## North-star definition
 
@@ -9,39 +9,55 @@ DHI-v1 is intended to become a general-purpose model that can reason about a use
 
 The intelligence must be learned in the model. A runtime may expose tools, credentials, permissions, sandboxes, and persistent execution state; those are necessary interfaces, not substitutes for learned tool awareness, planning, reasoning, or predictive ability.
 
-## The combined research thesis
+## Research thesis
 
-This programme combines two inputs:
+The programme combines:
+1. The observed weakness that assistants can remain narrow, use only familiar or preloaded tools, fail to discover available apps/connectors, and lose awareness in long workflows.
+2. A predictive model direction: learn task-relevant state representations, forecast action effects, condition decisions on goals and constraints, and verify closure against actual environment state.
 
-1. **User-originated problem statement:** current AI agents often remain narrow, rely on the tools already placed in front of them, fail to discover apps/connectors when capability is missing, use a one-pass or shallow loop, and lose awareness during long workflows.
-2. **Research direction:** learn a task-relevant predictive state, forecast action effects, condition decisions on goals and constraints, and verify final goal closure against real environment state.
+This is a research direction, not a proven architecture or novelty claim.
 
-The candidate mechanism is a **goal-conditioned predictive agentic model** with learned tool-affordance reasoning, hierarchical planning, action-effect prediction, and verifiable task closure.
+## Selected backbone candidates
 
-## Development strategy
+- **Primary Adaption candidate:** `Qwen/Qwen3.6-35B-A3B`
+- **Mandatory tool-use challenger:** `openai/gpt-oss-20b`
+- **Multimodal challenger:** `google/gemma-4-31B-it`
 
-- First build and benchmark the model's agentic capability using a supported backbone and Adaption.
-- Use real sandbox-executed trajectories, not fabricated tool outcomes.
-- Test tool discovery, multi-tool selection, long-horizon planning, re-planning, failure recovery, context continuity, safety, and task closure.
-- Add action-effect forecast supervision only after the ordinary agentic baseline and trace quality are valid.
-- Investigate a trainable latent predictive state mechanism in the custom GBA/architecture track only after forecast supervision demonstrates a real benefit.
+This is a candidate selection, not a measured ranking. Base screening must precede fine-tuning.
 
-## Selected backbone strategy
-
-**Primary Adaption candidate:** Qwen/Qwen3.6-35B-A3B.  
-**Mandatory tool-use challenger:** openai/gpt-oss-20b.  
-**Multimodal challenger:** google/gemma-4-31B-it.
-
-Qwen is selected as the initial build candidate because Adaption exposes reasoning-capable LoRA SFT/DPO support for it; the model is a sparse 35B/approximately 3B-active multimodal MoE with a 262K context window and strong agentic-coding positioning. GPT-OSS-20B is a necessary challenger because its published capabilities explicitly include native function calling, tool use, structured outputs, and adjustable reasoning effort. Gemma 4 31B is a strong alternative when screenshot, video, or broad multimodal handling is a central requirement. See the model-selection record for constraints and evidence.
-
-This is a candidate choice, not a claim that Qwen is empirically best. All three base models must be compared on the same DHI diagnostic tasks before training.
-
-## First executable assets
+## Executable assets
 
 - [Deterministic environment and pinned fixture](environment/README.md)
-- [12-case agentic pilot suite](../DHI_v1/benchmark/README.md)
+- [Model-to-environment runner](environment/agent_runner.py)
+- [Single-task model integration pilot](environment/examples/run_model_pilot.py)
+- [12-case diagnostic seed suite](benchmark/README.md)
+- [Benchmark runner](benchmark/runner.py)
+- [Benchmark CLI](benchmark/run_pilot_benchmark.py)
 
-Local verification as of 2026-10-31: 42 tests pass, including fixture integrity, workspace materialization, hidden-tool discovery, state deltas, protected files, and trace validation. The hand-scripted smoke pilot is not model-generated or training data.
+The deterministic file-workspace harness has eight supported diagnostic cases: no-tool restraint, source inspection, hidden-tool discovery, multi-step editing, no-op handling, transient failure recovery, unavailable-resource honesty, and protected-file editing. Four additional cases require future runtime integrations and are currently excluded.
+
+Local verification on 2026-10-31: **44 tests passed** across environment and benchmark tests; Python compileall passed; the scripted smoke trace produced 13 events and passed the checked-in event schema. The smoke pilot is hand-scripted, not model-generated, and not training data.
+
+## Current status
+
+- [x] DHI-v0 history preserved separately.
+- [x] DHI-v1 model strategy, capability rubric, methods, benchmark protocol, and trajectory contract documented.
+- [x] Deterministic file-workspace environment and pinned fixture implemented.
+- [x] Model-to-tool runner implemented with per-turn schema refresh after tool discovery.
+- [x] Eight-case executable pilot and observable evaluator implemented.
+- [x] Controlled transient tool failure and no-tool restraint cases added.
+- [ ] Connect a real inference endpoint and compare untouched Qwen3.6-35B-A3B and GPT-OSS-20B under identical conditions.
+- [ ] Inspect and validate the Adaption-generated 120-task specification seed.
+- [ ] Collect model-generated execution trajectories from a sandbox and independently verify them.
+- [ ] Estimate and run the first Adaption SFT experiment after data and benchmark gates pass.
+- [ ] Compare ordinary agentic SFT with predictive/closure supervision.
+- [ ] Investigate custom latent predictive architecture in GBA after the controlled ablations.
+
+## Important constraints
+
+The current connected Adaption API exposes dataset creation/adaptation and AutoScientist SFT/DPO, but no model inference operation or custom JEPA/latent-loss trainer. The OpenAI-compatible runner therefore needs a real model-serving endpoint; none is configured yet.
+
+The current file environment is not a production OS/container sandbox and its catalogue is a small lexical fixture, not a live app/plugin marketplace. No DHI-v1 model benchmark, training run, or architecture result is claimed.
 
 ## Read the controlling documents
 
@@ -53,44 +69,3 @@ Local verification as of 2026-10-31: 42 tests pass, including fixture integrity,
 6. [Benchmark protocol](docs/05_BENCHMARK_PROTOCOL.md)
 7. [Trajectory/data contract](docs/06_DATA_AND_TRAJECTORY_CONTRACT.md)
 8. [Decision log](docs/07_DECISIONS_AND_RESEARCH_LOG.md)
-
-## First executable benchmark
-
-The deterministic environment now has a model runner and a seven-case file-workspace pilot evaluator. The 12-case specification also contains five cases explicitly held out until live app/current-source/cross-session integrations exist. Local verification: 42 tests pass; compileall and schema checks pass. No model endpoint has been connected or scored yet.
-
-## Current execution state
-
-- [x] DHI-v0 history inspected and preserved.
-- [x] Adaption model registry inspected.
-- [x] Three candidate backbones selected for comparative screening.
-- [x] Capability rubric and evaluation gates specified.
-- [x] Deterministic tool/environment harness v0.1 built and locally tested (15 tests passed).
-- [ ] Connect an inference endpoint and compare untouched base models on the frozen DHI diagnostic suite.
-- [ ] Real trajectory pilot collected and independently validated.
-- [ ] Adaption SFT estimate and training run.
-- [ ] Predictive/closure ablations.
-- [ ] Custom latent architecture investigation.
-
-The OpenAI-compatible model runner is ready at [agent_runner.py](environment/agent_runner.py). The connected Adaption API currently lacks an inference method, so no model comparison has been run yet.
-
-No new Adaption dataset generation or training run is authorized by this plan alone.
-
-
-## First executable environment
-
-The first deterministic file-workspace tool environment is implemented under [environment/](environment/). It supports tool-catalogue discovery, file inspection/search/writes, action-start and action-result traces, SHA-256 state deltas, predicted-effect comparison, protected paths, and executable goal postconditions.
-
-- [Environment README](environment/README.md)
-- [Environment implementation](environment/dhi_env.py)
-- [15 unit/integration tests](environment/tests/test_dhi_env.py)
-- [Trajectory event JSON Schema](environment/schemas/trajectory-event.schema.json)
-- [Deterministic smoke pilot](environment/examples/run_pilot.py)
-- [GitHub Actions workflow](../../.github/workflows/dhi-v1-environment.yml)
-
-Local verification on 31 October 2026: **15 tests passed**; compileall passed; the scripted smoke pilot emitted 13 events and passed the README postcondition while preserving two protected files. The pilot is hand-scripted, not model-generated, and is not training data.
-
-The harness is deliberately file-only and is not an OS/container sandbox. Catalogue discovery is a lexical fixture, not a real app/plugin marketplace. No model is connected and no DHI-v1 training run has been launched.
-
-## First executable milestone
-
-The deterministic file-workspace environment is implemented in [DHI_v1/environment](environment/README.md). It supports a visible tool subset, catalogue discovery, file operations, action-effect comparison, verified postconditions, and append-only event traces. Local verification: 17 tests passed; the scripted smoke trace contains 13 schema-valid events. The pilot is not model-generated and is not training data.
