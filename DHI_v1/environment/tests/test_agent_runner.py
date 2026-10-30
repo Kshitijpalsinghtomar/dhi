@@ -263,3 +263,30 @@ def test_external_catalogue_discovery_event_validates_against_trace_schema(tmp_p
 
     assert result.closure["success"] is True
     assert errors == []
+
+
+def test_adaption_tool_handler_freezes_connector_catalogue_once_per_agent_run():
+    from DHI_v1.environment.agent_runner import tool_handlers_from_client
+
+    class SnapshotClient:
+        def __init__(self):
+            self.fetch_count = 0
+            self.search_snapshots = []
+
+        def list_tools_catalogue(self):
+            self.fetch_count += 1
+            return [{"server_label": "github", "name": "GitHub", "available": True}]
+
+        def search_tools_catalogue(self, *, query, available_only=True, limit=10, catalogue_snapshot=None):
+            self.search_snapshots.append(catalogue_snapshot)
+            return {"catalogue_source": "adaption_api", "tools": catalogue_snapshot}
+
+    client = SnapshotClient()
+    handler = tool_handlers_from_client(client)["catalog.adaption_search"]
+    first = handler({"query": "github"})
+    second = handler({"query": "github", "available_only": False})
+
+    assert client.fetch_count == 1
+    assert client.search_snapshots[0] == client.search_snapshots[1]
+    assert first["catalogue_snapshot_sha256"] == second["catalogue_snapshot_sha256"]
+    assert first["catalogue_snapshot_scope"] == "fixed_for_this_agent_run"
