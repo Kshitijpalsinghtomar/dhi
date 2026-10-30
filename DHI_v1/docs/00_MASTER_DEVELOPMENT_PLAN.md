@@ -242,7 +242,7 @@ The first engineering dependency is now implemented in `DHI_v1/environment/`:
 
 ### Verification performed
 
-- 17 tests passed locally on 2026-10-31.
+- 26 tests passed locally on 2026-10-31.
 - Python compileall passed.
 - Generated trace events passed JSON Schema validation.
 - Smoke pilot produced 13 events, verified its README postcondition, and preserved source/configuration protected paths.
@@ -254,4 +254,14 @@ This proves only that the deterministic harness and trace contract behave as tes
 
 ### Next engineering gate
 
-Add reset/replay from a pinned fixture, structured state predicates, and a small multi-task benchmark with no-tool cases, hidden-tool discovery, decoy/unavailable tools, broken-call recovery, changed constraints, and false-closure traps. The initial test suite now includes regressions for missing protected paths and reused trace files. Then connect untouched candidate models to the same harness for base screening. Do not start training-data generation or spend Adaption credits before that base screen and trajectory-quality review.
+Add isolated workspace reset/materialization from a pinned fixture (materialization is now implemented), structured state predicates, and expand the 12-case pilot into a validated multi-task benchmark with no-tool cases, hidden-tool discovery, decoy/unavailable tools, broken-call recovery, changed constraints, and false-closure traps. The initial test suite now includes regressions for missing protected paths and reused trace files. Then connect untouched candidate models to the same harness for base screening. Do not start training-data generation or spend Adaption credits before that base screen and trajectory-quality review.
+
+
+### Added: pinned fixture and diagnostic pilot — 2026-10-31
+
+- Added a SHA-256-manifested three-file repository fixture.
+- Added safe fixture materialization that refuses to overwrite non-empty destinations and verifies copied hashes.
+- Added validation for path traversal, unexpected files, symlink directories, and source/destination nesting; generated Python/cache/vendor directories are ignored.
+- Added a hand-authored 12-case diagnostic pilot: seven cases target the current file workspace, while five explicitly require future runtime integrations.
+- The pilot is not frozen, not a complete 120-task base-screen suite, and not training data.
+- Local suite now passes 26 tests, including a repeat run after compileall.
