@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -199,9 +200,53 @@ class AdaptionResponsesClient:
         """List Adaption host-side MCP connectors and caller availability."""
         result = self._request("GET", "tools")
         tools = result.get("data")
-        if not isinstance(tools, list):
-            raise ModelClientError("Adaption tool catalogue is missing data[]")
+        if not isinstance(tools, list) or any(not isinstance(item, dict) for item in tools):
+            raise ModelClientError("Adaption tool catalogue is missing a valid data[] array")
         return tools
+
+    @staticmethod
+    def _catalogue_tokens(value: str) -> set[str]:
+        return {token for token in re.findall(r"[a-z0-9_]+", value.casefold()) if len(token) > 1}
+
+    def search_tools_catalogue(
+        self, *, query: str, available_only: bool = True, limit: int = 10
+    ) -> dict[str, Any]:
+        """Search the live Adaption connector inventory; this never executes a connector."""
+        if not isinstance(query, str) or not query.strip():
+            raise ValueError("catalogue search query must be a non-empty string")
+        if not isinstance(available_only, bool):
+            raise ValueError("available_only must be a boolean")
+        if not isinstance(limit, int) or isinstance(limit, bool) or not 1 <= limit <= 50:
+            raise ValueError("catalogue search limit must be an integer from 1 to 50")
+
+        catalogue = self.list_tools_catalogue()
+        query_terms = self._catalogue_tokens(query)
+        scored: list[tuple[int, str, dict[str, Any]]] = []
+        filtered_count = 0
+        for item in catalogue:
+            if available_only and item.get("available") is not True:
+                continue
+            filtered_count += 1
+            searchable = " ".join(str(item.get(key, "")) for key in (
+                "server_label", "name", "description", "auth", "connect", "mode",
+                "default_require_approval", "required_scope", "unavailable_reason",
+            ))
+            score = len(query_terms & self._catalogue_tokens(searchable))
+            if score:
+                scored.append((score, str(item.get("server_label", "")), item))
+
+        scored.sort(key=lambda row: (-row[0], row[1]))
+        matches = [{**dict(item), "relevance_score": score} for score, _, item in scored[:limit]]
+        return {
+            "catalogue_source": "adaption_api",
+            "query": query,
+            "available_only": available_only,
+            "catalogue_count": len(catalogue),
+            "searched_count": filtered_count,
+            "match_count": len(matches),
+            "tools": matches,
+            "execution_note": "Discovery only. No connector was invoked and no external state was changed.",
+        }
 
     def complete(
         self,
