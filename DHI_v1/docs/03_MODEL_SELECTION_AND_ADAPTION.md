@@ -194,3 +194,12 @@ Earlier Adaption attempts enforced a minimum of 1,000 effective SFT rows and 12,
 - Nemotron model card: https://huggingface.co/nvidia/Nemotron-3-Nano-Omni-30B-A3B-Reasoning-BF16
 
 All technical and availability claims must be rechecked for the exact model revision and Adaption registry at the time of a run.
+
+
+## Adaption inference route (verified 2026-10-31)
+
+The Adaption AutoScientist training model registry and Responses inference catalogue are separate. Training availability does not prove that an ID is callable by a given account key. Before screening, use the direct Responses API adapter's catalogue command to list `GET /api/v1/models?type=hosted` for the exact account-visible hosted model IDs.
+
+The Adaption Responses endpoint is `POST https://api.prod.adaptionlabs.ai/api/v1/responses`. DHI's `adaption_responses.py` maps tool definitions into Responses function tools and translates function calls/results back into the DHI execution loop. API-key access is required. Inference stacks use `stack:<slug>`; create/manage them in the app, because the API only calls them. Avoid stack IDs for initial base-model comparisons, since stacks can add tools, datasets, and memory.
+
+Use `DHI_MODEL_PROVIDER=adaption`, `ADAPTION_API_KEY`, and `DHI_MODEL_NAME` for the DHI model pilot and benchmark CLI.
