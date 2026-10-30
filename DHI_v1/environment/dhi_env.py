@@ -191,6 +191,7 @@ class DHIEnvironment:
             raise ValueError("tool catalogue contains duplicate tool_id values")
         default_visible = {"catalog.search", "fs.list_files", "fs.read_file", "fs.write_file", "fs.append_file"}
         self._default_visible = set(visible_tool_ids) if visible_tool_ids is not None else default_visible
+        self._discovered_tool_ids: set[str] = set()
         self._active_task: TaskSpec | None = None
         self._trajectory_id: str | None = None
         self._sequence = 0
@@ -207,6 +208,7 @@ class DHIEnvironment:
             visible = set(self._active_task.visible_tool_ids)
         else:
             visible = set(self._default_visible)
+        visible.update(self._discovered_tool_ids)
         visible.add("catalog.search")
         tools = self.catalogue if not visible_only else [x for x in self.catalogue if x["tool_id"] in visible]
         return [dict(item) for item in tools]
@@ -237,6 +239,9 @@ class DHIEnvironment:
                 scored.append((score, item["tool_id"], item))
         scored.sort(key=lambda row: (-row[0], row[1]))
         results = [dict(item) for _, _, item in scored[:limit]]
+        if self._active_task.allowed_tool_ids is not None:
+            results = [item for item in results if item["tool_id"] in self._active_task.allowed_tool_ids]
+        self._discovered_tool_ids.update(item["tool_id"] for item in results)
         self._record({
             "event_type": "tool_discovery",
             "task_id": self.active_task_id,
@@ -275,6 +280,7 @@ class DHIEnvironment:
                     f"protected path must already exist and be a regular file: {protected_path}"
                 )
         self._active_task = task
+        self._discovered_tool_ids.clear()
         self._trajectory_id = task.trajectory_id
         self._sequence = 0
         self._initial_snapshot = self.snapshot()
@@ -296,7 +302,9 @@ class DHIEnvironment:
         })
         return event
 
-    def run_action(self, action: dict[str, Any]) -> ActionResult:
+    def run_action(
+        self, action: dict[str, Any], *, presented_tool_ids: set[str] | None = None
+    ) -> ActionResult:
         if self._active_task is None:
             raise RuntimeError("begin_task must be called before run_action")
         if not isinstance(action, dict):
@@ -329,6 +337,7 @@ class DHIEnvironment:
             "observed_state_before": before,
             "selected_tool_id": tool_id,
             "arguments": arguments,
+            "presented_tool_ids": sorted(presented_tool_ids) if presented_tool_ids is not None else None,
             "expected_effects": expected_effects,
             "plan_version": action.get("plan_version", 1),
         })
@@ -340,8 +349,14 @@ class DHIEnvironment:
                     and tool_id not in self._active_task.allowed_tool_ids):
                 allowlist_passed = False
                 raise DHIEnvironmentError(f"tool {tool_id!r} is not allowed for this task")
-            if tool_id not in {x["tool_id"] for x in self.list_tools(visible_only=False)}:
-                raise DHIEnvironmentError(f"unknown tool: {tool_id}")
+            visible_tool_ids = {x["tool_id"] for x in self.list_tools(visible_only=True)}
+            if tool_id not in visible_tool_ids:
+                raise DHIEnvironmentError(f"tool {tool_id!r} is not currently visible; discover it first")
+            if presented_tool_ids is not None and tool_id not in presented_tool_ids:
+                raise DHIEnvironmentError(
+                    f"tool {tool_id!r} was not in the schema presented for this turn; "
+                    "discover it and call it on the next turn"
+                )
             self._validate_arguments(tool_id, arguments)
             result = self._dispatch(tool_id, arguments)
         except (DHIEnvironmentError, OSError, UnicodeError, ValueError) as exc:
