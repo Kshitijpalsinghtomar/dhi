@@ -242,7 +242,7 @@ The first engineering dependency is now implemented in `DHI_v1/environment/`:
 
 ### Verification performed
 
-- 26 tests passed locally on 2026-10-31.
+- 34 tests passed locally on 2026-10-31.
 - Python compileall passed.
 - Generated trace events passed JSON Schema validation.
 - Smoke pilot produced 13 events, verified its README postcondition, and preserved source/configuration protected paths.
@@ -265,3 +265,18 @@ Add isolated workspace reset/materialization from a pinned fixture (materializat
 - Added a hand-authored 12-case diagnostic pilot: seven cases target the current file workspace, while five explicitly require future runtime integrations.
 - The pilot is not frozen, not a complete 120-task base-screen suite, and not training data.
 - Local suite now passes 26 tests, including a repeat run after compileall.
+
+
+### Added: model-to-environment runner — 2026-10-31
+
+- Added an OpenAI-compatible chat-completions adapter and bounded model/tool loop.
+- The model sees only currently visible function schemas. Catalogue discovery promotes tools into the live inventory for the next turn; same-response calls cannot use a schema that was not offered at the start of that turn.
+- Function schemas include tool descriptions, permission scope, side effects, preconditions, cost class, and reversibility where supplied by the environment manifest.
+- Optional structured action-effect forecasts and subgoal labels are captured; the environment verifies forecasts against actual file deltas.
+- The runner never equates a model's final sentence with task success. Closure is computed from environment postconditions and protected-path hashes.
+- Added five fake-client integration tests, including hidden-tool recovery, same-turn schema-snapshot rejection, false-completion rejection, turn-budget stopping, and effect-forecast scoring.
+- Local suite: 34 tests passed; compileall passed; scripted smoke produced 13 events with zero JSON Schema errors.
+
+### Inference integration boundary
+
+The runner is an endpoint adapter, not evidence that a model has been connected. The connected Adaption API currently exposes dataset/training calls but no model inference endpoint. A real OpenAI-compatible serving endpoint must be configured before base-model screening. No new training dataset or AutoScientist training run has been started for DHI-v1.
