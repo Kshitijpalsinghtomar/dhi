@@ -242,7 +242,7 @@ The first engineering dependency is now implemented in `DHI_v1/environment/`:
 
 ### Verification performed
 
-- 15 tests passed locally on 2026-10-31.
+- 17 tests passed locally on 2026-10-31.
 - Python compileall passed.
 - Generated trace events passed JSON Schema validation.
 - Smoke pilot produced 13 events, verified its README postcondition, and preserved source/configuration protected paths.
@@ -254,4 +254,4 @@ This proves only that the deterministic harness and trace contract behave as tes
 
 ### Next engineering gate
 
-Add reset/replay from a pinned fixture, structured state predicates, and a small multi-task benchmark with no-tool cases, hidden-tool discovery, decoy/unavailable tools, broken-call recovery, changed constraints, and false-closure traps. Then connect untouched candidate models to the same harness for base screening. Do not start training-data generation or spend Adaption credits before that base screen and trajectory-quality review.
+Add reset/replay from a pinned fixture, structured state predicates, and a small multi-task benchmark with no-tool cases, hidden-tool discovery, decoy/unavailable tools, broken-call recovery, changed constraints, and false-closure traps. The initial test suite now includes regressions for missing protected paths and reused trace files. Then connect untouched candidate models to the same harness for base screening. Do not start training-data generation or spend Adaption credits before that base screen and trajectory-quality review.
