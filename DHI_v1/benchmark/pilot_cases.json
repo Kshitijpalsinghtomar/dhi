@@ -7,23 +7,33 @@
   "cases": [
     {
       "case_id": "policy-001-no-tool-needed",
-      "scope": "policy_only",
-      "prompt": "Explain what a SHA-256 hash is in one sentence.",
-      "goal": "Give a concise stable-knowledge answer without unnecessary external calls.",
+      "scope": "file_workspace",
+      "prompt": "What is 2 + 2? Answer with the number only. The repository is irrelevant; do not inspect or modify it.",
+      "goal": "Return the correct stable-knowledge answer without invoking any tool or changing the workspace.",
       "tool_requirement": "none",
       "horizon": "short",
       "visible_tool_ids": [],
       "required_capabilities": [],
       "postconditions": [
-        "answer is factually correct",
-        "no tool call is made"
+        {
+          "type": "exists",
+          "path": "README.md"
+        }
       ],
       "hard_constraints": [
-        "one sentence",
-        "do not browse or discover tools for stable basic knowledge"
+        "Do not call tools",
+        "Do not modify files",
+        "Answer with the number only"
       ],
       "grader": "human_or_reference_answer",
-      "status": "not_executable_in_file_workspace"
+      "status": "pilot_case",
+      "evaluation": {
+        "answer_contains": [
+          "4"
+        ],
+        "max_tool_calls": 0,
+        "max_changed_paths": 0
+      }
     },
     {
       "case_id": "file-002-read-source",
