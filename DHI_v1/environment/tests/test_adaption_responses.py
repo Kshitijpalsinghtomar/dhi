@@ -285,3 +285,18 @@ def test_search_tools_catalogue_rejects_invalid_limits_and_blank_query():
         client.search_tools_catalogue(query="  ")
     with pytest.raises(ValueError, match="from 1 to 50"):
         client.search_tools_catalogue(query="github", limit=100)
+
+
+def test_search_tools_catalogue_uses_supplied_snapshot_without_refetching():
+    client = AdaptionResponsesClient(api_key="test-secret", base_url="https://api.test.invalid")
+    snapshot = [{"server_label": "github", "name": "GitHub", "description": "Source repositories", "available": True}]
+    with patch.object(client, "list_tools_catalogue", side_effect=AssertionError("must use frozen snapshot")):
+        result = client.search_tools_catalogue(
+            query="source repositories",
+            available_only=True,
+            catalogue_snapshot=snapshot,
+        )
+
+    assert result["catalogue_snapshot_mode"] == "provided_snapshot"
+    assert len(result["catalogue_snapshot_sha256"]) == 64
+    assert result["tools"][0]["server_label"] == "github"
