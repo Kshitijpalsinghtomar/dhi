@@ -77,3 +77,7 @@ The first deterministic file-workspace tool environment is implemented under [en
 Local verification on 31 October 2026: **15 tests passed**; compileall passed; the scripted smoke pilot emitted 13 events and passed the README postcondition while preserving two protected files. The pilot is hand-scripted, not model-generated, and is not training data.
 
 The harness is deliberately file-only and is not an OS/container sandbox. Catalogue discovery is a lexical fixture, not a real app/plugin marketplace. No model is connected and no DHI-v1 training run has been launched.
+
+## First executable milestone
+
+The deterministic file-workspace environment is implemented in [DHI_v1/environment](environment/README.md). It supports a visible tool subset, catalogue discovery, file operations, action-effect comparison, verified postconditions, and append-only event traces. Local verification: 17 tests passed; the scripted smoke trace contains 13 schema-valid events. The pilot is not model-generated and is not training data.
