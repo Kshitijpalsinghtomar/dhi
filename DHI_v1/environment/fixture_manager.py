@@ -73,12 +73,14 @@ def validate_fixture(
 
     observed_paths: set[str] = set()
     total_bytes = 0
+    ignored_generated_dirs = {"__pycache__", ".pytest_cache", ".mypy_cache", ".ruff_cache", ".git", ".venv", "venv", "node_modules"}
     for current, directories, filenames in os.walk(root, topdown=True, followlinks=False):
         current_path = Path(current)
         for directory in list(directories):
             candidate = current_path / directory
             if candidate.is_symlink():
                 raise FixtureError(f"symlink directory is not allowed: {candidate.relative_to(root)}")
+        directories[:] = [directory for directory in directories if directory not in ignored_generated_dirs]
         for filename in filenames:
             candidate = current_path / filename
             if candidate == manifest_path:
