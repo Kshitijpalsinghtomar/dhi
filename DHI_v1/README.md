@@ -35,6 +35,7 @@ This is a candidate selection, not a measured ranking. Base screening must prece
 - [12-case diagnostic seed suite](benchmark/README.md)
 - [Benchmark runner](benchmark/runner.py)
 - [Benchmark CLI](benchmark/run_pilot_benchmark.py)
+- [Invent task-spec audit CLI](benchmark/audit_invent_dataset.py)
 
 ## Current executable evaluation
 
@@ -42,7 +43,7 @@ This is a candidate selection, not a measured ranking. Base screening must prece
 - **One Adaption-only case:** the model may search the live account connector catalogue and must report current availability, scope and approval metadata without claiming or executing an external connector action.
 - **Three unsupported cases:** live current-source verification, decoy-tool choice across external providers, and cross-session long-horizon resume.
 
-For Adaption runs, the connector catalogue is fetched once and reused throughout the run. Its SHA-256 snapshot is recorded so model comparisons can verify that both models saw the same available connectors. The Adaption meta-tool is read-only.
+For Adaption runs, the connector catalogue is fetched once and reused throughout the run. Its SHA-256 snapshot is recorded so model comparisons can verify that both models saw the same available connectors. The Adaption meta-tool is read-only. The 120-row Invent task-spec seed has completed generation but failed the quality gate (Grade B, score 7.7, completion-quality percentile 2.7) and remains quarantined pending row-level review.
 
 Local verification on 2026-10-31: **66 tests passed** across environment and benchmark tests; Python compileall passed; the scripted smoke trace produced 13 events and passed the checked-in event schema. The smoke pilot is hand-scripted, not model-generated, and not training data.
 
@@ -57,7 +58,7 @@ Local verification on 2026-10-31: **66 tests passed** across environment and ben
 - [x] Read-only Adaption discovery exposed as a model-callable meta-tool.
 - [x] Per-run connector-catalogue snapshot fingerprint added to traces and reports.
 - [ ] Use a live Adaption API key to list actual hosted models and run untouched model comparisons.
-- [ ] Inspect and validate the Adaption-generated 120-task specification seed.
+- [ ] Download and inspect the quarantined Adaption-generated 120-task specification seed (Grade B / 7.7; completion-quality percentile 2.7).
 - [ ] Collect model-generated execution trajectories from a sandbox and independently verify them.
 - [ ] Estimate and run the first Adaption SFT experiment after data and benchmark gates pass.
 - [ ] Compare ordinary agentic SFT with predictive/closure supervision.
