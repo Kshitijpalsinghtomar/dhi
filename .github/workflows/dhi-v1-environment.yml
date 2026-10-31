@@ -1,6 +1,13 @@
 name: DHI-v1 environment tests
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - "DHI_v1/environment/**"
+      - "DHI_v1/benchmark/**"
+      - ".github/workflows/dhi-v1-environment.yml"
   pull_request:
     paths:
       - "DHI_v1/environment/**"
