@@ -203,3 +203,25 @@ The Adaption AutoScientist training model registry and Responses inference catal
 The Adaption Responses endpoint is `POST https://api.prod.adaptionlabs.ai/api/v1/responses`. DHI's `adaption_responses.py` maps tool definitions into Responses function tools and translates function calls/results back into the DHI execution loop. API-key access is required. Inference stacks use `stack:<slug>`; create/manage them in the app, because the API only calls them. Avoid stack IDs for initial base-model comparisons, since stacks can add tools, datasets, and memory.
 
 Use `DHI_MODEL_PROVIDER=adaption`, `ADAPTION_API_KEY`, and `DHI_MODEL_NAME` for the DHI model pilot and benchmark CLI.
+
+## 2026-10-31 — Live Adaption training-registry recheck
+
+The connected Adaption `list_training_models` action was queried again on 2026-10-31. The three shortlist candidates are currently registered for both SFT and DPO:
+
+| Candidate | Registry ID | Context reported by Adaption | Reasoning flag | Supported training |
+|---|---|---:|---|---|
+| Qwen primary | `Qwen/Qwen3.6-35B-A3B` | 262,144 | Yes | LoRA |
+| GPT-OSS challenger | `openai/gpt-oss-20b` | 131,072 | Yes | LoRA |
+| Gemma multimodal challenger | `google/gemma-4-31B-it` | 262,144 | Yes | LoRA, full |
+
+These are **training-registry records**, not proof that the same IDs are enabled for hosted inference under the current API key. The registry's methods are SFT/DPO; the training type listed is LoRA/full. Recheck this catalogue before any later training launch.
+
+### Adaption inference access gate
+
+The repository's `AdaptionResponsesClient` implements:
+- `GET /api/v1/models?type=hosted` to list hosted model IDs visible to the API key;
+- `POST /api/v1/responses` for inference and tool calling.
+
+The client requires `ADAPTION_API_KEY` at runtime. The connected Adaption MCP actions available in this session expose dataset, Invent, training-model, recommendation, and AutoScientist operations, but do **not** expose the hosted-model list or Responses inference endpoints. Therefore this session can verify training-registry availability but cannot independently verify hosted inference availability or execute the model benchmark.
+
+**Decision:** preserve Adaption as the primary platform. Do not switch providers just to bypass this access boundary, do not launch training on the historical/quarantined datasets, and do not claim a model winner. The next local preflight is to run `python -m DHI_v1.environment.examples.list_adaption_models` with the key configured locally; then use an exact ID returned by that hosted-only endpoint for the existing benchmark.
