@@ -119,3 +119,19 @@ The current interpretation is a **target-format mismatch**: the requests asked I
 **Decision:** quarantine both Invent task-spec datasets; no training, no benchmark promotion, and no further 120-row generation with this format. Use the ORBIT codename for future generated rows and task IDs; do not include internal project branding in prompts or dataset names. See [ORBIT data-generation method review](../docs/08_ORBIT_DATA_GENERATION_METHOD_REVIEW.md) for the full reset: separate benchmark task contracts, optional single-step decision supervision, real environment-grounded trajectories, and later verified preference pairs.
 
 The row-level content for the second candidate is still unavailable through the connected Adaption MCP actions. Metadata and evaluator summaries alone do not certify individual task quality. The method mismatch is established from the requested target format and platform limitations; semantic row-level defects remain unassessed.
+
+
+## Grader hardening — 2026-10-31
+
+The development evaluator now supports:
+- answer_regex for exact or format-sensitive final-answer checks. Patterns are validated when the suite loads.
+- only_change_paths to reject state mutations outside an explicit allowlist.
+
+The current cases use these checks to:
+- require the no-tool arithmetic answer to be exactly 4 (not merely contain the character 4);
+- require the hidden-search response to include both src/api.py and line 1;
+- restrict documentation write tasks to changes in README.md only.
+
+Five regression tests cover substring false positives, whole-answer matching, missing line-number evidence, unrequested file mutation, and malformed regex rejection.
+
+The pattern logic was checked in isolation. The full pytest/compileall suite has not yet been executed against this revision: the available Hugging Face CPU job service returned HTTP 402 before starting a job, and the local environment could not resolve GitHub to clone the repository. Do not treat the regression suite as passed until it runs in a normal development environment or CI.
