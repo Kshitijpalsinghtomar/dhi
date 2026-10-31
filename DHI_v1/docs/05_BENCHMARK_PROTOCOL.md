@@ -169,3 +169,20 @@ The existing Qwen3.5-4B DPO/SFT outcomes are historical references, not a compar
 External public scores can be stale, flawed, contaminated, or measured under different harnesses. Verify benchmark revision, task validity, licenses, and evaluator. The DHI internal suite must include its own task validity audit and executable outcome graders.
 
 No LLM judge alone can establish task success. Use environment state, tests, schemas, and human review for semantic judgments.
+
+
+## 2026-10-31 — Deepnote static integrity validation of the development pilot
+
+The `DHI_v1/benchmark/pilot_cases.json` file at repository HEAD `0753bcae9d0937dda187bc6033a0dce6e9d65c5d` was parsed in the connected Deepnote CPU workspace.
+
+Checks passed:
+- 12 cases with unique case IDs and explicit postconditions.
+- 8 common `file_workspace` pilot cases.
+- 1 Adaption catalogue-only case.
+- 3 cases explicitly marked `not_executable_in_file_workspace` (external-source, external-tool-registry, and cross-session runtime scope).
+- Both answer-regex patterns compile.
+- The no-tool grader accepts exactly `4` and rejects `14`.
+- The hidden-search grader distinguishes line 1 from line 2.
+- Both write cases restrict changed paths to `README.md`.
+
+This is a static suite/grader-integrity check only. It did not execute the agent runner, any model, tools, or environment tasks. It is not a pytest pass and does not establish model capability. The full focused Python test suite remains unverified; do not report the pilot as a completed model benchmark.
