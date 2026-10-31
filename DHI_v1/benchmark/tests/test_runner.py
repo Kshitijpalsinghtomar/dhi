@@ -242,3 +242,70 @@ def test_benchmark_runs_extra_live_catalogue_case_only_with_adaption_handler(tmp
     assert client.catalogue_queries
     saved_report = json.loads(Path(report["report_path"]).read_text(encoding="utf-8"))
     assert saved_report["case_count"] == 9
+
+
+def test_exact_answer_regex_rejects_substring_false_positive():
+    case = {
+        "case_id": "exact-arithmetic",
+        "evaluation": {"answer_regex": r"^\\s*4\\s*$", "max_tool_calls": 0},
+    }
+    result = SimpleNamespace(
+        final_answer="14",
+        tool_call_count=0,
+        closure={"success": True, "event": {"overall_effects": {"changed_paths": []}}},
+    )
+    outcome = evaluate_case(case, result, [])
+    assert outcome["checks"]["answer_regex"] is False
+    assert outcome["passed"] is False
+
+
+def test_exact_answer_regex_accepts_the_entire_answer_only():
+    case = {"case_id": "exact-arithmetic", "evaluation": {"answer_regex": r"^\\s*4\\s*$"}}
+    result = SimpleNamespace(
+        final_answer=" 4 ",
+        closure={"success": True, "event": {"overall_effects": {"changed_paths": []}}},
+    )
+    outcome = evaluate_case(case, result, [])
+    assert outcome["checks"]["answer_regex"] is True
+    assert outcome["passed"] is True
+
+
+def test_hidden_search_case_requires_both_path_and_line_number():
+    from json import loads
+
+    suite = loads(SUITE.read_text(encoding="utf-8"))
+    case = next(item for item in suite["cases"] if item["case_id"] == "file-003-hidden-search-discovery")
+    result = SimpleNamespace(
+        final_answer="The function is in src/api.py.",
+        closure={"success": True, "event": {"overall_effects": {"changed_paths": []}}},
+    )
+    outcome = evaluate_case(case, result, [])
+    assert outcome["checks"]["answer_contains"] is True
+    assert outcome["checks"]["answer_regex"] is False
+    assert outcome["passed"] is False
+
+
+def test_only_change_paths_rejects_unrequested_file_mutations():
+    case = {"case_id": "readme-only", "evaluation": {"only_change_paths": ["README.md"]}}
+    result = SimpleNamespace(
+        final_answer="Updated README.",
+        closure={"success": True, "event": {"overall_effects": {"changed_paths": ["README.md", "debug.txt"]}}},
+    )
+    outcome = evaluate_case(case, result, [])
+    assert outcome["checks"]["only_allowed_paths_changed"] is False
+    assert outcome["passed"] is False
+
+
+def test_loader_rejects_invalid_answer_regex():
+    import json
+    import pytest
+
+    invalid_suite = SUITE.parent / "_invalid_regex_suite_test.json"
+    try:
+        payload = json.loads(SUITE.read_text(encoding="utf-8"))
+        payload["cases"][0]["evaluation"]["answer_regex"] = "["
+        invalid_suite.write_text(json.dumps(payload), encoding="utf-8")
+        with pytest.raises(ValueError, match="invalid answer_regex"):
+            load_supported_cases(invalid_suite)
+    finally:
+        invalid_suite.unlink(missing_ok=True)
