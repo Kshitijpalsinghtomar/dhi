@@ -230,3 +230,43 @@ Repeated Adaption status checks still report `running`, with no row count, proce
 
 ### Training decision after completion
 Use the small pilot backbone first (Qwen3.5-4B is the current provisional option). The prior two 300-row runs on that backbone reached AutoScientist best win rates of 0.3211 and 0.3000, which are platform optimization metrics—not independent benchmark capability scores. Evaluate the new run on a held-out skill-behavior benchmark before concluding that the skill transferred. Do not start preference optimization until actual chosen/rejected pairs are available and their ranking is verified. Do not train large candidates below their 10,000-effective-row eligibility requirement.
+
+
+## 2026-10-31 — ORBIT 300-row generation completed
+
+### Adaption result
+- Dataset ID: `169af31f-06e0-4a48-84ab-b84c9f9ce924`
+- Status: `succeeded`
+- Rows processed: 300 / 300
+- Adaption reports a Grade A quality result, score 9.4 (previous 9.0; +4.4%).
+- Reported DCScore: 94.9003 (normalized 0.9490).
+- Quality evaluator sampled 100 input rows, not all 300.
+- Sampled averages: message quality 8.96/10 (28.9th reference percentile); completion quality 9.79/10 (37th reference percentile).
+- Reference means reported by Adaption: message 8.36; completion 9.38.
+
+These are dataset-generation quality metrics only. They do not establish that the generated rows teach the intended collaboration behaviour, that completions are correct for their prompts, or that a model will transfer the behaviour.
+
+### Schema and mapping status
+The completed tabular dataset exposes columns including `invented_prompt`, `invent_completion`, `original_prompt`, `original_completion`, `enhanced_prompt`, `enhanced_completion`, `input_prompt`, and `input_completion`, among others. Adaption's dataset-level `prompt_column` and `completion_column` remain null. Its evaluation mapping reports:
+- `enhanced_prompt` ← `invented_prompt`
+- `original_prompt` ← `prompt`
+- `enhanced_completion` ← `invent_completion`
+- `original_completion` ← `completion`
+
+This identifies candidate fields but does not prove which pair is the right SFT supervision for this job. No row-level export URL is present in the connected MCP response.
+
+Adaption's documented row-download route is `GET /api/v1/datasets/{dataset_id}/download?fileFormat=jsonl`, authenticated with a bearer API key. The connected Adaption MCP actions in this session do not expose that download operation. The S3/Lance input path in the quality evaluation is an internal path, not a user-accessible export URL. Do not attempt to read it as if it were public.
+
+### Model recommendation (no training launched)
+The live AutoScientist recommendation for `Qwen/Qwen3.5-4B` is LoRA SFT:
+- 1 epoch; batch size `max`
+- learning rate `5e-5`
+- LoRA rank 16; alpha 32; dropout 0
+- all-linear trainable modules
+- linear scheduler; warmup 0.03; max grad norm 2; weight decay 0
+- train on inputs: false
+
+This is a configuration recommendation, not evidence that the data is ready or that this model is optimal. No AutoScientist run was launched and no training credits were spent after the recommendation.
+
+### Current decision
+**Generation complete; training gate still closed.** Next required step is row-level export and audit of all 300 records: confirm the exact prompt/completion fields, inspect content and role alignment, duplicates, leakage, prompt/completion diversity, and response correctness; then freeze a grouped validation split. Only after those checks should the explicit column mapping be passed to AutoScientist and SFT launched.
