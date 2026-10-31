@@ -270,3 +270,42 @@ This is a configuration recommendation, not evidence that the data is ready or t
 
 ### Current decision
 **Generation complete; training gate still closed.** Next required step is row-level export and audit of all 300 records: confirm the exact prompt/completion fields, inspect content and role alignment, duplicates, leakage, prompt/completion diversity, and response correctness; then freeze a grouped validation split. Only after those checks should the explicit column mapping be passed to AutoScientist and SFT launched.
+
+
+## 2026-10-31 — First visible-page semantic audit (98/300 pairs)
+
+### Scope and extraction integrity
+The connected Adaption View tab exposed 100 top-level table slots for this dataset. A depth-aware HTML table parser was used so nested HTML tables inside long completions were not miscounted as dataset rows. It yielded 98 complete prompt/completion pairs; visible slots 30 and 65 were incomplete and excluded. The Adaption API confirms 300 total rows, but the other 200 are not exposed through the connected app actions or the current browser table view.
+
+Within the 98 visible complete pairs:
+- Exact duplicate prompts: 0.
+- Normalized duplicate prompts: 0.
+- Exact duplicate completions: 0.
+- Exact duplicate prompt/completion pairs: 0.
+
+### Row-level adjudication
+A model-assisted semantic triage was recorded for every one of the 98 complete visible pairs:
+- **25 candidate**: potentially useful after spot-checking and caveats.
+- **53 revise**: useful direction, but materially overconfident, underspecified, ungrounded, or technically incomplete.
+- **20 reject**: serious technical/factual defect, unsafe generic procedure, unsupported codebase claim, or false completion claim.
+
+This is not an independent human expert review and it is not an audit of all 300 rows. It is sufficient to block training on the current dataset until the remaining rows and the rejected/revision items are handled.
+
+### Confirmed/high-confidence examples
+- The Pd–Ag membrane answer presents a specific α–β transition/cold-trap explanation for high-Ag material without composition-aware support. A 2006 membrane study reports a marked 170–200 °C hydrogen-flux peak for **low-Ag** membranes, with the peak becoming less significant and shifting to a shoulder as Ag content increases. This does not support the generated answer's confident use of the same mechanism for a 20–25 wt% Ag alloy at the stated operating conditions. Source: https://www.sciencedirect.com/science/article/abs/pii/S0376738806003772
+- The polymer-blend answer says a second-order transition should equilibrate faster. That conflicts with critical slowing down: relaxation times can diverge as a continuous/second-order critical point is approached. Source: https://resolve.cambridge.org/core/services/aop-cambridge-core/content/view/872890FB3A0FDDD021B23265B998077F/9781009290418c6_90-112.pdf
+- The generic Rust `Future`/pinning example calls `Pin::get_mut` without bounding the state machine as `Unpin` or providing a sound pinned projection. The standard library explicitly requires `T: Unpin`; pinning nested futures needs structural pinning/projection. Source: https://doc.rust-lang.org/std/pin/struct.Pin.html
+- The training-loop example in visible row 80 was syntax-parsed in Deepnote. Static inspection found that the advertised OOM batch shrink is only a commented placeholder; the OOM handler does not clear partial gradients before continuing; the test named `test_train_step_returns_finite_loss` never calls `train_step`; no test verifies decreasing loss; and checkpoint tests do not verify model/optimizer restoration. A simple chunk-count counterexample also shows that the stated `grad_accum` divisor can disagree with the number of chunks unless exact divisibility is guaranteed.
+- The Assistant Axis identifier `2601.10387` in row 89 is correct, but the completion claims a README change was applied without any tool execution evidence. Source: https://arxiv.org/abs/2601.10387
+- Other rejects include an unsafe Rust slab allocator, an ungrounded bespoke Lofström-loop formula, an invalid training-contamination inference, detailed chemistry instructions for an unspecified alkaloid, a high-risk cross-border legal/tax structure presented as liability containment, invented file paths/line numbers, and a fabricated model identity.
+
+### Deepnote evidence
+The audit files are in the private Deepnote workspace:
+- `data/orbit_visible_rows.jsonl`
+- `audit/orbit_first100_manual_judgement.json`
+- `audit/orbit_first100_manual_judgement.csv`
+
+The row-80 static test log is retained in the `DHI — ORBIT Research Lab` notebook. It validates the specific code claims above; it is not a full repository test suite or a model capability benchmark.
+
+### Decision
+**Keep SFT blocked.** The visible page already contains too many rejected or materially flawed answers, and 200/300 rows remain unseen. Do not infer the unseen rows are safe from the Grade A / 9.4 dataset-generation score. Next requirements remain: obtain the complete row export; audit all rows; remove/rewrite rejects; verify revisions against sources/tests; freeze a grouped held-out split; and only then explicitly map `invented_prompt` → `invent_completion` and decide whether the residual data merits a small Qwen3.5-4B SFT run.
