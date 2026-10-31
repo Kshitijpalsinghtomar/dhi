@@ -99,3 +99,19 @@ Next:
 7. Only then consider a small, compute-conscious Qwen3.5-4B SFT run and compare it with the untouched base on a frozen behavioural evaluation set.
 
 Do not inflate the dataset with duplicates to meet platform row minimums. If the verified candidate count is too small, build more tasks and real execution trajectories instead.
+
+
+## 7. DHI environment and reference-pilot validation (2026-10-31)
+
+While the full ORBIT export remains unavailable, the connected DHI environment was advanced independently so the project does not stall on dataset access.
+
+The following repository defects were found and fixed:
+- bare JSON `true`/`false` values in the Python tool catalogue prevented a clean environment import;
+- the basic fixture manifest contained a stale README SHA-256 and correctly blocked fixture materialization;
+- the no-op fixture variant used Markdown inline code while its postcondition expected unformatted text, causing a correct no-write action to fail closure.
+
+Regression tests now cover all three conditions. Eleven focused standard-library tests passed: 2 tool-catalogue tests, 7 ORBIT promotion-gate tests, and 2 fixture integrity/no-op tests.
+
+The eight supported file-workspace cases were then executed individually through `run_pilot_benchmark` using a deterministic scripted reference client. All 8/8 passed, with 12 tool calls, 20 turns, and 8 successful closures. The only changed file in mutating tasks was README.md. These are reference-policy harness results, not LLM capability results; the scripted client is not a model and the traces are not eligible as model-generated training data.
+
+See [`10_DHI_SCRIPTED_REFERENCE_PILOT_RESULTS.md`](10_DHI_SCRIPTED_REFERENCE_PILOT_RESULTS.md) for case-level results, interpretation, and the next model-facing evaluation design.
