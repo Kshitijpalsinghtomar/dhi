@@ -203,3 +203,30 @@ Benchmark splits must be grouped by template family, environment, tool schema fa
 - Internal capability rubric: `DHI_v1/docs/01_CAPABILITY_RUBRIC_AND_SCORECARD.md`
 - Internal methods gate: `DHI_v1/docs/04_METHODS_AND_WHEN_TO_USE.md`
 - Internal trajectory contract: `DHI_v1/docs/06_DATA_AND_TRAJECTORY_CONTRACT.md`
+
+
+## 2026-10-31 — ORBIT collaboration-skill instruction pilot
+
+### Purpose
+The old 120-row Invent task-specification runs were quarantined because their output was task-contract metadata rather than a natural assistant response. The new job tests whether Invent can produce direct prompt/completion supervision aligned with the collaboration skill. It is not a source of fabricated tool traces.
+
+### Active Adaption job
+- Name: `ORBIT Collaboration Behaviour — Instruction Pilot 300`
+- Dataset ID: `169af31f-06e0-4a48-84ab-b84c9f9ce924`
+- Type: `instruction_dataset`
+- Requested rows: 300
+- Domains: technology, code, academic education, science, corporate business
+- Estimated generation cost at launch: 30 credits
+- Credit estimate before launch: 63 available
+- Adaption accepted the job at `2026-10-31T01:05:06Z`, status `running`.
+
+### Behavior target
+The generation brief was derived from the collaboration skill's observable principles: understand intent beneath imperfect wording; preserve originality without overclaiming; answer proportionally; challenge weak assumptions; use evidence and tools honestly; inspect before editing; verify engineering work; separate hypothesis, method, baseline, result, and limitation; distinguish instruction responses, preferences, and genuine executed trajectories; and continue from context without needless handoffs.
+
+Generated user prompts and completions were instructed not to include the user's real name, private project names, repository names, API keys, or the ORBIT codename itself.
+
+### Current status / stop conditions
+Repeated Adaption status checks still report `running`, with no row count, processed count, prompt/completion columns, quality evaluation, or export URLs. Therefore the job is **not yet a ready training dataset**. Do not launch AutoScientist against it until it completes, the actual prompt/completion columns are identified, and the dataset evaluation is read. If it completes with null mappings, inspect the actual schema and map the correct natural prompt/completion fields explicitly.
+
+### Training decision after completion
+Use the small pilot backbone first (Qwen3.5-4B is the current provisional option). The prior two 300-row runs on that backbone reached AutoScientist best win rates of 0.3211 and 0.3000, which are platform optimization metrics—not independent benchmark capability scores. Evaluate the new run on a held-out skill-behavior benchmark before concluding that the skill transferred. Do not start preference optimization until actual chosen/rejected pairs are available and their ranking is verified. Do not train large candidates below their 10,000-effective-row eligibility requirement.
