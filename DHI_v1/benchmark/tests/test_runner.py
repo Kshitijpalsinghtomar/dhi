@@ -309,3 +309,21 @@ def test_loader_rejects_invalid_answer_regex():
             load_supported_cases(invalid_suite)
     finally:
         invalid_suite.unlink(missing_ok=True)
+
+
+def test_already_complete_fixture_variant_matches_its_postconditions(tmp_path):
+    from DHI_v1.benchmark.runner import apply_fixture_variant
+    from DHI_v1.environment.dhi_env import DHIEnvironment
+    from DHI_v1.environment.fixture_manager import materialize_fixture
+
+    cases = load_supported_cases(SUITE)
+    case = next(item for item in cases if item["case_id"] == "file-005-already-satisfied-no-op")
+    workspace = tmp_path / "workspace"
+    fixture_root = Path(__file__).parents[2] / "environment" / "fixtures" / "basic_repo"
+    materialize_fixture(fixture_root, workspace)
+    apply_fixture_variant(case, workspace)
+
+    environment = DHIEnvironment(workspace)
+    checks = [environment._verify_postcondition(condition) for condition in case["postconditions"]]
+
+    assert all(check["passed"] for check in checks)
