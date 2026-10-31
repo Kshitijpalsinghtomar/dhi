@@ -339,3 +339,20 @@ The first development pilot used substring-only answer checks in places where ex
 
 ### Decision
 Treat the grader changes as implemented but pending full-suite verification. Do not claim the benchmark is frozen or use the development-pilot score as a model-selection result. The next valid gate remains: run the regression suite in a functioning development/CI environment, then establish a working live inference endpoint and execute the same harness against the untouched base-model candidates.
+
+
+## 2026-10-31 — Adaption-first inference preflight
+
+### Live registry evidence
+The connected Adaption `list_training_models` operation returned the currently registered candidates:
+- `Qwen/Qwen3.6-35B-A3B`: 262,144 context; reasoning enabled; SFT/DPO; LoRA.
+- `openai/gpt-oss-20b`: 131,072 context; reasoning enabled; SFT/DPO; LoRA.
+- `google/gemma-4-31B-it`: 262,144 context; reasoning enabled; SFT/DPO; LoRA/full.
+
+This only establishes training-registry support. It does not establish hosted inference access for this account/key.
+
+### Inference access inspection
+The existing adapter calls the documented authenticated endpoints `GET /api/v1/models?type=hosted` and `POST /api/v1/responses`. It requires `ADAPTION_API_KEY` at runtime. The available Adaption MCP action catalogue in this session exposes model training registry, datasets, recommendations, and AutoScientist runs, but no hosted-model listing or Responses inference action. No API key is exposed to the assistant runtime.
+
+### Decision
+Keep Adaption as the primary platform. The next action is a local, secret-safe hosted-model preflight using the existing `list_adaption_models.py`, followed by the same benchmark for each exact hosted candidate returned. Do not paste the API key into chat, do not start training, and do not treat the training registry as inference approval. No new dataset generation or training credits were used in this check.
