@@ -225,3 +225,21 @@ The repository's `AdaptionResponsesClient` implements:
 The client requires `ADAPTION_API_KEY` at runtime. The connected Adaption MCP actions available in this session expose dataset, Invent, training-model, recommendation, and AutoScientist operations, but do **not** expose the hosted-model list or Responses inference endpoints. Therefore this session can verify training-registry availability but cannot independently verify hosted inference availability or execute the model benchmark.
 
 **Decision:** preserve Adaption as the primary platform. Do not switch providers just to bypass this access boundary, do not launch training on the historical/quarantined datasets, and do not claim a model winner. The next local preflight is to run `python -m DHI_v1.environment.examples.list_adaption_models` with the key configured locally; then use an exact ID returned by that hosted-only endpoint for the existing benchmark.
+
+
+## 2026-10-31 — Small-data versus scale-up training gate (Adaption live check)
+
+The live Adaption recommender and validation were queried against the 300-row instruction pilot and preference pilot.
+
+**Observed hard eligibility constraints**
+- `Qwen/Qwen3.6-35B-A3B` rejects fine-tuning when effective rows (base + augmentation) are below 10,000.
+- `google/gemma-4-31B-it` likewise rejects fine-tuning below 10,000 effective rows.
+- `openai/gpt-oss-20b` returned a valid one-epoch LoRA recommendation for the 300-row pilots.
+- `Qwen/Qwen3.5-4B` returned a valid one-epoch LoRA recommendation for the 300-row pilots.
+- `Qwen/Qwen3.5-2B` and `google/gemma-3-4b-pt` also returned recommendations for the 300-row instruction pilot.
+
+**Provisional small-data pilot candidate:** `Qwen/Qwen3.5-4B`, because two historical runs already exist on this backbone and it allows an interpretable continuation/comparison. Suggested initial config from the live recommender: 1 epoch, max batch size, learning rate 5e-5, LoRA rank 16 / alpha 32, all-linear modules, linear scheduler, 3% warmup, no input-token training. This is a starting configuration, not a proven optimum.
+
+**Scale-up candidates:** keep Qwen3.6-35B-A3B and Gemma 4-31B-it for a later dataset with at least 10,000 effective rows. Do not artificially inflate row counts with duplicates merely to pass the eligibility check.
+
+**Important distinction:** a model being eligible for AutoScientist fine-tuning says nothing about hosted inference availability or benchmark quality. The current connected Adaption tools expose the training registry and training operations but not the hosted Responses API. Adaption remains the training platform; evaluation infrastructure must be available cloud-side without requiring the user to install or run the repository locally.
