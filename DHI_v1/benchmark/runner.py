@@ -167,6 +167,17 @@ def evaluate_case(case: dict[str, Any], result: Any, events: list[dict[str, Any]
     }
 
 
+def apply_fixture_variant(case: dict[str, Any], workspace: str | Path) -> None:
+    """Apply a declared deterministic fixture variant before task-state capture."""
+    variant = case.get("fixture_variant")
+    root = Path(workspace)
+    if variant == "readme_already_complete":
+        with (root / "README.md").open("a", encoding="utf-8") as handle:
+            handle.write("\nHealth-check function: `src/api.py#healthcheck`\n")
+    elif variant is not None:
+        raise ValueError(f"unknown fixture variant: {variant}")
+
+
 def run_pilot_benchmark(
     client: ChatCompletionClient,
     *,
@@ -192,11 +203,7 @@ def run_pilot_benchmark(
             workspace = Path(temporary) / "workspace"
             materialize_fixture(fixture_root, workspace)
             variant = case.get("fixture_variant")
-            if variant == "readme_already_complete":
-                with (workspace / "README.md").open("a", encoding="utf-8") as handle:
-                    handle.write("\nHealth-check function: \x60src/api.py#healthcheck\x60\n")
-            elif variant:
-                raise ValueError(f"unknown fixture variant: {variant}")
+            apply_fixture_variant(case, workspace)
 
             task = TaskSpec(
                 task_id=case["case_id"],
