@@ -247,7 +247,7 @@ def test_benchmark_runs_extra_live_catalogue_case_only_with_adaption_handler(tmp
 def test_exact_answer_regex_rejects_substring_false_positive():
     case = {
         "case_id": "exact-arithmetic",
-        "evaluation": {"answer_regex": r"^\\s*4\\s*$", "max_tool_calls": 0},
+        "evaluation": {"answer_regex": r"^\s*4\s*$", "max_tool_calls": 0},
     }
     result = SimpleNamespace(
         final_answer="14",
@@ -260,7 +260,7 @@ def test_exact_answer_regex_rejects_substring_false_positive():
 
 
 def test_exact_answer_regex_accepts_the_entire_answer_only():
-    case = {"case_id": "exact-arithmetic", "evaluation": {"answer_regex": r"^\\s*4\\s*$"}}
+    case = {"case_id": "exact-arithmetic", "evaluation": {"answer_regex": r"^\s*4\s*$"}}
     result = SimpleNamespace(
         final_answer=" 4 ",
         closure={"success": True, "event": {"overall_effects": {"changed_paths": []}}},
