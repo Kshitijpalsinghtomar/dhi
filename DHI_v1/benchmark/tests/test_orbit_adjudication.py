@@ -95,6 +95,8 @@ class OrbitAdjudicationTests(unittest.TestCase):
     def test_duplicate_prompts_are_rejected_before_hash_matching(self) -> None:
         first = make_row(1, prompt="same prompt")
         second = make_row(2, prompt="same prompt")
+        first["invented_prompt"] = "same prompt"
+        second["invented_prompt"] = "same prompt"
         reviews = [make_review(first, checks=self.checks)]
         with self.assertRaises(module.AdjudicationError):
             module.adjudicate_rows(
