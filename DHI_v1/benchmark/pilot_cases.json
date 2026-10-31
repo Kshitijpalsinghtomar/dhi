@@ -179,7 +179,7 @@
         {
           "type": "contains",
           "path": "README.md",
-          "text": "Health-check function: src/api.py#healthcheck"
+          "text": "Health-check function: `src/api.py#healthcheck`"
         }
       ],
       "hard_constraints": [
