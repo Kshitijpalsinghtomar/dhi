@@ -317,3 +317,25 @@ Adaption quality evaluations sampled 100 rows for the reported metrics. The scor
 
 ### Current implementation gate
 The repository's current pilot suite is still marked development-only and contains eight executable file-workspace cases plus external-runtime cases that the file harness cannot grade. The 120-task screening suite is not frozen, and no candidate model has yet been run against the environment. The Adaption Responses adapter is implemented, but it requires the user's API key and an exact account-visible hosted model ID; no live inference was performed in this audit. Therefore no model ranking, training claim, or training authorization is added by this entry.
+
+
+## 2026-10-31 — Pilot evaluator precision and write-scope hardening
+
+### Finding
+The first development pilot used substring-only answer checks in places where exact answers were required. For example, the no-tool arithmetic case accepted any final answer containing the character '4', so an incorrect answer such as '14' could satisfy that check. The hidden-search case requested a line number but graded only the file path. Two documentation-write cases protected known source/config files but did not explicitly reject every other changed path.
+
+### Changes committed
+- Added answer_regex scoring with regex validation at suite-load time.
+- Added only_change_paths scoring to reject any observed changed path outside the task's explicit allowlist.
+- Tightened the no-tool arithmetic case to require the entire final answer to be exactly 4, with optional surrounding whitespace.
+- Tightened the hidden-search case to require both src/api.py and line 1.
+- Restricted the two README-writing cases to changes in README.md only.
+- Added five regression tests for exact-answer false positives, complete-answer matching, line-number evidence, unexpected file changes, and invalid regex rejection.
+
+### Verification status
+- The regex and allowed-path predicates were exercised in an isolated Python check; all eight targeted assertions passed.
+- The full repository pytest suite and compileall were not run on this revision. The Hugging Face CPU-job launch was rejected with HTTP 402 before a job started; a local clone also failed because the execution environment could not resolve GitHub.
+- No cloud job was started, no training run was launched, and no training credits were spent.
+
+### Decision
+Treat the grader changes as implemented but pending full-suite verification. Do not claim the benchmark is frozen or use the development-pilot score as a model-selection result. The next valid gate remains: run the regression suite in a functioning development/CI environment, then establish a working live inference endpoint and execute the same harness against the untouched base-model candidates.
