@@ -275,3 +275,45 @@ No new Invent credits spent for this data until a focused one-step decision spec
 
 ### Caveats
 The two run prompts/domains differed, so their diversity scores are not a controlled ablation. The second DCScore is about 18.1% lower than the first, an observed difference only. Row-level contents have not yet been inspected; individual task semantic quality remains unassessed. The data-target mismatch is established without claiming every generated row is semantically invalid.
+
+
+## 2026-10-31 — Cross-dataset Invent quality versus training-signal audit
+
+### Purpose
+Check whether Adaption's dataset-quality grade is a reliable proxy for whether AutoScientist training improves the target behavior. This is a retrospective comparison, not a controlled experiment.
+
+### Dataset-quality observations
+
+| Neutral label | Rows | Adaption score | Mean message quality | Mean completion quality | DCScore (normalized) |
+|---|---:|---:|---:|---:|---:|
+| Earlier instruction corpus | 300 | A / 9.0 | 8.50 | 9.46 | 92.68 (0.927) |
+| Earlier preference corpus | 300 | A / 9.1 | 8.65 | 9.45 | 91.19 (0.912) |
+| Intent/action/effort instruction corpus | 1,200 | B / 8.6 | 8.02 | 9.10 | 96.97 (0.970) |
+| Task-spec candidate A | 120 | B / 7.7 | 8.62 | 6.80 | 84.43 (0.844) |
+| Task-spec candidate B | 120 | C / 6.6 | 8.18 | 5.03 | 69.11 (0.691) |
+
+Adaption quality evaluations sampled 100 rows for the reported metrics. The scores measure dataset-message/completion properties and diversity, not execution success or model capability.
+
+### Training observations
+
+- The 300-row instruction corpus produced AutoScientist-reported best win rates of 0.3211 when mapped from the invented prompt/completion columns and 0.3000 when mapped from the original prompt/completion columns. Both runs used Qwen3.5-4B.
+- The 1,200-row instruction corpus produced an AutoScientist-reported best win rate of 0.1229 on Qwen3.5-4B.
+- A separate 12,116-row combined preference corpus produced 0.4609 in a Qwen3.5-4B alignment run. This is not the same dataset as the 300-row preference corpus above.
+- No AutoScientist run was found for the standalone 300-row preference corpus in the retrieved run history.
+- These win rates are platform training metrics. They are not independently scored task-success rates and are not comparable across different datasets/methods without a shared evaluation protocol.
+
+### Interpretation
+1. High Invent quality scores do not, by themselves, predict a useful learned capability. The 300-row instruction corpus was rated A / 9.0 but its two training runs remained at 30.00–32.11% reported best win rate; the 1,200-row corpus was rated 8.6 but its run reported 12.29%.
+2. The two 120-row task-spec attempts show a different problem: task-contract JSON was placed in the completion position, where the training format expects the answer to the prompt. Their low completion scores are consistent with that target mismatch.
+3. The apparent difference between ordinary instruction/preference examples and long task-spec completions is a useful clue, not a causal finding. The datasets differ in prompt, domain mix, row count, output shape, and potentially generation configuration. The comparison does not establish that dataset length or one Invent setting caused the difference.
+4. The 12,116-row preference result must remain separate: it is a different combined dataset and a different training method, not evidence that the 300-row preference pilot trained well.
+
+### Decision
+- Keep both 120-row task-spec datasets quarantined; do not use them for SFT, DPO, benchmark scoring, or execution-trace labels.
+- Do not infer model progress from Invent's A/B/C grade or AutoScientist's best-win-rate field alone.
+- Do not launch another generic Invent or AutoScientist run on the historic corpora.
+- Preserve the ORBIT split: task contracts are benchmark metadata; an optional Invent dataset may teach only a concise single next decision; primary SFT must come from actual environment-executed trajectories; DPO must compare independently verified alternative trajectories.
+- Continue to the untouched-base diagnostic only after the supported pilot, inference endpoint, and evaluation protocol are ready.
+
+### Current implementation gate
+The repository's current pilot suite is still marked development-only and contains eight executable file-workspace cases plus external-runtime cases that the file harness cannot grade. The 120-task screening suite is not frozen, and no candidate model has yet been run against the environment. The Adaption Responses adapter is implemented, but it requires the user's API key and an exact account-visible hosted model ID; no live inference was performed in this audit. Therefore no model ranking, training claim, or training authorization is added by this entry.
