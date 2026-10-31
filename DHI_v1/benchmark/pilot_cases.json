@@ -28,11 +28,9 @@
       "grader": "human_or_reference_answer",
       "status": "pilot_case",
       "evaluation": {
-        "answer_contains": [
-          "4"
-        ],
         "max_tool_calls": 0,
-        "max_changed_paths": 0
+        "max_changed_paths": 0,
+        "answer_regex": "^\\s*4\\s*$"
       }
     },
     {
@@ -108,7 +106,8 @@
         ],
         "must_use_tools": [
           "fs.search_text"
-        ]
+        ],
+        "answer_regex": "(?:src/api\\.py\\s*:\\s*1\\b|\\bline\\s*(?:number\\s*)?[:#]?\\s*1\\b)"
       }
     },
     {
@@ -154,6 +153,9 @@
           "fs.append_file"
         ],
         "must_change_paths": [
+          "README.md"
+        ],
+        "only_change_paths": [
           "README.md"
         ]
       }
@@ -335,6 +337,9 @@
           "fs.append_file"
         ],
         "must_change_paths": [
+          "README.md"
+        ],
+        "only_change_paths": [
           "README.md"
         ]
       }
