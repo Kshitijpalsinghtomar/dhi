@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import re
 import tempfile
 import uuid
 from datetime import datetime, timezone
@@ -45,6 +46,20 @@ def load_supported_cases(
             raise ValueError(f"case {case['case_id']} needs executable postconditions")
         if not isinstance(case.get("evaluation", {}), dict):
             raise ValueError(f"case {case['case_id']} evaluation must be an object")
+        answer_pattern = case.get("evaluation", {}).get("answer_regex")
+        if answer_pattern is not None:
+            if not isinstance(answer_pattern, str) or not answer_pattern:
+                raise ValueError(f"case {case['case_id']} answer_regex must be a non-empty string")
+            try:
+                re.compile(answer_pattern, re.IGNORECASE)
+            except re.error as exc:
+                raise ValueError(f"case {case['case_id']} has an invalid answer_regex: {exc}") from exc
+        only_change_paths = case.get("evaluation", {}).get("only_change_paths")
+        if only_change_paths is not None and (
+            not isinstance(only_change_paths, list)
+            or any(not isinstance(path, str) or not path for path in only_change_paths)
+        ):
+            raise ValueError(f"case {case['case_id']} only_change_paths must be a list of non-empty strings")
     return selected
 
 
@@ -59,6 +74,12 @@ def evaluate_case(case: dict[str, Any], result: Any, events: list[dict[str, Any]
         checks["answer_contains"] = all(str(value).casefold() in answer for value in evaluation["answer_contains"])
     if evaluation.get("answer_any_contains"):
         checks["answer_any_contains"] = any(str(value).casefold() in answer for value in evaluation["answer_any_contains"])
+    if evaluation.get("answer_regex"):
+        checks["answer_regex"] = re.search(
+            evaluation["answer_regex"],
+            result.final_answer or "",
+            flags=re.IGNORECASE,
+        ) is not None
 
     action_events = [event for event in events if event.get("event_type") == "action_executed"]
     used_tools = {event.get("selected_tool_id") for event in action_events}
@@ -78,6 +99,9 @@ def evaluate_case(case: dict[str, Any], result: Any, events: list[dict[str, Any]
         checks["max_changed_paths"] = len(changed_paths) <= int(evaluation["max_changed_paths"])
     if evaluation.get("must_change_paths"):
         checks["required_paths_changed"] = set(evaluation["must_change_paths"]).issubset(changed_paths)
+    if "only_change_paths" in evaluation:
+        unexpected_changed_paths = sorted(changed_paths - set(evaluation["only_change_paths"]))
+        checks["only_allowed_paths_changed"] = not unexpected_changed_paths
     if "max_tool_calls" in evaluation:
         checks["max_tool_calls"] = int(getattr(result, "tool_call_count", 0)) <= int(evaluation["max_tool_calls"])
 
