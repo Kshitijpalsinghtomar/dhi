@@ -460,3 +460,24 @@ VERIFY-001 successfully fetched and checked out the exact pinned commit `c2e0ddd
 
 After the initial exact checkout/compileall run, a retry cell was added to install pytest and jsonschema ephemerally and rerun the environment/benchmark tests. Deepnote rejected both detached and live-mode run creation with `Your plan quota for parallel running projects has been exceeded. Please stop one of your running projects.` before execution. No package was installed and no test was run in the retry. No existing project was stopped. The retry cell remains available in the isolated notebook. Further runtime work requires a user-approved stop of an idle project or another execution slot.
 
+## 2026-11-02 — Benchmark scope discrepancy confirmed; freeze remains blocked
+
+### Sources inspected
+- `DHI_v1/docs/03_MODEL_SELECTION_AND_ADAPTION.md`, Section 5: six groups of 20, total 120 initial screening tasks.
+- `DHI_v1/docs/05_BENCHMARK_PROTOCOL.md`, Section 3: ten strata of 24, total 240 initial diagnostic tasks.
+- `DHI_v1/docs/07_DECISIONS_AND_RESEARCH_LOG.md`, current next actions: freeze the 120-task base-screen diagnostic suite.
+- `DHI_v1/docs/00_MASTER_DEVELOPMENT_PLAN.md`: requires identical task sets for untouched-base screening but does not reconcile the two counts.
+- The checked-in 12-case development pilot remains development-only and does not resolve either specification.
+
+### Finding
+The repository contains two incompatible definitions of the *initial* screening/diagnostic scope. No inspected controlling file states that 120 is a subset of 240, that 240 is a later expansion, or that one document supersedes the other. No existing GitHub issue matched the 120-vs-240 conflict when searched on 2026-11-02.
+
+### Decision
+**Do not freeze a confirmatory or base-screen suite yet.** Preserve both source specifications and their provenance. Do not invent a staged progression, choose a count by recency, or treat the 12-case pilot as a substitute. A future explicit decision must state the purpose/stage, selected count and strata, inclusion relationship (if any), held-out split, and the documents revised.
+
+### Repository changes
+Added an explicit unresolved-conflict warning to Sections 5 and 3 of the model-selection and benchmark-protocol documents respectively. No task cases, rubric weights, model candidates, or evaluation rules were changed.
+
+### Consequence
+This is a documentation/audit result only. No benchmark tasks were generated, no model was run, and no training or Adaption credits were used. The inference-access preflight remains the immediate blocker before any model-facing pilot.
+
