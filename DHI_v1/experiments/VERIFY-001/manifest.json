@@ -58,7 +58,14 @@
     "pip_install_executed": false,
     "pytest_executed": false,
     "compileall_executed_in_retry": false,
-    "no_existing_project_stopped": true
+    "no_existing_project_stopped": true,
+    "workspace_machine_inventory": {
+      "projects_inspected": 8,
+      "running_projects": 1,
+      "stopped_by_assistant": 0,
+      "stop_permission_requested": false,
+      "observation": "Deepnote workspace currently has one running project, which is consuming the parallel-project slot. No project was stopped."
+    }
   },
-  "next_action": "Free one Deepnote parallel-running-project slot by explicitly stopping an idle project, then rerun the already-created dependency-install/test cell. Do not stop any project without user approval."
+  "next_action": "Add/connect a secure Deepnote Environment variables integration containing ADAPTION_API_KEY to the isolated DHI project. Free one parallel-project slot only after explicit user approval to stop an identified idle project. Then rerun the presence-only probe and continue hosted model preflight."
 }
