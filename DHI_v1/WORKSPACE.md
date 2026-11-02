@@ -31,9 +31,9 @@ phase: untouched_base_model_inference_preflight
 status: blocked
 status_reason: >
   The model-facing runner and Adaption Responses adapter are implemented,
-  but the connected Adaption actions expose training registry only; no secure
-  ADAPTION_API_KEY is available in a clean DHI runtime to query hosted IDs or
-  invoke Responses inference.
+  but the connected Adaption actions expose training registry only. The
+  isolated Deepnote secret-presence probe was rejected before execution by the
+  parallel-project quota, so secure key presence and hosted IDs remain unverified.
 training_status: not_authorized
 benchmark_status: development_pilot_not_frozen
 last_verified_repository_head_before_this_workspace_checkpoint: 4a218d92373924953cb6d87d63f31408b6fbb833
@@ -61,7 +61,7 @@ last_verified_repository_head_before_this_workspace_checkpoint: 4a218d9237392495
 | Scripted reference pilot | 8/8 passed | Harness/reference validation only; not an LLM result or training data |
 | Historical environment/benchmark tests | 75 passed on 2026-10-31 | Historical run; do not claim latest HEAD is tested |
 | ORBIT adjudication gate | Focused tests passed on 2026-10-31 | Gate code verification only |
-| INFER-001 hosted inference preflight | Blocked on 2026-11-02 | Training registry refreshed; hosted endpoint not called because no secure runtime key and no connected MCP inference operation |
+| INFER-001 hosted inference preflight | Blocked on 2026-11-02 | Training registry refreshed; no connected MCP inference action; isolated secret-presence probe rejected before execution by Deepnote project quota |
 | Untouched candidate model screening | Not run | No model winner |
 | DHI-v1 executed model trajectories | None recorded | No trajectory SFT source yet |
 | DHI-v1 training | Not authorized / not run | Data and benchmark gates remain closed |
@@ -85,15 +85,16 @@ Adaption flow documented in the repository:
 4. Only after model ID/access and user-approved provider/cost are confirmed, run the development pilot with `DHI_MODEL_PROVIDER=adaption` and `DHI_MODEL_NAME=<exact-hosted-id>`.
 5. Preserve the report and per-case traces; label this as a development pilot, not a frozen benchmark or training data.
 
-The connected Adaption MCP actions do not expose the hosted model-listing or Responses inference methods. INFER-001 confirmed no secure Adaption key/runtime route is available in this session. The existing Deepnote project `DHI — ORBIT Research Lab` has no attached integrations; its workspace has only `[Demo] Snowflake`, and its file inventory includes unrelated DPAK work. Do not run DHI inside that mixed project. No credential is recorded in Git. Never ask the user to paste a key into chat.
+The connected Adaption MCP actions do not expose the hosted model-listing or Responses inference methods. The existing Deepnote project `DHI — ORBIT Research Lab` has no attached integrations; its workspace has only `[Demo] Snowflake`, and its file inventory includes unrelated DPAK work. Do not run DHI inside that mixed project. A clean isolated Deepnote project was created for a presence-only secret probe, but its detached run was rejected before execution because the parallel-running-project quota was exceeded. Therefore secret presence is unmeasured, not known absent. No credential is recorded in Git. Never ask the user to paste a key into chat.
 
 ## 8. Next authorized action
 
-**Unblock INFER-001 through a secure DHI-only runtime.**
+**Unblock INFER-001 through the isolated DHI runtime.**
 
-- Configure `ADAPTION_API_KEY` (or `DHI_ADAPTION_API_KEY`) as a runtime secret in a clean DHI execution environment; do not paste it into chat or commit it.
-- Run the existing `python -m DHI_v1.environment.examples.list_adaption_models` command first.
-- Record exact IDs returned by `GET /api/v1/models?type=hosted` or the redacted API error in `DHI_v1/experiments/INFER-001/`.
+- Make one Deepnote parallel-run slot available by stopping an idle project only with explicit user approval, or provide another clean secure runtime. Do not stop any running project automatically.
+- Configure `ADAPTION_API_KEY` (or `DHI_ADAPTION_API_KEY`) as a secure environment secret in the isolated project `2eb8d02b-b505-4b39-a33a-32aeda2e1cc4`; do not paste it into chat or commit it.
+- Run the committed presence-only probe `DHI_v1/experiments/INFER-001/check_runtime_secret_presence.py` first. It must output booleans only.
+- If present, run `python -m DHI_v1.environment.examples.list_adaption_models` and record exact hosted IDs or the redacted API error in `DHI_v1/experiments/INFER-001/`.
 - Only after an exact hosted model is confirmed and provider/cost are approved, launch the existing development pilot.
 - Do not use the mixed DHI/DPAK Deepnote project, silently switch provider, guess model IDs, train, or generate another dataset.
 
@@ -113,7 +114,10 @@ Before a confirmatory base-screen design, reconcile the repository's scope discr
 | `218b6dce` | Clarified dated handover is a snapshot, not live state |
 | `a5ff6f7c` | Recorded Git-first operating decision in the append-only decision log |
 | `e049d7ce` / `0f33f5ce` | Recorded INFER-001 blocked preflight and manifest |
-| `4a218d92` | Logged preflight evidence and access blocker in decision history |
+| `4a218d92` | Logged first hosted-inference preflight blocker |
+| `5a649db4` | Added secret-presence-only runtime probe; no secret value is emitted |
+| `ab9946bd` / `8be08d1c` | Recorded isolated runtime creation and quota rejection in INFER-001 artifacts |
+| `9edb4d08` | Appended Deepnote quota rejection and corrected interpretation (secret presence unmeasured) |
 
 The current version of this file is the active checkpoint. Its own commit SHA is the newest `main` commit when this file is fetched; always inspect the branch head rather than hardcoding a self-referential SHA here.
 
