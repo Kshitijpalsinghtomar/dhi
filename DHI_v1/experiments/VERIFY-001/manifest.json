@@ -4,7 +4,7 @@
   "programme": "DHI-v1",
   "codename": "ORBIT",
   "type": "repository_test_verification",
-  "status": "running",
+  "status": "retrying_with_ephemeral_test_dependencies",
   "pinned_commit": "c2e0dddaa6eb22d0c4722fc7fb43f2c2439c7c61",
   "repository": "https://github.com/Kshitijpalsinghtomar/dhi",
   "environment": {
@@ -26,5 +26,27 @@
   "dataset_generation": false,
   "adaption_credits_spent": 0,
   "raw_run_id": null,
-  "results": null
+  "results": null,
+  "initial_run": {
+    "run_id": "93645a78-7cd2-4c64-9c84-353fbd31e15c",
+    "status": "success",
+    "pinned_commit": "c2e0dddaa6eb22d0c4722fc7fb43f2c2439c7c61",
+    "actual_commit": "c2e0dddaa6eb22d0c4722fc7fb43f2c2439c7c61",
+    "pytest": {
+      "exit_code": 1,
+      "elapsed_seconds": 0.023,
+      "error": "/root/venv/bin/python: No module named pytest",
+      "tests_executed": false
+    },
+    "compileall": {
+      "exit_code": 0,
+      "elapsed_seconds": 0.079
+    },
+    "overall_pass": false,
+    "interpretation": "Pytest did not execute because pytest is not installed in the clean runtime. This is an environment dependency block, not a test assertion failure."
+  },
+  "next_run": {
+    "expected_action": "Install pytest and jsonschema into the disposable Deepnote runtime, rerun the same pytest and compileall commands at the same pinned commit.",
+    "persistent_repository_changes": false
+  }
 }
