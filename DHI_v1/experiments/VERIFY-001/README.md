@@ -48,3 +48,14 @@ Pending. Raw run ID, exact command output, exit codes, elapsed time, and reposit
 ### Retry
 
 Install `pytest` and `jsonschema` into the disposable runtime only, rerun the exact same test suites and compileall at the same pinned commit. No repository source/dependency files are changed by this retry.
+
+
+## Retry blocked by Deepnote quota
+
+A retry cell was added to the isolated notebook (block `f0d38652cb8c490595ca474cc5ae2317`). It would install `pytest` and `jsonschema` into the disposable run environment only and rerun the same tests at the pinned commit.
+
+Both detached and live-mode run creation were rejected before execution with:
+
+`Your plan quota for parallel running projects has been exceeded. Please stop one of your running projects.`
+
+Therefore no package installation or retry tests ran. No existing project was stopped. The retry cell remains ready. A user-approved idle project stop (or another available execution slot) is required.
