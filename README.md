@@ -2,6 +2,13 @@
 
 DHI is the model-development programme for a general-purpose, tool-aware, long-horizon predictive agentic model. The objective is to improve the model's learned intelligence—not to market a system prompt, RAG collection, or external orchestrator as a new model.
 
+## Session entry — read first
+
+- [Live DHI-v1 workspace](DHI_v1/WORKSPACE.md) — current phase, exact blocker, evidence status, and next authorized action.
+- [Git-first research workflow](DHI_v1/docs/12_GIT_FIRST_WORKFLOW.md) — required checkpoint/commit rules for every work unit.
+
+The repository is the durable source of truth. Do not rely on chat-only handovers or uncommitted progress summaries.
+
 ## Active programme
 
 **DHI-v1 — Predictive Agentic Intelligence**  
