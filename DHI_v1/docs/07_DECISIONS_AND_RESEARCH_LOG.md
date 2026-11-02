@@ -417,3 +417,15 @@ Inject `ADAPTION_API_KEY` (or `DHI_ADAPTION_API_KEY`) into a clean DHI-only secu
 ### Scope boundary
 This is an infrastructure-access finding only. It does not change DHI's model candidates, training decisions, ORBIT data gates, or research hypothesis.
 
+### 2026-11-02 follow-up — isolated secret-presence probe could not execute
+
+A secret-safe probe was added at `DHI_v1/experiments/INFER-001/check_runtime_secret_presence.py`. It prints only whether `ADAPTION_API_KEY` or `DHI_ADAPTION_API_KEY` is present; it never prints values and performs no network request.
+
+A clean Deepnote project was created (`2eb8d02b-b505-4b39-a33a-32aeda2e1cc4`) with notebook `08586f8da34c456fb544baccb69ebe3e` and probe block `7bcfdf38fd0a400e989a4d6064e1caed`. Detached read-only run creation was rejected before execution with:
+
+`Your plan quota for parallel running projects has been exceeded. Please stop one of your running projects.`
+
+**Interpretation:** secret presence remains unmeasured; this is not evidence that the key is absent. No secret was read or emitted, no network request was made, and no existing project was stopped. The isolated project remains available for a later retry.
+
+**Next action:** make one Deepnote parallel-run slot available through an explicitly user-approved stop of an idle project, and configure the Adaption key as a secure environment secret in the isolated DHI project. Then execute the existing presence-only probe before any API request. Do not use the mixed DHI/DPAK project.
+
