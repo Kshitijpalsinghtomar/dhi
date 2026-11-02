@@ -368,7 +368,8 @@
         "policy",
         "provenance",
         "validation",
-        "execution"
+        "execution",
+        "split_metadata"
       ],
       "properties": {
         "task_id": {
@@ -597,7 +598,8 @@
             "version",
             "kind",
             "primary_outcome",
-            "independent_review_required"
+            "independent_review_required",
+            "llm_judge_sole_source"
           ],
           "properties": {
             "grader_id": {
@@ -828,7 +830,8 @@
           "additionalProperties": false,
           "required": [
             "partition",
-            "family_fingerprint_sha256"
+            "family_fingerprint_sha256",
+            "holdout_sealed"
           ],
           "properties": {
             "partition": {
@@ -867,6 +870,9 @@
                 "properties": {
                   "partition": {
                     "const": "stage_a"
+                  },
+                  "holdout_sealed": {
+                    "const": false
                   }
                 }
               }
@@ -890,6 +896,48 @@
                 "properties": {
                   "partition": {
                     "const": "stage_b"
+                  },
+                  "holdout_sealed": {
+                    "const": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "validation": {
+                "properties": {
+                  "status": {
+                    "const": "validated"
+                  }
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "validation": {
+                "required": [
+                  "contract_check",
+                  "environment_check",
+                  "grader_check",
+                  "review_status"
+                ],
+                "properties": {
+                  "contract_check": {
+                    "const": "pass"
+                  },
+                  "environment_check": {
+                    "const": "pass"
+                  },
+                  "grader_check": {
+                    "const": "pass"
+                  },
+                  "review_status": {
+                    "const": "accepted"
                   }
                 }
               }
