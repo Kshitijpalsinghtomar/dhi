@@ -87,7 +87,11 @@ Adaption flow documented in the repository:
 
 The connected Adaption MCP actions do not expose the hosted model-listing or Responses inference methods. The existing Deepnote project `DHI — ORBIT Research Lab` has no attached integrations; its workspace has only `[Demo] Snowflake`, and its file inventory includes unrelated DPAK work. Do not run DHI inside that mixed project. A clean isolated Deepnote project was created for a presence-only secret probe. Its first run was rejected by the project quota, but the retry completed successfully and measured both `ADAPTION_API_KEY` and `DHI_ADAPTION_API_KEY` as absent in that project runtime. This is not evidence that the user has no key elsewhere. No credential is recorded in Git. Never ask the user to paste a key into chat.
 
-## 8. Next authorized action
+## 8. Active verification
+
+VERIFY-001 is running against pinned commit `c2e0dddaa6eb22d0c4722fc7fb43f2c2439c7c61` in the isolated DHI-only Deepnote project. It runs only the existing environment/benchmark test suites and `compileall`; no model inference, training, dataset generation, or Adaption spend. Experiment record: `DHI_v1/experiments/VERIFY-001/`.
+
+## 9. Next authorized action
 
 **Unblock INFER-001 through the isolated DHI runtime.**
 
@@ -99,7 +103,7 @@ The connected Adaption MCP actions do not expose the hosted model-listing or Res
 
 Before a confirmatory base-screen design, reconcile the repository's scope discrepancy: the model-selection document describes a 120-task initial screen (6×20), while the benchmark protocol describes a 240-task diagnostic suite (10×24). The existing 12-case development pilot is neither. Record the intended staged design in the decision log before freezing a larger suite.
 
-## 9. Latest committed work
+## 10. Latest committed work
 
 | Commit | Change |
 |---|---|
@@ -119,10 +123,11 @@ Before a confirmatory base-screen design, reconcile the repository's scope discr
 | `9edb4d08` | Appended Deepnote quota rejection; secret presence remained unmeasured at that checkpoint |
 | `dff718ac` | Corrected earlier access wording |
 | `INFER-001 run b39c478a` | Measured both Adaption key variables absent in isolated project runtime; no API call |
+| `VERIFY-001` | Running pinned-revision software verification only; results pending |
 
 The current version of this file is the active checkpoint. Its own commit SHA is the newest `main` commit when this file is fetched; always inspect the branch head rather than hardcoding a self-referential SHA here.
 
-## 10. Session continuation checklist
+## 11. Session continuation checklist
 
 A new agent must:
 1. Read this file.
