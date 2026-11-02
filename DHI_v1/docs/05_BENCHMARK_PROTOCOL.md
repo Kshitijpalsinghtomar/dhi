@@ -71,7 +71,13 @@ APB is a diagnostic benchmark, not a substitute for executing full workflows.
 
 ## 3. Internal DHI diagnostic suite
 
-Build an initial **240-task** diagnostic suite, divided into ten strata of 24 tasks each:
+The controlling allocation is [SCREEN_AND_DIAGNOSTIC_SCOPE.md](../benchmark/SCREEN_AND_DIAGNOSTIC_SCOPE.md). The 120-task base screen and the 240-task diagnostic panel are nested stages of the same suite:
+
+- Stage A base-model screen: 12 tasks in each of the ten strata (120 total).
+- Stage B held-out extension: 12 additional tasks in each stratum (120 additional).
+- Complete diagnostic panel: 24 unique tasks per stratum (240 total).
+
+The ten strata are:
 
 1. No-tool-needed tasks and direct answers.
 2. Current/time-sensitive facts requiring verification.
@@ -84,11 +90,13 @@ Build an initial **240-task** diagnostic suite, divided into ten strata of 24 ta
 9. Action-effect forecasts, side-effect prediction, and verified goal closure.
 10. Permission boundaries, untrusted tool outputs, context continuity, and infeasible tasks.
 
-Distribute tasks across software repositories, terminal, browser, documents, spreadsheets, APIs, data analysis, project management, and simulated communication/calendar systems. Use sandboxed services for all write actions.
+Stage A is used for initial candidate/interface screening. Stage B is held out from tuning and is used to check whether the Stage A decision generalizes. Stage B must be split by task family/template, repository/application, schema family, dependency structure and environment state—not by random wording. Stage A and Stage B must not contain paraphrases or reused task structures.
 
-The 240-task suite is a pilot diagnostic, not a statistically definitive final benchmark. Expand to a separate confirmatory test after reviewing the pilot failures.
+Distribute tasks across software repositories, terminal, browser, documents, spreadsheets, APIs, data analysis, project management, and simulated communication/calendar systems as executable support becomes available. Use sandboxed services for every write action.
 
-> **Open scope conflict — 2026-11-02:** `DHI_v1/docs/03_MODEL_SELECTION_AND_ADAPTION.md` defines an initial 120-task base-model screen (6×20), and the append-only decision log records 120 as the base-screen target. This document independently calls 240 tasks the initial diagnostic suite (10×24). No committed decision establishes sequencing, nesting, supersession, or permission to substitute one for the other. Do not treat this 240-task plan as the approved base-screen size until the conflict is resolved in the decision log.
+**Scope is resolved; the benchmark is not frozen.** The allocation above does not freeze task instances, manifests, prompts, environment versions, graders, model revisions, seeds, budgets or statistical thresholds. The current 12-case file-workspace pilot remains development-only and is excluded from both Stage A and Stage B.
+
+Do not score a task as a model failure when the required environment or tool is unavailable in the harness. Mark it as a harness gap or unavailable item until execution and grading are implemented. Build, validate and hash the two task partitions before starting a comparative model screen.
 
 ## 4. Generalization and contamination controls
 
