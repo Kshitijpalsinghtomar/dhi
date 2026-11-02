@@ -27,13 +27,13 @@ This is a research target, not a result or novelty claim. A prompt, RAG store, f
 ```yaml
 programme: DHI-v1
 codename: ORBIT
-phase: untouched_base_model_inference_preflight
+phase: model_and_data_readiness_audit
 status: blocked
 status_reason: >
-  The model-facing runner and Adaption Responses adapter are implemented,
-  but the connected Adaption actions expose training registry only. The
-  isolated DHI runtime now has ADAPTION_API_KEY mounted; authenticated hosted
-  model listing is the next unverified gate.
+  The deterministic environment exists, but the initial benchmark scope is
+  unresolved, no DHI-v1 model-comparable base screen has run, and the current
+  Invent behaviour dataset is only partially reviewed and is not a verified
+  tool-execution trajectory corpus.
 training_status: not_authorized
 benchmark_status: development_pilot_not_frozen
 last_verified_repository_head_before_this_workspace_checkpoint: dff718acc0640517c61eb739f62f40485fea3a0e
@@ -61,7 +61,8 @@ last_verified_repository_head_before_this_workspace_checkpoint: dff718acc0640517
 | Scripted reference pilot | 8/8 passed | Harness/reference validation only; not an LLM result or training data |
 | Historical environment/benchmark tests | 75 passed on 2026-10-31 | Historical run; do not claim latest HEAD is tested |
 | ORBIT adjudication gate | Focused tests passed on 2026-10-31 | Gate code verification only |
-| INFER-001 hosted inference preflight | Hosted catalogue succeeded; inference approval pending | 6 hosted IDs returned; only Gemma 4 31B matches a selected candidate; no inference made |
+| INFER-001 hosted inference preflight | Hosted catalogue succeeded; Responses inference not run | Only Gemma 4 31B matches a selected candidate in the hosted catalogue; Qwen/GPT-OSS base comparison unavailable through that route |
+| ADAPTION-001 live platform audit | Completed; read-only | Qwen/Gemma require 10,000 effective training rows; GPT-OSS recipe returned for 300 rows; dataset not eligible; zero credits spent |
 | Untouched candidate model screening | Not run | No model winner |
 | DHI-v1 executed model trajectories | None recorded | No trajectory SFT source yet |
 | DHI-v1 training | Not authorized / not run | Data and benchmark gates remain closed |
@@ -69,23 +70,28 @@ last_verified_repository_head_before_this_workspace_checkpoint: dff718acc0640517
 ## 6. Data status and hard stops
 
 - Both 120-row Invent task-spec candidates are quarantined because task-contract JSON was generated as a completion rather than a natural answer/valid execution trajectory.
-- The 300-row ORBIT collaboration-behaviour candidate is not training-ready: only 98 visible complete pairs were reviewed (25 candidate, 53 revise, 20 reject); 202 rows remain unreviewed. This was model-assisted partial triage, not full independent adjudication.
+- The 300-row ORBIT collaboration-behaviour candidate (`169af31f-06e0-4a48-84ab-b84c9f9ce924`) is Invent-sourced and not training-ready: only 98 visible complete pairs were reviewed (25 candidate, 53 revise, 20 reject); 202 rows remain unreviewed. This was model-assisted partial triage, not full independent adjudication.
+- Adaption's evaluation of that dataset returned grade A / 9.4 on a 100-row evaluation sample. This is text-quality metadata, not an agent-capability score and not evidence of executed tool traces.
+- Live Adaption recommendations confirmed a 10,000-effective-row minimum for Qwen3.6-35B-A3B and Gemma 4 31B. GPT-OSS-20B returned a LoRA recipe for the 300-row set, but this does not override its provenance/review failure.
 - Do not train on any of those datasets, do not promote their Adaption grades to capability evidence, and do not fabricate tool traces or outcomes.
 - The primary future SFT evidence must be actual model execution in the DHI environment, with raw tool responses, actual state deltas, predictions, and independently verified postconditions.
 - Do not spend Adaption credits until the documented data, benchmark, model, and estimate gates pass.
 
-## 7. Exact current blocker
+## 7. Current blockers and platform boundary
 
-The code path is available, but no live hosted inference call has been verified from this workspace.
+The previous hosted-model catalogue preflight is complete. The connected Adaption MCP integration is useful for training-registry inspection, dataset inventory/evaluation, data transformation estimates, hyperparameter recommendations, and AutoScientist runs. It does **not** expose the hosted Responses inference operation.
 
-Adaption flow documented in the repository:
-1. Use an API key through a secure runtime/local secret (never store it in Git or chat).
-2. Run `python -m DHI_v1.environment.examples.list_adaption_models` to obtain the exact account-visible hosted IDs from `GET /api/v1/models?type=hosted`.
-3. Select an ID actually returned by that endpoint; do not assume the training-registry ID is callable.
-4. Only after model ID/access and user-approved provider/cost are confirmed, run the development pilot with `DHI_MODEL_PROVIDER=adaption` and `DHI_MODEL_NAME=<exact-hosted-id>`.
-5. Preserve the report and per-case traces; label this as a development pilot, not a frozen benchmark or training data.
+Current facts:
+- Live training registry lists Qwen/Qwen3.6-35B-A3B, openai/gpt-oss-20b, and google/gemma-4-31B-it for supported SFT/DPO methods.
+- The separate hosted Responses catalogue returned six IDs, but only Gemma 4 31B matched a committed candidate. Qwen3.6 and GPT-OSS were absent from that hosted catalogue. Do not treat registry support as inference access.
+- A single Gemma call would test only one integration path; it cannot select the primary model against the mandatory GPT-OSS challenger. It is therefore not the next research action.
+- The live Adaption recommender rejected Qwen3.6 and Gemma on the 300-row dataset because they require at least 10,000 effective rows. GPT-OSS returned a recipe, but the dataset remains ineligible.
+- The recommender did not return a price quote. Dataset generation/adaptation/augmentation actions expose `estimate: true`; the connected training-launch action spends credits and has no estimate field in its exposed schema. Obtain platform cost information before any chargeable launch.
+- No DHI-v1 inference, training run, or new dataset-generation job was launched in ADAPTION-001. Credits spent: zero.
 
-The connected Adaption MCP actions do not expose the hosted model-listing or Responses inference methods. The existing `DHI — ORBIT Research Lab` Deepnote project remains mixed with unrelated files; DHI work is using the separate `DHI — Isolated Runtime Preflight` project only. The user created the `ADAPTION` Environment variables integration and it is attached to the isolated project. The secret-presence probe confirms `ADAPTION_API_KEY` is present without printing the value. Key validity and hosted model access remain unverified. No credential is recorded in Git.
+Experiment records:
+- `DHI_v1/experiments/INFER-001/` — secure runtime and hosted catalogue preflight.
+- `DHI_v1/experiments/ADAPTION-001/` — live Adaption model/data eligibility audit.
 
 ## 8. Active verification
 
@@ -93,15 +99,18 @@ VERIFY-001 is blocked on Deepnote's parallel-project quota. Initial run `93645a7
 
 ## 9. Next authorized action
 
-**Await authorization for one single-task Gemma integration pilot.**
+**Advance the environment/benchmark/data gates; do not run a Gemma-only pilot or fine-tune the current invented dataset.**
 
-- Hosted catalogue succeeded on 2026-11-02: six exact IDs are stored in `DHI_v1/experiments/INFER-001/manifest.json`.
-- Only the selected Gemma 4 31B challenger is available, under exact hosted ID `gemma-4-31b-it`. The Qwen3.6 primary and GPT-OSS mandatory challenger are absent; do not infer availability from training IDs or swap in unselected hosted models.
-- The repository's single-task pilot is `python -m DHI_v1.environment.examples.run_model_pilot`, configured with `DHI_MODEL_PROVIDER=adaption` and `DHI_MODEL_NAME=gemma-4-31b-it`.
-- The API catalogue does not expose price. Do not invoke inference until the user explicitly approves possible Adaption account billing/credit use. Do not start the eight-case benchmark or training yet.
-- VERIFY-001 remains blocked by Deepnote parallel-project quota; no project has been stopped.
+1. Resolve the documented 120-task base-screen versus 240-task diagnostic-suite conflict with an explicit task purpose, scope, strata, and split.
+2. Finish validating the deterministic DHI environment and runner. VERIFY-001 remains blocked on Deepnote's parallel-project quota; do not stop another project without approval.
+3. Produce a small batch of genuinely executed model trajectories only after a valid baseline route is available. Each example must retain raw tool responses, pre-action predictions, actual state deltas, and independently verified postconditions.
+4. Obtain comparable untouched-base inference access for Qwen3.6 and GPT-OSS before choosing a winner. The existing hosted catalogue only returned the Gemma candidate; do not replace the committed model shortlist silently.
+5. Reassess the 300-row Invent behaviour dataset only as auxiliary data after full review; it cannot substitute for executed trajectories.
+6. Before any Adaption data-generation/adaptation/augmentation job, call its estimate operation and record the quote. Before SFT, validate the exact dataset columns and model-specific row requirements, then inspect the actual charge in the platform. A recommender result is not a cost estimate.
 
-Benchmark scope audit is complete but the discrepancy remains unresolved: `03_MODEL_SELECTION_AND_ADAPTION.md` specifies 120 initial base-screen tasks (6×20), `05_BENCHMARK_PROTOCOL.md` specifies 240 initial diagnostic tasks (10×24), and the decision log names 120. No file establishes nesting or stage order; neither count is frozen. Warnings now appear in both source documents. Do not choose or freeze a suite until an explicit decision resolves purpose, size, strata, relationship, and split.
+The model-selection purpose is explicit: Qwen3.6-35B-A3B is the planned primary; GPT-OSS-20B is the mandatory tool-use challenger; Gemma 4 31B is the multimodal challenger. They are candidate backbones, not three models we need to train immediately. The base screen determines whether the primary choice is justified; only then does one controlled SFT run test whether verified trajectories improve the learned capability.
+
+The 120-vs-240 scope conflict remains unresolved. Do not freeze either suite or infer a nested relationship without a dated decision.
 
 ## 10. Latest committed work
 
@@ -125,6 +134,7 @@ Benchmark scope audit is complete but the discrepancy remains unresolved: `03_MO
 | `INFER-001 run b39c478a` | Measured both Adaption key variables absent before integration was attached |
 | `INFER-001 run 9e34f54b` | Confirmed `ADAPTION_API_KEY` present after secure integration attachment |
 | `INFER-001 run 4bd4a7ba` | Authenticated hosted-model catalogue returned 6 IDs; no inference called |
+| `4e8b9bf4` / `34dc832f` | Added ADAPTION-001 read-only model/data eligibility audit and manifest; zero credits spent |
 | `VERIFY-001 run 93645a78` | Exact checkout verified; compileall passed; pytest blocked by missing package before collection |
 | `VERIFY-001` retry | Blocked before execution by Deepnote quota in detached and live modes; retry cell is ready |
 | `VERIFY-001` | Initial compileall passed; pytest blocked by missing dependency; retry blocked by Deepnote quota |
