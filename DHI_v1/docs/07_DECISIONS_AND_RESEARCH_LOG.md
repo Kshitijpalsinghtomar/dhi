@@ -429,3 +429,7 @@ A clean Deepnote project was created (`2eb8d02b-b505-4b39-a33a-32aeda2e1cc4`) wi
 
 **Next action:** make one Deepnote parallel-run slot available through an explicitly user-approved stop of an idle project, and configure the Adaption key as a secure environment secret in the isolated DHI project. Then execute the existing presence-only probe before any API request. Do not use the mixed DHI/DPAK project.
 
+### Correction — 2026-11-02 wording of initial INFER-001 access finding
+
+The earlier sentence in the INFER-001 entry saying that no secure Adaption API key was available was too strong. What was established at that point was only that no key was exposed through the connected Adaption MCP action surface or the attached Deepnote workspace integrations. The isolated runtime presence probe was later rejected before execution by the Deepnote parallel-project quota. Therefore the environment variable's presence or absence is **unverified**. The authoritative current state is the INFER-001 manifest and `DHI_v1/WORKSPACE.md`; do not interpret the earlier wording as a completed secret-presence check.
+
