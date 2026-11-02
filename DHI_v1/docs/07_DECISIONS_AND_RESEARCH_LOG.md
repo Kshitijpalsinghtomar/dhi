@@ -452,3 +452,6 @@ Deepnote's documented project-secret mechanism is an Environment variables integ
 ### Next action
 Configure `ADAPTION_API_KEY` in a secure Environment variables integration and attach it to project `2eb8d02b-b505-4b39-a33a-32aeda2e1cc4`. Rerun the presence-only probe. When it confirms presence, run the existing authenticated hosted-model listing CLI; do not run model inference before the list call succeeds.
 
+## 2026-11-02 — VERIFY-001 initial run dependency block
+
+VERIFY-001 successfully fetched and checked out the exact pinned commit `c2e0dddaa6eb22d0c4722fc7fb43f2c2439c7c61`. `python -m compileall -q DHI_v1` passed (exit 0). The pytest command did not collect or execute tests because the isolated Deepnote image does not have pytest installed (`No module named pytest`). This is a runtime dependency issue, not a test failure. The exact run and output are preserved in `DHI_v1/experiments/VERIFY-001/manifest.json`. Retry with ephemeral installation of pytest and jsonschema; do not change source code for this issue.
