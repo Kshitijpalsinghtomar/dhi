@@ -6,7 +6,7 @@
 **Repository head at handover review:** `74d6d044b7c43d48cf923e7359e3b60c821d9412` — `Add explicit entrypoint for model-facing DHI pilot`  
 **Status:** Active research programme; no DHI-v1 model result and no DHI-v1 training run recorded.
 
-This file is a continuation handover. It summarizes the controlling repository records; it does not replace their protocols, raw results, or decision history.
+This is a dated background snapshot, not the live state file. **Always read `DHI_v1/WORKSPACE.md` first**; it is the authoritative current continuation pointer and supersedes this snapshot when the two differ. Follow `DHI_v1/docs/12_GIT_FIRST_WORKFLOW.md` and commit progress incrementally. This file preserves the 2026-11-02 recovery context; it is not meant to be copied into chat or regenerated at the end of every session.
 
 ## 1. Identity and project boundaries
 
@@ -120,7 +120,7 @@ After the integration pilot, return to the broader base-screen design only after
 2. Read the relevant controlling protocol, decision log, handover, workspace records, and experiment outputs before acting.
 3. The repository is the authoritative source for DHI programme state. Deepnote may hold raw/private execution artefacts; cite their exact notebook/run/file in the repository record, and do not treat an unrecorded chat summary as evidence.
 4. Append decisions and dated findings to `DHI_v1/docs/07_DECISIONS_AND_RESEARCH_LOG.md`; do not rewrite history except with an explicit correction note.
-5. Update this handover when the current state, blocker, or next authorized action changes.
+5. Update `DHI_v1/WORKSPACE.md` whenever the current state, blocker, or next authorized action changes. This dated handover remains background only.
 6. Record every experiment's question, exact method/configuration, environment, data/model revision, raw artifact locations, metrics, limitations, decision, and next step.
 7. Label every result as exploratory, scripted-reference, model-generated, independently verified, rejected, inconclusive, or frozen as appropriate.
 8. Never present scripted traces as model-generated data; never present Adaption quality scores as capability scores.
@@ -130,7 +130,9 @@ After the integration pilot, return to the broader base-screen design only after
 ## 9. Controlling files
 
 - Programme navigation: `README.md`, `DHI_v1/README.md`.
-- Current handover: this file.
+- Live state and next action: `DHI_v1/WORKSPACE.md` (read first every session).
+- Incremental checkpoint/commit rules: `DHI_v1/docs/12_GIT_FIRST_WORKFLOW.md`.
+- Dated background handover snapshot: this file.
 - Programme plan and gates: `DHI_v1/docs/00_MASTER_DEVELOPMENT_PLAN.md`.
 - Capability scorecard: `DHI_v1/docs/01_CAPABILITY_RUBRIC_AND_SCORECARD.md`.
 - Capability specification: `DHI_v1/docs/02_TOOL_AWARENESS_AND_LONG_HORIZON.md`.
