@@ -1,0 +1,103 @@
+# DHI-v1 Base Screen and Diagnostic Scope v1
+
+**Decision date:** 2026-11-02  
+**Programme:** DHI-v1 / ORBIT  
+**Status:** scope allocation resolved; task instances and execution protocol remain unfrozen  
+**Authority:** this file resolves the former 120-vs-240 conflict across the model-selection and benchmark-protocol documents.
+
+## 1. Decision
+
+The 120-task base-model screen is the first half of one 240-task, ten-stratum diagnostic panel. The two counts are not competing suite sizes and do not represent two unrelated benchmark designs.
+
+- **Stage A — base-model screen:** 120 tasks, 12 tasks from each of the ten strata below.
+- **Stage B — held-out confirmation/diagnostic extension:** 120 additional tasks, also 12 from each stratum.
+- **Complete DHI-v1 diagnostic panel:** 240 unique tasks, 24 per stratum (Stage A + Stage B).
+
+The Stage A task IDs are a strict subset of the Stage B-complete 240-task panel. Stage B contains no rephrased duplicates or reused task templates from Stage A. Stage A supports initial model screening and development decisions; Stage B is held back until model/interface choices are fixed and is used to test whether the Stage A choice generalizes.
+
+This supersedes the earlier six-groups ×20 allocation in the model-selection document and the unresolved independent interpretation of the 240-task plan in the benchmark-protocol document. Those earlier specifications remain part of the decision history, not active allocations.
+
+## 2. Ten strata and allocation
+
+| # | Stratum | Stage A screen | Stage B holdout | Total |
+|---:|---|---:|---:|---:|
+| 1 | No-tool-needed tasks and direct answers | 12 | 12 | 24 |
+| 2 | Current/time-sensitive facts requiring verification | 12 | 12 | 24 |
+| 3 | Tool discovery when a required capability is absent from the visible inventory | 12 | 12 | 24 |
+| 4 | Tool selection among relevant, irrelevant, misleading, and decoy tools | 12 | 12 | 24 |
+| 5 | Schema/argument correctness and precondition handling | 12 | 12 | 24 |
+| 6 | Multi-tool workflows with dependencies and state changes | 12 | 12 | 24 |
+| 7 | Long-horizon workflows with 8–30 actions and checkpoints | 12 | 12 | 24 |
+| 8 | Broken/unavailable tools, malformed responses, rate limits, and replanning | 12 | 12 | 24 |
+| 9 | Action-effect forecasts, side-effect prediction, and verified goal closure | 12 | 12 | 24 |
+| 10 | Permission boundaries, untrusted tool outputs, context continuity, and infeasible tasks | 12 | 12 | 24 |
+| **Total** | | **120** | **120** | **240** |
+
+All ten strata appear in the first screen. This avoids an initial model choice that entirely omits prediction, safety/permission, or long-horizon behaviours simply because those capabilities were placed outside the first six broad buckets.
+
+## 3. Evaluation stages
+
+### Stage A — base-model screen (120)
+
+- Run each accessible required base candidate on the identical 120 Stage A tasks, tool manifests, environment states, permissions, prompts, decoding policy, retry policy, and budget.
+- Primary planned candidates remain Qwen/Qwen3.6-35B-A3B and GPT-OSS-20B. Gemma 4 31B is included when multimodal/UI evaluation is in scope and the same task modality can be provided fairly.
+- Preserve model-specific native tool formatting, but verify equivalent semantics and action opportunities. A broken adapter is an integration failure, not proof of weak model capability.
+- Report overall results, all ten stratum results, hard safety gates, paired task differences, confidence intervals, latency, tokens, tool calls, and cost per successful task.
+- Stage A may inform model and interface selection. Do not call a winner on a small subgroup alone. A 12-task stratum is screening resolution, not a precise estimate of that stratum's population performance.
+
+### Stage B — held-out confirmation (120 additional)
+
+- Stage B remains hidden from model developers and must not be used for prompt, adapter, tool-manifest, or model selection changes before the confirmation run.
+- After Stage A has fixed the candidate/interface choices, run the selected model and at least its mandatory challenger on the same Stage B tasks under matched conditions.
+- Do not use Stage B to tune the system. If a protocol or implementation change is required after inspecting Stage B, label the result exploratory and create a new holdout before confirmatory claims.
+- Report Stage A and Stage B separately, then report the combined 240-task panel with uncertainty. A candidate can only support a broader model-selection claim if the independent Stage B result corroborates the Stage A result and all hard gates pass.
+
+### Repeated trials
+
+Predeclare which tasks are stochastic and the number/seeds of repeated trials before running any model. Keep all candidate trial counts and seeds matched. Do not selectively rerun only failures or retain only the best run. Report pass@1 and pass^k/reliability where appropriate.
+
+## 4. Task validity, independence and splits
+
+1. Task instances must be authored or sourced with explicit goal, required capabilities, visible tools, hidden/discoverable tools where relevant, hard constraints, executable postconditions, grader, environment state, and failure conditions.
+2. Split Stage A and Stage B by task family/template, repository or application, tool-schema family, dependency pattern, horizon, and environment-state variant—not random wording alone.
+3. Stage B must use distinct underlying task structures, not paraphrases, prompt variants, or alternate names for Stage A tasks.
+4. Tool names and schemas should be varied across tasks. A sealed subset must contain unseen names/schemas and combinations, not merely renamed copies of a familiar single-step function.
+5. Include domains across software repositories, terminal, browser, documents, spreadsheets, APIs, data analysis, project management, and simulated communication/calendar systems as executable support becomes available.
+6. Every write action must run in a sandbox with explicit permissions and state verification.
+7. The existing 12-case hand-authored development pilot is excluded from both Stage A and Stage B. It remains an integration/harness smoke test, not part of the 240-task panel and not training data.
+8. Public benchmark items may be used for auxiliary comparison only when licenses and versions are checked; do not place public benchmark items or near-duplicates into the private holdout.
+
+## 5. Freeze gates — not yet passed
+
+This decision freezes only the suite relationship, strata and allocation. It does **not** freeze task instances, prompts, tool inventory, model revisions, seeds, graders, environment images, cost caps or statistical thresholds.
+
+Do not start a comparative model screen until:
+
+- the 120/240 task IDs and Stage A/B family split are materialized and hashed;
+- the environment supports each scored capability, or unsupported items are explicitly excluded from the executable pilot with a documented reason;
+- graders and postconditions are mechanically tested where possible and independently reviewed where semantic;
+- native model tool-call templates and adapter parity are verified;
+- a validation/development route is distinct from Stage B;
+- inference access and equal budgets are available for the required candidates.
+
+The current 12-case file-workspace pilot does not yet implement all ten strata. In particular, current-source verification, broad external tool discovery/permissioned operation, long-horizon persistence, and general cross-application execution need additional environments. Do not mark these as model failures while the harness cannot execute them.
+
+## 6. Non-negotiable scoring rules
+
+- Primary outcome: mandatory postconditions satisfied in the actual environment.
+- Score process diagnostics separately: no-tool restraint, discovery recall, selection, invocation validity, plan correctness, replanning, prediction accuracy, false closure, safety, transfer, and efficiency.
+- Use environment state, tests, schemas, permissions and event traces; an LLM judge cannot be the sole grader.
+- Report failures, invalid tasks, unavailable tools, unsafe actions, and incomplete runs; never silently drop them.
+- Safety/authorization, truthful execution reporting, verified goal closure, data integrity, and evaluation integrity are non-compensable gates.
+- A 100/100 result refers only to the frozen task panel and its stated conditions, not universal real-world intelligence.
+
+## 7. Immediate implementation sequence
+
+1. Keep the existing 12-case suite as a development-only integration smoke test.
+2. Add a task manifest/schema for the ten strata and Stage A/B metadata.
+3. Map each required stratum to an environment capability and an executable grader; mark unsupported capabilities as harness gaps rather than fake model failures.
+4. Build and independently review the Stage A/B tasks in separate files/partitions; hash and commit the manifest before any model run.
+5. Resolve comparable base inference access for Qwen3.6 and GPT-OSS, then run Stage A.
+6. Only after model/interface selection, run Stage B as the held-out confirmation set.
+
+No task cases were generated or run as part of this scope decision.
