@@ -1,0 +1,124 @@
+{
+  "experiment_id": "ADAPTION-001",
+  "date": "2026-11-02",
+  "programme": "DHI-v1",
+  "codename": "ORBIT",
+  "type": "read_only_platform_and_training_eligibility_audit",
+  "status": "completed_no_jobs_launched",
+  "dataset": {
+    "id": "169af31f-06e0-4a48-84ab-b84c9f9ce924",
+    "name": "ORBIT Collaboration Behaviour — Instruction Pilot 300",
+    "source": "invented",
+    "status": "succeeded",
+    "rows": 300,
+    "evaluation_grade": "A",
+    "evaluation_score": 9.4,
+    "evaluation_sample_rows": 100,
+    "review_status_from_workspace": {
+      "reviewed": 98,
+      "candidate": 25,
+      "revise": 53,
+      "reject": 20,
+      "unreviewed": 202
+    },
+    "training_eligible": false,
+    "reason": "partial review; invented text dataset does not contain verified executed tool trajectories and postconditions"
+  },
+  "training_registry_candidates": {
+    "Qwen/Qwen3.6-35B-A3B": {
+      "available": true,
+      "methods": [
+        "sft",
+        "dpo"
+      ],
+      "training_types": [
+        "lora"
+      ],
+      "context_length": 262144
+    },
+    "openai/gpt-oss-20b": {
+      "available": true,
+      "methods": [
+        "sft",
+        "dpo"
+      ],
+      "training_types": [
+        "lora"
+      ],
+      "context_length": 131072
+    },
+    "google/gemma-4-31B-it": {
+      "available": true,
+      "methods": [
+        "sft",
+        "dpo"
+      ],
+      "training_types": [
+        "lora",
+        "full"
+      ],
+      "context_length": 262144
+    }
+  },
+  "recommender_results": {
+    "Qwen/Qwen3.6-35B-A3B": {
+      "accepted": false,
+      "error": "fewer than 10000 effective training rows"
+    },
+    "openai/gpt-oss-20b": {
+      "accepted": true,
+      "recipe": {
+        "n_epochs": 1,
+        "batch_size": "max",
+        "learning_rate": 0.00005,
+        "lora_r": 4,
+        "lora_alpha": 8,
+        "lora_dropout": 0,
+        "lora_trainable_modules": "q_proj,v_proj",
+        "lr_scheduler_type": "linear",
+        "min_lr_ratio": 0,
+        "scheduler_num_cycles": 0.5,
+        "warmup_ratio": 0.03,
+        "max_grad_norm": 2,
+        "weight_decay": 0,
+        "train_on_inputs": false,
+        "training_type": "lora"
+      },
+      "run_started": false
+    },
+    "google/gemma-4-31B-it": {
+      "accepted": false,
+      "error": "fewer than 10000 effective training rows"
+    }
+  },
+  "historical_autoscientist_runs": {
+    "count": 7,
+    "all_are_historical_not_dhi_v1_capability_results": true,
+    "selected_observations": [
+      {
+        "model": "Qwen/Qwen3.5-4B",
+        "training_method": "alignment",
+        "best_win_rate": 0.4609,
+        "target_win_rate": 0.99
+      },
+      {
+        "model": "Qwen/Qwen3.5-4B",
+        "training_method": "instruction",
+        "best_win_rate": 0.1229,
+        "target_win_rate": 0.99
+      }
+    ]
+  },
+  "hosted_inference": {
+    "earlier_catalogue_result": "Gemma 4 31B hosted ID gemma-4-31b-it was present; Qwen3.6 and GPT-OSS were absent",
+    "inference_called": false,
+    "model_comparable_base_screen_possible": false
+  },
+  "billing": {
+    "credits_spent": 0,
+    "training_or_dataset_job_launched": false,
+    "adapatation_cost_quote_obtained": false,
+    "note": "The recommender returned hyperparameters, not a training price estimate. Dataset generation/adaptation/augmentation APIs support estimate=true. No new dataset job was justified by the current provenance gate."
+  },
+  "next_step": "Build/verify actual DHI environment execution trajectories and resolve the 120-versus-240 diagnostic scope; do not train on the 300-row Invent set or substitute Gemma as the only base-screen candidate."
+}
