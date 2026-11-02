@@ -356,3 +356,31 @@ The existing adapter calls the documented authenticated endpoints `GET /api/v1/m
 
 ### Decision
 Keep Adaption as the primary platform. The next action is a local, secret-safe hosted-model preflight using the existing `list_adaption_models.py`, followed by the same benchmark for each exact hosted candidate returned. Do not paste the API key into chat, do not start training, and do not treat the training registry as inference approval. No new dataset generation or training credits were used in this check.
+
+## 2026-11-02 — Git-first incremental project state adopted
+
+### Decision
+GitHub repository `Kshitijpalsinghtomar/dhi` is the durable source of truth for all DHI-v1 / ORBIT work. Meaningful research, implementation, experiment, test, failure, and blocker updates must be recorded and committed as work progresses. Chat-only handovers are not an accepted state-management method.
+
+### Implementation
+- Added `DHI_v1/WORKSPACE.md` as the live continuation pointer. Every new session must read it first; it carries the current phase, evidence status, exact blocker, and next authorized action.
+- Added `DHI_v1/docs/12_GIT_FIRST_WORKFLOW.md` defining session-start checks, incremental commits, experiment records, raw-artifact lineage, failed/interrupted-run logging, and session interruption requirements.
+- Updated both repository READMEs to direct agents to the live workspace and Git-first workflow.
+- Reclassified `DHI_v1/docs/11_AGENT_HANDOVER_2026-11-02.md` as a dated background snapshot. It must not compete with or replace the live workspace.
+- The first documentation commits for this protocol are `650032632079cff8a1877f727ab1c7844ada6e80` (workflow) and `f670000bb7eb1fe92345dd91d9296046d1d45179` (workspace); navigation and snapshot updates follow in the same change set.
+
+### Current state recorded
+- The model-facing DHI development pilot and environment/Adaption adapters are implemented.
+- The scripted reference pilot remains 8/8; it is not an LLM capability result and not training data.
+- No untouched-base model screen or DHI-v1 training run is recorded.
+- Inference preflight remains blocked until an exact account-visible hosted model ID and secure credentialed inference path are verified.
+- The 120-vs-240 benchmark-size discrepancy remains unresolved and must be reconciled before a larger confirmatory suite is frozen.
+- The quarantined Invent candidates and partially audited 300-row instruction candidate remain ineligible for training.
+
+### Verification and limits
+- Documentation-only change; no tests were run because no executable code changed.
+- Repository write success must be verified by fetching the committed files and checking the resulting branch head.
+- No model inference, dataset generation, training, or Adaption-credit spend occurred as part of adopting this workflow.
+
+### Operating consequence
+At each meaningful checkpoint, update the relevant experiment/code/decision record and `DHI_v1/WORKSPACE.md`, then verify the Git commit. If the session is interrupted at any point, the latest committed workspace must identify exactly what is complete, what is not, and the next authorized action.
