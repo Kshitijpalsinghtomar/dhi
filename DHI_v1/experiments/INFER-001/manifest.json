@@ -16,7 +16,7 @@
   "inference_endpoint": "POST /api/v1/responses",
   "hosted_models_endpoint_tested": false,
   "inference_endpoint_tested": false,
-  "credential_available_in_secure_runtime": false,
+  "credential_available_in_secure_runtime": "unverified",
   "connected_adaption_mcp_includes_hosted_model_listing": false,
   "connected_adaption_mcp_includes_responses_inference": false,
   "deepnote_project": {
@@ -32,5 +32,21 @@
   "model_run_started": false,
   "training_started": false,
   "adaption_credits_spent": 0,
-  "next_action": "Inject Adaption API key through a secure runtime secret in a clean DHI-only environment, then run the existing list_adaption_models CLI. Do not infer hosted availability from the training registry."
+  "next_action": "Inject Adaption API key through a secure runtime secret in a clean DHI-only environment, then run the existing list_adaption_models CLI. Do not infer hosted availability from the training registry.",
+  "runtime_secret_presence_probe": {
+    "source_path": "DHI_v1/experiments/INFER-001/check_runtime_secret_presence.py",
+    "source_commit": "5a649db4635245f4ece1895f1931ea3a2dcd5c94",
+    "project_name": "DHI — Isolated Runtime Preflight",
+    "project_id": "2eb8d02b-b505-4b39-a33a-32aeda2e1cc4",
+    "notebook_id": "08586f8da34c456fb544baccb69ebe3e",
+    "block_id": "7bcfdf38fd0a400e989a4d6064e1caed",
+    "run_creation_attempted": true,
+    "run_status": "rejected_before_execution",
+    "error": "Your plan quota for parallel running projects has been exceeded. Please stop one of your running projects.",
+    "secret_presence_measured": false,
+    "network_requests_made": 0,
+    "secret_values_emitted": false,
+    "existing_projects_stopped": 0
+  },
+  "deepnote_execution_quota_blocked": true
 }
