@@ -35,3 +35,16 @@ Pending. Raw run ID, exact command output, exit codes, elapsed time, and reposit
 
 - If successful, record the test count, compileall result, and raw output digest; then return to INFER-001 secure-key setup and hosted-model listing.
 - If failed, preserve the full failure, identify the failing test/module, and only change code when the failure is understood. Any repair must include regression tests and a Git commit before rerunning.
+
+
+## Initial run result — dependency preflight
+
+- Deepnote detached run: `93645a78-7cd2-4c64-9c84-353fbd31e15c`.
+- Pinned and actual Git revision matched exactly: `c2e0dddaa6eb22d0c4722fc7fb43f2c2439c7c61`.
+- `python -m compileall -q DHI_v1`: **passed**, exit 0, 0.079 s.
+- Pytest command exited 1 before test collection: `/root/venv/bin/python: No module named pytest`, 0.023 s.
+- **No test cases executed.** This is a missing test-runner dependency, not a failing assertion.
+
+### Retry
+
+Install `pytest` and `jsonschema` into the disposable runtime only, rerun the exact same test suites and compileall at the same pinned commit. No repository source/dependency files are changed by this retry.
