@@ -626,3 +626,14 @@ Inspected the live `main` revision `3640e4a86495299688b5e20e098097730743ab53`, i
 
 ### Evidence boundary
 This is a source-code/harness-readiness audit. It creates no task instances, benchmark scores, model trajectories, training rows, or capability result. The full 240-task panel remains unfrozen.
+
+## 2026-11-02 — Harden task-manifest split and validation invariants
+
+The first task-record schema review found two panel-integrity requirements that needed to be mandatory at the record level. Updated `task_manifest.schema.json` so:
+- `split_metadata` is required on every task and carries the partition, task-family fingerprint, and explicit holdout-seal state.
+- Stage A IDs and partition labels must use the Stage A namespace and remain unsealed.
+- Stage B IDs and partition labels must use the Stage B namespace and explicitly set `holdout_sealed=true`.
+- A task may use `validation.status=validated` only when contract, environment, and grader checks are all `pass` and review status is `accepted`.
+- Grader metadata must explicitly state `llm_judge_sole_source=false`.
+
+This is schema hardening only. No task instances were added and no benchmark execution was started.

@@ -107,6 +107,8 @@ Completed in MANIFEST-001:
 - [Task register](benchmark/task_manifest.json) records the 120+120 allocation, all ten strata, Stage B sealing policy, and integrity rules. It intentionally contains zero task instances; no placeholder prompts or fake tasks were created.
 - [Environment coverage audit](benchmark/ENVIRONMENT_COVERAGE_MATRIX.md) maps the current runner and graders to each stratum and names unsupported behavior.
 
+Current schema gate: every task record must include family/independence split metadata; Stage B task records must carry `holdout_sealed=true`; `validation.status=validated` requires contract, environment, grader and review checks to pass.
+
 Current coverage: S01, S05 (registered schema subset), and S06 (file-workspace only) have bounded execution/grading paths; S03, S04, S07, S08, S09, and S10 are partial; S02 is a harness gap. The existing 12-case integration pilot remains excluded from Stage A and Stage B.
 
 Next:
@@ -148,6 +150,7 @@ No Stage A/B tasks have been authored or run. No model was run and no Adaption c
 | `0955d719` | Clarified why ten strata replace the six-bucket allocation |
 | `8b90f9ac` | Clarified benchmark scope decision rationale in the append-only log |
 | `MANIFEST-001` | Added schema-backed 240-task register and source-grounded environment coverage audit; zero task instances created |
+| `MANIFEST-001a` | Required task-family split hashes, Stage B sealing metadata, and complete validation evidence before a task can be marked validated |
 | `VERIFY-001 run 93645a78` | Exact checkout verified; compileall passed; pytest blocked by missing package before collection |
 | `VERIFY-001` retry | Blocked before execution by Deepnote quota in detached and live modes; retry cell is ready |
 | `VERIFY-001` | Initial compileall passed; pytest blocked by missing dependency; retry blocked by Deepnote quota |
