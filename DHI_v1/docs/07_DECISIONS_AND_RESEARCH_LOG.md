@@ -481,3 +481,7 @@ Added an explicit unresolved-conflict warning to Sections 5 and 3 of the model-s
 ### Consequence
 This is a documentation/audit result only. No benchmark tasks were generated, no model was run, and no training or Adaption credits were used. The inference-access preflight remains the immediate blocker before any model-facing pilot.
 
+### Follow-up workspace-quota inspection — 2026-11-02
+
+Deepnote machine metadata was checked for all eight workspace projects. Exactly one project machine was in `running` state. No project was stopped. Both detached and live execution attempts for VERIFY-001 remain blocked by the parallel-project quota. The DHI isolated project itself is stopped after its completed read-only probe. A user must explicitly approve stopping an idle project before the assistant stops anything. This is an execution-capacity observation only; it does not change DHI research decisions.
+
