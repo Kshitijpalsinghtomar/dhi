@@ -32,8 +32,8 @@ status: blocked
 status_reason: >
   The model-facing runner and Adaption Responses adapter are implemented,
   but the connected Adaption actions expose training registry only. The
-  isolated Deepnote secret-presence probe was rejected before execution by the
-  parallel-project quota, so secure key presence and hosted IDs remain unverified.
+  isolated Deepnote probe completed and confirmed neither supported Adaption
+  key variable is configured in that project's runtime; hosted IDs remain unverified.
 training_status: not_authorized
 benchmark_status: development_pilot_not_frozen
 last_verified_repository_head_before_this_workspace_checkpoint: dff718acc0640517c61eb739f62f40485fea3a0e
@@ -61,7 +61,7 @@ last_verified_repository_head_before_this_workspace_checkpoint: dff718acc0640517
 | Scripted reference pilot | 8/8 passed | Harness/reference validation only; not an LLM result or training data |
 | Historical environment/benchmark tests | 75 passed on 2026-10-31 | Historical run; do not claim latest HEAD is tested |
 | ORBIT adjudication gate | Focused tests passed on 2026-10-31 | Gate code verification only |
-| INFER-001 hosted inference preflight | Blocked on 2026-11-02 | Training registry refreshed; no connected MCP inference action; isolated secret-presence probe rejected before execution by Deepnote project quota |
+| INFER-001 hosted inference preflight | Blocked on 2026-11-02 | Training registry refreshed; isolated probe confirmed both supported Adaption key variables absent; hosted endpoint not called |
 | Untouched candidate model screening | Not run | No model winner |
 | DHI-v1 executed model trajectories | None recorded | No trajectory SFT source yet |
 | DHI-v1 training | Not authorized / not run | Data and benchmark gates remain closed |
@@ -85,16 +85,15 @@ Adaption flow documented in the repository:
 4. Only after model ID/access and user-approved provider/cost are confirmed, run the development pilot with `DHI_MODEL_PROVIDER=adaption` and `DHI_MODEL_NAME=<exact-hosted-id>`.
 5. Preserve the report and per-case traces; label this as a development pilot, not a frozen benchmark or training data.
 
-The connected Adaption MCP actions do not expose the hosted model-listing or Responses inference methods. The existing Deepnote project `DHI — ORBIT Research Lab` has no attached integrations; its workspace has only `[Demo] Snowflake`, and its file inventory includes unrelated DPAK work. Do not run DHI inside that mixed project. A clean isolated Deepnote project was created for a presence-only secret probe, but its detached run was rejected before execution because the parallel-running-project quota was exceeded. Therefore secret presence is unmeasured, not known absent. No credential is recorded in Git. Never ask the user to paste a key into chat.
+The connected Adaption MCP actions do not expose the hosted model-listing or Responses inference methods. The existing Deepnote project `DHI — ORBIT Research Lab` has no attached integrations; its workspace has only `[Demo] Snowflake`, and its file inventory includes unrelated DPAK work. Do not run DHI inside that mixed project. A clean isolated Deepnote project was created for a presence-only secret probe. Its first run was rejected by the project quota, but the retry completed successfully and measured both `ADAPTION_API_KEY` and `DHI_ADAPTION_API_KEY` as absent in that project runtime. This is not evidence that the user has no key elsewhere. No credential is recorded in Git. Never ask the user to paste a key into chat.
 
 ## 8. Next authorized action
 
 **Unblock INFER-001 through the isolated DHI runtime.**
 
-- Make one Deepnote parallel-run slot available by stopping an idle project only with explicit user approval, or provide another clean secure runtime. Do not stop any running project automatically.
-- Configure `ADAPTION_API_KEY` (or `DHI_ADAPTION_API_KEY`) as a secure environment secret in the isolated project `2eb8d02b-b505-4b39-a33a-32aeda2e1cc4`; do not paste it into chat or commit it.
-- Run the committed presence-only probe `DHI_v1/experiments/INFER-001/check_runtime_secret_presence.py` first. It must output booleans only.
-- If present, run `python -m DHI_v1.environment.examples.list_adaption_models` and record exact hosted IDs or the redacted API error in `DHI_v1/experiments/INFER-001/`.
+- Add a Deepnote **Environment variables** integration with `ADAPTION_API_KEY` and attach it to the isolated project `2eb8d02b-b505-4b39-a33a-32aeda2e1cc4`; follow https://deepnote.com/docs/environment-variables. Do not paste the key into chat or commit it.
+- Rerun the committed presence-only probe `DHI_v1/experiments/INFER-001/check_runtime_secret_presence.py`; it must output booleans only and show the key is present.
+- Then run `python -m DHI_v1.environment.examples.list_adaption_models` and record exact hosted IDs or the redacted API error in `DHI_v1/experiments/INFER-001/`.
 - Only after an exact hosted model is confirmed and provider/cost are approved, launch the existing development pilot.
 - Do not use the mixed DHI/DPAK Deepnote project, silently switch provider, guess model IDs, train, or generate another dataset.
 
@@ -117,8 +116,9 @@ Before a confirmatory base-screen design, reconcile the repository's scope discr
 | `4a218d92` | Logged first hosted-inference preflight blocker |
 | `5a649db4` | Added secret-presence-only runtime probe; no secret value is emitted |
 | `ab9946bd` / `8be08d1c` | Recorded isolated runtime creation and quota rejection in INFER-001 artifacts |
-| `9edb4d08` | Appended Deepnote quota rejection and corrected interpretation (secret presence unmeasured) |
-| `dff718ac` | Corrected earlier access wording: secret presence remains unverified |
+| `9edb4d08` | Appended Deepnote quota rejection; secret presence remained unmeasured at that checkpoint |
+| `dff718ac` | Corrected earlier access wording |
+| `INFER-001 run b39c478a` | Measured both Adaption key variables absent in isolated project runtime; no API call |
 
 The current version of this file is the active checkpoint. Its own commit SHA is the newest `main` commit when this file is fetched; always inspect the branch head rather than hardcoding a self-referential SHA here.
 
