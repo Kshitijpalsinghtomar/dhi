@@ -89,13 +89,14 @@ The connected Adaption MCP actions do not expose the hosted model-listing or Res
 
 ## 8. Active verification
 
-VERIFY-001 is blocked on Deepnote's parallel-project quota. Initial run `93645a78-7cd2-4c64-9c84-353fbd31e15c` verified the exact checkout and passed compileall; pytest did not collect tests because pytest was missing. The retry cell (`f0d38652cb8c490595ca474cc5ae2317`) is ready but both detached and live run creation were rejected before execution by the same quota. No project was stopped. Experiment record: `DHI_v1/experiments/VERIFY-001/`.
+VERIFY-001 is blocked on Deepnote's parallel-project quota. Initial run `93645a78-7cd2-4c64-9c84-353fbd31e15c` verified the exact checkout and passed compileall; pytest did not collect tests because pytest was missing. The retry cell (`f0d38652cb8c490595ca474cc5ae2317`) is ready but both detached and live run creation were rejected before execution by the same quota. Machine inspection found one project currently running in the workspace; no project was stopped. Experiment record: `DHI_v1/experiments/VERIFY-001/`.
 
 ## 9. Next authorized action
 
 **Unblock INFER-001 through the isolated DHI runtime.**
 
-- Add a Deepnote **Environment variables** integration with `ADAPTION_API_KEY` and attach it to the isolated project `2eb8d02b-b505-4b39-a33a-32aeda2e1cc4`; follow https://deepnote.com/docs/environment-variables. Do not paste the key into chat or commit it.
+- In the isolated project `2eb8d02b-b505-4b39-a33a-32aeda2e1cc4`, use the right-sidebar **Integrations** panel to add/connect an **Environment variables** integration containing `ADAPTION_API_KEY`. Deepnote stores these values encrypted. Follow https://deepnote.com/docs/environment-variables; never paste the key into chat or commit it.
+- Free one Deepnote parallel-running-project slot before the next execution. Machine inspection found exactly one project currently running in the workspace. Do not stop it automatically; the user must identify/approve an idle project to stop, or otherwise make a slot available.
 - Rerun the committed presence-only probe `DHI_v1/experiments/INFER-001/check_runtime_secret_presence.py`; it must output booleans only and show the key is present.
 - Then run `python -m DHI_v1.environment.examples.list_adaption_models` and record exact hosted IDs or the redacted API error in `DHI_v1/experiments/INFER-001/`.
 - Only after an exact hosted model is confirmed and provider/cost are approved, launch the existing development pilot.
@@ -125,7 +126,7 @@ Benchmark scope audit is complete but the discrepancy remains unresolved: `03_MO
 | `INFER-001 run b39c478a` | Measured both Adaption key variables absent in isolated project runtime; no API call |
 | `VERIFY-001 run 93645a78` | Exact checkout verified; compileall passed; pytest blocked by missing package before collection |
 | `VERIFY-001` retry | Blocked before execution by Deepnote quota in detached and live modes; retry cell is ready |
-| `VERIFY-001` | Running pinned-revision software verification only; results pending |
+| `VERIFY-001` | Initial compileall passed; pytest blocked by missing dependency; retry blocked by Deepnote quota |
 
 The current version of this file is the active checkpoint. Its own commit SHA is the newest `main` commit when this file is fetched; always inspect the branch head rather than hardcoding a self-referential SHA here.
 
