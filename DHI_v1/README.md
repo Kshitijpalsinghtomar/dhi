@@ -32,6 +32,7 @@ This is a candidate selection, not a measured ranking. Base screening must prece
 - [Adaption Responses API adapter](environment/adaption_responses.py)
 - [Live Adaption connector discovery handler](environment/agent_runner.py)
 - [Single-task model integration pilot](environment/examples/run_model_pilot.py)
+- [Eight-case model-facing benchmark entrypoint](benchmark/run_model_pilot.py)
 - [12-case diagnostic seed suite](benchmark/README.md)
 - [Benchmark runner](benchmark/runner.py)
 - [Benchmark CLI](benchmark/run_pilot_benchmark.py)
@@ -74,11 +75,12 @@ The file environment is not a production OS/container sandbox. Local catalogue s
 
 ## Read the controlling documents
 
-1. [Master development plan](docs/00_MASTER_DEVELOPMENT_PLAN.md)
-2. [Capability rubric](docs/01_CAPABILITY_RUBRIC_AND_SCORECARD.md)
-3. [Tool awareness and long-horizon planning](docs/02_TOOL_AWARENESS_AND_LONG_HORIZON.md)
-4. [Model selection and Adaption limits](docs/03_MODEL_SELECTION_AND_ADAPTION.md)
-5. [Methods and intervention gates](docs/04_METHODS_AND_INTERVENTION_GATES.md)
-6. [Benchmark protocol](docs/05_BENCHMARK_PROTOCOL.md)
-7. [Trajectory/data contract](docs/06_DATA_AND_TRAJECTORY_CONTRACT.md)
-8. [Decision log](docs/07_DECISIONS_AND_RESEARCH_LOG.md)
+1. [Agent handover and current continuation state](docs/11_AGENT_HANDOVER_2026-11-02.md)
+2. [Master development plan](docs/00_MASTER_DEVELOPMENT_PLAN.md)
+3. [Capability rubric](docs/01_CAPABILITY_RUBRIC_AND_SCORECARD.md)
+4. [Tool awareness and long-horizon planning](docs/02_TOOL_AWARENESS_AND_LONG_HORIZON.md)
+5. [Model selection and Adaption limits](docs/03_MODEL_SELECTION_AND_ADAPTION.md)
+6. [Methods and intervention gates](docs/04_METHODS_AND_WHEN_TO_USE.md)
+7. [Benchmark protocol](docs/05_BENCHMARK_PROTOCOL.md)
+8. [Trajectory/data contract](docs/06_DATA_AND_TRAJECTORY_CONTRACT.md)
+9. [Decision log](docs/07_DECISIONS_AND_RESEARCH_LOG.md)
