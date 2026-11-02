@@ -108,3 +108,23 @@ Therefore secret presence was **not measured**. No project was stopped, no secre
 
 The isolated project needs the Adaption key supplied through a secure project/runtime secret, and Deepnote needs one parallel-running-project slot available. Do not stop any existing user project automatically; request user action before doing so.
 
+
+
+## Follow-up secret-presence run — 2026-11-02
+
+The previously blocked detached run was accepted and completed.
+
+- Run ID: `b39c478a-3268-439c-af30-d71ba9b40907`.
+- Status: `success`.
+- Notebook: `08586f8da34c456fb544baccb69ebe3e`.
+- Probe block: `7bcfdf38fd0a400e989a4d6064e1caed`.
+- Execution: 3 ms.
+- Output: `ADAPTION_API_KEY=false`, `DHI_ADAPTION_API_KEY=false`, `any_adaption_secret_present=false`, `network_requests_made=0`, `secret_values_emitted=false`.
+
+**Result:** neither supported key variable is configured in this isolated project runtime. This is a measured runtime result, not a key-validity check. No hosted-model request was made.
+
+### Secure secret configuration (user action)
+
+Deepnote stores project secrets through an **Environment variables** integration. In the Deepnote workspace, create or open an Environment variables integration and add `ADAPTION_API_KEY` with the key value; then connect that integration to the isolated project `DHI — Isolated Runtime Preflight`. Do not put the value in notebook code, notebook inputs, Git, or chat. Deepnote documents this integration flow at https://deepnote.com/docs/environment-variables.
+
+After the integration is attached, rerun the presence-only probe. The next check should report `ADAPTION_API_KEY=true` without exposing the value; only then run `python -m DHI_v1.environment.examples.list_adaption_models`.
