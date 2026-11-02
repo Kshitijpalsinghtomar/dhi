@@ -128,3 +128,19 @@ The previously blocked detached run was accepted and completed.
 Deepnote stores project secrets through an **Environment variables** integration. In the Deepnote workspace, create or open an Environment variables integration and add `ADAPTION_API_KEY` with the key value; then connect that integration to the isolated project `DHI — Isolated Runtime Preflight`. Do not put the value in notebook code, notebook inputs, Git, or chat. Deepnote documents this integration flow at https://deepnote.com/docs/environment-variables.
 
 After the integration is attached, rerun the presence-only probe. The next check should report `ADAPTION_API_KEY=true` without exposing the value; only then run `python -m DHI_v1.environment.examples.list_adaption_models`.
+
+
+## Secure runtime configured — 2026-11-02
+
+The user created a Deepnote **Environment variables** integration named `ADAPTION`. It was attached to the isolated DHI project:
+
+- Project: `DHI — Isolated Runtime Preflight` (`2eb8d02b-b505-4b39-a33a-32aeda2e1cc4`).
+- Integration: `ADAPTION`, type `env`, integration ID `999bb21e-9bfd-4071-a2bc-d26590958de7`.
+- Presence probe run: `9e34f54b-0acf-455b-b44a-9c28173a1462` (success).
+- Result: `ADAPTION_API_KEY=true`; `DHI_ADAPTION_API_KEY=false`; no secret values emitted; zero network requests in this probe.
+
+The key is now present in this isolated project runtime. This proves only environment-variable presence, not that the key is valid or that any hosted models are enabled.
+
+### Next action
+
+Run the existing `python -m DHI_v1.environment.examples.list_adaption_models` command from a pinned checkout of this repository in this project. This makes the authenticated `GET /api/v1/models?type=hosted` request only. Record exact returned IDs or a redacted error; do not call inference until the catalogue request succeeds.
