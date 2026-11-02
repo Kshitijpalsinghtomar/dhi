@@ -41,12 +41,25 @@
     "notebook_id": "08586f8da34c456fb544baccb69ebe3e",
     "block_id": "7bcfdf38fd0a400e989a4d6064e1caed",
     "run_creation_attempted": true,
-    "run_status": "rejected_before_execution",
+    "run_status": "success",
     "error": "Your plan quota for parallel running projects has been exceeded. Please stop one of your running projects.",
-    "secret_presence_measured": false,
+    "secret_presence_measured": true,
     "network_requests_made": 0,
     "secret_values_emitted": false,
-    "existing_projects_stopped": 0
+    "existing_projects_stopped": 0,
+    "run_id": "b39c478a-3268-439c-af30-d71ba9b40907",
+    "completed_at": "2026-11-02T16:43:11.672Z",
+    "execution_start_unix_ms": 1793637791112,
+    "execution_millis": 3,
+    "output": {
+      "ADAPTION_API_KEY_present": false,
+      "DHI_ADAPTION_API_KEY_present": false,
+      "any_adaption_secret_present": false,
+      "network_requests_made": 0,
+      "secret_values_emitted": false
+    },
+    "conclusion": "Neither supported environment variable is configured in the isolated Deepnote project runtime."
   },
-  "deepnote_execution_quota_blocked": true
+  "deepnote_execution_quota_blocked": false,
+  "deepnote_secret_setup_documentation": "https://deepnote.com/docs/environment-variables"
 }
