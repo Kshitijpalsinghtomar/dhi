@@ -143,6 +143,8 @@ VERIFY-001 remains blocked by Deepnote's parallel-project quota. No project has 
 | `f734b374` | Aligned model-selection screen protocol to ten-stratum scope |
 | `72dac025` | Aligned diagnostic benchmark protocol to Stage A/Stage B scope |
 | `bbbc653f` | Recorded dated decision resolving 120-vs-240 scope conflict |
+| `0955d719` | Clarified why ten strata replace the six-bucket allocation |
+| `8b90f9ac` | Clarified benchmark scope decision rationale in the append-only log |
 | `VERIFY-001 run 93645a78` | Exact checkout verified; compileall passed; pytest blocked by missing package before collection |
 | `VERIFY-001` retry | Blocked before execution by Deepnote quota in detached and live modes; retry cell is ready |
 | `VERIFY-001` | Initial compileall passed; pytest blocked by missing dependency; retry blocked by Deepnote quota |
