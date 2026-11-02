@@ -117,7 +117,7 @@
   "billing": {
     "credits_spent": 0,
     "training_or_dataset_job_launched": false,
-    "adapatation_cost_quote_obtained": false,
+    "adaptation_cost_quote_obtained": false,
     "note": "The recommender returned hyperparameters, not a training price estimate. Dataset generation/adaptation/augmentation APIs support estimate=true. No new dataset job was justified by the current provenance gate."
   },
   "next_step": "Build/verify actual DHI environment execution trajectories and resolve the 120-versus-240 diagnostic scope; do not train on the 300-row Invent set or substitute Gemma as the only base-screen candidate."
