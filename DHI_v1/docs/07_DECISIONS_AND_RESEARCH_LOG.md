@@ -89,14 +89,14 @@ The following work must be reviewed before claiming novelty:
 
 ## Current next actions
 
-1. Implement the deterministic repository/terminal environment and real action/state trace contract.
-2. Freeze the 120-task base-screen diagnostic suite and hidden split.
-3. Run Qwen3.6-35B-A3B and GPT-OSS-20B under identical conditions; add Gemma 4 if visual UI is in scope.
-4. Inspect failure cases using the 100-point rubric.
-5. Produce a small verified execution-trajectory pilot.
-6. Estimate the actual Adaption SFT job for Qwen3.6 using the real dataset columns, then launch only if the estimate and data-quality gate pass.
-7. Compare ordinary SFT with predictive/closure supervision.
-8. Advance to DPO, RL, or latent architecture only when the method's entry conditions are met.
+1. Resolve the conflict between the 120-task base-screen specification and the 240-task diagnostic specification; explicitly define purpose, strata, relationship, and held-out split before freezing either.
+2. Finish validating the deterministic environment/runner and its observable state-transition trace.
+3. Obtain comparable untouched-base inference access for Qwen3.6-35B-A3B and GPT-OSS-20B. Gemma 4 31B remains a multimodal challenger, not a substitute for the required comparison.
+4. Generate a small pilot corpus from actual environment executions, retaining raw tool responses, pre-action forecasts, actual state deltas, and independently verified postconditions.
+5. Reassess the partially reviewed 300-row Invent behaviour dataset only as optional auxiliary material; it is not a substitute for executed trajectories.
+6. Use Adaption's explicit estimate operations before any dataset generation/adaptation/augmentation. For SFT, confirm current row minima, exact columns, eligibility, and platform charges before launch.
+7. Run one controlled SFT baseline on the selected backbone only after the untouched-base screen and data gates pass. Add predictive/closure supervision as a matched ablation.
+8. Advance to DPO, RL, or custom latent architecture only when each method's evidence and implementation entry conditions are met.
 
 ## Sources and dated references
 
@@ -526,3 +526,36 @@ Do not infer that absent models can be called by their training registry IDs. Do
 ### Decision and boundary
 The hosted catalogue step is complete. **Do not call inference yet.** The catalogue does not expose pricing, and the repository requires provider/cost approval before any model run. The next possible action is only the existing single-task integration pilot on exact ID `gemma-4-31b-it`, if the user authorizes possible Adaption account charges. The eight-case development pilot and a comparative model screen remain unrun.
 
+
+
+## 2026-11-02 — ADAPTION-001 live model and data eligibility audit
+
+### Procedure
+Queried the live Adaption training registry, dataset inventory, ORBIT 300-row dataset details/evaluation, AutoScientist run history, and model-specific hyperparameter recommendations. No training, generation, augmentation, translation, localization, or adaptation launch was made.
+
+### Observations
+- The live registry continues to list Qwen/Qwen3.6-35B-A3B, openai/gpt-oss-20b, and google/gemma-4-31B-it for SFT/DPO.
+- Current candidate dataset: `ORBIT Collaboration Behaviour — Instruction Pilot 300`, ID `169af31f-06e0-4a48-84ab-b84c9f9ce924`, Invent-sourced, 300 rows, processing status succeeded.
+- Adaption returned dataset grade A / 9.4 on its 100-row quality-evaluation sample. This is dataset-message/completion quality metadata, not an agent capability result.
+- The live workspace's triage record shows 98/300 rows partially reviewed (25 candidate, 53 revise, 20 reject); 202 remain unreviewed. No complete independent adjudication exists.
+- Recommender rejected Qwen3.6-35B-A3B and Gemma 4 31B because the dataset is below 10,000 effective rows (base plus augmentation).
+- Recommender returned a GPT-OSS-20B LoRA recipe for the 300-row set (1 epoch, lr 5e-5, rank 4, alpha 8, q_proj/v_proj). This is only a recipe recommendation; it does not make the data eligible or authorize a run.
+- Seven historical AutoScientist runs were listed. The displayed Qwen3.5-4B DPO result of 0.4609 against 0.99 and earlier SFT results of 0.1229–0.3211 are run-specific historical metrics, not comparable DHI-v1 capability scores.
+
+### Decision
+Do not train the current 300-row invented dataset. Do not interpret its A/9.4 data grade as a model result. Do not use invented task/completion pairs as a substitute for verified execution trajectories.
+
+Keep the model roles unchanged:
+- Qwen3.6-35B-A3B: planned primary backbone.
+- GPT-OSS-20B: mandatory tool-use challenger.
+- Gemma 4 31B: multimodal challenger.
+
+A single Gemma hosted-inference call cannot answer the primary-vs-challenger selection question because the previously queried hosted catalogue returned neither Qwen3.6 nor GPT-OSS. Defer that one-model integration pilot; do not treat it as the immediate research priority.
+
+### Cost and authorization boundary
+The recommender returned hyperparameters but no training price quote. The connected dataset generation/adaptation/augmentation actions expose `estimate: true`; the connected training-launch action spends credits and has no estimate field in its exposed schema. No job was launched and no credits were spent in this audit. Get a platform price/credit confirmation before any chargeable job.
+
+### Artifact
+- `DHI_v1/experiments/ADAPTION-001/README.md`
+- `DHI_v1/experiments/ADAPTION-001/manifest.json`
+- No model-quality or training conclusion is claimed.
