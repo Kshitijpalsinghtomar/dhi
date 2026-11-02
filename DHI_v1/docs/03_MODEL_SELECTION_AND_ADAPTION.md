@@ -107,6 +107,8 @@ Use the same small, frozen diagnostic set for each candidate:
 
 Total: 120 initial screening tasks. These are diagnostic tasks, not enough to claim broad benchmark superiority. Use repeated trials for stochastic cases.
 
+> **Open scope conflict — 2026-11-02:** `DHI_v1/docs/05_BENCHMARK_PROTOCOL.md` separately defines an *initial* 240-task diagnostic suite (10×24), while this model-selection document defines the 120-task first base screen (6×20). The append-only decision log also names 120 tasks. No controlling record establishes that 240 is a later expansion, that 120 is a subset, or that either document supersedes the other. Do not silently infer a staged relationship or freeze a screen from either count until a dated decision resolves the conflict.
+
 Measure:
 - task success;
 - tool discovery rate when discovery is needed;
