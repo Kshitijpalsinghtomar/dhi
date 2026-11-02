@@ -144,3 +144,42 @@ The key is now present in this isolated project runtime. This proves only enviro
 ### Next action
 
 Run the existing `python -m DHI_v1.environment.examples.list_adaption_models` command from a pinned checkout of this repository in this project. This makes the authenticated `GET /api/v1/models?type=hosted` request only. Record exact returned IDs or a redacted error; do not call inference until the catalogue request succeeds.
+
+
+## Hosted model catalogue — 2026-11-02
+
+The existing `python -m DHI_v1.environment.examples.list_adaption_models` CLI completed successfully against the authenticated hosted-only endpoint.
+
+- Deepnote run: `4bd4a7ba-edfb-4715-8ebb-0d52b95c0663`.
+- Pinned and actual repository commit: `ca6a2c5713f87c9c46bcc61dad87cd5273390809`.
+- Endpoint: `GET /api/v1/models?type=hosted`.
+- Result: 6 hosted models returned; no inference, training, dataset generation, or Adaption credit spend.
+
+| Exact hosted ID | Display name | Max input / output tokens |
+|---|---|---:|
+| `glm-5.2` | GLM 5.2 | 786,432 / 786,432 |
+| `qwen3.5-397b` | Qwen 3.5 397B | 131,072 / 131,072 |
+| `gemma-4-26b-a4b-it` | Gemma 4 26B A4B Instruct | 256,000 / 256,000 |
+| `qwen3.8-27b` | Qwen 3.8 27B | 262,144 / 262,144 |
+| `deepseek-v4-flash` | DeepSeek V4 Flash | 1,048,576 / 1,048,576 |
+| `gemma-4-31b-it` | Gemma 4 31B Instruct | 256,000 / 256,000 |
+
+### Availability against the committed DHI shortlist
+
+- `Qwen/Qwen3.6-35B-A3B`: not returned by the hosted catalogue.
+- `openai/gpt-oss-20b`: not returned by the hosted catalogue.
+- `google/gemma-4-31B-it`: matching display name is listed under exact hosted ID `gemma-4-31b-it`.
+
+Do not substitute GLM, Qwen 3.5/3.8, or DeepSeek into the DHI shortlist without a separate user-approved decision. The endpoint did not return pricing.
+
+### Pending authorization
+
+The repository provides a single-task integration pilot:
+
+```bash
+DHI_MODEL_PROVIDER=adaption
+DHI_MODEL_NAME=gemma-4-31b-it
+python -m DHI_v1.environment.examples.run_model_pilot
+```
+
+This calls the model and may incur provider charges. It is not the eight-case benchmark or a candidate comparison. Wait for explicit approval to use Adaption account billing/credits before running it.
