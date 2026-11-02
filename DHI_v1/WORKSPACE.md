@@ -36,7 +36,7 @@ status_reason: >
   parallel-project quota, so secure key presence and hosted IDs remain unverified.
 training_status: not_authorized
 benchmark_status: development_pilot_not_frozen
-last_verified_repository_head_before_this_workspace_checkpoint: 4a218d92373924953cb6d87d63f31408b6fbb833
+last_verified_repository_head_before_this_workspace_checkpoint: dff718acc0640517c61eb739f62f40485fea3a0e
 ```
 </details>
 
@@ -118,6 +118,7 @@ Before a confirmatory base-screen design, reconcile the repository's scope discr
 | `5a649db4` | Added secret-presence-only runtime probe; no secret value is emitted |
 | `ab9946bd` / `8be08d1c` | Recorded isolated runtime creation and quota rejection in INFER-001 artifacts |
 | `9edb4d08` | Appended Deepnote quota rejection and corrected interpretation (secret presence unmeasured) |
+| `dff718ac` | Corrected earlier access wording: secret presence remains unverified |
 
 The current version of this file is the active checkpoint. Its own commit SHA is the newest `main` commit when this file is fetched; always inspect the branch head rather than hardcoding a self-referential SHA here.
 
