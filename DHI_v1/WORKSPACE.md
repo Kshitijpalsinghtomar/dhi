@@ -27,15 +27,15 @@ This is a research target, not a result or novelty claim. A prompt, RAG store, f
 ```yaml
 programme: DHI-v1
 codename: ORBIT
-phase: model_and_data_readiness_audit
+phase: benchmark_scope_decided_task_manifest_pending
 status: blocked
 status_reason: >
-  The deterministic environment exists, but the initial benchmark scope is
-  unresolved, no DHI-v1 model-comparable base screen has run, and the current
-  Invent behaviour dataset is only partially reviewed and is not a verified
-  tool-execution trajectory corpus.
+  The 120-task base screen is now defined as Stage A, nested in a 240-task
+  ten-stratum panel with a held-out Stage B. Task instances, executable
+  coverage, model-comparable inference access, and verified trajectory data
+  remain incomplete.
 training_status: not_authorized
-benchmark_status: development_pilot_not_frozen
+benchmark_status: scope_defined_task_manifest_unfrozen
 last_verified_repository_head_before_this_workspace_checkpoint: dff718acc0640517c61eb739f62f40485fea3a0e
 ```
 </details>
@@ -99,18 +99,22 @@ VERIFY-001 is blocked on Deepnote's parallel-project quota. Initial run `93645a7
 
 ## 9. Next authorized action
 
-**Advance the environment/benchmark/data gates; do not run a Gemma-only pilot or fine-tune the current invented dataset.**
+**Materialize the two benchmark partitions and map executable coverage before any model run.**
 
-1. Resolve the documented 120-task base-screen versus 240-task diagnostic-suite conflict with an explicit task purpose, scope, strata, and split.
-2. Finish validating the deterministic DHI environment and runner. VERIFY-001 remains blocked on Deepnote's parallel-project quota; do not stop another project without approval.
-3. Produce a small batch of genuinely executed model trajectories only after a valid baseline route is available. Each example must retain raw tool responses, pre-action predictions, actual state deltas, and independently verified postconditions.
-4. Obtain comparable untouched-base inference access for Qwen3.6 and GPT-OSS before choosing a winner. The existing hosted catalogue only returned the Gemma candidate; do not replace the committed model shortlist silently.
-5. Reassess the 300-row Invent behaviour dataset only as auxiliary data after full review; it cannot substitute for executed trajectories.
-6. Before any Adaption data-generation/adaptation/augmentation job, call its estimate operation and record the quote. Before SFT, validate the exact dataset columns and model-specific row requirements, then inspect the actual charge in the platform. A recommender result is not a cost estimate.
+The scope relationship is now resolved and committed:
+- [Controlling allocation](benchmark/SCREEN_AND_DIAGNOSTIC_SCOPE.md): Stage A = 120 tasks (12 per each of ten strata); Stage B = 120 additional held-out tasks (12 per stratum); complete panel = 240 unique tasks.
+- [Model-selection protocol](docs/03_MODEL_SELECTION_AND_ADAPTION.md), Section 5, and [benchmark protocol](docs/05_BENCHMARK_PROTOCOL.md), Section 3, now use the same allocation.
+- [Decision log](docs/07_DECISIONS_AND_RESEARCH_LOG.md) records why the earlier 6×20 split was replaced.
 
-The model-selection purpose is explicit: Qwen3.6-35B-A3B is the planned primary; GPT-OSS-20B is the mandatory tool-use challenger; Gemma 4 31B is the multimodal challenger. They are candidate backbones, not three models we need to train immediately. The base screen determines whether the primary choice is justified; only then does one controlled SFT run test whether verified trajectories improve the learned capability.
+Next:
+1. Create a task manifest/schema with explicit stratum, stage, task-family, environment, required tools, postconditions, grader, and split metadata.
+2. Map each of the ten strata to actual environment capabilities and executable/independently checkable graders. Current file-workspace pilot does not support all required strata; record those as harness gaps.
+3. Build Stage A and Stage B from distinct task families and hash the partitions before comparing models. Exclude the existing 12-case integration pilot from both.
+4. Resolve comparable untouched-base inference access for Qwen3.6-35B-A3B and GPT-OSS-20B. Gemma 4 31B remains the optional multimodal challenger; do not treat its hosted availability as a substitute for the mandatory Qwen-vs-GPT-OSS comparison.
+5. Build actual environment-executed trajectories only after a valid baseline route is available. Do not use the partially reviewed 300-row Invent dataset as a replacement.
+6. Keep Adaption spending gated by valid data provenance, model-specific eligibility and estimates/cost confirmation.
 
-The 120-vs-240 scope conflict remains unresolved. Do not freeze either suite or infer a nested relationship without a dated decision.
+VERIFY-001 remains blocked by Deepnote's parallel-project quota. No project has been stopped. No benchmark tasks were generated or run by the scope decision; no model was run and no Adaption credits were spent.
 
 ## 10. Latest committed work
 
@@ -135,6 +139,10 @@ The 120-vs-240 scope conflict remains unresolved. Do not freeze either suite or 
 | `INFER-001 run 9e34f54b` | Confirmed `ADAPTION_API_KEY` present after secure integration attachment |
 | `INFER-001 run 4bd4a7ba` | Authenticated hosted-model catalogue returned 6 IDs; no inference called |
 | `4e8b9bf4` / `34dc832f` | Added ADAPTION-001 read-only model/data eligibility audit and manifest; zero credits spent |
+| `64439c9c` | Added controlling nested Stage A/Stage B 120+120 benchmark scope |
+| `f734b374` | Aligned model-selection screen protocol to ten-stratum scope |
+| `72dac025` | Aligned diagnostic benchmark protocol to Stage A/Stage B scope |
+| `bbbc653f` | Recorded dated decision resolving 120-vs-240 scope conflict |
 | `VERIFY-001 run 93645a78` | Exact checkout verified; compileall passed; pytest blocked by missing package before collection |
 | `VERIFY-001` retry | Blocked before execution by Deepnote quota in detached and live modes; retry cell is ready |
 | `VERIFY-001` | Initial compileall passed; pytest blocked by missing dependency; retry blocked by Deepnote quota |
