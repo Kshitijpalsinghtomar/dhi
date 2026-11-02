@@ -35,7 +35,7 @@ status_reason: >
   credentialed live inference result.
 training_status: not_authorized
 benchmark_status: development_pilot_not_frozen
-last_known_repository_head_before_this_workspace_update: efaf0deca13cd98bf83d259317ad6affbd7e8962
+last_verified_repository_head_before_this_workspace_checkpoint: a5ff6f7cd1545a2daef18bf328bf8151475d4b16
 ```
 </details>
 
@@ -100,11 +100,16 @@ Before a confirmatory base-screen design, reconcile the repository's scope discr
 | Commit | Change |
 |---|---|
 | `74d6d044` | Added model-facing pilot entrypoint |
-| `d8b82b6f` | Added ORBIT/DHI-v1 agent handover snapshot |
-| `efaf0dec` | Linked handover and model-pilot entrypoint in README |
-| `65003263` | Added Git-first research workflow |
+| `d8b82b6f` | Added ORBIT/DHI-v1 background handover snapshot |
+| `efaf0dec` | Linked background snapshot and model-pilot entrypoint |
+| `65003263` | Defined Git-first research workflow |
+| `f670000b` | Added live workspace state file |
+| `8d4a548a` | Made live workspace the repository-root session entrypoint |
+| `023f836c` | Made live workspace the DHI-v1 README session entrypoint |
+| `218b6dce` | Clarified dated handover is a snapshot, not live state |
+| `a5ff6f7c` | Recorded Git-first operating decision in the append-only decision log |
 
-This workspace update and its commit should be appended to this table when its final commit SHA is available.
+The current version of this file is the active checkpoint. Its own commit SHA is the newest `main` commit when this file is fetched; always inspect the branch head rather than hardcoding a self-referential SHA here.
 
 ## 10. Session continuation checklist
 
