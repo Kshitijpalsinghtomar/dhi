@@ -88,6 +88,8 @@ Distribute tasks across software repositories, terminal, browser, documents, spr
 
 The 240-task suite is a pilot diagnostic, not a statistically definitive final benchmark. Expand to a separate confirmatory test after reviewing the pilot failures.
 
+> **Open scope conflict — 2026-11-02:** `DHI_v1/docs/03_MODEL_SELECTION_AND_ADAPTION.md` defines an initial 120-task base-model screen (6×20), and the append-only decision log records 120 as the base-screen target. This document independently calls 240 tasks the initial diagnostic suite (10×24). No committed decision establishes sequencing, nesting, supersession, or permission to substitute one for the other. Do not treat this 240-task plan as the approved base-screen size until the conflict is resolved in the decision log.
+
 ## 4. Generalization and contamination controls
 
 Split by more than wording:
