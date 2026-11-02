@@ -61,7 +61,7 @@ last_verified_repository_head_before_this_workspace_checkpoint: dff718acc0640517
 | Scripted reference pilot | 8/8 passed | Harness/reference validation only; not an LLM result or training data |
 | Historical environment/benchmark tests | 75 passed on 2026-10-31 | Historical run; do not claim latest HEAD is tested |
 | ORBIT adjudication gate | Focused tests passed on 2026-10-31 | Gate code verification only |
-| INFER-001 hosted inference preflight | Hosted catalogue query pending | ADAPTION_API_KEY presence confirmed in isolated runtime; hosted endpoint not yet queried |
+| INFER-001 hosted inference preflight | Hosted catalogue succeeded; inference approval pending | 6 hosted IDs returned; only Gemma 4 31B matches a selected candidate; no inference made |
 | Untouched candidate model screening | Not run | No model winner |
 | DHI-v1 executed model trajectories | None recorded | No trajectory SFT source yet |
 | DHI-v1 training | Not authorized / not run | Data and benchmark gates remain closed |
@@ -93,14 +93,13 @@ VERIFY-001 is blocked on Deepnote's parallel-project quota. Initial run `93645a7
 
 ## 9. Next authorized action
 
-**Run the authenticated hosted-model catalogue query in the isolated DHI runtime.**
+**Await authorization for one single-task Gemma integration pilot.**
 
-- The `ADAPTION` Environment variables integration (ID `999bb21e-9bfd-4071-a2bc-d26590958de7`) is attached to project `2eb8d02b-b505-4b39-a33a-32aeda2e1cc4`; the presence-only probe confirms `ADAPTION_API_KEY=true`.
-- Fetch the latest committed DHI repository revision into ephemeral project storage and run `python -m DHI_v1.environment.examples.list_adaption_models`.
-- Record exact hosted IDs returned by `GET /api/v1/models?type=hosted`, or the redacted HTTP/API error, in `DHI_v1/experiments/INFER-001/`.
-- Do not call Responses inference until the catalogue request succeeds. Do not guess model IDs or switch providers.
-- A separate Deepnote parallel-project quota still blocks VERIFY-001's test retry; one workspace project is currently running. Do not stop it without explicit approval.
-- After a hosted model is confirmed, use only the existing DHI model-facing pilot and obtain provider/cost approval before any inference run.
+- Hosted catalogue succeeded on 2026-11-02: six exact IDs are stored in `DHI_v1/experiments/INFER-001/manifest.json`.
+- Only the selected Gemma 4 31B challenger is available, under exact hosted ID `gemma-4-31b-it`. The Qwen3.6 primary and GPT-OSS mandatory challenger are absent; do not infer availability from training IDs or swap in unselected hosted models.
+- The repository's single-task pilot is `python -m DHI_v1.environment.examples.run_model_pilot`, configured with `DHI_MODEL_PROVIDER=adaption` and `DHI_MODEL_NAME=gemma-4-31b-it`.
+- The API catalogue does not expose price. Do not invoke inference until the user explicitly approves possible Adaption account billing/credit use. Do not start the eight-case benchmark or training yet.
+- VERIFY-001 remains blocked by Deepnote parallel-project quota; no project has been stopped.
 
 Benchmark scope audit is complete but the discrepancy remains unresolved: `03_MODEL_SELECTION_AND_ADAPTION.md` specifies 120 initial base-screen tasks (6×20), `05_BENCHMARK_PROTOCOL.md` specifies 240 initial diagnostic tasks (10×24), and the decision log names 120. No file establishes nesting or stage order; neither count is frozen. Warnings now appear in both source documents. Do not choose or freeze a suite until an explicit decision resolves purpose, size, strata, relationship, and split.
 
@@ -125,6 +124,7 @@ Benchmark scope audit is complete but the discrepancy remains unresolved: `03_MO
 | `dff718ac` | Corrected earlier access wording |
 | `INFER-001 run b39c478a` | Measured both Adaption key variables absent before integration was attached |
 | `INFER-001 run 9e34f54b` | Confirmed `ADAPTION_API_KEY` present after secure integration attachment |
+| `INFER-001 run 4bd4a7ba` | Authenticated hosted-model catalogue returned 6 IDs; no inference called |
 | `VERIFY-001 run 93645a78` | Exact checkout verified; compileall passed; pytest blocked by missing package before collection |
 | `VERIFY-001` retry | Blocked before execution by Deepnote quota in detached and live modes; retry cell is ready |
 | `VERIFY-001` | Initial compileall passed; pytest blocked by missing dependency; retry blocked by Deepnote quota |
