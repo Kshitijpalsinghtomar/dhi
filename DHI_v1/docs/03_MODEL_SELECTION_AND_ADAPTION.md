@@ -96,30 +96,28 @@ This is a research decision for the first prototype, not a claim that Qwen wins.
 
 ## 5. Model-screening protocol before fine-tuning
 
-Use the same small, frozen diagnostic set for each candidate:
+The base-model screen is **Stage A of the shared 240-task panel**, not a separate six-stratum benchmark. See [SCREEN_AND_DIAGNOSTIC_SCOPE.md](../benchmark/SCREEN_AND_DIAGNOSTIC_SCOPE.md) for the controlling allocation and freeze gates.
 
-- 20 no-tool / tool-unnecessary examples;
-- 20 current-evidence and tool-necessity examples;
-- 20 tool-discovery / unknown-app examples;
-- 20 tool-selection and schema examples;
-- 20 multi-tool/long-horizon workflow examples;
-- 20 failure recovery, replan, and closure examples.
+- Stage A: 120 tasks, 12 from each of the ten diagnostic strata.
+- Stage B: 120 additional held-out tasks, also 12 from each stratum.
+- Complete panel: 240 unique tasks, 24 per stratum. Stage A is a strict subset; Stage B uses distinct task families/templates and must not contain paraphrases or reused structures from Stage A.
 
-Total: 120 initial screening tasks. These are diagnostic tasks, not enough to claim broad benchmark superiority. Use repeated trials for stochastic cases.
+Run Qwen3.6-35B-A3B and GPT-OSS-20B under identical tasks, tools, environment, permissions, prompts, decoding, retry policy, and budget. Include Gemma 4 31B when multimodal/UI tasks are in scope and can be provided fairly. Preserve model-native tool formatting while verifying semantic adapter parity.
 
-> **Open scope conflict — 2026-11-02:** `DHI_v1/docs/05_BENCHMARK_PROTOCOL.md` separately defines an *initial* 240-task diagnostic suite (10×24), while this model-selection document defines the 120-task first base screen (6×20). The append-only decision log also names 120 tasks. No controlling record establishes that 240 is a later expansion, that 120 is a subset, or that either document supersedes the other. Do not silently infer a staged relationship or freeze a screen from either count until a dated decision resolves the conflict.
+Stage A is for initial candidate/interface screening. Twelve tasks per stratum provide screening resolution only, not a precise estimate of stratum-level performance or a broad superiority claim. Report all ten strata, paired task differences, confidence intervals, hard safety gates, latency, tokens, tool calls, and cost per successful task. The selected model and its mandatory challenger must then be run on the hidden Stage B tasks without tuning.
+
+The exact task instances, family split, prompts, tool manifest, model revisions, seeds, graders, environment and thresholds remain unfrozen until their validity and executable support have been audited. The existing 12-case development pilot is excluded from both stages.
 
 Measure:
-- task success;
-- tool discovery rate when discovery is needed;
-- unnecessary tool calls;
-- tool selection and argument validity;
-- plan correctness and replan quality;
-- execution success and goal closure;
-- critical safety violations;
-- latency, tokens, and inference cost.
+- task success and verified postconditions;
+- tool discovery recall when discovery is required;
+- unnecessary tool calls and no-tool restraint;
+- tool selection, permission fit and argument validity;
+- plan correctness, action-effect prediction and replan quality;
+- false closure and critical safety violations;
+- latency, tokens, tool calls and inference cost.
 
-A base model that cannot be run with the correct native tool format should not be scored as if its tool ability were absent; fix the harness/model template before comparing.
+A candidate without a usable hosted inference route cannot be treated as a failed model. Record it as unavailable and do not substitute a different hosted model without a separate decision.
 
 ## 6. Adaption recommender: what it tells us and what it does not
 
