@@ -1,0 +1,36 @@
+{
+  "experiment_id": "INFER-001",
+  "date": "2026-11-02",
+  "programme": "DHI-v1",
+  "codename": "ORBIT",
+  "type": "access_preflight",
+  "status": "blocked",
+  "inspected_repo_head": "dd5268e62f9e8905c687b729094d5b12af9584f4",
+  "provider": "Adaption",
+  "model_candidates_training_registry": [
+    "Qwen/Qwen3.6-35B-A3B",
+    "openai/gpt-oss-20b",
+    "google/gemma-4-31B-it"
+  ],
+  "hosted_models_endpoint": "GET /api/v1/models?type=hosted",
+  "inference_endpoint": "POST /api/v1/responses",
+  "hosted_models_endpoint_tested": false,
+  "inference_endpoint_tested": false,
+  "credential_available_in_secure_runtime": false,
+  "connected_adaption_mcp_includes_hosted_model_listing": false,
+  "connected_adaption_mcp_includes_responses_inference": false,
+  "deepnote_project": {
+    "name": "DHI — ORBIT Research Lab",
+    "project_id": "5a197ce3-f071-4a39-b2e4-937e7a52489a",
+    "attached_integrations": [],
+    "workspace_integrations": [
+      "[Demo] Snowflake"
+    ],
+    "reused_for_inference": false,
+    "reason": "No environment/secret integration is available; project file inventory includes unrelated DPAK research directories."
+  },
+  "model_run_started": false,
+  "training_started": false,
+  "adaption_credits_spent": 0,
+  "next_action": "Inject Adaption API key through a secure runtime secret in a clean DHI-only environment, then run the existing list_adaption_models CLI. Do not infer hosted availability from the training registry."
+}
