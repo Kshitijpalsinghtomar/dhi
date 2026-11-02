@@ -455,3 +455,8 @@ Configure `ADAPTION_API_KEY` in a secure Environment variables integration and a
 ## 2026-11-02 — VERIFY-001 initial run dependency block
 
 VERIFY-001 successfully fetched and checked out the exact pinned commit `c2e0dddaa6eb22d0c4722fc7fb43f2c2439c7c61`. `python -m compileall -q DHI_v1` passed (exit 0). The pytest command did not collect or execute tests because the isolated Deepnote image does not have pytest installed (`No module named pytest`). This is a runtime dependency issue, not a test failure. The exact run and output are preserved in `DHI_v1/experiments/VERIFY-001/manifest.json`. Retry with ephemeral installation of pytest and jsonschema; do not change source code for this issue.
+
+## 2026-11-02 — VERIFY-001 retry blocked by Deepnote quota
+
+After the initial exact checkout/compileall run, a retry cell was added to install pytest and jsonschema ephemerally and rerun the environment/benchmark tests. Deepnote rejected both detached and live-mode run creation with `Your plan quota for parallel running projects has been exceeded. Please stop one of your running projects.` before execution. No package was installed and no test was run in the retry. No existing project was stopped. The retry cell remains available in the isolated notebook. Further runtime work requires a user-approved stop of an idle project or another execution slot.
+
