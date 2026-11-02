@@ -4,7 +4,7 @@
   "programme": "DHI-v1",
   "codename": "ORBIT",
   "type": "repository_test_verification",
-  "status": "retrying_with_ephemeral_test_dependencies",
+  "status": "blocked_on_deepnote_parallel_project_quota",
   "pinned_commit": "c2e0dddaa6eb22d0c4722fc7fb43f2c2439c7c61",
   "repository": "https://github.com/Kshitijpalsinghtomar/dhi",
   "environment": {
@@ -48,5 +48,17 @@
   "next_run": {
     "expected_action": "Install pytest and jsonschema into the disposable Deepnote runtime, rerun the same pytest and compileall commands at the same pinned commit.",
     "persistent_repository_changes": false
-  }
+  },
+  "retry_attempt": {
+    "block_id": "f0d38652cb8c490595ca474cc5ae2317",
+    "detached_run_creation_attempted": true,
+    "detached_run_creation_error": "Your plan quota for parallel running projects has been exceeded. Please stop one of your running projects.",
+    "live_run_creation_attempted": true,
+    "live_run_creation_error": "Your plan quota for parallel running projects has been exceeded. Please stop one of your running projects.",
+    "pip_install_executed": false,
+    "pytest_executed": false,
+    "compileall_executed_in_retry": false,
+    "no_existing_project_stopped": true
+  },
+  "next_action": "Free one Deepnote parallel-running-project slot by explicitly stopping an idle project, then rerun the already-created dependency-install/test cell. Do not stop any project without user approval."
 }
