@@ -32,8 +32,8 @@ status: blocked
 status_reason: >
   The model-facing runner and Adaption Responses adapter are implemented,
   but the connected Adaption actions expose training registry only. The
-  isolated Deepnote probe completed and confirmed neither supported Adaption
-  key variable is configured in that project's runtime; hosted IDs remain unverified.
+  isolated DHI runtime now has ADAPTION_API_KEY mounted; authenticated hosted
+  model listing is the next unverified gate.
 training_status: not_authorized
 benchmark_status: development_pilot_not_frozen
 last_verified_repository_head_before_this_workspace_checkpoint: dff718acc0640517c61eb739f62f40485fea3a0e
@@ -61,7 +61,7 @@ last_verified_repository_head_before_this_workspace_checkpoint: dff718acc0640517
 | Scripted reference pilot | 8/8 passed | Harness/reference validation only; not an LLM result or training data |
 | Historical environment/benchmark tests | 75 passed on 2026-10-31 | Historical run; do not claim latest HEAD is tested |
 | ORBIT adjudication gate | Focused tests passed on 2026-10-31 | Gate code verification only |
-| INFER-001 hosted inference preflight | Blocked on 2026-11-02 | Training registry refreshed; isolated probe confirmed both supported Adaption key variables absent; hosted endpoint not called |
+| INFER-001 hosted inference preflight | Hosted catalogue query pending | ADAPTION_API_KEY presence confirmed in isolated runtime; hosted endpoint not yet queried |
 | Untouched candidate model screening | Not run | No model winner |
 | DHI-v1 executed model trajectories | None recorded | No trajectory SFT source yet |
 | DHI-v1 training | Not authorized / not run | Data and benchmark gates remain closed |
@@ -85,7 +85,7 @@ Adaption flow documented in the repository:
 4. Only after model ID/access and user-approved provider/cost are confirmed, run the development pilot with `DHI_MODEL_PROVIDER=adaption` and `DHI_MODEL_NAME=<exact-hosted-id>`.
 5. Preserve the report and per-case traces; label this as a development pilot, not a frozen benchmark or training data.
 
-The connected Adaption MCP actions do not expose the hosted model-listing or Responses inference methods. The existing Deepnote project `DHI — ORBIT Research Lab` has no attached integrations; its workspace has only `[Demo] Snowflake`, and its file inventory includes unrelated DPAK work. Do not run DHI inside that mixed project. A clean isolated Deepnote project was created for a presence-only secret probe. Its first run was rejected by the project quota, but the retry completed successfully and measured both `ADAPTION_API_KEY` and `DHI_ADAPTION_API_KEY` as absent in that project runtime. This is not evidence that the user has no key elsewhere. No credential is recorded in Git. Never ask the user to paste a key into chat.
+The connected Adaption MCP actions do not expose the hosted model-listing or Responses inference methods. The existing `DHI — ORBIT Research Lab` Deepnote project remains mixed with unrelated files; DHI work is using the separate `DHI — Isolated Runtime Preflight` project only. The user created the `ADAPTION` Environment variables integration and it is attached to the isolated project. The secret-presence probe confirms `ADAPTION_API_KEY` is present without printing the value. Key validity and hosted model access remain unverified. No credential is recorded in Git.
 
 ## 8. Active verification
 
@@ -93,14 +93,14 @@ VERIFY-001 is blocked on Deepnote's parallel-project quota. Initial run `93645a7
 
 ## 9. Next authorized action
 
-**Unblock INFER-001 through the isolated DHI runtime.**
+**Run the authenticated hosted-model catalogue query in the isolated DHI runtime.**
 
-- In the isolated project `2eb8d02b-b505-4b39-a33a-32aeda2e1cc4`, use the right-sidebar **Integrations** panel to add/connect an **Environment variables** integration containing `ADAPTION_API_KEY`. Deepnote stores these values encrypted. Follow https://deepnote.com/docs/environment-variables; never paste the key into chat or commit it.
-- Free one Deepnote parallel-running-project slot before the next execution. Machine inspection found exactly one project currently running in the workspace. Do not stop it automatically; the user must identify/approve an idle project to stop, or otherwise make a slot available.
-- Rerun the committed presence-only probe `DHI_v1/experiments/INFER-001/check_runtime_secret_presence.py`; it must output booleans only and show the key is present.
-- Then run `python -m DHI_v1.environment.examples.list_adaption_models` and record exact hosted IDs or the redacted API error in `DHI_v1/experiments/INFER-001/`.
-- Only after an exact hosted model is confirmed and provider/cost are approved, launch the existing development pilot.
-- Do not use the mixed DHI/DPAK Deepnote project, silently switch provider, guess model IDs, train, or generate another dataset.
+- The `ADAPTION` Environment variables integration (ID `999bb21e-9bfd-4071-a2bc-d26590958de7`) is attached to project `2eb8d02b-b505-4b39-a33a-32aeda2e1cc4`; the presence-only probe confirms `ADAPTION_API_KEY=true`.
+- Fetch the latest committed DHI repository revision into ephemeral project storage and run `python -m DHI_v1.environment.examples.list_adaption_models`.
+- Record exact hosted IDs returned by `GET /api/v1/models?type=hosted`, or the redacted HTTP/API error, in `DHI_v1/experiments/INFER-001/`.
+- Do not call Responses inference until the catalogue request succeeds. Do not guess model IDs or switch providers.
+- A separate Deepnote parallel-project quota still blocks VERIFY-001's test retry; one workspace project is currently running. Do not stop it without explicit approval.
+- After a hosted model is confirmed, use only the existing DHI model-facing pilot and obtain provider/cost approval before any inference run.
 
 Benchmark scope audit is complete but the discrepancy remains unresolved: `03_MODEL_SELECTION_AND_ADAPTION.md` specifies 120 initial base-screen tasks (6×20), `05_BENCHMARK_PROTOCOL.md` specifies 240 initial diagnostic tasks (10×24), and the decision log names 120. No file establishes nesting or stage order; neither count is frozen. Warnings now appear in both source documents. Do not choose or freeze a suite until an explicit decision resolves purpose, size, strata, relationship, and split.
 
@@ -123,7 +123,8 @@ Benchmark scope audit is complete but the discrepancy remains unresolved: `03_MO
 | `ab9946bd` / `8be08d1c` | Recorded isolated runtime creation and quota rejection in INFER-001 artifacts |
 | `9edb4d08` | Appended Deepnote quota rejection; secret presence remained unmeasured at that checkpoint |
 | `dff718ac` | Corrected earlier access wording |
-| `INFER-001 run b39c478a` | Measured both Adaption key variables absent in isolated project runtime; no API call |
+| `INFER-001 run b39c478a` | Measured both Adaption key variables absent before integration was attached |
+| `INFER-001 run 9e34f54b` | Confirmed `ADAPTION_API_KEY` present after secure integration attachment |
 | `VERIFY-001 run 93645a78` | Exact checkout verified; compileall passed; pytest blocked by missing package before collection |
 | `VERIFY-001` retry | Blocked before execution by Deepnote quota in detached and live modes; retry cell is ready |
 | `VERIFY-001` | Initial compileall passed; pytest blocked by missing dependency; retry blocked by Deepnote quota |
