@@ -91,3 +91,20 @@ If the hosted endpoint rejects the key or returns no usable hosted model, record
 ## Reproducibility metadata
 
 See `manifest.json` for inspected repository revision, tool surface, candidate IDs, runtime metadata, and exact test boundaries.
+
+## Follow-up isolated runtime probe — 2026-11-02
+
+A clean, separate Deepnote notebook project was created to check only whether `ADAPTION_API_KEY` or `DHI_ADAPTION_API_KEY` is present in its runtime. The probe source is committed at `DHI_v1/experiments/INFER-001/check_runtime_secret_presence.py` (commit `5a649db4635245f4ece1895f1931ea3a2dcd5c94`). It emits presence booleans only and makes no network request.
+
+- Isolated project: `DHI — Isolated Runtime Preflight`, project ID `2eb8d02b-b505-4b39-a33a-32aeda2e1cc4`.
+- Notebook ID: `08586f8da34c456fb544baccb69ebe3e`.
+- Probe block ID: `7bcfdf38fd0a400e989a4d6064e1caed`.
+- A detached read-only run was requested.
+- Deepnote rejected run creation **before execution**: `Your plan quota for parallel running projects has been exceeded. Please stop one of your running projects.`
+
+Therefore secret presence was **not measured**. No project was stopped, no secret was read/emitted, and no network request or Adaption API call occurred. The isolated project is left available for a later retry. Do not use the mixed DHI/DPAK workspace instead.
+
+### Additional unblock requirement
+
+The isolated project needs the Adaption key supplied through a secure project/runtime secret, and Deepnote needs one parallel-running-project slot available. Do not stop any existing user project automatically; request user action before doing so.
+
