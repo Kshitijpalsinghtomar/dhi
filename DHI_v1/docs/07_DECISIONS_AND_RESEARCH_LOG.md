@@ -89,13 +89,13 @@ The following work must be reviewed before claiming novelty:
 
 ## Current next actions
 
-1. Resolve the conflict between the 120-task base-screen specification and the 240-task diagnostic specification; explicitly define purpose, strata, relationship, and held-out split before freezing either.
-2. Finish validating the deterministic environment/runner and its observable state-transition trace.
-3. Obtain comparable untouched-base inference access for Qwen3.6-35B-A3B and GPT-OSS-20B. Gemma 4 31B remains a multimodal challenger, not a substitute for the required comparison.
-4. Generate a small pilot corpus from actual environment executions, retaining raw tool responses, pre-action forecasts, actual state deltas, and independently verified postconditions.
-5. Reassess the partially reviewed 300-row Invent behaviour dataset only as optional auxiliary material; it is not a substitute for executed trajectories.
-6. Use Adaption's explicit estimate operations before any dataset generation/adaptation/augmentation. For SFT, confirm current row minima, exact columns, eligibility, and platform charges before launch.
-7. Run one controlled SFT baseline on the selected backbone only after the untouched-base screen and data gates pass. Add predictive/closure supervision as a matched ablation.
+1. Finish validating the deterministic environment/runner and its observable state-transition trace.
+2. Materialize and independently audit Stage A (120) and Stage B (120) task partitions under the controlling [screen/diagnostic scope](../benchmark/SCREEN_AND_DIAGNOSTIC_SCOPE.md). Do not freeze tasks that the current environment cannot execute and grade.
+3. Resolve comparable untouched-base inference access for Qwen3.6-35B-A3B and GPT-OSS-20B, with Gemma 4 31B included when multimodal/UI scope is executable.
+4. Run Stage A on all accessible mandatory candidates under matched conditions; use Stage B as a hidden confirmation set after model/interface selection.
+5. Produce a small trajectory pilot from actual environment executions, retaining raw tool responses, pre-action forecasts, actual state deltas, and independently verified postconditions.
+6. Use Adaption estimates and current model/data eligibility checks before any paid dataset job or SFT launch. Do not use Invent text as a substitute for executed trajectories.
+7. Compare ordinary SFT with predictive/closure supervision as a matched ablation.
 8. Advance to DPO, RL, or custom latent architecture only when each method's evidence and implementation entry conditions are met.
 
 ## Sources and dated references
@@ -559,3 +559,32 @@ The recommender returned hyperparameters but no training price quote. The connec
 - `DHI_v1/experiments/ADAPTION-001/README.md`
 - `DHI_v1/experiments/ADAPTION-001/manifest.json`
 - No model-quality or training conclusion is claimed.
+
+
+## 2026-11-02 — Resolve 120-task screen and 240-task diagnostic scope
+
+### Decision
+The 120-task base-model screen is Stage A, the first half of a single 240-task ten-stratum diagnostic panel. Allocate 12 Stage A tasks and 12 distinct Stage B tasks to each of the ten strata. The complete panel therefore has 24 tasks per stratum; Stage A has 120 tasks and Stage B adds 120 held-out tasks.
+
+This supersedes the earlier six-groups ×20 allocation as the active model-screen allocation. The earlier conflict audit remains as historical provenance; this dated decision now resolves it.
+
+### Rationale
+The ten-stratum diagnostic design covers no-tool restraint, current evidence, tool discovery, decoy/tool selection, schemas/preconditions, dependent multi-tool tasks, long horizons, recovery, action-effect prediction/closure, and safety/permissions. A six-group screen that omits four diagnostic categories from the initial model comparison would make the first selection less representative of DHI's stated objective.
+
+The nested split keeps the initial screening budget at 120 while preserving a held-out extension. Both stages have the same stratum composition, allowing a model choice made on Stage A to be checked on distinct Stage B task families without claiming that 120 additional duplicated prompts increased the sample size.
+
+### Rules
+- Stage A is used for initial screening and may inform model/interface selection.
+- Stage B remains hidden until the model/interface choices are fixed; no tuning on Stage B.
+- Stage A/B split by task family/template, repository/application, tool-schema family, dependency structure, horizon and environment state—not paraphrase or random wording.
+- The existing 12-case development pilot is excluded from both.
+- Report per-stage and per-stratum metrics, paired comparisons, confidence intervals, cost/latency and non-compensable hard gates.
+- This freezes the relationship, strata and counts only. Task instances, tool manifests, model revisions, environment, seeds, graders, budgets and thresholds remain unfrozen.
+- If a stratum cannot be executed and independently graded in the current environment, mark it as a harness gap; do not count it as a model failure.
+
+### Artifact
+- Controlling allocation: DHI_v1/benchmark/SCREEN_AND_DIAGNOSTIC_SCOPE.md.
+- Model-selection protocol: Section 5 of DHI_v1/docs/03_MODEL_SELECTION_AND_ADAPTION.md.
+- Diagnostic protocol: Section 3 of DHI_v1/docs/05_BENCHMARK_PROTOCOL.md.
+
+No task instances were created, no model was run, and no Adaption credits were spent in making this scope decision.
