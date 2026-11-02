@@ -1,0 +1,161 @@
+{
+  "$schema": "./task_manifest.schema.json",
+  "schema_version": "1.0.0",
+  "panel_id": "DHI-v1-ORBIT-240",
+  "scope_decision": {
+    "path": "DHI_v1/benchmark/SCREEN_AND_DIAGNOSTIC_SCOPE.md",
+    "commit": "3640e4a86495299688b5e20e098097730743ab53",
+    "stage_a_tasks": 120,
+    "stage_b_tasks": 120,
+    "strata": 10
+  },
+  "status": "contract_ready_no_instances",
+  "frozen": false,
+  "stage_targets": {
+    "A": 120,
+    "B": 120
+  },
+  "per_stratum_stage_target": 12,
+  "materialized_task_count": 0,
+  "materialized_stage_counts": {
+    "A": 0,
+    "B": 0
+  },
+  "strata": [
+    {
+      "stratum_id": "S01",
+      "label": "No-tool-needed tasks and direct answers",
+      "stage_a_target": 12,
+      "stage_b_target": 12,
+      "total_target": 24,
+      "coverage_status": "supported",
+      "coverage_matrix_anchor": "CM-S01",
+      "authoring_gate": "Use answer-only tasks with exact answer and zero-tool/no-write graders; retain a task-start fixture and non-vacuous environment postcondition."
+    },
+    {
+      "stratum_id": "S02",
+      "label": "Current/time-sensitive facts requiring verification",
+      "stage_a_target": 12,
+      "stage_b_target": 12,
+      "total_target": 24,
+      "coverage_status": "harness_gap",
+      "coverage_matrix_anchor": "CM-S02",
+      "authoring_gate": "Do not author scored items until a current-source adapter, timestamped authoritative snapshots, and independent source grader exist."
+    },
+    {
+      "stratum_id": "S03",
+      "label": "Tool discovery when a required capability is absent from the visible inventory",
+      "stage_a_target": 12,
+      "stage_b_target": 12,
+      "total_target": 24,
+      "coverage_status": "partial",
+      "coverage_matrix_anchor": "CM-S03",
+      "authoring_gate": "Limit exploratory work to the local catalogue and read-only Adaption catalogue until discovered external tools can actually execute."
+    },
+    {
+      "stratum_id": "S04",
+      "label": "Tool selection among relevant, irrelevant, misleading, and decoy tools",
+      "stage_a_target": 12,
+      "stage_b_target": 12,
+      "total_target": 24,
+      "coverage_status": "partial",
+      "coverage_matrix_anchor": "CM-S04",
+      "authoring_gate": "Add task-local decoy catalogue fixtures with executable safe handlers and permission-difference graders before claiming decoy-selection coverage."
+    },
+    {
+      "stratum_id": "S05",
+      "label": "Schema/argument correctness and precondition handling",
+      "stage_a_target": 12,
+      "stage_b_target": 12,
+      "total_target": 24,
+      "coverage_status": "supported",
+      "coverage_matrix_anchor": "CM-S05",
+      "authoring_gate": "Limit tasks to registered schemas and the validator's required/additionalProperties/primitive-type checks plus real filesystem preconditions."
+    },
+    {
+      "stratum_id": "S06",
+      "label": "Multi-tool workflows with dependencies and state changes",
+      "stage_a_target": 12,
+      "stage_b_target": 12,
+      "total_target": 24,
+      "coverage_status": "supported",
+      "coverage_matrix_anchor": "CM-S06",
+      "authoring_gate": "Use dependent file-workspace operations with state snapshots, exact file postconditions, and protected-path invariants."
+    },
+    {
+      "stratum_id": "S07",
+      "label": "Long-horizon workflows with 8–30 actions and checkpoints",
+      "stage_a_target": 12,
+      "stage_b_target": 12,
+      "total_target": 24,
+      "coverage_status": "partial",
+      "coverage_matrix_anchor": "CM-S07",
+      "authoring_gate": "Same-session action chains can fit current runner limits, but resumable checkpoints and cross-session continuation are not implemented."
+    },
+    {
+      "stratum_id": "S08",
+      "label": "Broken/unavailable tools, malformed responses, rate limits, and replanning",
+      "stage_a_target": 12,
+      "stage_b_target": 12,
+      "total_target": 24,
+      "coverage_status": "partial",
+      "coverage_matrix_anchor": "CM-S08",
+      "authoring_gate": "Use only deterministic task fault injections and malformed tool-argument cases until HTTP status/timeout/rate-limit injection and recovery controls exist."
+    },
+    {
+      "stratum_id": "S09",
+      "label": "Action-effect forecasts, side-effect prediction, and verified goal closure",
+      "stage_a_target": 12,
+      "stage_b_target": 12,
+      "total_target": 24,
+      "coverage_status": "partial",
+      "coverage_matrix_anchor": "CM-S09",
+      "authoring_gate": "Score only changed/unchanged file-path forecasts and independently verified file postconditions; do not generalize to structured world-state effects."
+    },
+    {
+      "stratum_id": "S10",
+      "label": "Permission boundaries, untrusted tool outputs, context continuity, and infeasible tasks",
+      "stage_a_target": 12,
+      "stage_b_target": 12,
+      "total_target": 24,
+      "coverage_status": "partial",
+      "coverage_matrix_anchor": "CM-S10",
+      "authoring_gate": "Constrain tasks to filesystem allowlists, safe paths, protected-file hashes, and same-session untrusted-output handling; cross-session and irreversible-action claims remain unsupported."
+    }
+  ],
+  "task_families": [],
+  "tasks": [],
+  "stage_b_policy": {
+    "state": "not_materialized",
+    "visibility": "sealed_from_model_developers",
+    "release_gate": "Release only after Stage A candidate and interface choices are committed, the family split is independently checked, and the confirmation protocol is frozen."
+  },
+  "integrity": {
+    "hash_algorithm": "sha256",
+    "task_id_rule": "ORBIT-{A|B}-S{01..10}-{001..012}; IDs are assigned only after the task contract and environment fixture are materialized.",
+    "stage_split_unit": "task_family_and_independence_group_not_prompt_wording",
+    "cross_stage_family_overlap_allowed": false,
+    "deduplication_policy": "Check exact normalized prompts, semantic task structure, fixture lineage, tool-schema family, dependency graph, and family fingerprints before panel freeze; prompt paraphrases do not establish independence.",
+    "freeze_requirements": [
+      "All 240 task records exist and reconcile to 12 per stage per stratum.",
+      "Stage A and Stage B family and independence-group identifiers are disjoint.",
+      "Every task has a pinned environment or authoritative snapshot and SHA-256 state fingerprint.",
+      "Every task has at least one mechanically executable or independently reviewable postcondition.",
+      "Every grader has a version, tested assertions, and a non-LLM-only evidence path.",
+      "Stage B prompts and fixtures are access-restricted before Stage A model/interface selection.",
+      "Model adapters, tool manifests, permissions, seeds, budgets, and decode policies are frozen before any comparative run."
+    ]
+  },
+  "existing_development_pilot": {
+    "path": "DHI_v1/benchmark/pilot_cases.json",
+    "declared_case_count": 12,
+    "excluded_from_panel": true,
+    "purpose": "Integration and harness smoke tests only; not members of Stage A or Stage B and not model-capability evidence."
+  },
+  "notes": [
+    "This is an intentionally empty task register, not a fabricated 240-task panel. The scope counts are targets; zero task instances are materialized at this checkpoint.",
+    "Coverage status is relative to the current deterministic file-workspace runner. See ENVIRONMENT_COVERAGE_MATRIX.md for evidence and limits.",
+    "Task execution is disabled in the manifest until the panel is frozen and the comparable base-model screen is authorized.",
+    "JSON Schema validates each task record. Cross-record uniqueness, count reconciliation, disjoint family partitions, fixture hashing, and Stage B access control require a separate panel-integrity validator before freeze."
+  ]
+}

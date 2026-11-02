@@ -27,16 +27,17 @@ This is a research target, not a result or novelty claim. A prompt, RAG store, f
 ```yaml
 programme: DHI-v1
 codename: ORBIT
-phase: benchmark_scope_decided_task_manifest_pending
+phase: benchmark_contract_and_coverage_mapped_task_authoring_pending
 status: blocked
 status_reason: >
-  The 120-task base screen is now defined as Stage A, nested in a 240-task
-  ten-stratum panel with a held-out Stage B. Task instances, executable
-  coverage, model-comparable inference access, and verified trajectory data
-  remain incomplete.
+  The 120/240 allocation is defined. A schema-backed task register and a
+  source-audited environment coverage matrix now exist. No task instances have
+  been materialized: S02 has a missing current-source environment, and several
+  other strata are only partially supported. Comparable base-model inference
+  access and verified trajectories remain incomplete.
 training_status: not_authorized
 benchmark_status: scope_defined_task_manifest_unfrozen
-last_verified_repository_head_before_this_workspace_checkpoint: dff718acc0640517c61eb739f62f40485fea3a0e
+last_verified_repository_head_before_this_workspace_checkpoint: 3640e4a86495299688b5e20e098097730743ab53
 ```
 </details>
 
@@ -99,22 +100,23 @@ VERIFY-001 is blocked on Deepnote's parallel-project quota. Initial run `93645a7
 
 ## 9. Next authorized action
 
-**Materialize the two benchmark partitions and map executable coverage before any model run.**
+**Author the first executable task families and close harness gaps before materializing the full panel.**
 
-The scope relationship is now resolved and committed:
-- [Controlling allocation](benchmark/SCREEN_AND_DIAGNOSTIC_SCOPE.md): Stage A = 120 tasks (12 per each of ten strata); Stage B = 120 additional held-out tasks (12 per stratum); complete panel = 240 unique tasks.
-- [Model-selection protocol](docs/03_MODEL_SELECTION_AND_ADAPTION.md), Section 5, and [benchmark protocol](docs/05_BENCHMARK_PROTOCOL.md), Section 3, now use the same allocation.
-- [Decision log](docs/07_DECISIONS_AND_RESEARCH_LOG.md) records why the earlier 6×20 split was replaced.
+Completed in MANIFEST-001:
+- [Task-record JSON Schema](benchmark/task_manifest.schema.json) defines the per-task contract and panel metadata.
+- [Task register](benchmark/task_manifest.json) records the 120+120 allocation, all ten strata, Stage B sealing policy, and integrity rules. It intentionally contains zero task instances; no placeholder prompts or fake tasks were created.
+- [Environment coverage audit](benchmark/ENVIRONMENT_COVERAGE_MATRIX.md) maps the current runner and graders to each stratum and names unsupported behavior.
+
+Current coverage: S01, S05 (registered schema subset), and S06 (file-workspace only) have bounded execution/grading paths; S03, S04, S07, S08, S09, and S10 are partial; S02 is a harness gap. The existing 12-case integration pilot remains excluded from Stage A and Stage B.
 
 Next:
-1. Create a task manifest/schema with explicit stratum, stage, task-family, environment, required tools, postconditions, grader, and split metadata.
-2. Map each of the ten strata to actual environment capabilities and executable/independently checkable graders. Current file-workspace pilot does not support all required strata; record those as harness gaps.
-3. Build Stage A and Stage B from distinct task families and hash the partitions before comparing models. Exclude the existing 12-case integration pilot from both.
-4. Resolve comparable untouched-base inference access for Qwen3.6-35B-A3B and GPT-OSS-20B. Gemma 4 31B remains the optional multimodal challenger; do not treat its hosted availability as a substitute for the mandatory Qwen-vs-GPT-OSS comparison.
-5. Build actual environment-executed trajectories only after a valid baseline route is available. Do not use the partially reviewed 300-row Invent dataset as a replacement.
-6. Keep Adaption spending gated by valid data provenance, model-specific eligibility and estimates/cost confirmation.
+1. Build and test distinct executable task families for bounded S01/S05/S06, then add partial-stratum probes only with each limitation represented in the task record and scorecard.
+2. Implement the missing source adapter for S02, permission-distinct decoy fixtures for S04, and persistent checkpoint/resume for S07 before those full strata are scored.
+3. Add explicit deterministic provider-failure injection/retry controls for S08; structured state predicates and effect graders for S09; and adversarial/permission fixtures for S10.
+4. Add a panel-integrity validator that checks exactly 12 tasks per stage per stratum, unique task IDs, disjoint A/B family and independence-group hashes, fixture/tool hashes, and Stage B access restrictions.
+5. Keep model execution disabled until all 240 tasks are executable and independently reviewed, the A/B family split is hashed, and matched inference access for Qwen3.6 and GPT-OSS is available.
 
-VERIFY-001 remains blocked by Deepnote's parallel-project quota. No project has been stopped. No benchmark tasks were generated or run by the scope decision; no model was run and no Adaption credits were spent.
+No Stage A/B tasks have been authored or run. No model was run and no Adaption credits were spent in this checkpoint.
 
 ## 10. Latest committed work
 
@@ -145,6 +147,7 @@ VERIFY-001 remains blocked by Deepnote's parallel-project quota. No project has 
 | `bbbc653f` | Recorded dated decision resolving 120-vs-240 scope conflict |
 | `0955d719` | Clarified why ten strata replace the six-bucket allocation |
 | `8b90f9ac` | Clarified benchmark scope decision rationale in the append-only log |
+| `MANIFEST-001` | Added schema-backed 240-task register and source-grounded environment coverage audit; zero task instances created |
 | `VERIFY-001 run 93645a78` | Exact checkout verified; compileall passed; pytest blocked by missing package before collection |
 | `VERIFY-001` retry | Blocked before execution by Deepnote quota in detached and live modes; retry cell is ready |
 | `VERIFY-001` | Initial compileall passed; pytest blocked by missing dependency; retry blocked by Deepnote quota |

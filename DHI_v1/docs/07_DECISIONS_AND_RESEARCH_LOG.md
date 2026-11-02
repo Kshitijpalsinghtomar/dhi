@@ -588,3 +588,41 @@ The nested split keeps the initial screening budget at 120 while preserving a he
 - Diagnostic protocol: Section 3 of DHI_v1/docs/05_BENCHMARK_PROTOCOL.md.
 
 No task instances were created, no model was run, and no Adaption credits were spent in making this scope decision.
+
+## 2026-11-02 — Define task-record contract and audit executable stratum coverage
+
+### Question
+Can the existing DHI-v1 environment execute and independently grade the ten strata in the 240-task panel, and what task-record fields are required before any Stage A/Stage B item is materialized?
+
+### Source audit
+Inspected the live `main` revision `3640e4a86495299688b5e20e098097730743ab53`, including:
+- `DHI_v1/environment/dhi_env.py` — current tool catalogue, task contract, argument validation, fault injection, path safety, state snapshots, prediction comparison, postconditions and closure.
+- `DHI_v1/environment/agent_runner.py` — per-turn tool schema refresh, bounded model/tool loop, untrusted-output instruction, and endpoint error handling.
+- `DHI_v1/benchmark/runner.py` and `DHI_v1/benchmark/pilot_cases.json` — supported-case selection, deterministic evaluator, eight common pilot cases, one Adaption catalogue case, and three explicitly unsupported seeds.
+- `DHI_v1/environment/schemas/trajectory-event.schema.json` and `DHI_v1/docs/06_DATA_AND_TRAJECTORY_CONTRACT.md` — existing trajectory event and evidence-lineage requirements.
+
+### Findings
+1. The environment is a deterministic file-workspace harness with catalogue discovery, list/read/write/append/search tools. It does not expose browser, web, shell, database, spreadsheet, or callable external connector actions.
+2. Local catalogue discovery is deterministic lexical overlap over a small registered tool list. The optional Adaption integration exposes read-only connector-catalogue metadata; it does not make discovered connectors callable.
+3. Tool argument validation currently enforces required fields, disallowed extra fields, and primitive Python types. Runtime preconditions include real path/file/directory checks, UTF-8 handling, parent existence, workspace boundary/symlink checks, and file/snapshot size limits.
+4. Executable postconditions currently cover file `exists`, `not_exists`, `contains`, `equals`, and `sha256`. Protected paths are checked against initial/final hashes.
+5. Fault injection is deterministic by tool ID and attempt number. It supports controlled tool errors, but provider HTTP failures/timeouts terminate the model run; there is no rate-limit/backoff simulation or resumable retry protocol.
+6. Effect prediction is limited to predicted changed/unchanged file paths and SHA-256 snapshot deltas. It is not structured semantic state or general side-effect prediction.
+7. The runner can perform bounded same-session action chains (default 16 model turns / 48 tool calls) and records step/subgoal/plan-version metadata. It does not implement durable checkpoints or cross-session resume.
+8. The runner system instruction says tool output is data, not instructions; filesystem allowlists, path protections and protected-file hashes exist. There is no full permission/consent state machine, external irreversible action execution, or cross-session memory runtime.
+
+### Decision
+- Add a versioned JSON Schema for benchmark task records and a machine-readable panel register.
+- Record the 120 Stage A + 120 Stage B allocation with 12 tasks per stage per stratum.
+- Keep the register's `tasks` and `task_families` arrays empty until task contracts, fixtures, graders and family independence are materialized. Do not create 240 placeholder prompts or count the existing 12-case integration pilot as panel tasks.
+- Mark S01, S05 and S06 as supported only within their explicitly bounded capabilities; S03, S04, S07, S08, S09 and S10 as partial; and S02 as a harness gap.
+- Do not run candidate models against unsupported/partial strata as though they were model failures. No model run or Adaption spend is authorized by this audit.
+
+### Artifacts
+- `DHI_v1/benchmark/task_manifest.schema.json`
+- `DHI_v1/benchmark/task_manifest.json`
+- `DHI_v1/benchmark/ENVIRONMENT_COVERAGE_MATRIX.md`
+- Updated `DHI_v1/WORKSPACE.md`
+
+### Evidence boundary
+This is a source-code/harness-readiness audit. It creates no task instances, benchmark scores, model trajectories, training rows, or capability result. The full 240-task panel remains unfrozen.

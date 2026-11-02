@@ -94,8 +94,8 @@ The current 12-case file-workspace pilot does not yet implement all ten strata. 
 ## 7. Immediate implementation sequence
 
 1. Keep the existing 12-case suite as a development-only integration smoke test.
-2. Add a task manifest/schema for the ten strata and Stage A/B metadata.
-3. Map each required stratum to an environment capability and an executable grader; mark unsupported capabilities as harness gaps rather than fake model failures.
+2. Use [the task-record schema](task_manifest.schema.json) and [task register](task_manifest.json) as the machine-readable contract for all ten strata and Stage A/B metadata.
+3. Use the [environment coverage audit](ENVIRONMENT_COVERAGE_MATRIX.md) to gate task authoring; unsupported capabilities remain harness gaps rather than fake model failures.
 4. Build and independently review the Stage A/B tasks in separate files/partitions; hash and commit the manifest before any model run.
 5. Resolve comparable base inference access for Qwen3.6 and GPT-OSS, then run Stage A.
 6. Only after model/interface selection, run Stage B as the held-out confirmation set.
