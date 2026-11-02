@@ -101,7 +101,7 @@ VERIFY-001 is blocked on Deepnote's parallel-project quota. Initial run `93645a7
 - Only after an exact hosted model is confirmed and provider/cost are approved, launch the existing development pilot.
 - Do not use the mixed DHI/DPAK Deepnote project, silently switch provider, guess model IDs, train, or generate another dataset.
 
-Before a confirmatory base-screen design, reconcile the repository's scope discrepancy: the model-selection document describes a 120-task initial screen (6×20), while the benchmark protocol describes a 240-task diagnostic suite (10×24). The existing 12-case development pilot is neither. Record the intended staged design in the decision log before freezing a larger suite.
+Benchmark scope audit is complete but the discrepancy remains unresolved: `03_MODEL_SELECTION_AND_ADAPTION.md` specifies 120 initial base-screen tasks (6×20), `05_BENCHMARK_PROTOCOL.md` specifies 240 initial diagnostic tasks (10×24), and the decision log names 120. No file establishes nesting or stage order; neither count is frozen. Warnings now appear in both source documents. Do not choose or freeze a suite until an explicit decision resolves purpose, size, strata, relationship, and split.
 
 ## 10. Latest committed work
 
