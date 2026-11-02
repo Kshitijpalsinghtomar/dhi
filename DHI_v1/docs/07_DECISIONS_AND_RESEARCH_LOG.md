@@ -384,3 +384,36 @@ GitHub repository `Kshitijpalsinghtomar/dhi` is the durable source of truth for 
 
 ### Operating consequence
 At each meaningful checkpoint, update the relevant experiment/code/decision record and `DHI_v1/WORKSPACE.md`, then verify the Git commit. If the session is interrupted at any point, the latest committed workspace must identify exactly what is complete, what is not, and the next authorized action.
+
+## 2026-11-02 — INFER-001 hosted-inference preflight blocked
+
+### Question
+Can the current Adaption account expose an exact hosted model ID and run the existing DHI-v1 model-facing pilot through the Responses API without changing provider or research direction?
+
+### Procedure
+- Re-read the live workspace and applicable DHI model-selection, benchmark, and Git-first workflow documents.
+- Inspected the connected Adaption MCP action catalogue and refreshed `list_training_models`.
+- Inspected the existing DHI — ORBIT Research Lab Deepnote project metadata and workspace integration inventory; no secret values were read or emitted.
+- Read the committed `list_adaption_models.py`, `adaption_responses.py`, and `client_from_env` implementation.
+
+### Observations
+- The Adaption training registry still lists `Qwen/Qwen3.6-35B-A3B`, `openai/gpt-oss-20b`, and `google/gemma-4-31B-it` for training methods. This is not hosted inference availability.
+- The connected Adaption MCP actions do not expose `GET /api/v1/models?type=hosted` or `POST /api/v1/responses`.
+- The existing Deepnote project has no attached integrations. The workspace integration inventory contains only `[Demo] Snowflake`; no environment/secret integration is available. The project file inventory contains unrelated DPAK experiment directories, so it was not used as a DHI execution environment.
+- No secure Adaption API key is available to this execution context. No authenticated hosted-model request could be attempted.
+
+### Decision
+**INFER-001 remains BLOCKED.** Do not infer hosted-model availability from the training registry, guess an ID, switch providers to bypass the blocker, launch training, or generate more data.
+
+### Evidence and artifact
+- Experiment record: `DHI_v1/experiments/INFER-001/README.md`.
+- Machine-readable manifest: `DHI_v1/experiments/INFER-001/manifest.json`.
+- Evidence class: connected training-registry metadata plus runtime/integration metadata; no hosted inference evidence.
+- No model run, training run, or Adaption credit spend occurred.
+
+### Next authorized action
+Inject `ADAPTION_API_KEY` (or `DHI_ADAPTION_API_KEY`) into a clean DHI-only secure execution environment. Then run the existing `python -m DHI_v1.environment.examples.list_adaption_models` preflight. Record the exact hosted IDs or redacted API error before launching the development pilot. Never paste the key into chat or commit it.
+
+### Scope boundary
+This is an infrastructure-access finding only. It does not change DHI's model candidates, training decisions, ORBIT data gates, or research hypothesis.
+
