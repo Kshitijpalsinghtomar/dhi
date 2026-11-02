@@ -433,3 +433,22 @@ A clean Deepnote project was created (`2eb8d02b-b505-4b39-a33a-32aeda2e1cc4`) wi
 
 The earlier sentence in the INFER-001 entry saying that no secure Adaption API key was available was too strong. What was established at that point was only that no key was exposed through the connected Adaption MCP action surface or the attached Deepnote workspace integrations. The isolated runtime presence probe was later rejected before execution by the Deepnote parallel-project quota. Therefore the environment variable's presence or absence is **unverified**. The authoritative current state is the INFER-001 manifest and `DHI_v1/WORKSPACE.md`; do not interpret the earlier wording as a completed secret-presence check.
 
+## 2026-11-02 — INFER-001 secret-presence probe completed
+
+### Execution
+- Isolated Deepnote project: `2eb8d02b-b505-4b39-a33a-32aeda2e1cc4`.
+- Notebook: `08586f8da34c456fb544baccb69ebe3e`.
+- Probe block: `7bcfdf38fd0a400e989a4d6064e1caed`.
+- Run: `b39c478a-3268-439c-af30-d71ba9b40907`.
+- Status: success; completed at `2026-11-02T16:43:11.672Z); execution 3 ms.
+- Output was only presence booleans; neither variable was present. No network request was made, and no secret value was emitted.
+
+### Result
+`ADAPTION_API_KEY` and `DHI_ADAPTION_API_KEY` are both absent from the isolated project runtime. This confirms the project currently has no Adaption environment-variable secret configured. It does **not** establish whether a key exists elsewhere in the user's account.
+
+### Secure setup path
+Deepnote's documented project-secret mechanism is an Environment variables integration. It stores values encrypted, and the integration must be attached to the project. The project is isolated and ready to receive that integration. Documentation: https://deepnote.com/docs/environment-variables.
+
+### Next action
+Configure `ADAPTION_API_KEY` in a secure Environment variables integration and attach it to project `2eb8d02b-b505-4b39-a33a-32aeda2e1cc4`. Rerun the presence-only probe. When it confirms presence, run the existing authenticated hosted-model listing CLI; do not run model inference before the list call succeeds.
+
