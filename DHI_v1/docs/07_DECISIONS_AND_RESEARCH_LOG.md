@@ -569,7 +569,7 @@ The 120-task base-model screen is Stage A, the first half of a single 240-task t
 This supersedes the earlier six-groups ×20 allocation as the active model-screen allocation. The earlier conflict audit remains as historical provenance; this dated decision now resolves it.
 
 ### Rationale
-The ten-stratum diagnostic design covers no-tool restraint, current evidence, tool discovery, decoy/tool selection, schemas/preconditions, dependent multi-tool tasks, long horizons, recovery, action-effect prediction/closure, and safety/permissions. A six-group screen that omits four diagnostic categories from the initial model comparison would make the first selection less representative of DHI's stated objective.
+The ten-stratum diagnostic design separately allocates no-tool restraint, current evidence, tool discovery, decoy/tool selection, schemas/preconditions, dependent multi-tool tasks, long horizons, recovery, action-effect prediction/closure, and safety/permissions. The previous six groups bundled multi-tool with long-horizon tasks and failure recovery with closure, while leaving prediction and safety/permission dimensions without their own balanced allocation. The ten-stratum screen makes these dimensions separately diagnosable without increasing the first-stage total beyond 120.
 
 The nested split keeps the initial screening budget at 120 while preserving a held-out extension. Both stages have the same stratum composition, allowing a model choice made on Stage A to be checked on distinct Stage B task families without claiming that 120 additional duplicated prompts increased the sample size.
 
