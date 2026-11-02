@@ -1,0 +1,30 @@
+{
+  "experiment_id": "VERIFY-001",
+  "date": "2026-11-02",
+  "programme": "DHI-v1",
+  "codename": "ORBIT",
+  "type": "repository_test_verification",
+  "status": "running",
+  "pinned_commit": "c2e0dddaa6eb22d0c4722fc7fb43f2c2439c7c61",
+  "repository": "https://github.com/Kshitijpalsinghtomar/dhi",
+  "environment": {
+    "provider": "Deepnote",
+    "project_id": "2eb8d02b-b505-4b39-a33a-32aeda2e1cc4",
+    "notebook_id": "08586f8da34c456fb544baccb69ebe3e",
+    "python_expected": "3.11",
+    "machine_type": "lake (CPU Basic, 2 vCPU, 5 GiB)",
+    "detached": true,
+    "storage_mode": "readonly"
+  },
+  "commands": [
+    "python -m pytest -q DHI_v1/environment/tests DHI_v1/benchmark/tests",
+    "python -m compileall -q DHI_v1"
+  ],
+  "status_before_run": "running",
+  "model_inference": false,
+  "training": false,
+  "dataset_generation": false,
+  "adaption_credits_spent": 0,
+  "raw_run_id": null,
+  "results": null
+}
