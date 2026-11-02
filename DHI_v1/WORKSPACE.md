@@ -89,7 +89,7 @@ The connected Adaption MCP actions do not expose the hosted model-listing or Res
 
 ## 8. Active verification
 
-VERIFY-001 is running against pinned commit `c2e0dddaa6eb22d0c4722fc7fb43f2c2439c7c61` in the isolated DHI-only Deepnote project. It runs only the existing environment/benchmark test suites and `compileall`; no model inference, training, dataset generation, or Adaption spend. Experiment record: `DHI_v1/experiments/VERIFY-001/`.
+VERIFY-001 is retrying against pinned commit `c2e0dddaa6eb22d0c4722fc7fb43f2c2439c7c61`. Initial run `93645a78-7cd2-4c64-9c84-353fbd31e15c` verified the exact checkout and passed compileall; pytest did not collect tests because pytest was missing. Retry installs pytest/jsonschema into the disposable runtime only. Experiment record: `DHI_v1/experiments/VERIFY-001/`.
 
 ## 9. Next authorized action
 
@@ -123,6 +123,7 @@ Before a confirmatory base-screen design, reconcile the repository's scope discr
 | `9edb4d08` | Appended Deepnote quota rejection; secret presence remained unmeasured at that checkpoint |
 | `dff718ac` | Corrected earlier access wording |
 | `INFER-001 run b39c478a` | Measured both Adaption key variables absent in isolated project runtime; no API call |
+| `VERIFY-001 run 93645a78` | Exact checkout verified; compileall passed; pytest blocked by missing package before collection |
 | `VERIFY-001` | Running pinned-revision software verification only; results pending |
 
 The current version of this file is the active checkpoint. Its own commit SHA is the newest `main` commit when this file is fetched; always inspect the branch head rather than hardcoding a self-referential SHA here.
