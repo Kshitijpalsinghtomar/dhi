@@ -33,7 +33,7 @@ This supersedes the earlier six-groups ×20 allocation in the model-selection do
 | 10 | Permission boundaries, untrusted tool outputs, context continuity, and infeasible tasks | 12 | 12 | 24 |
 | **Total** | | **120** | **120** | **240** |
 
-All ten strata appear in the first screen. This avoids an initial model choice that entirely omits prediction, safety/permission, or long-horizon behaviours simply because those capabilities were placed outside the first six broad buckets.
+All ten strata appear in the first screen. The earlier six-group allocation bundled multi-tool work with long-horizon behaviour and bundled recovery with closure, while giving no dedicated allocation to action-effect prediction or the safety/permission and untrusted-output dimensions. Ten balanced strata make these capabilities separately diagnosable without increasing the initial screen beyond 120 tasks.
 
 ## 3. Evaluation stages
 
