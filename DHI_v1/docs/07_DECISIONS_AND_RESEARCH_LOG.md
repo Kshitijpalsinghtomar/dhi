@@ -499,3 +499,30 @@ The API key is mounted into the isolated runtime. Its validity and hosted-model 
 ### Next authorized step
 Run the existing `list_adaption_models.py` CLI to query the authenticated hosted-only model catalogue. Record exact returned model IDs or a redacted error. No inference or training is authorized from this presence check alone.
 
+## 2026-11-02 — INFER-001 hosted-model catalogue retrieved
+
+### Execution
+- Used the committed CLI `python -m DHI_v1.environment.examples.list_adaption_models`.
+- Pinned and verified repository revision: `ca6a2c5713f87c9c46bcc61dad87cd5273390809`.
+- Deepnote run: `4bd4a7ba-edfb-4715-8ebb-0d52b95c0663`.
+- Authenticated request: `GET /api/v1/models?type=hosted`.
+- Status: success; 6 exact hosted model IDs returned in 0.605 seconds.
+
+### Exact catalogue result
+- `glm-5.2` — GLM 5.2.
+- `qwen3.5-397b` — Qwen 3.5 397B.
+- `gemma-4-26b-a4b-it` — Gemma 4 26B A4B Instruct.
+- `qwen3.8-27b` — Qwen 3.8 27B.
+- `deepseek-v4-flash` — DeepSeek V4 Flash.
+- `gemma-4-31b-it` — Gemma 4 31B Instruct.
+
+### Candidate availability
+- Repository primary `Qwen/Qwen3.6-35B-A3B`: not present in this hosted catalogue response.
+- Mandatory challenger `openai/gpt-oss-20b`: not present in this hosted catalogue response.
+- Multimodal challenger `google/gemma-4-31B-it`: matching display name is present as `Gemma 4 31B Instruct`, exact hosted ID `gemma-4-31b-it`.
+
+Do not infer that absent models can be called by their training registry IDs. Do not substitute the other four hosted models without a separate user-approved model-selection decision.
+
+### Decision and boundary
+The hosted catalogue step is complete. **Do not call inference yet.** The catalogue does not expose pricing, and the repository requires provider/cost approval before any model run. The next possible action is only the existing single-task integration pilot on exact ID `gemma-4-31b-it`, if the user authorizes possible Adaption account charges. The eight-case development pilot and a comparative model screen remain unrun.
+
