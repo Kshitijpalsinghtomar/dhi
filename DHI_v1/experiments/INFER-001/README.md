@@ -2,7 +2,7 @@
 
 **Date:** 2026-11-02  
 **Type:** access/integration preflight (not a model experiment)  
-**Status:** BLOCKED — no credentialed hosted-inference route available in the connected execution context  
+**Status:** HOSTED CATALOGUE SUCCESS — inference not run; single-model Gemma pilot deferred because it cannot provide the required Qwen-vs-GPT-OSS base comparison  
 **Programme:** DHI-v1 / ORBIT  
 **Controlling state:** `DHI_v1/WORKSPACE.md`
 
@@ -183,3 +183,16 @@ python -m DHI_v1.environment.examples.run_model_pilot
 ```
 
 This calls the model and may incur provider charges. It is not the eight-case benchmark or a candidate comparison. Wait for explicit approval to use Adaption account billing/credits before running it.
+
+
+## 2026-11-02 — Research priority corrected after ADAPTION-001
+
+The hosted catalogue preflight is complete. The earlier suggestion to run a single-task Gemma integration pilot is no longer the next research action.
+
+The DHI-v1 plan requires an untouched-base comparison of Qwen3.6-35B-A3B (primary) and GPT-OSS-20B (mandatory challenger), with Gemma 4 31B as a multimodal challenger. The authenticated hosted catalogue returned Gemma 4 31B but did not return Qwen3.6 or GPT-OSS. A Gemma-only call would test one transport/integration path, not compare the planned candidates or establish a model winner.
+
+The connected Adaption plugin has since been used directly for the separate training-registry, dataset, and recommender audit (ADAPTION-001). It confirms all three shortlisted IDs in the training registry, but training-registry availability is not hosted inference access. The live recommender requires at least 10,000 effective rows for Qwen3.6 and Gemma on the 300-row Invent dataset; GPT-OSS returned a recipe, but the dataset is still ineligible due partial review and lack of verified execution traces.
+
+**Current disposition:** retain this file as the completed hosted-catalogue preflight. Do not wait for Gemma-only approval or launch that pilot as a substitute for model screening. Next work is benchmark-scope resolution, environment verification, and collection of real execution trajectories. Seek comparable Qwen3.6/GPT-OSS base inference access before a candidate comparison.
+
+Cost note: the hosted catalogue did not provide inference pricing. The connected Adaption dataset-generation/adaptation/augmentation methods offer explicit `estimate: true`; the exposed training-launch method spends credits and has no estimate argument in its schema. The model recommender itself returned hyperparameters, not a price quote.
