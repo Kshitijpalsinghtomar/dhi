@@ -4,8 +4,8 @@
   "programme": "DHI-v1",
   "codename": "ORBIT",
   "type": "access_preflight",
-  "status": "hosted_catalogue_query_pending",
-  "inspected_repo_head": "dd5268e62f9e8905c687b729094d5b12af9584f4",
+  "status": "hosted_catalogue_success_inference_approval_pending",
+  "inspected_repo_head": "ca6a2c5713f87c9c46bcc61dad87cd5273390809",
   "provider": "Adaption",
   "model_candidates_training_registry": [
     "Qwen/Qwen3.6-35B-A3B",
@@ -14,7 +14,7 @@
   ],
   "hosted_models_endpoint": "GET /api/v1/models?type=hosted",
   "inference_endpoint": "POST /api/v1/responses",
-  "hosted_models_endpoint_tested": false,
+  "hosted_models_endpoint_tested": true,
   "inference_endpoint_tested": false,
   "credential_available_in_secure_runtime": true,
   "connected_adaption_mcp_includes_hosted_model_listing": false,
@@ -40,7 +40,7 @@
   "model_run_started": false,
   "training_started": false,
   "adaption_credits_spent": 0,
-  "next_action": "Run the existing DHI hosted-model catalogue CLI in the isolated runtime against the pinned latest repository commit. Record exact hosted IDs or redacted API error. Do not call inference until the catalogue succeeds.",
+  "next_action": "Await user approval for a single-task integration pilot using DHI_MODEL_PROVIDER=adaption and DHI_MODEL_NAME=gemma-4-31b-it. The hosted catalogue does not report pricing, so confirm whether account billing/credits may be used. Do not substitute unselected hosted models or start the eight-case benchmark.",
   "runtime_secret_presence_probe": {
     "source_path": "DHI_v1/experiments/INFER-001/check_runtime_secret_presence.py",
     "source_commit": "5a649db4635245f4ece1895f1931ea3a2dcd5c94",
@@ -63,5 +63,80 @@
     "conclusion": "ADAPTION_API_KEY is mounted in the isolated runtime."
   },
   "deepnote_execution_quota_blocked": false,
-  "deepnote_secret_setup_documentation": "https://deepnote.com/docs/environment-variables"
+  "deepnote_secret_setup_documentation": "https://deepnote.com/docs/environment-variables",
+  "hosted_catalogue_result": {
+    "request": "GET /api/v1/models?type=hosted",
+    "run_id": "4bd4a7ba-edfb-4715-8ebb-0d52b95c0663",
+    "notebook_id": "08586f8da34c456fb544baccb69ebe3e",
+    "block_id": "e584327327e54e2e93010d7e3e1a4bc5",
+    "status": "success",
+    "completed_at": "2026-11-02T16:53:29.928Z",
+    "elapsed_seconds": 0.605,
+    "pinned_commit": "ca6a2c5713f87c9c46bcc61dad87cd5273390809",
+    "actual_commit": "ca6a2c5713f87c9c46bcc61dad87cd5273390809",
+    "model_count": 6,
+    "models": [
+      {
+        "id": "glm-5.2",
+        "display_name": "GLM 5.2",
+        "owned_by": "platform",
+        "max_input_tokens": 786432,
+        "max_output_tokens": 786432
+      },
+      {
+        "id": "qwen3.5-397b",
+        "display_name": "Qwen 3.5 397B",
+        "owned_by": "platform",
+        "max_input_tokens": 131072,
+        "max_output_tokens": 131072
+      },
+      {
+        "id": "gemma-4-26b-a4b-it",
+        "display_name": "Gemma 4 26B A4B Instruct",
+        "owned_by": "platform",
+        "max_input_tokens": 256000,
+        "max_output_tokens": 256000
+      },
+      {
+        "id": "qwen3.8-27b",
+        "display_name": "Qwen 3.8 27B",
+        "owned_by": "platform",
+        "max_input_tokens": 262144,
+        "max_output_tokens": 262144
+      },
+      {
+        "id": "deepseek-v4-flash",
+        "display_name": "DeepSeek V4 Flash",
+        "owned_by": "platform",
+        "mode": "chat",
+        "max_input_tokens": 1048576,
+        "max_output_tokens": 1048576
+      },
+      {
+        "id": "gemma-4-31b-it",
+        "display_name": "Gemma 4 31B Instruct",
+        "owned_by": "platform",
+        "max_input_tokens": 256000,
+        "max_output_tokens": 256000
+      }
+    ]
+  },
+  "shortlist_availability": {
+    "Qwen/Qwen3.6-35B-A3B": {
+      "hosted": false,
+      "reason": "Exact candidate ID was not present in the successful hosted catalogue response."
+    },
+    "openai/gpt-oss-20b": {
+      "hosted": false,
+      "reason": "Exact candidate ID was not present in the successful hosted catalogue response."
+    },
+    "google/gemma-4-31B-it": {
+      "hosted": true,
+      "exact_hosted_id": "gemma-4-31b-it",
+      "display_name": "Gemma 4 31B Instruct",
+      "match_basis": "Hosted catalogue display name matches the repository's Gemma 4 31B multimodal challenger; exact hosted ID is recorded verbatim."
+    }
+  },
+  "inference_called": false,
+  "dataset_generation": false
 }
