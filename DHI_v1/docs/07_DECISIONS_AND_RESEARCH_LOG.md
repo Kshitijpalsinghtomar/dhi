@@ -485,3 +485,17 @@ This is a documentation/audit result only. No benchmark tasks were generated, no
 
 Deepnote machine metadata was checked for all eight workspace projects. Exactly one project machine was in `running` state. No project was stopped. Both detached and live execution attempts for VERIFY-001 remain blocked by the parallel-project quota. The DHI isolated project itself is stopped after its completed read-only probe. A user must explicitly approve stopping an idle project before the assistant stops anything. This is an execution-capacity observation only; it does not change DHI research decisions.
 
+## 2026-11-02 — INFER-001 secure runtime secret mounted
+
+### Change and verification
+- Found the newly created Deepnote Environment variables integration `ADAPTION` (type `env`, ID `999bb21e-9bfd-4071-a2bc-d26590958de7`).
+- Attached it to the isolated project `DHI — Isolated Runtime Preflight` (`2eb8d02b-b505-4b39-a33a-32aeda2e1cc4`).
+- Reran the committed presence-only probe in live mode: run `9e34f54b-0acf-455b-b44a-9c28173a1462`.
+- Output confirmed `ADAPTION_API_KEY=true`, `DHI_ADAPTION_API_KEY=false`; no secret value was emitted and no network request was made.
+
+### Interpretation
+The API key is mounted into the isolated runtime. Its validity and hosted-model permissions are not yet established.
+
+### Next authorized step
+Run the existing `list_adaption_models.py` CLI to query the authenticated hosted-only model catalogue. Record exact returned model IDs or a redacted error. No inference or training is authorized from this presence check alone.
+
