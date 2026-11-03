@@ -106,7 +106,10 @@ class TaskManifestValidatorTests(unittest.TestCase):
         changed["tasks"][0]["tool_inventory"]["visible_tool_ids"] = []
         changed["tasks"][0]["tool_inventory"]["discoverable_tool_ids"] = []
         errors = self.errors(changed)
-        self.assertTrue(any(error.startswith("[tool-inventory] required tool") for error in errors))
+        self.assertTrue(
+            any(error.startswith("[tool-inventory]") and "required tool" in error for error in errors),
+            "\\n".join(errors),
+        )
 
     def test_stage_b_cannot_be_materialized_in_a_sealed_shared_manifest(self) -> None:
         changed = copy.deepcopy(self.manifest)
