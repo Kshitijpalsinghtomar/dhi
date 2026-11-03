@@ -61,10 +61,36 @@ def build_tool_schemas(env: DHIEnvironment) -> tuple[list[dict[str, Any]], dict[
         properties = parameters.setdefault("properties", {})
         properties["__dhi_expected_effects"] = {
             "type": "object",
-            "description": "Optional pre-action forecast of changed_paths and unchanged_paths.",
+            "description": (
+                "Optional pre-action effect forecast. For ordinary workspace tools, "
+                "use changed_paths and unchanged_paths. For GitHub branch creation, "
+                "provide repository_state with predicted added/modified/deleted/unchanged branches."
+            ),
             "properties": {
                 "changed_paths": {"type": "array", "items": {"type": "string"}},
                 "unchanged_paths": {"type": "array", "items": {"type": "string"}},
+                "repository_state": {
+                    "type": "object",
+                    "required": ["added_branches", "modified_branches", "deleted_branches", "unchanged_branches"],
+                    "properties": {
+                        "added_branches": {"type": "array", "items": {"$ref": "#/$defs/branch_ref"}},
+                        "modified_branches": {"type": "array", "items": {"$ref": "#/$defs/branch_ref"}},
+                        "deleted_branches": {"type": "array", "items": {"$ref": "#/$defs/branch_ref"}},
+                        "unchanged_branches": {"type": "array", "items": {"$ref": "#/$defs/branch_ref"}},
+                    },
+                    "additionalProperties": False,
+                },
+            },
+            "$defs": {
+                "branch_ref": {
+                    "type": "object",
+                    "required": ["name", "head_sha"],
+                    "properties": {
+                        "name": {"type": "string", "minLength": 1},
+                        "head_sha": {"type": "string", "pattern": "^[a-f0-9]{40}$"},
+                    },
+                    "additionalProperties": False,
+                }
             },
             "additionalProperties": False,
         }
