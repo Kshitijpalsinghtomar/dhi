@@ -161,5 +161,70 @@
       "https://github.com/modelcontextprotocol/modelcontextprotocol/blob/main/docs/specification/2026-07-28/basic/transports/streamable-http.mdx"
     ]
   },
-  "next_gate": "Provision TINYFISH_API_KEY as a secure Deepnote project secret (or configure a supported OAuth integration) without sharing it in chat; then run TinyFish read-only initialize/tools/list and one bounded search/fetch smoke."
+  "next_gate": "Provision TINYFISH_API_KEY as a secure Deepnote project secret (or configure a supported OAuth integration) without sharing it in chat; then run TinyFish read-only initialize/tools/list and one bounded search/fetch smoke.",
+  "code_equivalence_check": {
+    "tested_commit": "cba8421d4f4c6c4f929d5f4c3196eb83f98f7351",
+    "current_branch_ref": "orbit/plugin-benchmark-fixture",
+    "method": "Fetch each file at the tested commit and current branch ref; compare Git blob SHA.",
+    "checked_file_count": 11,
+    "all_identical": true,
+    "files": [
+      {
+        "path": "DHI_v1/environment/agent_runner.py",
+        "tested_and_current_blob_sha": "79534ce8d207c682614d6be314920855d7fba043",
+        "identical": true
+      },
+      {
+        "path": "DHI_v1/environment/dhi_env.py",
+        "tested_and_current_blob_sha": "4118054bef062ad863155a863c8039dcb4b27fca",
+        "identical": true
+      },
+      {
+        "path": "DHI_v1/environment/tests/test_agent_runner.py",
+        "tested_and_current_blob_sha": "269e5c9c3f7c678d0da56529b4d36798daca404e",
+        "identical": true
+      },
+      {
+        "path": "DHI_v1/environment/tests/test_dhi_env.py",
+        "tested_and_current_blob_sha": "a4e933b211a1562d35e01e3163e423e7f7df86da",
+        "identical": true
+      },
+      {
+        "path": "DHI_v1/benchmark/plugin_trace.py",
+        "tested_and_current_blob_sha": "acde2688f218169e720db530b7ec0b2f706767bf",
+        "identical": true
+      },
+      {
+        "path": "DHI_v1/benchmark/plugin_trace.schema.json",
+        "tested_and_current_blob_sha": "41eb08a112847c0ba3237fa9b2fa74ccd2af45d4",
+        "identical": true
+      },
+      {
+        "path": "DHI_v1/benchmark/tests/test_plugin_trace_grader.py",
+        "tested_and_current_blob_sha": "7a40b10feb5e23d39205ff9af9bacc219f5df577",
+        "identical": true
+      },
+      {
+        "path": "DHI_v1/benchmark/tests/test_task_manifest_validator.py",
+        "tested_and_current_blob_sha": "dabda3a4a0dcf8e2e8257d04874f667fac7bb988",
+        "identical": true
+      },
+      {
+        "path": "DHI_v1/benchmark/validate_task_manifest.py",
+        "tested_and_current_blob_sha": "c3c7eadf17a051abb01275a92961f58349995ce4",
+        "identical": true
+      },
+      {
+        "path": "DHI_v1/benchmark/task_manifest.json",
+        "tested_and_current_blob_sha": "f1a73f4cc377f0ea72a37f7d2f9a3e7476ffe033",
+        "identical": true
+      },
+      {
+        "path": "DHI_v1/benchmark/task_manifest.schema.json",
+        "tested_and_current_blob_sha": "d581c2be8a26b9a447ab8163b365cf2370d426f0",
+        "identical": true
+      }
+    ],
+    "interpretation": "The passing 142-test regression is code-equivalent for the 11 listed runtime/benchmark implementation, schema, manifest and test files. This is not a new test run."
+  }
 }
