@@ -32,9 +32,9 @@ status: in_progress
 status_reason: >
   The plugin-native task route has 30 Stage A task records across all ten strata.
   Manifest validation passed and the full benchmark-only regression suite passed
-  82 tests at code commit 421955df46975d8b20fba63f8922949a49b4551c. A combined
-  benchmark + environment regression is running as ORBIT-VERIFY-003; its result
-  is pending and no pass/fail claim is made. S07 and S09 remain partial.
+  82 tests at code commit 421955df46975d8b20fba63f8922949a49b4551c. The combined
+  benchmark + environment regression passed 136 tests in ORBIT-VERIFY-003;
+  manifest validation, compileall and runner/adapter import checks also passed. S07 and S09 remain partial.
   No DHI model inference, trained capability result, or verified model trajectory
   exists. OpenRouter exposes both base candidates, but its account balance is zero.
 training_status: not_authorized
@@ -78,7 +78,7 @@ last_verified_code_commit: 421955df46975d8b20fba63f8922949a49b4551c
 | Plugin-native task grading | Not run | Grader contracts are authored; independent and model-facing validation still pending |
 | Manifest and trace-grader verification | Passed at code commit 421955df46975d8b20fba63f8922949a49b4551c | Validator: 30/30 valid, Stage A=30, Stage B=0; 44 focused tests passed; compileall passed. Harness integrity only, not a model result |
 | Full benchmark regression | Passed | Deepnote run 7da82150-e44d-415d-ac00-206b112cf811: 82 benchmark tests passed; manifest validator and benchmark compileall passed at code commit 421955df46975d8b20fba63f8922949a49b4551c. Environment tests were not included |
-| Combined benchmark + environment regression | Running; no result yet | ORBIT-VERIFY-003 / Deepnote run f661f5ad-7c5e-48b9-9af6-afda1e6f021b; tests, compileall and import smoke are pending terminal output |
+| Combined benchmark + environment regression | Passed | ORBIT-VERIFY-003 / Deepnote run f661f5ad-7c5e-48b9-9af6-afda1e6f021b: 136 passed, 0 failed; validator, compileall and runner/adapter imports passed at code commit 421955df46975d8b20fba63f8922949a49b4551c |
 
 ## 6. Data status and hard stops
 
@@ -116,7 +116,7 @@ Experiment records:
 
 VERIFY-001 remains a historical blocked attempt on the older Deepnote project. It is superseded for the current manifest/grader code by ORBIT-VERIFY-002.
 
-ORBIT-VERIFY-003 is the combined benchmark + environment regression run. It uses the existing isolated verifier project, pinned code commit `421955df46975d8b20fba63f8922949a49b4551c`, and run ID `f661f5ad-7c5e-48b9-9af6-afda1e6f021b`. The run covers the manifest validator, both test directories, package compileall, and runner/adapter import smoke. Its latest observed status is `running`; inspect its terminal output before recording results. See [ORBIT-VERIFY-003](experiments/ORBIT-VERIFY-003/).
+ORBIT-VERIFY-003 is the combined benchmark + environment regression run. It uses the existing isolated verifier project, pinned code commit `421955df46975d8b20fba63f8922949a49b4551c`, and run ID `f661f5ad-7c5e-48b9-9af6-afda1e6f021b`. The run covers the manifest validator, both test directories, package compileall, and runner/adapter import smoke. Its terminal status is `success`: 136 tests passed; validator, compileall and import smoke passed. See [ORBIT-VERIFY-003](experiments/ORBIT-VERIFY-003/).
 
 The isolated verifier run `52254373-656f-4d0c-841d-c3a2c621d7cc`, against code commit `421955df46975d8b20fba63f8922949a49b4551c`, passed:
 - Cross-record manifest validator: `valid=true`, 30 tasks, Stage A=30, Stage B=0, no errors.
@@ -153,9 +153,8 @@ Current status:
 - No DHI model inference, benchmark score, training data, or training run has been produced.
 
 Next:
-1. Complete ORBIT-VERIFY-003, inspect its raw terminal output, and commit exact results. Resolve any demonstrated environment/runner regressions before authoring more tasks.
-2. Independently review the existing 30 Stage A tasks and close the S07 checkpoint/resume and S09 pre-action prediction-trace gaps.
-3. Continue materializing the remaining 90 Stage A tasks with genuinely distinct families, environment evidence, executable postconditions and independently reviewable graders. Remaining quotas: S01=10, S02=9, S03=8, S04=9, S05=8, S06=8, S07=10, S08=9, S09=9, S10=10.
+1. Independently review the existing 30 Stage A tasks and close the S07 checkpoint/resume and S09 pre-action prediction-trace gaps.
+2. Continue materializing the remaining 90 Stage A tasks with genuinely distinct families, environment evidence, executable postconditions and independently reviewable graders. Remaining quotas: S01=10, S02=9, S03=8, S04=9, S05=8, S06=8, S07=10, S08=9, S09=9, S10=10.
 4. Build Stage B only after Stage A and the candidate/interface decision are fixed; keep its task bodies sealed outside this public repository.
 5. Keep model execution disabled until Stage A is complete, independently reviewed and frozen; the matched Qwen3.6/GPT-OSS route remains blocked by zero OpenRouter credits.
 6. Reconcile the private 10K intent-arbitration dataset's row semantics and evaluation lineage before any training. No current dataset is authorized for training.
