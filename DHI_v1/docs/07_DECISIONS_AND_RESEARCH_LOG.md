@@ -946,3 +946,28 @@ The later notebook run `220cc301-c5de-4c33-b507-784d456935d6` stopped without ou
 ### Decision
 
 Close the runtime/test regression gate at code commit `cba8421d4f4c6c4f929d5f4c3196eb83f98f7351`; the current branch remains code-equivalent. This proves harness/code health only. It does not validate the 30 task instances through a candidate model, establish model capability, authorize training, or authorize paid model/provider actions. The next research bottleneck is the documented, policy-enforcing remote-plugin execution interface.
+
+## 2026-11-03 — PLUGIN-GATEWAY-001 provider execution feasibility audit
+
+### Question
+
+Can the exact GitHub, TinyFish and Firecrawl actions in plugin_tool_registry.json be invoked by the DHI runtime through documented remote MCP interfaces, with least-privilege credentials, task-level allowlists, cost controls, prediction-before-action traces, and independent readback?
+
+### Evidence reviewed
+
+- GitHub official remote MCP documentation identifies https://api.githubcopilot.com/mcp/ and a /readonly surface. The remote server requires a valid bearer token obtained by the client; it does not itself provide authentication. OAuth 2.1 or a PAT is supported; dynamic client registration is not supported by the remote server. Sources: https://github.com/github/github-mcp-server/blob/main/docs/remote-server.md and https://github.com/github/github-mcp-server/blob/main/docs/host-integration.md
+- TinyFish official MCP documentation identifies https://agent.tinyfish.ai/mcp. Its official proxy reads TINYFISH_API_KEY from the process environment and forwards it upstream as X-API-Key. Its published examples classify search and fetch_content as free, while browser automation is metered per step. Sources: https://github.com/tinyfish-io/tinyfish-mcp-server and https://github.com/tinyfish-io/tinyfish-mcp-server/blob/main/docs/examples.md
+- Firecrawl's standard hosted MCP documentation describes generic scrape/search/parse tools and separate authenticated hosted surfaces. This does not establish that its standard server exposes the exact Alexandria firecrawl_find_tools tool contract captured in the connected-plugin registry. The registry's Alexandria firecrawl_scrape is explicitly excluded as paid. Source: https://github.com/firecrawl/firecrawl-mcp-server
+- MCP Streamable HTTP uses POST JSON-RPC requests and permits JSON or SSE responses; the latest protocol version adds required mirrored request headers and changed session behavior. The gateway must negotiate compatibility rather than assume every provider implements the newest revision. Source: https://github.com/modelcontextprotocol/modelcontextprotocol/blob/main/docs/specification/2026-07-28/basic/transports/streamable-http.mdx
+
+### Runtime check and constraints
+
+The isolated DHI verifier project's integration inventory is empty. That proves no provider integration is attached to that Deepnote project, but does not establish whether manually configured process environment variables exist. No key or token values were read, emitted, or logged. No provider MCP request, remote action, model inference, paid call, or write was made.
+
+A same-named remote MCP function is not proof of semantic/schema equivalence to the registered connector action. In particular, the Firecrawl Alexandria contract must not be mapped to a generic page scrape by name alone.
+
+### Decision
+
+**Blocked before implementation.** Documented remote MCP transport exists for all three providers, but the DHI runtime has neither a verified credential path nor provider-native tool-schema attestation. TinyFish is the first candidate for a read-only smoke because its registered search and fetch_content actions are read-only and documented free.
+
+No model-facing remote tool has been added; no task has been promoted from ready_for_validation; no provider credit has been spent. The next gate is a secure TinyFish credential check and read-only MCP initialize/tools/list smoke, followed by an independent source readback.
