@@ -158,7 +158,25 @@
         "secret_values_read": false,
         "secret_values_emitted": false
       },
-      "interpretation": "User reports secret configured, but Deepnote quota prevented any runtime verification. Do not claim credential presence or successful authentication."
+      "interpretation": "User reports secret configured, but Deepnote quota prevented any runtime verification. Do not claim credential presence or successful authentication.",
+      "latest_recheck": {
+        "checked_on": "2026-11-03",
+        "status": "blocked_before_execution",
+        "check_method": "presence_only_bool(os.environ.get('TINYFISH_API_KEY', '').strip())",
+        "execution_tool": "Deepnote detached read-only run",
+        "notebook_id": "3639f9a98ce5435fa4cd0168eaaca3a1",
+        "temporary_probe_block_id": "c2f3037678ba404282f745ad39f6a935",
+        "temporary_probe_block_deleted": true,
+        "original_regression_block_untouched": true,
+        "isolated_notebook_creation": "not_supported_single_notebook_project; probe used existing verifier notebook",
+        "error": "Your plan quota for parallel running projects has been exceeded. Please stop one of your running projects.",
+        "run_started": false,
+        "machine_status_at_check": "stopped",
+        "secret_values_read": false,
+        "secret_values_emitted": false,
+        "remote_requests_sent": 0,
+        "interpretation": "The retry was rejected by the Deepnote parallel-project quota before any notebook code ran. The user's secret configuration remains unverified."
+      }
     }
   },
   "results": {
