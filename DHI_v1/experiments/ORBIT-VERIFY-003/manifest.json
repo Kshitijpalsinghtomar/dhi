@@ -1,0 +1,40 @@
+{
+  "experiment_id": "ORBIT-VERIFY-003",
+  "date": "2026-11-03",
+  "status": "running",
+  "evidence_class": "harness_regression",
+  "branch": "orbit/plugin-benchmark-fixture",
+  "tested_code_commit": "421955df46975d8b20fba63f8922949a49b4551c",
+  "branch_head_at_start": "ac153edc657167847523fe5257d6b53fff572261",
+  "runner": {
+    "platform": "Deepnote isolated verifier project",
+    "project_id": "6415944e-8d6c-432c-a7cf-3bbaa997799c",
+    "notebook_id": "3639f9a98ce5435fa4cd0168eaaca3a1",
+    "run_id": "f661f5ad-7c5e-48b9-9af6-afda1e6f021b"
+  },
+  "scope": {
+    "declared_test_functions": {
+      "benchmark": 82,
+      "environment": 54,
+      "total": 136
+    },
+    "commands": [
+      "python -m DHI_v1.benchmark.validate_task_manifest --json",
+      "python -m pytest -q DHI_v1/benchmark/tests DHI_v1/environment/tests",
+      "python -m compileall -q DHI_v1/benchmark DHI_v1/environment",
+      "python -c import smoke for agent_runner, adaption_responses, benchmark.runner"
+    ]
+  },
+  "safeguards": {
+    "model_inference": false,
+    "training": false,
+    "dataset_generation": false,
+    "provider_credit_spend": false,
+    "task_validation_status_mutation": false
+  },
+  "process_deviation": "Run was launched before the experiment manifest was committed; recorded post-launch. This deviates from commit-before-run procedure. No results are inferred from running status.",
+  "result": null,
+  "last_observed_status": "running",
+  "last_observed_at": "2026-11-03T09:07:06Z",
+  "evidence_boundary": "Regression verification only; no model capability or benchmark task validation is established."
+}
