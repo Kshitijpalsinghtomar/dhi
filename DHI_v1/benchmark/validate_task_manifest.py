@@ -256,11 +256,12 @@ def collect_manifest_errors(
                     "task-id",
                     f"identity mismatch for {task_id}: record says stage={stage}, stratum={stratum}",
                 )
-            per_stratum[(stage, stratum)].append(ordinal)
+            per_stratum[(id_stage, id_stratum)].append(ordinal)
         elif task_id is not None:
             _record_error(errors, "task-id", f"non-canonical task ID: {task_id!r}")
 
-        if stage in {"A", "B"} and isinstance(stratum, str):
+        valid_stage = stage in ("A", "B") if isinstance(stage, str) else False
+        if valid_stage and isinstance(stratum, str):
             count = sum(1 for row in tasks if isinstance(row, dict) and row.get("stage") == stage and row.get("stratum_id") == stratum)
             if count > target:
                 _record_error(errors, "quota", f"{stage}/{stratum} has {count} tasks; target is {target}")
@@ -269,7 +270,7 @@ def collect_manifest_errors(
         group_id = task.get("independence_group_id")
         if isinstance(family_id, str):
             task_family_ids.add(family_id)
-        if isinstance(group_id, str) and stage in {"A", "B"}:
+        if isinstance(group_id, str) and valid_stage:
             task_groups_by_stage[stage].add(group_id)
 
         split = task.get("split_metadata")
@@ -279,7 +280,7 @@ def collect_manifest_errors(
         if expected_partition and split.get("partition") != expected_partition:
             _record_error(errors, "split", f"{task_id}: stage {stage} requires partition {expected_partition}")
         expected_sealed = stage == "B"
-        if stage in {"A", "B"} and split.get("holdout_sealed") is not expected_sealed:
+        if valid_stage and split.get("holdout_sealed") is not expected_sealed:
             _record_error(
                 errors,
                 "split",
@@ -405,7 +406,7 @@ def collect_manifest_errors(
     for family_id, family in family_by_id.items():
         stage = family.get("stage")
         group = family.get("independence_group_id")
-        if stage in {"A", "B"}:
+        if isinstance(stage, str) and stage in ("A", "B"):
             stage_family_ids[stage].add(family_id)
             if isinstance(group, str):
                 stage_group_ids[stage].add(group)
