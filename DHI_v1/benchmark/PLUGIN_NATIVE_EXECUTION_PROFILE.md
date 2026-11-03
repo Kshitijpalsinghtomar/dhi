@@ -55,7 +55,7 @@ This is a plugin-native capability map, not a claim that every plugin or every c
 
 ## Evidence and limitations
 
-- The task register contains **12/120 Stage A tasks**: one per stratum, plus second independent tasks in S02 and S03; 108 Stage A tasks remain.
+- The task register contains **20/120 Stage A tasks**: one per stratum, plus second independent tasks in S02 and S03; 100 Stage A tasks remain.
 - Stage B has **0/120 task instances** and remains sealed/unmaterialized.
 - All ten task records are `ready_for_validation`, not `validated`. No DHI candidate model was run and no capability score is claimed.
 - The existing 12-case local smoke pilot remains outside the 240-task panel.
