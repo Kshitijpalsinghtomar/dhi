@@ -1,8 +1,8 @@
 # DHI-v1 Live Workspace
 
-**Last updated:** 2026-11-02  
+**Last updated:** 2026-11-03  
 **Repository:** https://github.com/Kshitijpalsinghtomar/dhi  
-**Branch:** `main`  
+**Branch:** `main` (plugin-native task authoring is on `orbit/plugin-benchmark-fixture`; not yet merged)  
 **Live-state rule:** This file is the first read at every session. It supersedes older chat summaries and dated handover snapshots when describing current status.
 
 ## 1. Identity
@@ -27,17 +27,18 @@ This is a research target, not a result or novelty claim. A prompt, RAG store, f
 ```yaml
 programme: DHI-v1
 codename: ORBIT
-phase: benchmark_contract_and_coverage_mapped_task_authoring_pending
-status: blocked
+phase: plugin_native_stage_a_seed_authored
+status: in_progress
 status_reason: >
-  The 120/240 allocation is defined. A schema-backed task register and a
-  source-audited environment coverage matrix now exist. No task instances have
-  been materialized: S02 has a missing current-source environment, and several
-  other strata are only partially supported. Comparable base-model inference
+  The plugin-native task route is now active. Ten Stage A task records (one per
+  stratum) are authored against actual connected GitHub, TinyFish and Firecrawl
+  tools, with exact tool-contract and fixture snapshots. Seven strata have a
+  bounded supported task route; S07 and S09 remain partial pending model-run
+  checkpoint traces and pre-action prediction capture. No DHI model has been run. Comparable base-model inference
   access and verified trajectories remain incomplete.
 training_status: not_authorized
-benchmark_status: scope_defined_task_manifest_unfrozen
-last_verified_repository_head_before_this_workspace_checkpoint: 3640e4a86495299688b5e20e098097730743ab53
+benchmark_status: stage_a_authoring_10_of_120; stage_b_sealed_unmaterialized
+last_verified_repository_head_before_this_workspace_checkpoint: d30a30cec1c39e53c5bbff2b1c3d01adccca4572
 ```
 </details>
 
@@ -50,6 +51,9 @@ last_verified_repository_head_before_this_workspace_checkpoint: 3640e4a864952996
 - Adaption Responses API adapter and hosted-model catalogue reader.
 - Read-only Adaption connector-catalogue discovery.
 - Twelve hand-authored diagnostic seeds: eight common executable cases, one Adaption-specific discovery case, and three unsupported future-runtime cases.
+- Plugin-native task profile with 15 exact connected tool contracts pinned in `benchmark/fixtures/plugin_ecology/plugin_tool_registry.json`.
+- Synthetic Northstar plugin ecology fixture with source data, untrusted issue content, external snapshots, checkpoint and report artifacts.
+- Ten initial Stage A task instances (one in each stratum) recorded in `benchmark/task_manifest.json`.
 - Observable grader for tool use, no-tool restraint, recovery, state changes, protected paths, and verified closure.
 - Model-facing entrypoints:
   - `python -m DHI_v1.benchmark.run_model_pilot`
@@ -67,6 +71,9 @@ last_verified_repository_head_before_this_workspace_checkpoint: 3640e4a864952996
 | Untouched candidate model screening | Not run | No model winner |
 | DHI-v1 executed model trajectories | None recorded | No trajectory SFT source yet |
 | DHI-v1 training | Not authorized / not run | Data and benchmark gates remain closed |
+| Plugin-native Stage A authoring | 10 tasks materialized; 10 ready for validation | Actual GitHub/TinyFish/Firecrawl tool contracts and pinned evidence; no model runs |
+| Plugin reference workflows | Release report and checkpoint-resume report completed | Scripted reference evidence only; not DHI model capability results |
+| Plugin-native task grading | Not run | Grader contracts are authored; independent and model-facing validation still pending |
 
 ## 6. Data status and hard stops
 
@@ -100,25 +107,34 @@ VERIFY-001 is blocked on Deepnote's parallel-project quota. Initial run `93645a7
 
 ## 9. Next authorized action
 
-**Author the first executable task families and close harness gaps before materializing the full panel.**
+**Expand and validate the plugin-native Stage A panel. Do not return to a local-harness-only design.**
 
-Completed in MANIFEST-001:
-- [Task-record JSON Schema](benchmark/task_manifest.schema.json) defines the per-task contract and panel metadata.
-- [Task register](benchmark/task_manifest.json) records the 120+120 allocation, all ten strata, Stage B sealing policy, and integrity rules. It intentionally contains zero task instances; no placeholder prompts or fake tasks were created.
-- [Environment coverage audit](benchmark/ENVIRONMENT_COVERAGE_MATRIX.md) maps the current runner and graders to each stratum and names unsupported behavior.
+Completed in the current authoring branch:
+- [Task-record JSON Schema](benchmark/task_manifest.schema.json) defines all task-record fields and split requirements.
+- [Task register](benchmark/task_manifest.json) now contains **10 Stage A task instances**, one per stratum, and 10 initial task-family records. Stage A target is 120; Stage B remains unmaterialized and sealed.
+- [Plugin-native execution profile](benchmark/PLUGIN_NATIVE_EXECUTION_PROFILE.md) distinguishes connected plugin execution from local file-workspace capabilities and records write/cost boundaries.
+- [Plugin tool registry snapshot](benchmark/fixtures/plugin_ecology/plugin_tool_registry.json) pins 15 exact tool contracts for GitHub, TinyFish, Firecrawl, Deepnote, Consensus, Scite, and Wolfram.
+- [Execution evidence](benchmark/fixtures/plugin_ecology/plugin_execution_evidence.json) records live plugin access checks, source snapshots, branch mutations/readbacks, the real 404 recovery, and explicit limitations.
+- The Northstar synthetic fixture, Node.js current-source snapshot, Firecrawl discovery snapshot, and checkpoint/resume sandbox are committed in the authoring branch.
 
-Current schema gate: every task record must include family/independence split metadata; Stage B task records must carry `holdout_sealed=true`; `validation.status=validated` requires contract, environment, grader and review checks to pass.
-
-Current coverage: S01, S05 (registered schema subset), and S06 (file-workspace only) have bounded execution/grading paths; S03, S04, S07, S08, S09, and S10 are partial; S02 is a harness gap. The existing 12-case integration pilot remains excluded from Stage A and Stage B.
+Current status:
+- 10/120 Stage A task instances exist; one per stratum.
+- 0/120 Stage B tasks exist; Stage B remains sealed.
+- S01, S02, S03, S04, S05, S06, S08 and S10 have bounded plugin-native task routes.
+- S07 is partial: the GitHub checkpoint was re-read and the resumed report was verified, but model-run interruption/recovery traces remain to be validated.
+- S09 is partial: GitHub write/readback/diff works, but the runner still needs a structured pre-action prediction trace.
+- Every task has `validation.status=ready_for_validation`; none is labelled validated.
+- No DHI model inference, benchmark score, training data, or training run has been produced.
 
 Next:
-1. Build and test distinct executable task families for bounded S01/S05/S06, then add partial-stratum probes only with each limitation represented in the task record and scorecard.
-2. Implement the missing source adapter for S02, permission-distinct decoy fixtures for S04, and persistent checkpoint/resume for S07 before those full strata are scored.
-3. Add explicit deterministic provider-failure injection/retry controls for S08; structured state predicates and effect graders for S09; and adversarial/permission fixtures for S10.
-4. Add a panel-integrity validator that checks exactly 12 tasks per stage per stratum, unique task IDs, disjoint A/B family and independence-group hashes, fixture/tool hashes, and Stage B access restrictions.
-5. Keep model execution disabled until all 240 tasks are executable and independently reviewed, the A/B family split is hashed, and matched inference access for Qwen3.6 and GPT-OSS is available.
+1. Add 11 further distinct task instances per stratum to complete the 120-task Stage A screen. Vary underlying task families, plugin combinations, schemas, dependencies and side-effect policies; do not create paraphrases to fill counts.
+2. Implement the plugin action-trace adapter for pre-action effect predictions and cross-session checkpoint/recovery events. Close the remaining S07/S09 trace gaps.
+3. Add a cross-record panel validator and regression tests for task-ID uniqueness, counts, family/split hashes, fixture/tool hashes, postcondition presence, and Stage B sealing.
+4. Independently review all ten seed task prompts and graders. Run deterministic reference checks, then model pilots only after the matched inference access and benchmark-freeze gates pass.
+5. Build Stage B from 120 structurally distinct holdout tasks only after Stage A and the candidate/interface decision are fixed. Keep Stage B prompts and fixtures sealed.
+6. Keep model execution disabled until the Stage A task panel is complete, independently reviewed and frozen; preserve the Qwen3.6/GPT-OSS matched-comparison requirement.
 
-No Stage A/B tasks have been authored or run. No model was run and no Adaption credits were spent in this checkpoint.
+No DHI candidate model was run. Firecrawl capability discovery cost zero; the discovered package-record execution (one credit) was not called. Consensus search was unavailable because the provider's monthly free quota was exhausted. No Adaption generation/training action was called.
 
 ## 10. Latest committed work
 
@@ -151,6 +167,9 @@ No Stage A/B tasks have been authored or run. No model was run and no Adaption c
 | `8b90f9ac` | Clarified benchmark scope decision rationale in the append-only log |
 | `MANIFEST-001` | Added schema-backed 240-task register and source-grounded environment coverage audit; zero task instances created |
 | `MANIFEST-001a` | Required task-family split hashes, Stage B sealing metadata, and complete validation evidence before a task can be marked validated |
+| `PLUGIN-REGISTRY-001` | Pinned 15 actual connected plugin tool contracts and created the Northstar synthetic plugin fixture |
+| `ORBIT-TASKS-001` | Authored ten Stage A plugin-native tasks, one per stratum; manifest passed schema validation |
+| `ORBIT-REFERENCE-001` | Verified multi-file GitHub workflow and a persistent checkpoint/resume workflow with readback and single-path diffs |
 | `VERIFY-001 run 93645a78` | Exact checkout verified; compileall passed; pytest blocked by missing package before collection |
 | `VERIFY-001` retry | Blocked before execution by Deepnote quota in detached and live modes; retry cell is ready |
 | `VERIFY-001` | Initial compileall passed; pytest blocked by missing dependency; retry blocked by Deepnote quota |
