@@ -249,6 +249,38 @@ def _evidence_text(trace: dict[str, Any]) -> str:
     return _canonical_json(trace.get("events", [])) + "\n" + _artifact_text(trace)
 
 
+def _raw_observations(trace: dict[str, Any]) -> list[dict[str, Any]]:
+    """Return source-attributed observations from executed tool and discovery events only."""
+    observations: list[dict[str, Any]] = []
+    for event in trace.get("events", []):
+        if not isinstance(event, dict):
+            continue
+        event_type = event.get("event_type")
+        if event_type == "action_executed":
+            result = event.get("actual_tool_result")
+            result = result if isinstance(result, dict) else {}
+            observations.append({
+                "source_ref": event.get("source_ref"),
+                "tool_id": event.get("tool_id"),
+                "capability_id": event.get("capability_id") or result.get("capability_id"),
+                "request": event.get("arguments", {}),
+                "response": result.get("result"),
+                "ok": result.get("ok"),
+                "status_code": result.get("status_code"),
+            })
+        elif event_type == "tool_discovery":
+            observations.append({
+                "source_ref": event.get("source_ref"),
+                "tool_id": "tool_discovery",
+                "capability_id": None,
+                "request": {"query": event.get("query")},
+                "response": event.get("discovery_results", []),
+                "ok": True,
+                "status_code": None,
+            })
+    return observations
+
+
 def _deep_contains(actual: Any, expected: Any) -> bool:
     if isinstance(expected, dict):
         return isinstance(actual, dict) and all(
