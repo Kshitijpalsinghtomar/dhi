@@ -426,3 +426,34 @@ There are **zero tasks requiring multiple provider namespaces as mandatory tools
 3. **Firecrawl Alexandria bridge** follows: the connected assistant action and full contract are known, but its callable Deepnote/MCP transport is not provisioned. Do not substitute generic search/scrape for `firecrawl_find_tools`.
 
 All live manifest tasks still have `model_runs_allowed=false`. This coverage count does not authorize model execution, and adapter availability alone does not validate any benchmark task.
+
+
+## 20. ORBIT-VERIFY-006 passed — plugin execution boundary regression — 2026-11-03
+
+**The fail-closed plugin dispatch boundary now passes the full exact-head regression.** See [ORBIT-VERIFY-006](experiments/ORBIT-VERIFY-006/README.md).
+
+- Code under test: `410d1113231cef020dc72292ccf2496e580f803e`.
+- Deepnote run: `6591b36d-6233-4443-b9e0-fbf4b0ac1197`.
+- Manifest validation: PASS — 30 tasks, Stage A=30, Stage B=0, no errors.
+- Full benchmark + environment pytest: **174 passed, 0 failed**.
+- Compileall and entrypoint imports: PASS.
+- Manifest-loader smoke: all 30 task plans resolve; model runs enabled: **0**.
+- Synthetic dispatch smoke: canonical TinyFish tool IDs prepared and a fake-handler read-only call dispatched.
+- No actual provider calls, paid requests, or training jobs.
+- Python: 3.13.18.
+- Raw report: `experiments/ORBIT-VERIFY-006/results/verification-report.json`.
+
+This validates the task loader and generic dispatch boundary, not a complete agent runner. The model-turn loop, plugin trace generation, environment-specific state snapshots, independent postcondition grading, and real GitHub/Firecrawl handlers are still not connected. Do not call the manifest tasks end-to-end executable yet.
+
+### Next work unit: TinyFish canonical provider bundle
+
+The current DHI TinyFish REST adapter exposes internal IDs `tinyfish.search` and `tinyfish.fetch_content`; the manifest registry requires `mcp__TinyFish__search` and `mcp__TinyFish__fetch_content`. The focused plugin-dispatch smoke used synthetic handlers with canonical IDs; it did not call TinyFish. The next TDD unit should:
+1. align the adapter's published IDs with the manifest IDs;
+2. return the exact input schemas and callable handlers under those canonical IDs;
+3. prove the bundle matches all TinyFish registry references and fails closed if the key/handler is absent;
+4. verify the actual DHI runtime can prepare the TinyFish-only task plan using the real attached `TINYFISH` integration, but keep model runs disabled;
+5. rerun the full suite.
+
+After TinyFish, prioritize the GitHub REST adapter because 16 Stage A tasks require GitHub; keep writes limited to task-specific disposable branches and exact allowed paths. Firecrawl's Alexandria `firecrawl_find_tools` contract is known in the assistant session, but the Deepnote verifier has no Firecrawl project integration/transport. The assistant's connected app actions are not callable by the model runner.
+
+OpenRouter is still at $0 credits, and there is no `OPENROUTER` Deepnote integration. No model inference or training is authorized by this successful engineering gate.
