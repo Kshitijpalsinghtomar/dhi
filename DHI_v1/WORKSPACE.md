@@ -613,7 +613,8 @@ A new regression test verifies that the default client opener is configured with
 ### Validation status
 
 - The initial selected test attempt stopped before collection because `pytest` was absent from the live Deepnote kernel; this is an environment/bootstrap failure, not a code result.
-- A second selected run is installing the repository's pinned development requirements and then running only `test_github_client.py` and `test_github_plugin_bundle.py`. Its run ID is `5855c01e-c3cc-4248-be3a-5ae165d2f70f`; no successful pytest result is claimed yet.
+- Focused selected pytest completed successfully in Deepnote run `5855c01e-c3cc-4248-be3a-5ae165d2f70f`: **21 passed, 0 failed** in 112.39 seconds across `test_github_client.py` and `test_github_plugin_bundle.py`. The project kernel first installed the checked-in development requirements; no external GitHub request was made.
+- The full exact-revision regression is running as ORBIT-VERIFY-009 in Deepnote run `a249a76e-6454-4ca8-b9c4-64ca6a098c2f`, with manifest validation, all benchmark/environment tests, compileall, import smoke and 30-plan loader smoke. Its branch snapshot is `eb0f681d13b333b6b4c03b5b14f9555ca624a6ef`; GitHub adapter source under test is `cca077e9c5c6b50fffee94ea3c74576c89c34462`.
 - Deepnote presence-only preflight: `GITHUB_TOKEN=false`, `DHI_GITHUB_WRITES_ENABLED=false`, `GITHUB_ALLOWED_REPOSITORIES=false`, `TINYFISH_API_KEY=true`.
 - No real GitHub HTTP request, repository write, model inference, or training job occurred.
 
