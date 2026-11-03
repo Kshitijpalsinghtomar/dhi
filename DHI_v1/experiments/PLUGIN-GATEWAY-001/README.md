@@ -111,3 +111,22 @@ This covers the runner/environment implementation, runner/environment tests, plu
 ### Credential-probe execution reference
 
 The presence-only probe completed successfully in Deepnote run `712a9c26-d126-4cc0-bfdb-a564dd29e3d1` using notebook `3639f9a98ce5435fa4cd0168eaaca3a1`. Output block `a8b57e8a508349a3a50a144ceeb4313b` has content hash `sha256:e5a473f06e7d1e78ce66cbbf9e2f157ad6cafb3b353d3c14549019ca0766367c`. It returned `present_count=0`, `total_checked=12`, and `remote_requests_sent=0`. The temporary block was deleted; the verifier machine was stopped after execution.
+
+
+## Post-provision TinyFish verification attempt — 2026-11-03
+
+The user reported that `TINYFISH_API_KEY` had been added to the DHI Deepnote project. This is a user-reported configuration change; the runtime did not verify it.
+
+A temporary presence-only probe cell was added to the existing verifier notebook. Both attempts to obtain execution capacity were rejected by Deepnote with:
+
+`Your plan quota for parallel running projects has been exceeded. Please stop one of your running projects.`
+
+- Project machine start: rejected before the machine started.
+- Detached read-only notebook run: rejected before execution.
+- No credential value was read or printed.
+- No TinyFish endpoint was contacted; no MCP `initialize`, `tools/list`, or `tools/call` request was sent.
+- Temporary probe cell `550ba693a4b24a3a86a60a576af375ab` was deleted.
+- Existing notebook regression cell was left untouched.
+- Verifier machine is stopped.
+
+**Interpretation:** credential provisioning is reported but unverified. The earlier 0/12 result was captured before this latest reported configuration and must not be used to infer the current secret state. The next step is to free a Deepnote parallel-run slot (without stopping another user's project from this agent), then rerun the presence-only check and proceed to the read-only TinyFish handshake only if the key is present.
