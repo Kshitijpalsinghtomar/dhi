@@ -831,7 +831,8 @@
           "required": [
             "partition",
             "family_fingerprint_sha256",
-            "holdout_sealed"
+            "holdout_sealed",
+            "task_instance_sha256"
           ],
           "properties": {
             "partition": {
