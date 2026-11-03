@@ -63,6 +63,6 @@ This is a plugin-native capability map, not a claim that every plugin or every c
 
 ## Integrity validator
 
-The cross-record validator is `DHI_v1/benchmark/validate_task_manifest.py`; its 14 regression tests are in `DHI_v1/benchmark/tests/test_task_manifest_validator.py`. It verifies canonical SHA-256 hashes for each task and family, exact tool IDs against the 16-tool registry, every evidence path, stage/family separation and sealed Stage B policy.
+The cross-record validator is `DHI_v1/benchmark/validate_task_manifest.py`; its 17 regression tests are in `DHI_v1/benchmark/tests/test_task_manifest_validator.py`. It verifies canonical SHA-256 hashes for each task and family, exact tool IDs against the 16-tool registry, every evidence path, stage/family separation and sealed Stage B policy.
 
 The validator implementation and tests are committed, but the Python suite has not yet run. GitHub Actions run `41594301494` failed before runner allocation (`runner_id=0`, no job steps); no code test result is available. The separate static integrity inspection is recorded in [PANEL_INTEGRITY_VALIDATION_2026-11-03.md](PANEL_INTEGRITY_VALIDATION_2026-11-03.md).
