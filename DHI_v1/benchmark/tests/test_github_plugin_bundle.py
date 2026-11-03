@@ -75,14 +75,14 @@ def test_write_handlers_are_exposed_only_with_flag_and_repository_allowlist(monk
 
 def test_real_manifest_github_read_task_prepares_from_canonical_bundle(monkeypatch):
     _base_env(monkeypatch)
+    base_plan = load_plugin_task(MANIFEST, REGISTRY, "ORBIT-A-S04-001")
     fake_handlers = {
-        tool_id: (lambda arguments: {"synthetic": tool_id, "arguments": arguments})
-        for tool_id in READ_IDS
+        tool_id: (lambda arguments, _tool_id=tool_id: {"synthetic": _tool_id, "arguments": arguments})
+        for tool_id in base_plan.visible_tool_ids
     }
     with patch.object(GitHubReadWriteClient, "tool_handlers", return_value=fake_handlers):
         schemas, handlers = github_plugin_bundle_from_env()
 
-    base_plan = load_plugin_task(MANIFEST, REGISTRY, "ORBIT-A-S04-001")
     plan = replace(base_plan, model_runs_allowed=True)
     prepared = prepare_plugin_execution(plan, schemas=schemas, handlers=handlers)
 
@@ -97,14 +97,14 @@ def test_allowlisted_write_handler_still_requires_task_specific_dispatch_guard(m
     _base_env(monkeypatch)
     monkeypatch.setenv("DHI_GITHUB_WRITES_ENABLED", "true")
     monkeypatch.setenv("GITHUB_ALLOWED_REPOSITORIES", "Kshitijpalsinghtomar/dhi")
+    base_plan = load_plugin_task(MANIFEST, REGISTRY, "ORBIT-A-S06-001")
     fake_handlers = {
-        tool_id: (lambda arguments: {"synthetic": tool_id, "arguments": arguments})
-        for tool_id in READ_IDS | WRITE_IDS
+        tool_id: (lambda arguments, _tool_id=tool_id: {"synthetic": _tool_id, "arguments": arguments})
+        for tool_id in base_plan.visible_tool_ids
     }
     with patch.object(GitHubReadWriteClient, "tool_handlers", return_value=fake_handlers):
         schemas, handlers = github_plugin_bundle_from_env()
 
-    base_plan = load_plugin_task(MANIFEST, REGISTRY, "ORBIT-A-S06-001")
     plan = replace(base_plan, model_runs_allowed=True)
     with pytest.raises(PluginExecutionNotReady, match="missing write guard"):
         prepare_plugin_execution(plan, schemas=schemas, handlers=handlers)
@@ -113,7 +113,7 @@ def test_allowlisted_write_handler_still_requires_task_specific_dispatch_guard(m
         "mcp__GitHub__create_file": lambda task, args: (
             task.task_id == "ORBIT-A-S06-001"
             and args.get("repository_full_name") == "Kshitijpalsinghtomar/dhi"
-            and args.get("branch") == "orbit/plugin-benchmark-fixture"
+            and args.get("branch") == "orbit/sandbox/orbit-a-s06-001"
             and args.get("path") == "reports/release-readiness.md"
         )
     }
@@ -126,5 +126,5 @@ def test_allowlisted_write_handler_still_requires_task_specific_dispatch_guard(m
         "path": "reports/release-readiness.md",
         "content": "fixture only",
         "message": "fixture only",
-        "branch": "orbit/plugin-benchmark-fixture",
+        "branch": "orbit/sandbox/orbit-a-s06-001",
     })["synthetic"] == "mcp__GitHub__create_file"
