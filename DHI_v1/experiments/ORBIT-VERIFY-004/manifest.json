@@ -1,7 +1,7 @@
 {
   "experiment_id": "ORBIT-VERIFY-004",
   "date": "2026-11-03",
-  "status": "prepared",
+  "status": "running",
   "code_under_test": "5b144c531e8a548787918f0fcdf9e681f05d96e8",
   "branch": "orbit/plugin-benchmark-fixture",
   "hypothesis": "The TinyFish adapter and its runner integration do not regress the pre-existing benchmark or environment suite.",
@@ -18,7 +18,7 @@
     "python -m DHI_v1.benchmark.validate_task_manifest --json",
     "python -m pytest -q DHI_v1/benchmark/tests DHI_v1/environment/tests",
     "python -m compileall -q DHI_v1/benchmark DHI_v1/environment",
-    "python -c 'from DHI_v1.environment.agent_runner import run_agent_task, client_from_env; from DHI_v1.environment.adaption_responses import AdaptionResponsesClient; from DHI_v1.benchmark.runner import run_pilot_benchmark; print("entrypoint imports: ok")'"
+    "python -c \"from DHI_v1.environment.agent_runner import run_agent_task, client_from_env; from DHI_v1.environment.adaption_responses import AdaptionResponsesClient; from DHI_v1.benchmark.runner import run_pilot_benchmark; print('entrypoint imports: ok')\""
   ],
   "primary_metric": "All commands exit 0; pytest reports zero failures.",
   "independent_guards": [
@@ -29,7 +29,7 @@
   ],
   "falsifier": "Any nonzero command exit, test failure, invalid manifest, or source mismatch.",
   "budget": {
-    "full_suite_runs": 1,
+    "full_suite_runs": 2,
     "provider_credits_usd": 0,
     "model_inference_calls": 0,
     "training_jobs": 0
@@ -39,7 +39,22 @@
     "deepnote_notebook_id": "3639f9a98ce5435fa4cd0168eaaca3a1",
     "source_identity_method": "bounded byte-for-byte Deepnote/GitHub file comparison"
   },
-  "run": null,
+  "run_attempts": [
+    {
+      "run_id": "72a2e697-89b4-4408-beba-c2185b2f95d1",
+      "status": "blocked_before_pytest",
+      "manifest_validator": "passed",
+      "pytest": "not_collected_missing_pytest",
+      "compileall": "passed",
+      "import_smoke": "passed",
+      "note": "No test cases executed; no code failure established."
+    },
+    {
+      "run_id": "96ac3bf5-9a06-4a9f-9e80-3bc29c541f38",
+      "status": "running",
+      "dependency_bootstrap": "install repository-declared requirements only"
+    }
+  ],
   "decision": "pending",
   "evidence_boundary": "Harness validation only; not model capability or launch evidence."
 }
