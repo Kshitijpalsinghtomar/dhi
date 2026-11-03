@@ -1029,3 +1029,20 @@ A fresh Deepnote workspace inventory found the `TINYFISH` environment integratio
 The first post-attachment detached run (`34ec5435-ed95-4057-bb34-9cbf489a482d`) failed in the existing regression cell with `ModuleNotFoundError: No module named 'pytest'` before the presence-only cell executed. A live run selecting only the presence block was then rejected by Deepnote's parallel-project quota. A separate one-cell temporary project was also rejected by the same quota and then deleted. The original regression cell was preserved; all temporary probe blocks were deleted. A workspace machine snapshot showed one other project machine running while the DHI verifier was stopped; it was left untouched.
 
 **Decision:** the integration-attachment issue is corrected, but `TINYFISH_API_KEY` presence remains unknown and no TinyFish MCP request has been sent. Do not infer absence or successful authentication. Retry only after a run slot is available, using the isolated presence-only cell. No other project may be stopped by this agent to create capacity.
+
+
+## 2026-11-03 — TinyFish credential and read-only MCP route verified from DHI runtime
+
+The previously discovered workspace `TINYFISH` env integration was attached to the DHI verifier project. A one-cell presence-only probe returned `TINYFISH_API_KEY_PRESENT=yes` in Deepnote run `1615aa6b-df74-4457-acdb-ae4775e71f56`. No secret characters were emitted.
+
+A direct Streamable HTTP client then succeeded against `https://agent.tinyfish.ai/mcp`:
+
+- `initialize`: HTTP 200; negotiated protocol `2025-11-25`; server `tinyfish` version `0.1.1`.
+- `tools/list`: HTTP 200; 41 provider-native tools. The exact registered read-only tools `search` and `fetch_content` were present. Their input-schema fingerprints are recorded in PLUGIN-GATEWAY-001.
+- One bounded `search` returned HTTP 200 and selected the official TinyFish MCP repository.
+- One `fetch_content` call returned HTTP 200 and extracted the official repository page.
+- An independent direct HTTPS GET to the raw official README returned HTTP 200 and corroborated the API-key header and registered tool markers. This is marker-level corroboration, not byte equality.
+
+Deepnote evidence: initialize/tools/list run `38cb9d2e-fe8d-4272-83c9-4a2d3de5f6d5`; read-only search/fetch and independent readback run `04dbee0a-6c4b-4547-8e8f-0303ba3a8bf1`. The full experiment record includes block IDs and output hashes.
+
+**Decision:** close the provider credential/transport feasibility gate for TinyFish. Do not expose the provider's full 41-tool inventory: only the two task-registered read-only tools are in scope. This proves runtime connectivity and provider tool behavior, not a policy-enforcing DHI adapter, model-facing capability, or ORBIT model performance. Next is a test-first adapter with exact schema pins, fixed HTTPS host, env-only auth, task-level allowlist, safe argument validation, no retries, bounded timeout and secret redaction. No browser automation, paid tool, monitor, dataset action, provider write, model inference, or training was run.
