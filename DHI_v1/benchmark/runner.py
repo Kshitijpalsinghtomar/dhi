@@ -213,6 +213,7 @@ def run_pilot_benchmark(
                 preferences=case.get("preferences", []),
                 postconditions=case["postconditions"],
                 protected_paths=case.get("protected_paths", []),
+                allowed_tool_ids=case.get("allowed_tool_ids"),
                 visible_tool_ids=case.get("visible_tool_ids"),
                 fault_injections=case.get("fault_injections", []),
                 split="development_pilot_not_frozen",
