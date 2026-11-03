@@ -87,7 +87,7 @@ Start with **TinyFish search/fetch** because both registered actions are read-on
 
 **Decision:** `blocked` (before implementation).
 
-The transport is feasible in principle, but provider-native tool mapping and DHI runtime credential access have not been verified. The credential presence probe found none of the 12 standard variable names in the DHI verifier runtime. The next step is secure provisioning of `TINYFISH_API_KEY` as a project secret, followed by a TinyFish read-only runtime smoke—not speculative adapter code or wider task authoring.
+The transport is feasible in principle, but provider-native tool mapping and DHI runtime credential access have not been verified. The initial 0/12 credential-presence probe predates the user's subsequent report that `TINYFISH_API_KEY` was added. A post-provision probe was blocked before execution by Deepnote's parallel-project quota, so current secret presence and authentication remain unverified. The next step is a presence-only check after a run slot is available, followed by a TinyFish read-only runtime smoke only if the key is present—not speculative adapter code or wider task authoring.
 
 ## Verified current-branch code equivalence — 2026-11-03
 
