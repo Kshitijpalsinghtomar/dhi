@@ -695,3 +695,20 @@ The manifest now records 10/120 Stage A task instances and 0/120 Stage B task in
 ### Decision
 Continue authoring and validating the plugin-native Stage A panel. Do not fabricate tool outcomes or claim model capability from these scripted reference actions. Keep Stage B sealed, and do not start candidate model comparisons until the panel and matched inference path are ready.
 
+## 2026-11-03 — Add second independent current-source and security-tool discovery tasks
+
+### New source evidence
+- TinyFish searched and fetched the official Python downloads pages on 2026-11-03. The pinned snapshot records Python 3.15.2 as the latest listed stable release (2026-10-25), Python 3.16 as a future planned pre-release, and Python 3.10 as end-of-life.
+- Firecrawl free discovery returned three security-related provider capabilities: GitHub Advisory record lookup, OSV package/version vulnerability query, and GitHub Advisory search. Each provider execution was listed as 5 credits. No paid provider was executed.
+
+### Added task instances
+- `ORBIT-A-S02-002`: independent Python current-release and maintenance-channel verification task.
+- `ORBIT-A-S03-002`: OSV/GitHub advisory provider discovery and schema/cost comparison task.
+
+### Artifacts
+- `DHI_v1/benchmark/fixtures/plugin_ecology/external_snapshots/python_releases_2026-11-03.md`
+- `DHI_v1/benchmark/fixtures/plugin_ecology/discovery_snapshots/firecrawl_security_provider_discovery_2026-11-03.md`
+- Updated `task_manifest.json` and `plugin_execution_evidence.json`.
+
+### Status
+The plugin-native Stage A seed now contains 12 records and 12 task-family records: S02 and S03 have two tasks each; all other strata have one. Stage B remains empty and sealed. The schema and cross-record checks passed with unique task IDs/family IDs; no DHI model was run. All records remain `ready_for_validation`.
