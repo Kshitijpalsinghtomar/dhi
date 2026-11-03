@@ -270,3 +270,20 @@ The only immediate engineering action is ORBIT-VERIFY-004. After it passes: vali
 Planning estimate from removal of current hard blockers: first SFT checkpoint approximately **3–6 weeks**, with public-release packaging/independent validation potentially adding **1–2 weeks**. This is conditional on funded inference/compute, a frozen benchmark and valid trajectories; it is not a promised date.
 
 No new provider integration, dataset augmentation, model architecture experiment, DPO/RL run, Stage B exposure, merge, deployment or paid provider action is authorized by this handover.
+
+
+## 13. Live inference route recheck — 2026-11-03
+
+See [INFER-003](experiments/INFER-003/README.md). The current OpenRouter account read returned **$0 credits** (historical usage $0.20190338). The two planned model candidates do have a common pinned provider route:
+- Qwen3.6-35B-A3B — PrimeIntellect fp8, $0.011/M input and $0.10/M output.
+- GPT-OSS-20B — PrimeIntellect fp4, $0.016/M input and $0.069/M output.
+
+Both support tool calls and the common `tool_choice=auto` mode. GPT-OSS on this provider does not advertise forced `required` calls; do not use forced-tool tests in the matched comparison.
+
+The current Deepnote verifier has only the `TINYFISH` env integration; no `OPENROUTER` integration/secret is attached. The generic `OpenAICompatibleChatClient` can call an OpenAI-compatible endpoint, but its request body does not yet pin the OpenRouter provider. Before any candidate inference:
+1. add an optional, tested provider restriction pinned to PrimeIntellect;
+2. provision `DHI_MODEL_API_KEY` as a Deepnote project secret (never in Git/notebook output);
+3. set `DHI_MODEL_BASE_URL=https://openrouter.ai/api/v1` and exact candidate IDs;
+4. agree a hard aggregate cost cap and matched task/token budgets.
+
+The MCP `send_message` connector is plain-text chat and cannot substitute for the DHI runner's function-call API. Free models exist in the wider catalogue, but they are not substitutes for the frozen Qwen/GPT-OSS screen. No inference call was made.
