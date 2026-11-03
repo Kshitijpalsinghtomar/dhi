@@ -27,21 +27,23 @@ This is a research target, not a result or novelty claim. A prompt, RAG store, f
 ```yaml
 programme: DHI-v1
 codename: ORBIT
-phase: plugin_native_stage_a_seed_authored
+phase: plugin_native_gateway_contract_audit
 status: in_progress
 status_reason: >
   The plugin-native task route has 30 Stage A task records across all ten strata.
   ORBIT-GRADER-FIX-001 completed the corrected full regression successfully:
   Deepnote run 34ca752c-e864-4a3d-9388-957d2c3e1859 passed 142 tests,
   manifest validation, compileall and runner/adapter import smoke at code
-  commit cba8421d4f4c6c4f929d5f4c3196eb83f98f7351. Six later commits through
-  43608791494e445b17556e1ec8fc08b8a9f2f455 changed only documentation/records;
-  no runtime or test source changed. A later focused retry failed before test
-  collection because the detached notebook omitted pytest installation.
-  S07 and S09 remain partial. No DHI model inference, trained capability
-  result, or verified model trajectory exists. The local runner still lacks
-  a remote GitHub/TinyFish/Firecrawl execution bridge, and OpenRouter's last
-  audited balance was zero.
+  commit cba8421d4f4c6c4f929d5f4c3196eb83f98f7351. No runtime or test source
+  changes were made after that verified code commit. PLUGIN-GATEWAY-001 found
+  documented remote MCP endpoints for GitHub, TinyFish and Firecrawl, but
+  provider-native tool mapping and DHI runtime credentials remain unverified.
+  The isolated verifier project has no attached integrations; manual
+  process-environment credential presence has not been probed. No provider
+  request or model-facing remote action was run. Firecrawl Alexandria is not
+  yet proven equivalent to the standard MCP tools. S07 and S09 remain partial.
+  No DHI model inference, trained capability result, or verified model
+  trajectory exists. OpenRouter's last audited balance was zero.
 training_status: not_authorized
 benchmark_status: stage_a_authoring_30_of_120; stage_b_sealed_unmaterialized
 last_verified_code_commit: cba8421d4f4c6c4f929d5f4c3196eb83f98f7351
@@ -81,7 +83,7 @@ last_verified_code_commit: cba8421d4f4c6c4f929d5f4c3196eb83f98f7351
 | Plugin-native Stage A authoring | 30 tasks materialized; 30 ready for validation | Actual GitHub/TinyFish/Firecrawl tool contracts and pinned evidence; no model runs |
 | Plugin reference workflows | Release report and checkpoint-resume report completed | Scripted reference evidence only; not DHI model capability results |
 | Plugin-native task grading | Not run | Grader contracts are authored; independent and model-facing validation still pending |
-| Manifest and trace-grader verification | Passed at code commit 421955df46975d8b20fba63f8922949a49b4551c | Validator: 30/30 valid, Stage A=30, Stage B=0; 44 focused tests passed; compileall passed. Harness integrity only, not a model result |
+| Manifest and trace-grader verification | Passed at code commit cba8421d4f4c6c4f929d5f4c3196eb83f98f7351 | Validator: 30/30 valid, Stage A=30, Stage B=0; full benchmark/environment suite: 142 passed, 0 failed; compileall and runner/adapter import smoke passed. Harness integrity only, not a model result |
 | Full benchmark regression | Passed | Deepnote run 7da82150-e44d-415d-ac00-206b112cf811: 82 benchmark tests passed; manifest validator and benchmark compileall passed at code commit 421955df46975d8b20fba63f8922949a49b4551c. Environment tests were not included |
 | Combined benchmark + environment regression | Passed (latest code verification) | ORBIT-GRADER-FIX-001 / Deepnote run 34ca752c-e864-4a3d-9388-957d2c3e1859: 142 passed, 0 failed; validator, compileall and imports passed at code commit cba8421d4f4c6c4f929d5f4c3196eb83f98f7351. Current branch code/test files are unchanged since that commit. |
 
@@ -142,6 +144,15 @@ Two subsequent notebook retries do not alter that outcome: run `220cc301-c5de-4c
 
 The plugin-native reference workflow uses connected GitHub/TinyFish/Firecrawl actions, but `DHI_v1/environment/agent_runner.py` does not yet expose a remote plugin execution bridge to the candidate model. It currently builds tool schemas from the local DHI environment catalogue and offers Adaption catalogue search as a read-only discovery meta-tool. That is not equivalent to invoking remote connector actions. This blocks an honest model-facing plugin benchmark run until a separately configured, policy-enforcing gateway is implemented and tested.
 
+### PLUGIN-GATEWAY-001 feasibility result
+
+Provider documentation confirms a possible Streamable HTTP direction, but not a verified DHI runtime route:
+- GitHub remote MCP: `https://api.githubcopilot.com/mcp/` and a read-only `/readonly` surface; requires a client-obtained bearer token. The official remote server does not provide authentication, and its native tools have not been schema-matched to the registry's wrapper contracts.
+- TinyFish: `https://agent.tinyfish.ai/mcp`; its official package provides a local proxy that reads TINYFISH_API_KEY and forwards it as X-API-Key. Registered search and fetch_content are read-only/free, but runtime authentication and native schema parity are untested.
+- Firecrawl: the standard hosted MCP's generic web tools are not proven equivalent to the registry's Alexandria firecrawl_find_tools; the registered paid firecrawl_scrape remains excluded.
+
+The inspected Deepnote verifier project has no attached integrations. Manual environment credential presence was not probed. No remote MCP request or provider action was made. See [PLUGIN-GATEWAY-001](experiments/PLUGIN-GATEWAY-001/) for sources, exact contract boundaries and frozen gateway requirements.
+
 The gateway is the next technical research unit. Do not infer a callable endpoint from the presence of a ChatGPT connector or a read-only catalogue entry. Inspect the exact registered contracts and documented transport/authentication for each provider; implement only documented operations with a permission/cost policy and contract tests. No remote action or model-facing plugin call is authorized until the adapter has an executable contract and independent state-readback tests.
 
 ## 9. Research methodology now active
@@ -152,26 +163,25 @@ The gateway is the next technical research unit. Do not infer a callable endpoin
 
 ## 10. Next authorized action
 
-**Resolve the model-facing remote-plugin execution contract. Do not expand Stage A or start model inference until the gateway path is real and testable.**
+**Verify one real read-only provider connection, beginning with TinyFish search/fetch. Do not yet enable remote writes, paid tools, Stage A validation, model inference or training.**
 
 Current facts:
-- The corrected runtime/test regression is green: 142 passed, 0 failed at code commit `cba8421d4f4c6c4f929d5f4c3196eb83f98f7351`; current branch code/test files have not changed since that commit.
+- The corrected runtime/test regression is green: 142 passed, 0 failed at code commit cba8421d4f4c6c4f929d5f4c3196eb83f98f7351; no runtime/test source changed afterward.
 - Thirty Stage A task instances exist across all ten strata; 90 more are needed to reach 120. Stage B has 0/120 and remains sealed.
-- All 30 Stage A tasks remain `ready_for_validation`, not `validated`. S07 checkpoint/recovery and S09 model-prediction/effect validation remain partial.
-- The local model runner still offers only local file-workspace actions plus Adaption catalogue discovery. It cannot call the connected GitHub/TinyFish/Firecrawl actions.
-- OpenRouter's last audited balance was $0; no matched model inference or candidate evaluation has occurred.
-- No training, training-data promotion, provider-credit spend, merge, or deployment is authorized.
+- All 30 Stage A tasks remain ready_for_validation, not validated. S07 checkpoint/recovery and S09 model-prediction/effect validation remain partial.
+- The model runner still exposes local file-workspace tools plus Adaption read-only catalogue discovery; it has no remote MCP client.
+- The isolated Deepnote verifier project has no attached provider integrations. Manual process-environment credential presence has not been checked; no secret values have been read or logged.
+- No provider MCP request, model inference, candidate evaluation, training, or paid provider action has occurred.
 
 Next:
-1. Inspect the exact GitHub, TinyFish and Firecrawl contracts already pinned in `benchmark/fixtures/plugin_ecology/plugin_tool_registry.json`; research and record the providers' documented executable API/MCP transport and authentication boundaries. Do not invent endpoint shapes or treat the connected ChatGPT plugins as credentials available to the DHI runtime.
-2. Freeze a gateway protocol: exact tool IDs/schemas, allowed operations, per-task sandbox boundaries, approval/credit policy, timeout/retry semantics, raw response capture, independent state readback, pre-action prediction, and trace normalization. State which providers can actually be supported with the credentials/integrations available to the DHI runtime.
-3. Implement one provider adapter at a time with failing contract tests first; prove both allowed operations and denied/out-of-scope operations against a local protocol fixture, then perform a read-only live smoke only when a real endpoint and credential are configured.
-4. Once the gateway is executable, produce model-facing traces for existing tasks. Validate task contract, environment, grader and review independently; close S07 and S09 gaps before marking any task validated.
-5. Only after validation, expand the remaining Stage A quotas: S01=10, S02=9, S03=8, S04=9, S05=8, S06=8, S07=10, S08=9, S09=9, S10=10. Keep Stage B bodies sealed outside this public repository.
-6. Keep model inference disabled until matched model access is affordable, the gateway works, and the benchmark is frozen. Reconcile the private 10K intent-arbitration dataset's row semantics and evaluation lineage before training.
-
-No DHI candidate model was run. Firecrawl capability discovery cost zero; the discovered package-record execution (one credit) and security/research provider executions (five credits each) were not called. TinyFish Go recovery included a schema-validation rejection followed by a 404 and a successful official-source re-fetch. Consensus search was unavailable because the provider's monthly free quota was exhausted. No Adaption generation/training action was called.
-
+1. Check whether a TinyFish credential can be provisioned through the DHI runtime's secret store without placing it in chat, source control, notebook output or task data. If a credential is not available, record the blocker and stop before network calls.
+2. Using the documented hosted/local TinyFish MCP route, perform a read-only initialize + tools/list smoke. Pin the native search and fetch_content schemas and verify they match the registered task contracts. Then execute one bounded read-only search/fetch, capture raw responses, and independently fetch the same source for a readback comparison. Do not run browser automation.
+3. Implement the provider adapter only after that RED/GREEN contract test exists. Enforce task allowlists, tool schema fingerprints, provider/host pinning, secret redaction, timeouts, no blind retries, prediction-before-call and trace normalization.
+4. Audit GitHub next: obtain a minimally scoped credential for a disposable benchmark repository, discover native tool names/schemas, map read and sandbox-write actions, and keep the read-only route for read-only tasks. Never expose deletes or merges.
+5. Keep Firecrawl deferred until a documented endpoint exposes the exact Alexandria discovery schema; keep the paid Alexandria execution disabled pending an explicit cost budget and approval.
+6. Only after the gateway is executable, produce model-facing traces for existing tasks. Independently validate task contracts, environment and graders; close S07 and S09 gaps before marking tasks validated.
+7. Only then expand the remaining Stage A quotas: S01=10, S02=9, S03=8, S04=9, S05=8, S06=8, S07=10, S08=9, S09=9, S10=10. Keep Stage B bodies sealed outside this public repository.
+8. Keep model inference and training disabled until the gateway works, benchmark validation is frozen, matched model access is affordable, and dataset lineage is reconciled.
 ## 11. Latest committed work
 
 | Commit | Change |
