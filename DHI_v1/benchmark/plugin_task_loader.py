@@ -80,21 +80,36 @@ def _string_list(value: Any, field: str, *, allow_empty: bool = True) -> tuple[s
     return tuple(value)
 
 
-def _policy_allows(side_effect_class: str, allowed_side_effects: tuple[str, ...]) -> bool:
-    """Map the task's explicit semantic policy to the pinned registry classes.
+READ_ONLY_POLICY_EFFECTS = frozenset({
+    "free_tool_catalogue_discovery",
+    "public_web_read",
+    "read_github_fixture",
+    "read_only_plugin_calls",
+    "read_only_policy_and_provider_discovery",
+})
 
-    Registry classes are deliberately coarse (read_only / sandbox_write), while
-    task policy labels describe the permitted operation. Read-only access is
-    permitted only when the task declares some external/plugin operation.
-    Sandbox writes require an explicit create_* or update_* policy action.
+
+def _policy_allows(side_effect_class: str, allowed_side_effects: tuple[str, ...]) -> bool:
+    """Map explicit task policy labels to the pinned registry side-effect classes.
+
+    A read-only action is visible to the policy gate only when the task declares
+    an explicit read/discovery permission, or when it is part of a declared
+    create/update workflow that must first read source state. An unrelated
+    permission (for example, a purchase) must not accidentally grant reads.
+
+    Sandbox writes require a create_* or update_* policy action. Delete, merge,
+    deployment and other side effects are never authorized by this mapping.
     """
+    policy = set(allowed_side_effects)
+    declares_read = bool(policy & READ_ONLY_POLICY_EFFECTS)
+    declares_write_workflow = any(
+        action.startswith(("create_", "update_"))
+        for action in policy
+    )
     if side_effect_class == "read_only":
-        return bool(allowed_side_effects)
+        return declares_read or declares_write_workflow
     if side_effect_class == "sandbox_write":
-        return any(
-            action.startswith(("create_", "update_"))
-            for action in allowed_side_effects
-        )
+        return declares_write_workflow
     raise PluginTaskLoadError(
         f"unknown registry side_effect_class {side_effect_class!r}; refusing to fail open"
     )
