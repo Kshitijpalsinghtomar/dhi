@@ -16,6 +16,8 @@ from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
 from typing import Any, Callable, Iterable
 
+from .tinyfish_client import TINYFISH_TOOL_CATALOGUE
+
 TRACE_SCHEMA_VERSION = "dhi.trajectory.v1"
 DEFAULT_MAX_FILE_BYTES = 10_000_000
 DEFAULT_IGNORED_DIRS = {".git", ".venv", "venv", "node_modules", "__pycache__", ".pytest_cache", "dist", "build"}
@@ -169,6 +171,8 @@ DEFAULT_TOOL_CATALOGUE: list[dict[str, Any]] = [
     },
 ]
 
+DEFAULT_TOOL_CATALOGUE.extend(TINYFISH_TOOL_CATALOGUE)
+
 
 class DHIEnvironment:
     """A deterministic workspace tool environment with JSONL trajectory logging."""
@@ -250,9 +254,21 @@ class DHIEnvironment:
             visible.add("catalog.adaption_search")
         available = [
             item for item in self.catalogue
-            if item["tool_id"] != "catalog.adaption_search" or "catalog.adaption_search" in self.tool_handlers
+            if (item["tool_id"] != "catalog.adaption_search" or "catalog.adaption_search" in self.tool_handlers)
+            and (not item.get("requires_handler") or item["tool_id"] in self.tool_handlers)
         ]
-        tools = available if not visible_only else [x for x in available if x["tool_id"] in visible]
+        tools = available if not visible_only else [
+            item for item in available
+            if item["tool_id"] in visible
+            and (
+                not item.get("requires_explicit_task_allowlist")
+                or (
+                    self._active_task is not None
+                    and self._active_task.allowed_tool_ids is not None
+                    and item["tool_id"] in self._active_task.allowed_tool_ids
+                )
+            )
+        ]
         return [dict(item) for item in tools]
 
     def discover_tools(self, query: str, *, limit: int = 10) -> list[dict[str, Any]]:
@@ -272,6 +288,13 @@ class DHIEnvironment:
         visible_ids = {x["tool_id"] for x in self.list_tools(visible_only=True)}
         for item in self.catalogue:
             if item["tool_id"] == "catalog.adaption_search" and "catalog.adaption_search" not in self.tool_handlers:
+                continue
+            if item.get("requires_handler") and item["tool_id"] not in self.tool_handlers:
+                continue
+            if item.get("requires_explicit_task_allowlist") and (
+                self._active_task.allowed_tool_ids is None
+                or item["tool_id"] not in self._active_task.allowed_tool_ids
+            ):
                 continue
             searchable = " ".join([
                 item.get("tool_id", ""), item.get("name", ""),
@@ -431,6 +454,15 @@ class DHIEnvironment:
         allowlist_passed = True
         fault_injection: dict[str, Any] | None = None
         try:
+            metadata = self._tool_meta(tool_id)
+            if metadata.get("requires_explicit_task_allowlist") and (
+                self._active_task.allowed_tool_ids is None
+                or tool_id not in self._active_task.allowed_tool_ids
+            ):
+                allowlist_passed = False
+                raise DHIEnvironmentError(
+                    f"tool {tool_id!r} requires an explicit task allowlist entry"
+                )
             if (tool_id not in {"catalog.search", "catalog.adaption_search"}
                     and self._active_task.allowed_tool_ids is not None
                     and tool_id not in self._active_task.allowed_tool_ids):
