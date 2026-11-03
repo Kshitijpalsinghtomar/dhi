@@ -2813,11 +2813,12 @@
       "task_family_id": "ORBIT-S09-GITHUB-BRANCH-PREDICT-CHECK-02",
       "independence_group_id": "ORBIT-S09-INDEP-A-002",
       "task_contract": {
-        "prompt": "Before creating a disposable GitHub branch named orbit/effect-forecast-check from commit af6c0d31fcf2e3232cb427c421850536139e3b3a, provide a structured prediction of the exact repository-level effect: one new branch at the requested base, zero file changes, and no changes to existing branch heads. Then create the branch, fetch the branch list, and compare observed state to your prediction.",
+        "prompt": "First fetch the current branch list and record the exact existing branch names and head SHAs. Before creating the disposable GitHub branch orbit/effect-forecast-check from commit af6c0d31fcf2e3232cb427c421850536139e3b3a, provide a structured prediction of the exact repository-level effect: one new branch at the requested base, zero file changes, and every existing branch head unchanged. Then create the branch, fetch the branch list again, and compare the observed before/after state to your prediction.",
         "goal": "Forecast a repository-level side effect before action and verify the effect against independently fetched state.",
         "hard_constraints": [
-          "State the prediction before calling create_branch.",
-          "Use the exact branch name and pinned base.",
+          "Fetch the branch list before the write and preserve the observed pre-state.",
+          "State the structured branch-state prediction before calling create_branch.",
+          "Use the exact branch name and pinned base SHA.",
           "Do not update or delete any existing branch.",
           "Do not mutate files, issues, releases, or deployments."
         ],
@@ -2851,7 +2852,7 @@
         "goal_closure"
       ],
       "horizon": {
-        "min_actions": 2,
+        "min_actions": 3,
         "max_actions": 3,
         "checkpoint_count": 0,
         "cross_session_resume_required": false
