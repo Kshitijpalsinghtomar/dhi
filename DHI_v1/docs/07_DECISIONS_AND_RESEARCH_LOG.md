@@ -991,3 +991,10 @@ All 12 were absent. The code evaluated boolean presence only; no secret values w
 This only establishes that the 12 conventional names were not present in that runtime at probe time. It does not rule out a differently named variable or an OAuth mechanism configured elsewhere.
 
 **Decision:** keep PLUGIN-GATEWAY-001 blocked before implementation. The next step is to provision `TINYFISH_API_KEY` through the Deepnote project secret store (or set up a supported OAuth connection) without sharing the credential in chat or committing it. Then perform a read-only TinyFish MCP `initialize`/`tools/list` smoke and an independently verified bounded search/fetch. No model-facing remote tool, provider request, paid action or model inference is authorized yet.
+
+
+## 2026-11-03 — Current branch code equivalence resolved by direct blob audit
+
+A broad GitHub compare summary listed implementation/test files in its aggregate file list after the passing 142-test commit, so the branch-equivalence claim was checked file by file rather than relying on the aggregate summary. Direct reads at tested commit `cba8421d4f4c6c4f929d5f4c3196eb83f98f7351` and current branch ref `orbit/plugin-benchmark-fixture` returned identical Git blob SHAs for all 11 relevant runtime, benchmark, schema, manifest and test files. The complete path/hash list is in [PLUGIN-GATEWAY-001](../experiments/PLUGIN-GATEWAY-001/README.md).
+
+This confirms the 142-test result applies to the current runtime/benchmark code contents. It is not a fresh test execution. No implementation code was changed during the gateway feasibility or credential-probe work.
