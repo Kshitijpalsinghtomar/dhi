@@ -90,9 +90,9 @@ def validate_trace(
     event_ids: set[str] = set()
     action_starts: dict[str, tuple[int, dict[str, Any]]] = {}
     action_completions: set[str] = set()
-    if events and events[0].get("event_type") != "task_started":
+    if events and (not isinstance(events[0], dict) or events[0].get("event_type") != "task_started"):
         errors.append("first event must be task_started")
-    if events and events[-1].get("event_type") != "task_closed":
+    if events and (not isinstance(events[-1], dict) or events[-1].get("event_type") != "task_closed"):
         errors.append("last event must be task_closed")
 
     expected_indices = list(range(1, len(events) + 1))
@@ -250,7 +250,12 @@ def _find_path(action: dict[str, Any], path: str) -> bool:
 
 
 def _write_actions(trace: dict[str, Any]) -> list[dict[str, Any]]:
-    actions = _action_events(trace)
+    # The forecast gate is anchored to action_started, which is emitted before
+    # the external mutation is invoked. Looking only at action_executed is too late.
+    actions = [
+        event for event in trace.get("events", [])
+        if isinstance(event, dict) and event.get("event_type") == "action_started"
+    ]
     writes = []
     for action in actions:
         suffix = str(action.get("tool_id", "")).split("__")[-1]
@@ -339,18 +344,25 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
         writes = _write_actions(trace)
         if not writes:
             return _result("unscorable", "trace contains no identifiable write action")
-        first_write = min(event.get("event_index", 10**9) for event in writes)
-        predictions = [
+        first_write = min(writes, key=lambda event: event.get("event_index", 10**9))
+        first_write_index = first_write.get("event_index", 10**9)
+        prior_predictions = [
             event for event in trace.get("events", [])
             if isinstance(event, dict)
-            and event.get("event_index", 10**9) < first_write
-            and (
-                event.get("event_type") == "assistant_prediction"
-                or (event.get("event_type") == "action_started" and event.get("expected_effects") is not None)
-            )
+            and event.get("event_type") == "assistant_prediction"
+            and event.get("event_index", 10**9) < first_write_index
+            and isinstance(event.get("expected_effects"), dict)
         ]
+        # The DHI runner can place the structured forecast in the action_started
+        # event itself; this is still pre-invocation evidence.
+        same_event_prediction = (
+            first_write.get("expected_effects")
+            if isinstance(first_write.get("expected_effects"), dict)
+            else None
+        )
+        predictions = prior_predictions + ([{"expected_effects": same_event_prediction}] if same_event_prediction else [])
         if not predictions:
-            return _result("fail", "no structured effect prediction was recorded before the first write")
+            return _result("fail", "no structured effect prediction was recorded before the write invocation")
         expected = {key: condition.get(key, []) for key in ("predicted_added_paths", "predicted_modified_paths", "predicted_deleted_paths")}
         expected_effects = {
             "added_paths": expected["predicted_added_paths"],
@@ -421,8 +433,6 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
                 for event in trace.get("events", [])
                 if isinstance(event, dict)
             )
-        if not found:
-            found = target in evidence_text
         return _result("pass" if found else "fail", "required path appears in observed trace" if found else "required path not observed", target)
 
     if kind == "source_read_list":
