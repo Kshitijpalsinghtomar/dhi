@@ -251,6 +251,9 @@
         },
         "unchanged_paths": {
           "$ref": "#/$defs/pathArray"
+        },
+        "repository_state": {
+          "$ref": "#/$defs/repositoryState"
         }
       }
     },
@@ -610,6 +613,60 @@
         },
         "source_ref": {
           "type": "string"
+        }
+      }
+    },
+    "branchRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "head_sha"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "head_sha": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        }
+      }
+    },
+    "repositoryState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "added_branches",
+        "modified_branches",
+        "deleted_branches",
+        "unchanged_branches"
+      ],
+      "properties": {
+        "added_branches": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/branchRef"
+          }
+        },
+        "modified_branches": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/branchRef"
+          }
+        },
+        "deleted_branches": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/branchRef"
+          }
+        },
+        "unchanged_branches": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/branchRef"
+          }
         }
       }
     }
