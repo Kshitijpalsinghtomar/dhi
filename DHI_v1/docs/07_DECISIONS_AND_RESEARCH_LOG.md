@@ -1046,3 +1046,31 @@ A direct Streamable HTTP client then succeeded against `https://agent.tinyfish.a
 Deepnote evidence: initialize/tools/list run `38cb9d2e-fe8d-4272-83c9-4a2d3de5f6d5`; read-only search/fetch and independent readback run `04dbee0a-6c4b-4547-8e8f-0303ba3a8bf1`. The full experiment record includes block IDs and output hashes.
 
 **Decision:** close the provider credential/transport feasibility gate for TinyFish. Do not expose the provider's full 41-tool inventory: only the two task-registered read-only tools are in scope. This proves runtime connectivity and provider tool behavior, not a policy-enforcing DHI adapter, model-facing capability, or ORBIT model performance. Next is a test-first adapter with exact schema pins, fixed HTTPS host, env-only auth, task-level allowlist, safe argument validation, no retries, bounded timeout and secret redaction. No browser automation, paid tool, monitor, dataset action, provider write, model inference, or training was run.
+
+
+## 2026-11-03 — TinyFish REST adapter implemented; direct tests pass, pytest runner unresolved
+
+The connected TinyFish app was used directly to inspect official provider documentation. The official docs distinguish direct REST API authentication (`X-API-Key`) from the standard MCP client OAuth 2.1 flow. DHI therefore uses the documented REST Search and Fetch surfaces, rather than depending on the observed API-key behavior of a raw MCP smoke:
+
+- Search: `GET https://api.search.tinyfish.ai` — [official reference](https://docs.tinyfish.ai/search-api/reference).
+- Fetch: `POST https://api.fetch.tinyfish.ai` — [official reference](https://docs.tinyfish.ai/fetch-api/reference).
+- Authentication: [official TinyFish authentication guide](https://docs.tinyfish.ai/authentication).
+
+Committed a DHI-owned client and integrated it into the environment/runner:
+
+- `DHI_v1/environment/tinyfish_client.py`: fixed endpoint hosts, env-only API key, strict argument validation, public HTTP(S) fetch validation, bounded timeout, no retry, redacted errors; only two read-only tools.
+- `DHI_v1/environment/dhi_env.py`: handler-backed tool registration and explicit per-task `allowed_tool_ids` gate; the two TinyFish tools remain invisible and uncallable unless a task explicitly allows them.
+- `DHI_v1/environment/agent_runner.py`: environment-backed handler wiring.
+- `DHI_v1/benchmark/runner.py`: per-case allowlist propagation.
+- `DHI_v1/benchmark/run_model_pilot.py`: passes approved provider handlers to the model pilot.
+- `DHI_v1/environment/tests/test_tinyfish_client.py`: mocked request, strict schema, URL-safety, no retry, redaction, handler-factory and explicit-allowlist tests.
+
+The provider MCP server exposes 41 native tools. DHI exposes exactly `tinyfish.search` and `tinyfish.fetch_content`; the remaining 39 tools are excluded. No browser automation, wallet, monitor, dataset, deep research, or write operation is wired into DHI.
+
+Verification:
+
+- Direct committed-test invocation: Deepnote run `76e3e48b-2a71-424a-a59d-b651ca42a21b`; **14 invocations passed, 0 failed**. The test module was imported and each function called directly, including all six parameterized URL-safety cases. HTTP was mocked; these tests made no provider requests.
+- Pytest discovery: runs `fed1e171-9ce0-4b72-b771-c260cbc5c2e5` and `07559432-6472-492f-a965-b7a68f70e6a0` timed out before collection. The latter used a clean temporary project with exact branch files, then the temporary project was deleted.
+- Syntax check: run `d2b4d227-9f9d-4d20-a293-0c560e266e41` was interrupted during the first `py_compile` bytecode write. No compileall success is claimed.
+
+**Decision:** provider credentials/transport are verified and the DHI adapter is implemented with explicit task allowlists. The 14 direct assertions are passing, but the adapter is not yet fully validated: pytest collection, syntax/compile, and the full regression remain open because the current Deepnote runner stalls before collection/writing. Continue with a reliable runner; do not start model inference/training or mark tasks validated until those gates pass.
