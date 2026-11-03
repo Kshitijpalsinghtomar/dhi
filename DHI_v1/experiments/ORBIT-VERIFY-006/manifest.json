@@ -1,7 +1,7 @@
 {
   "experiment_id": "ORBIT-VERIFY-006",
   "date": "2026-11-03",
-  "status": "prepared",
+  "status": "passed",
   "code_under_test": "410d1113231cef020dc72292ccf2496e580f803e",
   "branch": "orbit/plugin-benchmark-fixture",
   "hypothesis": "The new plugin execution boundary and all prior benchmark/environment functionality pass exact-head regression.",
@@ -40,7 +40,56 @@
     "first_green_attempt": "3320182b-af56-4b49-adb7-0f3bea45da47",
     "corrected_focused_green": "71251b83-84ba-4f7e-83a7-f87e8acd1a3c"
   },
-  "full_run": null,
-  "decision": "pending",
-  "evidence_boundary": "Engineering regression and synthetic dispatch only; not real provider execution or model capability."
+  "full_run": "6591b36d-6233-4443-b9e0-fbf4b0ac1197",
+  "decision": "pass_engineering_plugin_dispatch_regression_only",
+  "evidence_boundary": "The canonical manifest loader and generic fail-closed dispatch boundary pass the full regression and synthetic-handler smoke. It is not yet wired into the full model loop and does not establish real provider execution, benchmark task validation, model capability or training readiness.",
+  "result": {
+    "manifest_validator": {
+      "passed": true,
+      "valid": true,
+      "task_count": 30,
+      "stage_counts": {
+        "A": 30,
+        "B": 0
+      },
+      "errors": []
+    },
+    "full_pytest": {
+      "passed": 174,
+      "failed": 0,
+      "elapsed_seconds": 384.86,
+      "pytest_reported_duration_seconds": 339.47
+    },
+    "compileall": {
+      "passed": true,
+      "returncode": 0,
+      "elapsed_seconds": 58.551
+    },
+    "entrypoint_import_smoke": {
+      "passed": true,
+      "returncode": 0,
+      "elapsed_seconds": 27.233
+    },
+    "plugin_manifest_loader_smoke": {
+      "passed": true,
+      "task_plans": 30,
+      "required_tool_ids_within_allowlist": true,
+      "model_runs_enabled": 0,
+      "elapsed_seconds": 2.162
+    },
+    "synthetic_plugin_dispatch_smoke": {
+      "passed": true,
+      "canonical_tools": [
+        "mcp__TinyFish__fetch_content",
+        "mcp__TinyFish__search"
+      ],
+      "external_provider_calls": 0,
+      "elapsed_seconds": 3.865
+    },
+    "python": "3.13.18",
+    "platform": "Linux-6.18.57-talos-x86_64-with-glibc2.36",
+    "provider_calls": 0,
+    "training_jobs": 0
+  },
+  "raw_result_path": "DHI_v1/experiments/ORBIT-VERIFY-006/results/verification-report.json"
 }
