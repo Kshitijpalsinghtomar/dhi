@@ -196,6 +196,13 @@ class GitHubClientError(ValueError):
     """Safe, credential-redacted GitHub request or response error."""
 
 
+class _RejectRedirects(urllib.request.HTTPRedirectHandler):
+    """Refuse redirects so bearer credentials cannot cross host boundaries."""
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        raise GitHubClientError("GitHub redirects are disabled")
+
+
 def _validate_object(arguments: Any, schema: dict[str, Any], label: str) -> dict[str, Any]:
     if not isinstance(arguments, dict):
         raise GitHubClientError(f"{label} arguments must be an object")
@@ -324,7 +331,7 @@ class GitHubReadWriteClient:
         try:
             # build_opener gives tests a deterministic injection seam. There are
             # no retry handlers; a request is attempted once.
-            opener = self._opener or urllib.request.build_opener()
+            opener = self._opener or urllib.request.build_opener(_RejectRedirects())
             with opener.open(request, timeout=self.timeout_seconds) as response:
                 final_url = response.geturl()
                 parsed_final = urlsplit(final_url)
@@ -497,7 +504,7 @@ class GitHubReadWriteClient:
                 request = urllib.request.Request(
                     url, headers={"Accept": "text/plain", "User-Agent": "DHI-ORBIT-GitHub-Adapter/0.1"}
                 )
-                opener = self._opener or urllib.request.build_opener()
+                opener = self._opener or urllib.request.build_opener(_RejectRedirects())
                 with opener.open(request, timeout=self.timeout_seconds) as response:
                     if urlsplit(response.geturl()).hostname != host:
                         raise GitHubClientError("GitHub response redirected outside the requested host")
