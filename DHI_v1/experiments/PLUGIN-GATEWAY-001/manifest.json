@@ -136,10 +136,42 @@
       "temporary_block_deleted": true,
       "verifier_machine_stopped_after_probe": true,
       "interpretation": "No conventional credentials among the 12 checked names were present in the DHI verifier runtime. This is not proof that differently named credentials or an OAuth integration cannot exist."
+    },
+    "user_reported_secret_configuration": {
+      "provider": "TinyFish",
+      "secret_name": "TINYFISH_API_KEY",
+      "reported_by_user": true,
+      "report_date": "2026-11-03",
+      "runtime_verified": false,
+      "verification_attempt": {
+        "status": "blocked_before_execution",
+        "error": "Your plan quota for parallel running projects has been exceeded. Please stop one of your running projects.",
+        "machine_start_attempted": true,
+        "machine_started": false,
+        "detached_run_attempted": true,
+        "detached_run_started": false,
+        "temp_block_id": "550ba693a4b24a3a86a60a576af375ab",
+        "temp_block_deleted": true,
+        "existing_regression_block_untouched": true,
+        "machine_final_status": "stopped",
+        "remote_requests_sent": 0,
+        "secret_values_read": false,
+        "secret_values_emitted": false
+      },
+      "interpretation": "User reports secret configured, but Deepnote quota prevented any runtime verification. Do not claim credential presence or successful authentication."
     }
   },
   "results": {
-    "raw_artifacts": [],
+    "raw_artifacts": [
+      {
+        "type": "runtime_attempt_record",
+        "provider": "Deepnote",
+        "result": "blocked_before_execution",
+        "project_id": "6415944e-8d6c-432c-a7cf-3bbaa997799c",
+        "notebook_id": "3639f9a98ce5435fa4cd0168eaaca3a1",
+        "timestamp": "2026-11-03"
+      }
+    ],
     "baseline": null,
     "candidate": null,
     "paired_delta": null,
@@ -161,7 +193,7 @@
       "https://github.com/modelcontextprotocol/modelcontextprotocol/blob/main/docs/specification/2026-07-28/basic/transports/streamable-http.mdx"
     ]
   },
-  "next_gate": "Provision TINYFISH_API_KEY as a secure Deepnote project secret (or configure a supported OAuth integration) without sharing it in chat; then run TinyFish read-only initialize/tools/list and one bounded search/fetch smoke.",
+  "next_gate": "Free a Deepnote parallel-run slot, then run a presence-only TINYFISH_API_KEY check. If present, perform read-only MCP initialize/tools/list and bounded search/fetch with independent readback. Do not stop other projects through this agent.",
   "code_equivalence_check": {
     "tested_commit": "cba8421d4f4c6c4f929d5f4c3196eb83f98f7351",
     "current_branch_ref": "orbit/plugin-benchmark-fixture",
