@@ -4666,7 +4666,11 @@
       "Every grader has a version, tested assertions, and a non-LLM-only evidence path.",
       "Stage B prompts and fixtures are access-restricted before Stage A model/interface selection.",
       "Model adapters, tool manifests, permissions, seeds, budgets, and decode policies are frozen before any comparative run."
-    ]
+    ],
+    "trace_schema_path": "DHI_v1/benchmark/plugin_trace.schema.json",
+    "trace_grader_path": "DHI_v1/benchmark/plugin_trace.py",
+    "trace_schema_sha256": "6dadc7da15b5047e9fcc8e01500e7045dba7320d990687ba33bd5bdd6d2ffd41",
+    "trace_grader_sha256": "e09efa25d160eac452af81a2a0fa527c3937b00e39d91eccc24e32c99f4324ce"
   },
   "existing_development_pilot": {
     "path": "DHI_v1/benchmark/pilot_cases.json",
