@@ -176,8 +176,11 @@ def validate_trace(
     closure_events = [event for event in events if isinstance(event, dict) and event.get("event_type") == "task_closed"]
     if len(closure_events) != 1:
         errors.append(f"trace must contain exactly one task_closed event; found {len(closure_events)}")
-    elif closure_events[0].get("closure_status") != trace.get("closure", {}).get("status"):
-        errors.append("task_closed closure_status differs from top-level closure.status")
+    else:
+        closure = trace.get("closure")
+        closure_status = closure.get("status") if isinstance(closure, dict) else None
+        if closure_events[0].get("closure_status") != closure_status:
+            errors.append("task_closed closure_status differs from top-level closure.status")
 
     usage = trace.get("usage")
     if isinstance(usage, dict):
@@ -189,6 +192,15 @@ def validate_trace(
             errors.append(
                 f"usage.tool_calls={usage.get('tool_calls')!r} differs from action count={actual_calls}"
             )
+        observed_provider_cost = sum(
+            float(event.get("actual_tool_result", {}).get("provider_cost", 0) or 0)
+            for event in events
+            if isinstance(event, dict)
+            and event.get("event_type") == "action_executed"
+            and isinstance(event.get("actual_tool_result"), dict)
+        )
+        if usage.get("provider_credits_spent") != observed_provider_cost:
+            errors.append("usage.provider_credits_spent differs from recorded tool provider_cost values")
     return sorted(set(errors))
 
 
@@ -460,7 +472,17 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
             status_code = result.get("status_code") if isinstance(result, dict) else None
             ok = result.get("ok") if isinstance(result, dict) else None
             suffix = tool_id.split("__")[-1]
-            if tool_fragment in {suffix, tool_id} and (
+            is_directory_fetch = (
+                tool_fragment == "fetch_directory"
+                and suffix == "fetch"
+                and isinstance(result, dict)
+                and (
+                    result.get("type") in {"dir", "directory"}
+                    or isinstance(result.get("entries"), list)
+                    or isinstance(result.get("items"), list)
+                )
+            )
+            if (tool_fragment in {suffix, tool_id} or is_directory_fetch) and (
                 (outcome == "404" and status_code == 404)
                 or (outcome == "success" and ok is True)
                 or (outcome == "error" and ok is False)
@@ -482,9 +504,7 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
         return _result("pass" if found else "fail", "required path appears in observed trace" if found else "required path not observed", target)
 
     if kind == "source_read_list":
-        observed = _canonical_json([
-            event.get("arguments", {}) for event in actions
-        ]) + "\n" + evidence_text
+        observed = _canonical_json([event.get("arguments", {}) for event in actions])
         missing = [name for name in condition.get("required", []) if name not in observed]
         return _result("pass" if not missing else "fail", "all required source paths were read" if not missing else "required source reads are missing", {"missing": missing})
 
