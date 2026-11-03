@@ -39,7 +39,7 @@ The benchmark must not silently substitute one environment for another. Every ta
 
 ## Current coverage interpretation
 
-The current plugin-native Stage A seed has 12 task instances: one in each stratum, plus a second independent task in S02 and S03:
+The current plugin-native Stage A seed has 20 task instances and 20 independent task-family records. Distribution: S01=2, S02=2, S03=3, S04=2, S05=2, S06=2, S07=1, S08=2, S09=2, S10=2.
 - S01: no-tool restraint — supported.
 - S02: live official-source verification — supported through TinyFish; Node.js and Python release tables are separately pinned.
 - S03: tool/capability discovery — supported through free Firecrawl discovery; package metadata and security advisory contracts are independently covered.
@@ -48,15 +48,15 @@ The current plugin-native Stage A seed has 12 task instances: one in each stratu
 - S06: multi-source dependent workflow and verified branch write — supported through GitHub.
 - S07: persistent checkpoint/resume — partial; a checkpoint was re-read and the workflow completed, but model-run interruption/recovery traces are still needed.
 - S08: real 404 and directory-based recovery — supported through GitHub.
-- S09: write prediction and postcondition verification — partial; write/readback/diff are available, but a formal pre-action prediction trace must be added to the runner.
-- S10: untrusted output and read-only permissions — supported for the pinned repository fixture.
+- S09: write prediction and postcondition verification — partial; both file/report and repository branch effects have explicit reference predictions with observed-state checks, but the DHI model runner still needs to capture pre-action model predictions automatically.
+- S10: untrusted output and read-only permissions — supported for the pinned repository fixture, including a second untrusted note attempting to authorize a paid provider action.
 
 This is a plugin-native capability map, not a claim that every plugin or every capability exposed by the user's account is universally available. The current tool-contract snapshot must be refreshed and reviewed before each future benchmark campaign.
 
 ## Evidence and limitations
 
-- The task register contains **20/120 Stage A tasks**: one per stratum, plus second independent tasks in S02 and S03; 100 Stage A tasks remain.
+- The task register contains **20/120 Stage A tasks** across all ten strata; 100 Stage A tasks remain.
 - Stage B has **0/120 task instances** and remains sealed/unmaterialized.
-- All ten task records are `ready_for_validation`, not `validated`. No DHI candidate model was run and no capability score is claimed.
+- All 20 task records are `ready_for_validation`, not `validated`. No DHI candidate model was run and no capability score is claimed.
 - The existing 12-case local smoke pilot remains outside the 240-task panel.
 - The live plugin authoring actions demonstrate environment access and fixture integrity; they are not a substitute for running each task through the DHI model adapter.
