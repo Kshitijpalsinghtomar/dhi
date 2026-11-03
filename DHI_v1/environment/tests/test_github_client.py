@@ -4,6 +4,7 @@ import base64
 import json
 import os
 from unittest.mock import patch
+import urllib.request
 from urllib.parse import parse_qs, urlsplit
 
 import pytest
@@ -18,6 +19,7 @@ from DHI_v1.environment.github_client import (
     GitHubClientError,
     GitHubReadWriteClient,
     GITHUB_TOOL_CATALOGUE,
+    _RejectRedirects,
     github_plugin_bundle_from_env,
 )
 
@@ -381,6 +383,40 @@ def test_transport_errors_are_bounded_and_do_not_echo_token():
     assert len(opener.requests) == 1
     assert TOKEN not in str(captured.value)
 
+
+
+def test_default_transport_rejects_redirects_before_following_them(monkeypatch):
+    captured = {}
+    opener = ScriptedOpener([FakeHTTPResponse(_file_payload())])
+
+    def build_opener(*handlers):
+        captured["handlers"] = handlers
+        return opener
+
+    monkeypatch.setattr("urllib.request.build_opener", build_opener)
+    client = GitHubReadWriteClient(api_key=TOKEN)
+    client.fetch_file({"repository_full_name": REPO, "path": "docs/TASK_POLICY.md"})
+
+    redirect_handler = next(
+        (handler for handler in captured["handlers"] if isinstance(handler, _RejectRedirects)),
+        None,
+    )
+    assert redirect_handler is not None
+    request = urllib.request.Request(
+        f"https://api.github.com/repos/{REPO}/contents/docs/TASK_POLICY.md",
+        headers={"Authorization": f"Bearer {TOKEN}"},
+    )
+    with pytest.raises(GitHubClientError, match="redirects are disabled"):
+        redirect_handler.redirect_request(
+            request,
+            None,
+            302,
+            "Found",
+            {"Location": "https://attacker.example/collect"},
+            "https://attacker.example/collect",
+        )
+    assert len(opener.requests) == 1
+    assert opener.requests[0].get_header("Authorization") == f"Bearer {TOKEN}"
 
 def test_response_size_limit_is_enforced_before_json_decode():
     client = GitHubReadWriteClient(api_key=TOKEN, max_response_bytes=8)
