@@ -117,3 +117,9 @@ The plugin-native Stage A register now contains **20 task instances** across the
 New task families cover direct-answer restraint, research-provider discovery, GitHub commit-diff selection, TinyFish multi-URL argument correctness, Node/Python cross-source synthesis, Firecrawl degraded-discovery recovery, GitHub branch-effect prediction, and untrusted paid-action instructions.
 
 A Node/Python comparison report was created on the dedicated GitHub branch, fetched back, and diff-checked as the only new path from its baseline. The task manifest passed the committed JSON Schema and cross-record uniqueness/count checks with zero schema errors. All 20 tasks remain ready for validation, not validated; no model execution or capability score is claimed. Stage B is still empty and sealed.
+
+## 10. Third plugin-native authoring increment — 2026-11-03
+
+The plugin-native Stage A register now has **22/120** task instances. A third independent S02 task adds Go release-history verification; a third S08 task adds live TinyFish argument-schema recovery, 404 interpretation, and search-based recovery to the canonical source. Both task families are independent from the earlier Node.js/Python currentness and GitHub/Firecrawl recovery cases.
+
+The Go source snapshot and recovery sequence are pinned under `fixtures/plugin_ecology/external_snapshots/`. All records remain ready_for_validation; the Stage B holdout remains empty and sealed. No model run or benchmark score is claimed.
