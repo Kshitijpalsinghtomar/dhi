@@ -314,3 +314,33 @@ The 30 task records reference external tool IDs as follows: TinyFish Search 5, T
 7. Only after the execution path is proven, validate the existing 30 tasks and expand Stage A to 120.
 
 This correction supersedes any earlier wording that called all 30 tasks ready for validation without qualification.
+
+
+## 15. ORBIT-VERIFY-004 passed — 2026-11-03
+
+**The TinyFish adapter exact-code regression is now closed.** See [ORBIT-VERIFY-004](experiments/ORBIT-VERIFY-004/README.md).
+
+- Code under test: `5b144c531e8a548787918f0fcdf9e681f05d96e8`.
+- Deepnote run: `96ac3bf5-9a06-4a9f-9e80-3bc29c541f38`.
+- Manifest validator: PASS — 30 tasks, Stage A=30, Stage B=0, no errors.
+- Full benchmark + environment pytest: **158 passed, 0 failed**.
+- Compileall: PASS.
+- Entrypoint import smoke: PASS.
+- Python 3.13.18.
+- Raw report: `experiments/ORBIT-VERIFY-004/results/verification-report.json`.
+
+The first attempt, `72a2e697-89b4-4408-beba-c2185b2f95d1`, could not start pytest because the live kernel lacked pytest; it passed manifest validation, compileall and import smoke. The successful retry installed only `DHI_v1/environment/requirements-dev.txt` before testing. The original saved regression cell was not executed or edited.
+
+This closes the **code regression** gate for the pinned TinyFish adapter. It does not validate the plugin-native task manifest through the model runner, and it does not establish learned capability.
+
+### Current next action
+
+Do not repeat ORBIT-VERIFY-004 without a code change. The next engineering work unit is the canonical plugin-native execution bridge:
+1. use the exact registry tool IDs consistently in manifest, model-visible schemas, allowlists, handlers and traces;
+2. load a task from `task_manifest.json` through a dedicated plugin-native runner, rather than `pilot_cases.json`;
+3. retain TinyFish Search/Fetch as fixed-endpoint read-only handlers under the canonical IDs;
+4. implement GitHub read operations and disposable-branch writes behind least-privilege credentials and strict path/branch policy;
+5. prove the Firecrawl Alexandria `firecrawl_find_tools` contract can be served from the DHI runtime without substituting generic Firecrawl actions;
+6. validate the existing 30 tasks through the actual runner before expanding Stage A.
+
+No inference or training is authorized by this successful regression. OpenRouter remains at zero credits and the DHI verifier still lacks a project-scoped `DHI_MODEL_API_KEY` secret and a PrimeIntellect provider pin in the OpenAI-compatible request body. See [INFER-003](experiments/INFER-003/README.md).
