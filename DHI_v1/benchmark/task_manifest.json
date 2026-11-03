@@ -363,7 +363,7 @@
         "visible_tool_ids": [],
         "discoverable_tool_ids": [],
         "required_tool_ids": [],
-        "tool_schema_sha256": "46463c3cba7b70076f9ea258ec0e60ccff3b7ae0049e0279f1023006b2f126ad"
+        "tool_schema_sha256": "76a1795899d4ba8e4c75efcb26896bf9f3926f485b2fb11392d84cd64d8e44f6"
       },
       "required_capabilities": [
         "direct_answer",
@@ -474,7 +474,7 @@
           "mcp__TinyFish__search",
           "mcp__TinyFish__fetch_content"
         ],
-        "tool_schema_sha256": "5f97f694ea6900599f7694fa91867d50cad125cbcd8fd2507a0d04468f9e6f88"
+        "tool_schema_sha256": "76a1795899d4ba8e4c75efcb26896bf9f3926f485b2fb11392d84cd64d8e44f6"
       },
       "required_capabilities": [
         "current_fact_verification",
@@ -612,7 +612,7 @@
         "required_tool_ids": [
           "mcp__Firecrawl__firecrawl_find_tools"
         ],
-        "tool_schema_sha256": "5f97f694ea6900599f7694fa91867d50cad125cbcd8fd2507a0d04468f9e6f88"
+        "tool_schema_sha256": "76a1795899d4ba8e4c75efcb26896bf9f3926f485b2fb11392d84cd64d8e44f6"
       },
       "required_capabilities": [
         "tool_ecology_discovery",
@@ -738,7 +738,7 @@
         "required_tool_ids": [
           "mcp__GitHub__fetch_file"
         ],
-        "tool_schema_sha256": "5f97f694ea6900599f7694fa91867d50cad125cbcd8fd2507a0d04468f9e6f88"
+        "tool_schema_sha256": "76a1795899d4ba8e4c75efcb26896bf9f3926f485b2fb11392d84cd64d8e44f6"
       },
       "required_capabilities": [
         "tool_selection",
@@ -859,7 +859,7 @@
         "required_tool_ids": [
           "mcp__GitHub__fetch_file"
         ],
-        "tool_schema_sha256": "5f97f694ea6900599f7694fa91867d50cad125cbcd8fd2507a0d04468f9e6f88"
+        "tool_schema_sha256": "76a1795899d4ba8e4c75efcb26896bf9f3926f485b2fb11392d84cd64d8e44f6"
       },
       "required_capabilities": [
         "schema_argument_correctness",
@@ -986,7 +986,7 @@
           "mcp__GitHub__fetch_file",
           "mcp__GitHub__create_file"
         ],
-        "tool_schema_sha256": "5f97f694ea6900599f7694fa91867d50cad125cbcd8fd2507a0d04468f9e6f88"
+        "tool_schema_sha256": "76a1795899d4ba8e4c75efcb26896bf9f3926f485b2fb11392d84cd64d8e44f6"
       },
       "required_capabilities": [
         "multi_tool_dependency_planning",
@@ -1152,7 +1152,7 @@
           "mcp__GitHub__create_file",
           "mcp__GitHub__compare_commits"
         ],
-        "tool_schema_sha256": "5f97f694ea6900599f7694fa91867d50cad125cbcd8fd2507a0d04468f9e6f88"
+        "tool_schema_sha256": "76a1795899d4ba8e4c75efcb26896bf9f3926f485b2fb11392d84cd64d8e44f6"
       },
       "required_capabilities": [
         "long_horizon_planning",
@@ -1307,7 +1307,7 @@
           "mcp__GitHub__fetch",
           "mcp__GitHub__fetch_file"
         ],
-        "tool_schema_sha256": "5f97f694ea6900599f7694fa91867d50cad125cbcd8fd2507a0d04468f9e6f88"
+        "tool_schema_sha256": "76a1795899d4ba8e4c75efcb26896bf9f3926f485b2fb11392d84cd64d8e44f6"
       },
       "required_capabilities": [
         "tool_failure_interpretation",
@@ -1455,7 +1455,7 @@
           "mcp__GitHub__fetch_file",
           "mcp__GitHub__compare_commits"
         ],
-        "tool_schema_sha256": "5f97f694ea6900599f7694fa91867d50cad125cbcd8fd2507a0d04468f9e6f88"
+        "tool_schema_sha256": "76a1795899d4ba8e4c75efcb26896bf9f3926f485b2fb11392d84cd64d8e44f6"
       },
       "required_capabilities": [
         "action_effect_forecasting",
@@ -1607,7 +1607,7 @@
         "required_tool_ids": [
           "mcp__GitHub__fetch_file"
         ],
-        "tool_schema_sha256": "5f97f694ea6900599f7694fa91867d50cad125cbcd8fd2507a0d04468f9e6f88"
+        "tool_schema_sha256": "76a1795899d4ba8e4c75efcb26896bf9f3926f485b2fb11392d84cd64d8e44f6"
       },
       "required_capabilities": [
         "untrusted_tool_output_handling",
@@ -1749,7 +1749,7 @@
           "mcp__TinyFish__search",
           "mcp__TinyFish__fetch_content"
         ],
-        "tool_schema_sha256": "5f97f694ea6900599f7694fa91867d50cad125cbcd8fd2507a0d04468f9e6f88",
+        "tool_schema_sha256": "76a1795899d4ba8e4c75efcb26896bf9f3926f485b2fb11392d84cd64d8e44f6",
         "inventory_snapshot_ref": "DHI_v1/benchmark/fixtures/plugin_ecology/plugin_tool_registry.json"
       },
       "required_capabilities": [
@@ -1880,7 +1880,7 @@
         "required_tool_ids": [
           "mcp__Firecrawl__firecrawl_find_tools"
         ],
-        "tool_schema_sha256": "5f97f694ea6900599f7694fa91867d50cad125cbcd8fd2507a0d04468f9e6f88",
+        "tool_schema_sha256": "76a1795899d4ba8e4c75efcb26896bf9f3926f485b2fb11392d84cd64d8e44f6",
         "inventory_snapshot_ref": "DHI_v1/benchmark/fixtures/plugin_ecology/plugin_tool_registry.json"
       },
       "required_capabilities": [
@@ -2000,7 +2000,7 @@
         "visible_tool_ids": [],
         "discoverable_tool_ids": [],
         "required_tool_ids": [],
-        "tool_schema_sha256": "46463c3cba7b70076f9ea258ec0e60ccff3b7ae0049e0279f1023006b2f126ad"
+        "tool_schema_sha256": "76a1795899d4ba8e4c75efcb26896bf9f3926f485b2fb11392d84cd64d8e44f6"
       },
       "required_capabilities": [
         "direct_answer",
@@ -2112,7 +2112,7 @@
         "required_tool_ids": [
           "mcp__Firecrawl__firecrawl_find_tools"
         ],
-        "tool_schema_sha256": "5f97f694ea6900599f7694fa91867d50cad125cbcd8fd2507a0d04468f9e6f88",
+        "tool_schema_sha256": "76a1795899d4ba8e4c75efcb26896bf9f3926f485b2fb11392d84cd64d8e44f6",
         "inventory_snapshot_ref": "DHI_v1/benchmark/fixtures/plugin_ecology/plugin_tool_registry.json"
       },
       "required_capabilities": [
@@ -2253,7 +2253,7 @@
         "required_tool_ids": [
           "mcp__GitHub__compare_commits"
         ],
-        "tool_schema_sha256": "5f97f694ea6900599f7694fa91867d50cad125cbcd8fd2507a0d04468f9e6f88",
+        "tool_schema_sha256": "76a1795899d4ba8e4c75efcb26896bf9f3926f485b2fb11392d84cd64d8e44f6",
         "permission_profile_id": "github_read_only"
       },
       "required_capabilities": [
@@ -2385,7 +2385,7 @@
         "required_tool_ids": [
           "mcp__TinyFish__fetch_content"
         ],
-        "tool_schema_sha256": "5f97f694ea6900599f7694fa91867d50cad125cbcd8fd2507a0d04468f9e6f88",
+        "tool_schema_sha256": "76a1795899d4ba8e4c75efcb26896bf9f3926f485b2fb11392d84cd64d8e44f6",
         "inventory_snapshot_ref": "DHI_v1/benchmark/fixtures/plugin_ecology/plugin_tool_registry.json"
       },
       "required_capabilities": [
@@ -2519,7 +2519,7 @@
           "mcp__GitHub__create_file",
           "mcp__GitHub__compare_commits"
         ],
-        "tool_schema_sha256": "5f97f694ea6900599f7694fa91867d50cad125cbcd8fd2507a0d04468f9e6f88"
+        "tool_schema_sha256": "76a1795899d4ba8e4c75efcb26896bf9f3926f485b2fb11392d84cd64d8e44f6"
       },
       "required_capabilities": [
         "multi-tool dependency planning",
@@ -2672,7 +2672,7 @@
         "required_tool_ids": [
           "mcp__Firecrawl__firecrawl_find_tools"
         ],
-        "tool_schema_sha256": "5f97f694ea6900599f7694fa91867d50cad125cbcd8fd2507a0d04468f9e6f88"
+        "tool_schema_sha256": "76a1795899d4ba8e4c75efcb26896bf9f3926f485b2fb11392d84cd64d8e44f6"
       },
       "required_capabilities": [
         "degraded-search-recovery",
@@ -2804,7 +2804,7 @@
           "mcp__GitHub__create_branch",
           "mcp__GitHub__fetch"
         ],
-        "tool_schema_sha256": "5f97f694ea6900599f7694fa91867d50cad125cbcd8fd2507a0d04468f9e6f88"
+        "tool_schema_sha256": "76a1795899d4ba8e4c75efcb26896bf9f3926f485b2fb11392d84cd64d8e44f6"
       },
       "required_capabilities": [
         "pre_action_effect_forecast",
@@ -2932,7 +2932,7 @@
         "required_tool_ids": [
           "mcp__GitHub__fetch_file"
         ],
-        "tool_schema_sha256": "5f97f694ea6900599f7694fa91867d50cad125cbcd8fd2507a0d04468f9e6f88"
+        "tool_schema_sha256": "76a1795899d4ba8e4c75efcb26896bf9f3926f485b2fb11392d84cd64d8e44f6"
       },
       "required_capabilities": [
         "untrusted_output_handling",
@@ -3055,7 +3055,7 @@
           "mcp__TinyFish__search",
           "mcp__TinyFish__fetch_content"
         ],
-        "tool_schema_sha256": "5f97f694ea6900599f7694fa91867d50cad125cbcd8fd2507a0d04468f9e6f88"
+        "tool_schema_sha256": "76a1795899d4ba8e4c75efcb26896bf9f3926f485b2fb11392d84cd64d8e44f6"
       },
       "required_capabilities": [
         "current_fact_verification",
@@ -3182,7 +3182,7 @@
           "mcp__TinyFish__fetch_content",
           "mcp__TinyFish__search"
         ],
-        "tool_schema_sha256": "5f97f694ea6900599f7694fa91867d50cad125cbcd8fd2507a0d04468f9e6f88"
+        "tool_schema_sha256": "76a1795899d4ba8e4c75efcb26896bf9f3926f485b2fb11392d84cd64d8e44f6"
       },
       "required_capabilities": [
         "schema_argument_recovery",
@@ -3322,7 +3322,7 @@
           "mcp__GitHub__create_file",
           "mcp__GitHub__compare_commits"
         ],
-        "tool_schema_sha256": "5f97f694ea6900599f7694fa91867d50cad125cbcd8fd2507a0d04468f9e6f88"
+        "tool_schema_sha256": "76a1795899d4ba8e4c75efcb26896bf9f3926f485b2fb11392d84cd64d8e44f6"
       },
       "required_capabilities": [
         "multi_tool_dependency_planning",
@@ -3494,7 +3494,7 @@
           "mcp__TinyFish__search",
           "mcp__TinyFish__fetch_content"
         ],
-        "tool_schema_sha256": "5f97f694ea6900599f7694fa91867d50cad125cbcd8fd2507a0d04468f9e6f88"
+        "tool_schema_sha256": "76a1795899d4ba8e4c75efcb26896bf9f3926f485b2fb11392d84cd64d8e44f6"
       },
       "required_capabilities": [
         "tool_choice",
@@ -3643,7 +3643,7 @@
         "required_tool_ids": [
           "mcp__Firecrawl__firecrawl_find_tools"
         ],
-        "tool_schema_sha256": "5f97f694ea6900599f7694fa91867d50cad125cbcd8fd2507a0d04468f9e6f88"
+        "tool_schema_sha256": "76a1795899d4ba8e4c75efcb26896bf9f3926f485b2fb11392d84cd64d8e44f6"
       },
       "required_capabilities": [
         "tool_ecology_discovery",
@@ -3785,7 +3785,7 @@
           "mcp__GitHub__create_file",
           "mcp__GitHub__compare_commits"
         ],
-        "tool_schema_sha256": "5f97f694ea6900599f7694fa91867d50cad125cbcd8fd2507a0d04468f9e6f88"
+        "tool_schema_sha256": "76a1795899d4ba8e4c75efcb26896bf9f3926f485b2fb11392d84cd64d8e44f6"
       },
       "required_capabilities": [
         "persistent_checkpoint_resume",
@@ -3974,7 +3974,7 @@
           "mcp__GitHub__update_file",
           "mcp__GitHub__compare_commits"
         ],
-        "tool_schema_sha256": "5f97f694ea6900599f7694fa91867d50cad125cbcd8fd2507a0d04468f9e6f88"
+        "tool_schema_sha256": "76a1795899d4ba8e4c75efcb26896bf9f3926f485b2fb11392d84cd64d8e44f6"
       },
       "required_capabilities": [
         "schema_argument_correctness",
@@ -4123,7 +4123,7 @@
         "required_tool_ids": [
           "mcp__TinyFish__fetch_content"
         ],
-        "tool_schema_sha256": "5f97f694ea6900599f7694fa91867d50cad125cbcd8fd2507a0d04468f9e6f88"
+        "tool_schema_sha256": "76a1795899d4ba8e4c75efcb26896bf9f3926f485b2fb11392d84cd64d8e44f6"
       },
       "required_capabilities": [
         "tool_schema_compliance",
@@ -4265,7 +4265,7 @@
           "mcp__GitHub__update_file",
           "mcp__GitHub__compare_commits"
         ],
-        "tool_schema_sha256": "5f97f694ea6900599f7694fa91867d50cad125cbcd8fd2507a0d04468f9e6f88"
+        "tool_schema_sha256": "76a1795899d4ba8e4c75efcb26896bf9f3926f485b2fb11392d84cd64d8e44f6"
       },
       "required_capabilities": [
         "pre_action_effect_forecast",
@@ -4415,7 +4415,7 @@
           "mcp__GitHub__create_file",
           "mcp__GitHub__compare_commits"
         ],
-        "tool_schema_sha256": "5f97f694ea6900599f7694fa91867d50cad125cbcd8fd2507a0d04468f9e6f88"
+        "tool_schema_sha256": "76a1795899d4ba8e4c75efcb26896bf9f3926f485b2fb11392d84cd64d8e44f6"
       },
       "required_capabilities": [
         "multi_tool_dependency_planning",
@@ -4640,6 +4640,7 @@
     "A further increment adds Firecrawl reverse-dependency discovery (S03) and a second independent long-horizon persistent checkpoint-resume workflow (S07), backed by a separate checkpoint branch and verified single-file report diff.",
     "The next task increment adds an update_file schema/precondition task using the current blob SHA and an explicit branch; the reference update was read back and diff-checked.",
     "Another authoring increment adds an isolated TinyFish required-field schema test (S05) and a GitHub existing-file modification effect-forecast task (S09), backed by actual live plugin error correction, blob readback and single-path diffs.",
-    "A further S06 task adds row-level team/status workload aggregation with exact Open semantics and a read-back/diff-verified GitHub report; the reference calculation reconciles all 10 records and 38 estimated hours."
+    "A further S06 task adds row-level team/status workload aggregation with exact Open semantics and a read-back/diff-verified GitHub report; the reference calculation reconciles all 10 records and 38 estimated hours.",
+    "Tool registry integrity correction: mcp__GitHub__update_file is now included because three task records reference it. The pinned tool schema SHA-256 is computed over the sorted-key compact UTF-8 JSON serialization of the complete registry tools array."
   ]
 }
