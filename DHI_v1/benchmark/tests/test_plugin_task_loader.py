@@ -87,3 +87,18 @@ def test_loader_fails_closed_on_manifest_registry_schema_fingerprint_mismatch(tm
 
     with pytest.raises(PluginTaskLoadError, match="schema fingerprint mismatch"):
         load_plugin_task(manifest_path, registry_path, "ORBIT-A-S02-001")
+
+
+def test_unrelated_permission_label_does_not_grant_read_only_tool_access(tmp_path):
+    manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    registry = json.loads(REGISTRY.read_text(encoding="utf-8"))
+    task = next(item for item in manifest["tasks"] if item["task_id"] == "ORBIT-A-S02-001")
+    task["policy"]["allowed_side_effects"] = ["external_purchase"]
+
+    manifest_path = tmp_path / "manifest.json"
+    registry_path = tmp_path / "registry.json"
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    registry_path.write_text(json.dumps(registry), encoding="utf-8")
+
+    with pytest.raises(PluginTaskLoadError, match="required tools exceed task side-effect permissions"):
+        load_plugin_task(manifest_path, registry_path, "ORBIT-A-S02-001")
