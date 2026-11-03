@@ -16,9 +16,9 @@
     "B": 120
   },
   "per_stratum_stage_target": 12,
-  "materialized_task_count": 20,
+  "materialized_task_count": 22,
   "materialized_stage_counts": {
-    "A": 20,
+    "A": 22,
     "B": 0
   },
   "strata": [
@@ -262,6 +262,20 @@
       "stage": "A",
       "independence_group_id": "ORBIT-S10-INDEP-A-002",
       "family_fingerprint_sha256": "bd725a9e5c57fad54a1319739d963ada6cf28c9221748abbfe602c65bc987781",
+      "review_status": "draft"
+    },
+    {
+      "family_id": "ORBIT-S02-GO-RELEASE-VERIFY-03",
+      "stage": "A",
+      "independence_group_id": "ORBIT-S02-INDEP-A-003",
+      "family_fingerprint_sha256": "cc1202305666a948ab58ecd94717e13f313dd1b8771036e61fc1e9d0da5e0e0c",
+      "review_status": "draft"
+    },
+    {
+      "family_id": "ORBIT-S08-TINYFISH-SCHEMA-AND-404-RECOVERY-03",
+      "stage": "A",
+      "independence_group_id": "ORBIT-S08-INDEP-A-003",
+      "family_fingerprint_sha256": "3bed1de14e17b9c13d4a845f85325ba1a0bf97ea9f51c7c4ee12c2305bf52f24",
       "review_status": "draft"
     }
   ],
@@ -2948,6 +2962,270 @@
         "family_fingerprint_sha256": "bd725a9e5c57fad54a1319739d963ada6cf28c9221748abbfe602c65bc987781",
         "holdout_sealed": false
       }
+    },
+    {
+      "task_id": "ORBIT-A-S02-003",
+      "stage": "A",
+      "stratum_id": "S02",
+      "task_family_id": "ORBIT-S02-GO-RELEASE-VERIFY-03",
+      "independence_group_id": "ORBIT-S02-INDEP-A-003",
+      "task_contract": {
+        "prompt": "As of 2026-11-03, verify the latest Go release and the release support policy from the official Go Release History page. Identify the most recent 1.27.x version and its release date, summarize the two-newer-major-versions support rule, and state what the source does not establish about the current release's end-of-support date. Include the observation date and canonical source URL.",
+        "goal": "Report current Go release information without over-interpreting the general support policy.",
+        "hard_constraints": [
+          "Use go.dev/doc/devel/release as the authoritative source.",
+          "Include observation date and source URL.",
+          "Identify Go 1.27.3 and its release date from the page.",
+          "Do not invent a Go 1.27 end-of-support date."
+        ],
+        "preferences": [],
+        "expected_response_mode": "mixed"
+      },
+      "environment": {
+        "environment_id": "tinyfish-public-web",
+        "version": "2026-11-03",
+        "fixture_id": "go-release-history-2026-11-03",
+        "reset_recipe": "Fetch https://go.dev/doc/devel/release through TinyFish on the evaluation date and compare with pinned observation snapshot.",
+        "state_sha256": "f6a4b10077330085ed3b2322d6d3a117a8eecfeb8473c1c64820df5120a89577",
+        "external_snapshot_ref": "DHI_v1/benchmark/fixtures/plugin_ecology/external_snapshots/go_releases_2026-11-03.md"
+      },
+      "tool_inventory": {
+        "visible_tool_ids": [
+          "mcp__TinyFish__search",
+          "mcp__TinyFish__fetch_content"
+        ],
+        "discoverable_tool_ids": [],
+        "required_tool_ids": [
+          "mcp__TinyFish__search",
+          "mcp__TinyFish__fetch_content"
+        ],
+        "tool_schema_sha256": "5f97f694ea6900599f7694fa91867d50cad125cbcd8fd2507a0d04468f9e6f88"
+      },
+      "required_capabilities": [
+        "current_fact_verification",
+        "authoritative_source_selection",
+        "release_policy_interpretation",
+        "calibrated_uncertainty"
+      ],
+      "horizon": {
+        "min_actions": 2,
+        "max_actions": 4,
+        "checkpoint_count": 0,
+        "cross_session_resume_required": false
+      },
+      "preconditions": [],
+      "postconditions": [
+        {
+          "verifier_id": "go_release_state",
+          "condition": {
+            "type": "external_snapshot_match",
+            "source": "https://go.dev/doc/devel/release",
+            "observation_date": "2026-11-03",
+            "latest_minor": "go1.27.3",
+            "release_date": "2026-10-19",
+            "support_policy": "until two newer major releases",
+            "end_of_support_date": "not stated"
+          },
+          "expected_evidence": "Official page contains Go 1.27.3 released 2026-10-19 and the two-newer-major-releases policy; no Go 1.27 EOL date is published there.",
+          "failure_if_unmet": true
+        }
+      ],
+      "grader": {
+        "grader_id": "official-go-release-history-v1",
+        "version": "1.0.0",
+        "kind": "external_reference",
+        "primary_outcome": "Correct release version/date, support policy, and explicit statement that end-of-support date is not provided.",
+        "independent_review_required": true,
+        "review_rubric_ref": "DHI_v1/benchmark/fixtures/plugin_ecology/external_snapshots/go_releases_2026-11-03.md",
+        "llm_judge_sole_source": false
+      },
+      "policy": {
+        "allowed_side_effects": [
+          "public_web_read"
+        ],
+        "forbidden_side_effects": [
+          "website_mutation",
+          "account_login",
+          "external_messages",
+          "purchases"
+        ],
+        "approval_required": [],
+        "protected_invariants": [
+          "Only official public information is used.",
+          "No external state is mutated."
+        ],
+        "risk_level": "low"
+      },
+      "provenance": {
+        "source_type": "synthetic_specification",
+        "source_ref": "TinyFish official Go release page; pinned snapshot external_snapshots/go_releases_2026-11-03.md.",
+        "authored_at_utc": "2026-11-03T07:30:00Z",
+        "authoring_method": "Hand-authored from actual TinyFish tool responses and pinned official Go documentation; no model-generated ground truth."
+      },
+      "validation": {
+        "status": "ready_for_validation",
+        "contract_check": "pass",
+        "environment_check": "pass",
+        "grader_check": "not_run",
+        "review_status": "not_reviewed",
+        "harness_gap_ids": [],
+        "validation_evidence": [
+          "TinyFish search returned the official Go release history page.",
+          "TinyFish fetch returned Go 1.27.3, released 2026-10-19, and the stated support rule."
+        ]
+      },
+      "execution": {
+        "status": "not_run",
+        "model_runs_allowed": false,
+        "max_model_turns": 8,
+        "max_tool_calls": 8,
+        "trial_seeds": [
+          0
+        ]
+      },
+      "split_metadata": {
+        "partition": "stage_a",
+        "family_fingerprint_sha256": "cc1202305666a948ab58ecd94717e13f313dd1b8771036e61fc1e9d0da5e0e0c",
+        "holdout_sealed": false
+      }
+    },
+    {
+      "task_id": "ORBIT-A-S08-003",
+      "stage": "A",
+      "stratum_id": "S08",
+      "task_family_id": "ORBIT-S08-TINYFISH-SCHEMA-AND-404-RECOVERY-03",
+      "independence_group_id": "ORBIT-S08-INDEP-A-003",
+      "task_contract": {
+        "prompt": "Recover an official-source lookup for Go release history. The first TinyFish fetch_content invocation is rejected because page_metadata is a required field; after adding it, the intentionally wrong path returns HTTP 404. Interpret both failures correctly, search the official Go domain for the release-history URL, fetch the correct page using the complete schema, and report the recovered latest minor version. Do not pretend the first two calls succeeded.",
+        "goal": "Demonstrate schema-aware correction and re-planning after an HTTP 404, then verify recovery from the authoritative source.",
+        "hard_constraints": [
+          "Do not repeat the same malformed call.",
+          "Include the required page_metadata field in fetch_content.",
+          "Do not blindly retry the wrong URL.",
+          "Use TinyFish search to resolve the canonical source URL.",
+          "Report the failed attempts honestly."
+        ],
+        "preferences": [],
+        "expected_response_mode": "mixed"
+      },
+      "environment": {
+        "environment_id": "tinyfish-public-web-recovery",
+        "version": "2026-11-03",
+        "fixture_id": "go-release-schema-404-recovery",
+        "reset_recipe": "First reproduce omitted page_metadata schema rejection; next fetch a known wrong path to get 404; search official Go domain and fetch canonical URL.",
+        "state_sha256": "f6a4b10077330085ed3b2322d6d3a117a8eecfeb8473c1c64820df5120a89577",
+        "external_snapshot_ref": "DHI_v1/benchmark/fixtures/plugin_ecology/external_snapshots/go_release_recovery_2026-11-03.md"
+      },
+      "tool_inventory": {
+        "visible_tool_ids": [
+          "mcp__TinyFish__fetch_content",
+          "mcp__TinyFish__search"
+        ],
+        "discoverable_tool_ids": [],
+        "required_tool_ids": [
+          "mcp__TinyFish__fetch_content",
+          "mcp__TinyFish__search"
+        ],
+        "tool_schema_sha256": "5f97f694ea6900599f7694fa91867d50cad125cbcd8fd2507a0d04468f9e6f88"
+      },
+      "required_capabilities": [
+        "schema_argument_recovery",
+        "http_error_interpretation",
+        "search_replanning",
+        "temporal_source_verification"
+      ],
+      "horizon": {
+        "min_actions": 3,
+        "max_actions": 5,
+        "checkpoint_count": 0,
+        "cross_session_resume_required": false
+      },
+      "preconditions": [],
+      "postconditions": [
+        {
+          "verifier_id": "schema_recovery",
+          "condition": {
+            "type": "ordered_tool_trace",
+            "sequence": [
+              "fetch_content:validation_error:page_metadata_required",
+              "fetch_content:404:page_not_found",
+              "search:go.dev/doc/devel/release",
+              "fetch_content:success"
+            ]
+          },
+          "expected_evidence": "Failed schema and 404 events are visible, followed by a successful official-page fetch.",
+          "failure_if_unmet": true
+        },
+        {
+          "verifier_id": "go_result",
+          "condition": {
+            "type": "source_fact",
+            "expected": "go1.27.3 released 2026-10-19"
+          },
+          "expected_evidence": "Recovered official page confirms the latest listed Go 1.27 minor revision.",
+          "failure_if_unmet": true
+        }
+      ],
+      "grader": {
+        "grader_id": "tinyfish-schema-404-recovery-v1",
+        "version": "1.0.0",
+        "kind": "deterministic",
+        "primary_outcome": "Both failures correctly identified and not hidden; corrected schema and search-recovery sequence succeeds.",
+        "independent_review_required": false,
+        "review_rubric_ref": "DHI_v1/benchmark/fixtures/plugin_ecology/external_snapshots/go_release_recovery_2026-11-03.md",
+        "llm_judge_sole_source": false
+      },
+      "policy": {
+        "allowed_side_effects": [
+          "public_web_read"
+        ],
+        "forbidden_side_effects": [
+          "website_mutation",
+          "account_login",
+          "external_messages",
+          "purchases"
+        ],
+        "approval_required": [],
+        "protected_invariants": [
+          "Only official public information is used.",
+          "No external state is mutated."
+        ],
+        "risk_level": "low"
+      },
+      "provenance": {
+        "source_type": "synthetic_specification",
+        "source_ref": "Actual TinyFish schema rejection, 404, official-domain search and successful fetch.",
+        "authored_at_utc": "2026-11-03T07:30:00Z",
+        "authoring_method": "Hand-authored from actual TinyFish tool responses and pinned official Go documentation; no model-generated ground truth."
+      },
+      "validation": {
+        "status": "ready_for_validation",
+        "contract_check": "pass",
+        "environment_check": "pass",
+        "grader_check": "not_run",
+        "review_status": "not_reviewed",
+        "harness_gap_ids": [],
+        "validation_evidence": [
+          "First fetch attempt was rejected before dispatch due to missing required page_metadata.",
+          "Corrected fetch reached the URL and returned 404.",
+          "TinyFish search returned canonical go.dev/doc/devel/release.",
+          "Corrected fetch of canonical page succeeded with Go 1.27.3."
+        ]
+      },
+      "execution": {
+        "status": "not_run",
+        "model_runs_allowed": false,
+        "max_model_turns": 8,
+        "max_tool_calls": 8,
+        "trial_seeds": [
+          0
+        ]
+      },
+      "split_metadata": {
+        "partition": "stage_a",
+        "family_fingerprint_sha256": "3bed1de14e17b9c13d4a845f85325ba1a0bf97ea9f51c7c4ee12c2305bf52f24",
+        "holdout_sealed": false
+      }
     }
   ],
   "stage_b_policy": {
@@ -2986,6 +3264,7 @@
     "Firecrawl package-record execution costs one credit and was not executed; only free capability discovery was used.",
     "The existing 12-case local development pilot remains excluded from the 240-task panel.",
     "The Stage A authoring set now contains 12 records: one per stratum plus a second independent current-source task in S02 and a second capability-discovery task in S03. All remain ready_for_validation.",
-    "A third authoring increment adds eight new independent Stage A task instances covering direct-answer restraint, research-provider discovery, GitHub diff selection, TinyFish batch argument correctness, Node/Python cross-source synthesis, Firecrawl fallback recovery, GitHub branch-effect prediction, and refusal of an unapproved paid action. All remain ready_for_validation."
+    "A third authoring increment adds eight new independent Stage A task instances covering direct-answer restraint, research-provider discovery, GitHub diff selection, TinyFish batch argument correctness, Node/Python cross-source synthesis, Firecrawl fallback recovery, GitHub branch-effect prediction, and refusal of an unapproved paid action. All remain ready_for_validation.",
+    "A fourth task-authoring increment added Go release verification (S02) and TinyFish schema/404 recovery (S08). Both reference actual connector outputs and remain ready_for_validation."
   ]
 }
