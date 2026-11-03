@@ -1,0 +1,134 @@
+{
+  "experiment_id": "PLUGIN-GATEWAY-001",
+  "date": "2026-11-03",
+  "status": "blocked",
+  "question": "Can the DHI runtime invoke the exact registered GitHub, TinyFish, and Firecrawl tools through documented remote MCP interfaces with enforced per-task policy and normalized traces?",
+  "hypothesis": {
+    "mechanism": "Provider-hosted Streamable HTTP MCP endpoints can be connected through a per-provider authenticated client, then filtered by an exact task-level native tool allowlist.",
+    "expected_observation": "The DHI runtime initializes each provider, discovers the native tool inventory, attests its schemas, and safely executes only the approved operations while capturing predictions, raw responses, independent readback and closure evidence.",
+    "null": "Documented endpoints or auth cannot be used from the current DHI runtime, or native tool schemas do not match the pinned registry.",
+    "falsifier": "A required provider does not expose an endpoint/transport or supported credential path; tool identity/schema cannot be attested; or policy/trace checks cannot prevent an out-of-scope action."
+  },
+  "baseline": {
+    "commit": "cba8421d4f4c6c4f929d5f4c3196eb83f98f7351",
+    "model_revision": null,
+    "task_manifest_sha256": null,
+    "environment_sha256": null,
+    "tool_schema_sha256": "registry ORBIT-PLUGIN-REGISTRY-2026-11-03; see DHI_v1/benchmark/fixtures/plugin_ecology/plugin_tool_registry.json"
+  },
+  "candidate": {
+    "commit": null,
+    "intervention": "Provider execution contract audit only; no gateway implementation.",
+    "scope": [
+      "GitHub remote MCP",
+      "TinyFish hosted/local MCP",
+      "Firecrawl hosted MCP",
+      "MCP Streamable HTTP transport",
+      "credential and allowlist boundary"
+    ]
+  },
+  "protocol": {
+    "primary_metric": "provider-native tool contract and credential path verifiability",
+    "direction": "higher",
+    "independent_guards": [
+      "No secret values read or logged",
+      "No provider action called",
+      "No paid execution",
+      "No unregistered tool exposed",
+      "No write or destructive action",
+      "No model inference or training"
+    ],
+    "minimum_useful_effect": null,
+    "seeds": [],
+    "confirmation_split": "not_applicable",
+    "budget": {
+      "provider_calls": 0,
+      "provider_credits": 0,
+      "model_calls": 0,
+      "training_runs": 0,
+      "wall_time": "documentation and repository inspection only",
+      "explicit_paid_execution_authorized": false
+    }
+  },
+  "provider_status": [
+    {
+      "provider": "GitHub",
+      "endpoint": "https://api.githubcopilot.com/mcp/",
+      "readonly_endpoint": "https://api.githubcopilot.com/mcp/readonly",
+      "auth": "Authorization: Bearer <valid GitHub access token>; client obtains OAuth token or supplies valid PAT",
+      "auth_provider_supplies_auth": false,
+      "task_tool_ids": [
+        "mcp__GitHub__fetch",
+        "mcp__GitHub__fetch_file",
+        "mcp__GitHub__compare_commits",
+        "mcp__GitHub__create_branch",
+        "mcp__GitHub__create_file",
+        "mcp__GitHub__update_file"
+      ],
+      "excluded_tool_ids": [
+        "mcp__GitHub__delete_file",
+        "mcp__GitHub__merge_pull_request"
+      ],
+      "status": "endpoint_documented; credentials_and_native_schema_mapping_unverified",
+      "note": "Remote server docs state DCR is not supported; do not expose writes before a dedicated sandbox token and exact native tools/list mapping."
+    },
+    {
+      "provider": "TinyFish",
+      "endpoint": "https://agent.tinyfish.ai/mcp",
+      "local_proxy_package": "@tiny-fish/mcp",
+      "proxy_auth_env": "TINYFISH_API_KEY",
+      "proxy_upstream_auth_header": "X-API-Key",
+      "task_tool_ids": [
+        "mcp__TinyFish__search",
+        "mcp__TinyFish__fetch_content"
+      ],
+      "status": "endpoint_documented; exact schema_and_DHI_credentials_unverified",
+      "cost_policy": "Search and fetch are documented free; automation and browser operations are metered and are excluded."
+    },
+    {
+      "provider": "Firecrawl",
+      "endpoints": [
+        "https://mcp.firecrawl.dev/v2/mcp",
+        "https://mcp.firecrawl.dev/v2/mcp-search"
+      ],
+      "auth": "OAuth or Authorization: Bearer <FIRECRAWL_API_KEY> for standard hosted MCP; search-only has a separate resource identity",
+      "task_tool_ids": [
+        "mcp__Firecrawl__firecrawl_find_tools"
+      ],
+      "excluded_tool_ids": [
+        "mcp__Firecrawl__firecrawl_scrape"
+      ],
+      "status": "native_contract_mismatch_unresolved",
+      "note": "The standard server's generic scrape/search surface is not proven equivalent to the registry's Alexandria-specific tool contract. Current server documentation's search-only surface does not attest the Alexandria contract."
+    }
+  ],
+  "runtime_observation": {
+    "deepnote_project_id": "6415944e-8d6c-432c-a7cf-3bbaa997799c",
+    "integrations_attached": [],
+    "interpretation": "No provider integration is attached to the inspected verifier project. Manual process-environment credentials were not probed; no secret values were read or logged.",
+    "remote_mcp_requests_sent": 0
+  },
+  "results": {
+    "raw_artifacts": [],
+    "baseline": null,
+    "candidate": null,
+    "paired_delta": null,
+    "confidence_interval": null,
+    "per_stratum": {},
+    "guard_failures": [],
+    "decision": "blocked"
+  },
+  "provenance": {
+    "created_at_utc": "2026-11-03T00:00:00Z",
+    "protocol_version": "ORBIT-RESEARCH-METHOD-1.0",
+    "sources": [
+      "https://github.com/github/github-mcp-server/blob/main/docs/remote-server.md",
+      "https://github.com/github/github-mcp-server/blob/main/docs/host-integration.md",
+      "https://github.com/github/github-mcp-server/blob/main/server.json",
+      "https://github.com/tinyfish-io/tinyfish-mcp-server",
+      "https://github.com/tinyfish-io/tinyfish-mcp-server/blob/main/docs/examples.md",
+      "https://github.com/firecrawl/firecrawl-mcp-server",
+      "https://github.com/modelcontextprotocol/modelcontextprotocol/blob/main/docs/specification/2026-07-28/basic/transports/streamable-http.mdx"
+    ]
+  }
+}
