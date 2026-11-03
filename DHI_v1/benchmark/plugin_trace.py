@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import argparse
+import csv
 import hashlib
+import io
 import json
 import re
 import sys
@@ -401,31 +403,46 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
         expected_blob = condition.get("expected", condition.get("blob_sha"))
         expected_sha = condition.get("sha256")
         expected_path = condition.get("path")
+        expected_rows = condition.get("data_rows")
         observations = _raw_observations(trace)
-        matches = []
+        matching_responses = []
         for observation in observations:
             request = observation.get("request", {})
             response = observation.get("response")
-            if expected_path and not (
-                isinstance(request, dict) and request.get("path") == expected_path
-            ):
+            if not isinstance(response, dict):
                 continue
-            response_sha = None
-            response_text = ""
-            if isinstance(response, dict):
-                response_sha = response.get("sha") or response.get("blob_sha")
-                response_text = _raw_text(response)
+            if expected_path and not (isinstance(request, dict) and request.get("path") == expected_path):
+                continue
+            response_sha = response.get("sha") or response.get("blob_sha")
             if expected_blob and response_sha != expected_blob:
                 continue
-            if expected_sha and (not isinstance(response, dict) or response_sha != expected_sha):
+            if expected_sha and response_sha != expected_sha:
                 continue
-            if expected_blob or expected_sha:
-                matches.append({"request": request, "response_sha": response_sha})
+            matching_responses.append(response)
         if not observations:
             return _result("unscorable", "trace contains no raw file-fetch observation")
-        if expected_blob or expected_sha:
-            return _result("pass" if matches else "fail", "file response SHA matches" if matches else "file response SHA differs", matches)
-        return _result("unscorable", "file_blob_match condition has no expected SHA-256/blob SHA")
+        if not matching_responses:
+            return _result("fail", "no fetched file matched the requested path/blob SHA")
+        response = matching_responses[-1]
+        if expected_rows is not None:
+            content_value = response.get("content")
+            if not isinstance(content_value, str):
+                return _result("unscorable", "file response has no text content for row-count verification")
+            try:
+                rows = list(csv.reader(io.StringIO(content_value)))
+            except csv.Error as exc:
+                return _result("unscorable", f"file content could not be parsed as CSV: {exc}")
+            header_rows = condition.get("header_rows", 1)
+            if not isinstance(header_rows, int) or header_rows < 0 or header_rows > len(rows):
+                return _result("fail", "declared CSV header row count is invalid")
+            actual_rows = len(rows) - header_rows
+            if actual_rows != expected_rows:
+                return _result("fail", "CSV data row count differs", {"expected": expected_rows, "actual": actual_rows})
+        return _result("pass", "fetched file path/blob identity matches registered evidence", {
+            "path": expected_path,
+            "blob_sha": response.get("sha") or response.get("blob_sha"),
+            "data_rows": expected_rows,
+        })
 
     if kind == "ordered_tool_trace":
         expected_steps = condition.get("sequence", [])
