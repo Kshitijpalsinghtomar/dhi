@@ -242,5 +242,32 @@ class PluginTraceGraderTests(unittest.TestCase):
         self.assertEqual(report["status"], "invalid_trace")
 
 
+    def test_observed_state_delta_must_match_before_after_hashes(self) -> None:
+        trace = make_trace()
+        trace["events"][3]["actual_effects"]["added_paths"] = []
+        errors = validate_trace(trace, load_schema())
+        self.assertTrue(any("actual_effects differ from observed state hashes" in error for error in errors))
+
+    def test_checkpoint_path_can_be_verified_from_resume_event(self) -> None:
+        trace = make_trace()
+        trace["events"].insert(4, {
+            "event_id": "checkpoint",
+            "event_index": 5,
+            "event_type": "checkpoint_resumed",
+            "timestamp_utc": "2026-11-03T00:00:03Z",
+            "task_id": "ORBIT-A-S09-001",
+            "checkpoint_ref": "checkpoints/session-A.md",
+            "checkpoint_sha256": "f" * 64,
+            "source_ref": "github://commit/checkpoint",
+        })
+        trace["events"][4]["event_index"] = 5
+        for index, event in enumerate(trace["events"], 1):
+            event["event_index"] = index
+        trace["events"][-2]["event_index"] = len(trace["events"]) - 1
+        trace["events"][-1]["event_index"] = len(trace["events"])
+        condition = {"type": "tool_trace_contains", "path": "checkpoints/session-A.md"}
+        self.assertEqual(grade_task(make_task(condition), trace)["status"], "pass")
+
+
 if __name__ == "__main__":
     unittest.main()
