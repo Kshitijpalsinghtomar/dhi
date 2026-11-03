@@ -287,3 +287,30 @@ The current Deepnote verifier has only the `TINYFISH` env integration; no `OPENR
 4. agree a hard aggregate cost cap and matched task/token budgets.
 
 The MCP `send_message` connector is plain-text chat and cannot substitute for the DHI runner's function-call API. Free models exist in the wider catalogue, but they are not substitutes for the frozen Qwen/GPT-OSS screen. No inference call was made.
+
+
+## 14. Critical correction — plugin manifest is not yet wired to model runner
+
+An exact code-path audit found that the 30 plugin-native task records are authored, but **the current DHI model runner cannot execute them end-to-end**:
+
+- `run_model_pilot.py` runs `pilot_cases.json`, not `task_manifest.json`.
+- `benchmark.runner.load_supported_cases` selects only `file_workspace` and optional `adaption_catalogue` pilot cases.
+- `DHIEnvironment.DEFAULT_TOOL_CATALOGUE` and `agent_runner.tool_handlers_from_client` expose local filesystem/catalogue tools, Adaption discovery and TinyFish Search/Fetch only.
+- GitHub and Firecrawl handlers are absent.
+- TinyFish manifest IDs (`mcp__TinyFish__search`, `mcp__TinyFish__fetch_content`) do not match the adapter's current internal IDs (`tinyfish.search`, `tinyfish.fetch_content`); no canonical manifest-to-runner mapping exists.
+
+The 30 task records reference external tool IDs as follows: TinyFish Search 5, TinyFish Fetch 7, Firecrawl discovery 5, GitHub fetch_file 14, GitHub create_file 7, GitHub compare_commits 9, GitHub fetch 2, GitHub create_branch 1, GitHub update_file 2. These are task references and some tasks require multiple providers.
+
+**Status correction:** 30 Stage A tasks are authored and contract-checked, but not all executable through the current ORBIT runner. They are awaiting canonical plugin execution-path integration and validation. The manifest remains authoring/unfrozen; no tasks are validated. Do not author the remaining 90 until the bridge and missing providers work.
+
+### Next authorized engineering sequence
+
+1. Finish ORBIT-VERIFY-004 exact-head regression.
+2. Create one canonical tool-ID/permission contract shared by registry, manifest, model-facing schema, handler map and trace.
+3. Wire manifest task loading and per-task allowlist into a plugin-native runner profile.
+4. Finish GitHub read-only and disposable-branch write handlers; keep deletes/merges excluded.
+5. Resolve exact Firecrawl discovery contract; do not substitute generic tools.
+6. Execute scripted reference tests, independently grade them, then run model-generated trajectories once inference access is approved.
+7. Only after the execution path is proven, validate the existing 30 tasks and expand Stage A to 120.
+
+This correction supersedes any earlier wording that called all 30 tasks ready for validation without qualification.
