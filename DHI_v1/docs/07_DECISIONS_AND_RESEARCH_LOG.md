@@ -907,3 +907,12 @@ Code inspection confirmed `DHI_v1/environment/agent_runner.py` does not yet exec
 ### Decision
 
 Prioritize a policy-enforcing remote plugin gateway and normalized trace adapter before expanding the benchmark panel or attempting model-facing plugin tasks. The gateway must bind exact registered tool contracts, permissions, approvals and cost boundaries; record pre-action prediction, invocation, raw response, independent state readback and closure; and preserve checkpoint/resume events. No model execution, training, or Stage A validation status promotion is authorized by this decision.
+
+
+## 2026-11-03 — Full regression adjudication
+
+The full regression run `43e0726e-e16d-428c-b2dd-f18332e2f882` completed against `92bec2c3485220eec6c80a7fe8ae41865a4ef54e`. Manifest validation passed for 30 Stage A tasks and zero Stage B tasks. Pytest reported 141 passed and one failure: a runner schema test expected a nested `$defs` object although the emitted schema uses inline branch item definitions. The active branch corrected the test assertion to inspect the inline schema. This correction has not yet been executed: Deepnote rejected the rerun because its parallel-project quota was exceeded; the DHI verifier machine was stopped and no other project was stopped. Compileall and import smoke did not run in the failed combined gate. Keep the full verification gate open until a rerun passes. The current task panel remains 30/120 Stage A; all 30 have unique task-family and independence-group IDs and remain `ready_for_validation`, not model-validated.
+
+### Execution route constraint
+
+The current Adaption Responses adapter supports model inference with caller-supplied function tools and separately supports read-only connector-catalogue discovery. It does not currently turn catalogue entries into executable remote connector actions. The deterministic DHI environment intentionally exposes only file-workspace tools plus discovery. The plugin-native task profile records connected GitHub/TinyFish/Firecrawl evidence, but those ChatGPT-connected actions are not callable by the DHI model runner through the current adapter. Do not assume Adaption Responses supports remote MCP execution without a documented contract and an integration test. Keep the external-plugin model execution gate closed until such a contract is verified and a policy-enforcing adapter exists.
