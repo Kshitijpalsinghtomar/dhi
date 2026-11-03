@@ -391,6 +391,27 @@ class DHIEnvironment:
                     or any(not isinstance(path, str) for path in expected_effects[key])
                 ):
                     raise ValueError(f"expected_effects.{key} must be an array of strings")
+            repository_state = expected_effects.get("repository_state")
+            if repository_state is not None:
+                if not isinstance(repository_state, dict):
+                    raise ValueError("expected_effects.repository_state must be an object")
+                branch_fields = ("added_branches", "modified_branches", "deleted_branches", "unchanged_branches")
+                if set(repository_state) != set(branch_fields):
+                    raise ValueError("expected_effects.repository_state must define all four branch-effect arrays")
+                for field in branch_fields:
+                    branches = repository_state[field]
+                    if not isinstance(branches, list):
+                        raise ValueError(f"expected_effects.repository_state.{field} must be an array")
+                    seen_names = set()
+                    for branch in branches:
+                        if not isinstance(branch, dict) or set(branch) != {"name", "head_sha"}:
+                            raise ValueError(f"expected_effects.repository_state.{field} entries must contain name and head_sha")
+                        name, head_sha = branch["name"], branch["head_sha"]
+                        if not isinstance(name, str) or not name or name in seen_names:
+                            raise ValueError(f"expected_effects.repository_state.{field} contains an invalid or duplicate branch name")
+                        if not isinstance(head_sha, str) or not re.fullmatch(r"[a-f0-9]{40}", head_sha):
+                            raise ValueError(f"expected_effects.repository_state.{field} contains an invalid head SHA")
+                        seen_names.add(name)
         started = datetime.now(timezone.utc)
         next_step = self._sequence + 1
         self._record({
@@ -705,6 +726,12 @@ class DHIEnvironment:
         if expected is None:
             return {"status": "not_provided", "precision": None, "recall": None, "f1": None,
                     "unchanged_path_violations": []}
+        if isinstance(expected.get("repository_state"), dict):
+            return {
+                "status": "requires_external_state_verifier",
+                "reason": "repository branch predictions are preserved in the trace and must be compared with independently fetched provider state",
+                "repository_state_prediction": expected["repository_state"],
+            }
         predicted = set(expected.get("changed_paths", []))
         predicted_unchanged = set(expected.get("unchanged_paths", []))
         observed = set(actual["changed_paths"])
