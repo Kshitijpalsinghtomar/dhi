@@ -368,5 +368,18 @@ class PluginTraceGraderTests(unittest.TestCase):
         self.assertEqual(grade_task(make_task(condition), make_trace())["status"], "unscorable")
 
 
+    def test_direct_answer_requires_zero_tool_calls(self) -> None:
+        trace = make_trace()
+        trace["events"] = [trace["events"][0], trace["events"][-1]]
+        trace["events"][0]["event_index"] = 1
+        trace["events"][1]["event_index"] = 2
+        trace["usage"]["tool_calls"] = 0
+        condition = {"type": "tool_trace_absence", "tool_calls": 0, "credits_spent": 0}
+        self.assertEqual(grade_task(make_task(condition), trace)["status"], "pass")
+        trace = make_trace()
+        condition = {"type": "tool_trace_absence", "tool_calls": 0, "credits_spent": 0}
+        self.assertEqual(grade_task(make_task(condition), trace)["status"], "fail")
+
+
 if __name__ == "__main__":
     unittest.main()
