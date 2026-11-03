@@ -404,3 +404,25 @@ The previous provider-gap wording needs a precise correction:
 Do not claim that Firecrawl/GitHub do not exist or that their contracts are unknown. The accurate status is: assistant-session connector available; Deepnote runtime adapter and project-scoped authentication not yet provisioned. For Firecrawl, confirm the supported Alexandria transport before assuming a standard REST API key alone reproduces `firecrawl_find_tools`. For GitHub, a least-privilege project secret plus a tested REST/MCP adapter is still required.
 
 The remaining execution bridge must continue to fail closed when the DHI runtime lacks a required handler, even though the assistant's own connected tools can perform the same operation outside the tested ORBIT runtime.
+
+
+## 19. Provider adapter priority from exact task-level coverage — 2026-11-03
+
+A fresh parse of the 30 task records confirms required external-tool coverage (task counts, not tool-call references):
+
+| Required provider namespace | Tasks | Runtime state |
+|---|---:|---|
+| TinyFish | 7 | REST client and project secret exist; canonical IDs still need alignment to the registry |
+| GitHub | 16 | Host connector available to the assistant; no Deepnote project integration or DHI runtime handler |
+| Firecrawl | 5 | Alexandria discovery action available to the assistant; no Deepnote project integration or DHI runtime handler |
+| No required external provider tool | 2 | Local/deterministic scope |
+
+There are **zero tasks requiring multiple provider namespaces as mandatory tools** in the current Stage A panel. Some fixtures may contain source snapshots from another provider; those do not count as required model tool calls.
+
+### Adapter order
+
+1. **TinyFish canonicalization** is the fastest next adapter: change the DHI internal tool IDs to the manifest/registry IDs (`mcp__TinyFish__search`, `mcp__TinyFish__fetch_content`) and expose the exact schemas/handlers to the plugin dispatch boundary. This can unlock up to 7 tasks after independent task/trace validation.
+2. **GitHub REST runtime bridge** is the highest-coverage next adapter: implement only the registered read operations and task-guarded disposable-branch create/update actions, with a project-scoped least-privilege token and SHA/path preconditions. This is the largest slice (16 tasks).
+3. **Firecrawl Alexandria bridge** follows: the connected assistant action and full contract are known, but its callable Deepnote/MCP transport is not provisioned. Do not substitute generic search/scrape for `firecrawl_find_tools`.
+
+All live manifest tasks still have `model_runs_allowed=false`. This coverage count does not authorize model execution, and adapter availability alone does not validate any benchmark task.
