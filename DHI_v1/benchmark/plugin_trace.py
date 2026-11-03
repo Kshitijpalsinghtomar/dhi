@@ -633,11 +633,14 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
             return _result("unscorable", "trace contains no raw tool-discovery response")
         if _find_matching_node(discovery_data, expected):
             return _result("pass", "provider contract matches structured discovery evidence")
-        expected_tokens = [str(value) for value in _flatten_expected(expected)]
-        raw = _raw_text(discovery_data).casefold()
-        if any(token.casefold() in raw for token in expected_tokens):
-            return _result("unscorable", "provider output contains partial text evidence but not a matching structured contract")
-        return _result("fail", "raw discovery response does not contain the registered provider contract")
+        has_structured_evidence = any(
+            isinstance(node, dict)
+            for response in discovery_data
+            for node in _walk(response)
+        )
+        if has_structured_evidence:
+            return _result("fail", "structured discovery evidence conflicts with the registered provider contract")
+        return _result("unscorable", "provider discovery returned no structured contract that can be compared")
 
     if kind == "commit_diff_match":
         expected_base = condition.get("base")
