@@ -88,3 +88,21 @@ Start with **TinyFish search/fetch** because both registered actions are read-on
 **Decision:** `blocked` (before implementation).
 
 The transport is feasible in principle, but provider-native tool mapping and DHI runtime credential access have not been verified. The credential presence probe found none of the 12 standard variable names in the DHI verifier runtime. The next step is secure provisioning of `TINYFISH_API_KEY` as a project secret, followed by a TinyFish read-only runtime smoke—not speculative adapter code or wider task authoring.
+
+## Verified current-branch code equivalence — 2026-11-03
+
+A subsequent broad GitHub compare summary listed implementation files in its aggregate change list even though their file blobs were unchanged. To avoid relying on that ambiguous compare summary, each relevant runtime, benchmark, task-manifest, schema and test file was fetched directly from both the tested commit `cba8421d4f4c6c4f929d5f4c3196eb83f98f7351` and the current branch ref `orbit/plugin-benchmark-fixture`. All 11 blob SHA values were identical:
+
+- `DHI_v1/environment/agent_runner.py` — `79534ce8d207c682614d6be314920855d7fba043`
+- `DHI_v1/environment/dhi_env.py` — `4118054bef062ad863155a863c8039dcb4b27fca`
+- `DHI_v1/environment/tests/test_agent_runner.py` — `269e5c9c3f7c678d0da56529b4d36798daca404e`
+- `DHI_v1/environment/tests/test_dhi_env.py` — `a4e933b211a1562d35e01e3163e423e7f7df86da`
+- `DHI_v1/benchmark/plugin_trace.py` — `acde2688f218169e720db530b7ec0b2f706767bf`
+- `DHI_v1/benchmark/plugin_trace.schema.json` — `41eb08a112847c0ba3237fa9b2fa74ccd2af45d4`
+- `DHI_v1/benchmark/tests/test_plugin_trace_grader.py` — `7a40b10feb5e23d39205ff9af9bacc219f5df577`
+- `DHI_v1/benchmark/tests/test_task_manifest_validator.py` — `dabda3a4a0dcf8e2e8257d04874f667fac7bb988`
+- `DHI_v1/benchmark/validate_task_manifest.py` — `c3c7eadf17a051abb01275a92961f58349995ce4`
+- `DHI_v1/benchmark/task_manifest.json` — `f1a73f4cc377f0ea72a37f7d2f9a3e7476ffe033`
+- `DHI_v1/benchmark/task_manifest.schema.json` — `d581c2be8a26b9a447ab8163b365cf2370d426f0`
+
+This covers the runner/environment implementation, runner/environment tests, plugin grader and schema, manifest validator and tests, and both task-manifest files. Therefore the 142-test and validator result remains code-equivalent for these benchmark/runtime files. This is a content-hash check, not a new test execution. All later branch work remains record/documentation changes; do not claim a new runtime test run.
