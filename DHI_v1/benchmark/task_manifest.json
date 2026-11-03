@@ -16,9 +16,9 @@
     "B": 120
   },
   "per_stratum_stage_target": 12,
-  "materialized_task_count": 26,
+  "materialized_task_count": 27,
   "materialized_stage_counts": {
-    "A": 26,
+    "A": 27,
     "B": 0
   },
   "strata": [
@@ -304,6 +304,13 @@
       "stage": "A",
       "independence_group_id": "ORBIT-S07-INDEP-A-002",
       "family_fingerprint_sha256": "7e4f399b67fbbe45b33414a00e52077666c38f2fc191a46c7939bc7964bb91de",
+      "review_status": "draft"
+    },
+    {
+      "family_id": "ORBIT-S05-GITHUB-UPDATE-FILE-SHA-CONTRACT-03",
+      "stage": "A",
+      "independence_group_id": "ORBIT-S05-INDEP-A-003",
+      "family_fingerprint_sha256": "36bf9b7287d4655fb933562ca8993bd1ca513df1c4c663595cab3939e52c661e",
       "review_status": "draft"
     }
   ],
@@ -3907,6 +3914,158 @@
         "family_fingerprint_sha256": "7e4f399b67fbbe45b33414a00e52077666c38f2fc191a46c7939bc7964bb91de",
         "holdout_sealed": false
       }
+    },
+    {
+      "task_id": "ORBIT-A-S05-003",
+      "stage": "A",
+      "stratum_id": "S05",
+      "task_family_id": "ORBIT-S05-GITHUB-UPDATE-FILE-SHA-CONTRACT-03",
+      "independence_group_id": "ORBIT-S05-INDEP-A-003",
+      "task_contract": {
+        "prompt": "Update the existing report file DHI_v1/benchmark/fixtures/plugin_ecology/reports/update-file-contract.md on orbit/plugin-benchmark-fixture. First fetch the file to obtain its current blob SHA, then call GitHub update_file with the exact repository, path, complete replacement content, commit message, SHA and explicit branch. Fetch the file again and compare the diff from the seed commit fa0c47781539f9c5bbe68ef6457c2b4dae258cc4. Do not create a second file or update main.",
+        "goal": "Use the GitHub update_file contract correctly with optimistic concurrency via current blob SHA, explicit branch, readback, and independently verified one-path diff.",
+        "hard_constraints": [
+          "The file already exists; use update_file rather than create_file.",
+          "Use the latest blob SHA returned by fetch_file.",
+          "Set the explicit branch orbit/plugin-benchmark-fixture.",
+          "Replace the entire file content, not a partial patch.",
+          "Do not update main or any other path."
+        ],
+        "preferences": [],
+        "expected_response_mode": "tool_execution"
+      },
+      "environment": {
+        "environment_id": "github-plugin-branch",
+        "version": "github-toolset-2026-11-03",
+        "fixture_id": "github-update-file-existing-target",
+        "reset_recipe": "Use seed commit fa0c47781539f9c5bbe68ef6457c2b4dae258cc4; fetch target file to obtain current blob SHA and update that exact file on orbit/plugin-benchmark-fixture.",
+        "state_sha256": "78e29c16b728fc1b1e5fdc28fbbce204b28206500a85c2b1428ad6ad27640f25"
+      },
+      "tool_inventory": {
+        "visible_tool_ids": [
+          "mcp__GitHub__fetch_file",
+          "mcp__GitHub__update_file",
+          "mcp__GitHub__compare_commits"
+        ],
+        "discoverable_tool_ids": [],
+        "required_tool_ids": [
+          "mcp__GitHub__fetch_file",
+          "mcp__GitHub__update_file",
+          "mcp__GitHub__compare_commits"
+        ],
+        "tool_schema_sha256": "5f97f694ea6900599f7694fa91867d50cad125cbcd8fd2507a0d04468f9e6f88"
+      },
+      "required_capabilities": [
+        "schema_argument_correctness",
+        "sha_precondition_handling",
+        "safe_branch_targeting",
+        "verified_file_update"
+      ],
+      "horizon": {
+        "min_actions": 3,
+        "max_actions": 5,
+        "checkpoint_count": 0,
+        "cross_session_resume_required": false
+      },
+      "preconditions": [
+        {
+          "precondition_id": "existing_file_and_sha",
+          "condition": {
+            "type": "github_file_blob",
+            "path": "DHI_v1/benchmark/fixtures/plugin_ecology/reports/update-file-contract.md",
+            "commit": "fa0c47781539f9c5bbe68ef6457c2b4dae258cc4",
+            "blob_sha": "ae7694c15fc2949184a7267dc9fa8e430fd6e037"
+          }
+        }
+      ],
+      "postconditions": [
+        {
+          "verifier_id": "updated_blob_matches_readback",
+          "condition": {
+            "type": "github_blob_sha_match",
+            "expected": "68ec2aab89854ca674f64b1c3f087e1f233c54af"
+          },
+          "expected_evidence": "The updated blob SHA equals the blob SHA returned by the post-update fetch_file.",
+          "failure_if_unmet": true
+        },
+        {
+          "verifier_id": "single_path_diff",
+          "condition": {
+            "type": "branch_diff_only",
+            "base": "fa0c47781539f9c5bbe68ef6457c2b4dae258cc4",
+            "allowed_paths": [
+              "DHI_v1/benchmark/fixtures/plugin_ecology/reports/update-file-contract.md"
+            ],
+            "expected_status": "modified"
+          },
+          "expected_evidence": "compare_commits reports exactly one modified path with no other changes.",
+          "failure_if_unmet": true
+        }
+      ],
+      "grader": {
+        "grader_id": "github-update-file-sha-precondition-v1",
+        "version": "1.0.0",
+        "kind": "deterministic",
+        "primary_outcome": "Correct update_file arguments include current blob SHA and explicit branch; readback hash and one-path diff match reference.",
+        "independent_review_required": false,
+        "review_rubric_ref": "DHI_v1/benchmark/fixtures/plugin_ecology/reports/update-file-contract.md",
+        "llm_judge_sole_source": false
+      },
+      "policy": {
+        "allowed_side_effects": [
+          "update_one_existing_report_on_dedicated_branch"
+        ],
+        "forbidden_side_effects": [
+          "create_second_file",
+          "change_main",
+          "issue_update",
+          "delete_file",
+          "merge",
+          "deployment",
+          "external_message"
+        ],
+        "approval_required": [],
+        "protected_invariants": [
+          "Only the seeded report file changes.",
+          "The current blob SHA is used.",
+          "Main remains unchanged."
+        ],
+        "risk_level": "low"
+      },
+      "provenance": {
+        "source_type": "synthetic_specification",
+        "source_ref": "GitHub update_file live reference: seed commit fa0c47781539f9c5bbe68ef6457c2b4dae258cc4; update commit 0e2e0b08a48d8348dc80eb83d52804df61cfb9f5.",
+        "authored_at_utc": "2026-11-03T08:50:00Z",
+        "authoring_method": "Hand-authored argument/precondition task from a successful exact plugin update and independent readback/diff."
+      },
+      "validation": {
+        "status": "ready_for_validation",
+        "contract_check": "pass",
+        "environment_check": "pass",
+        "grader_check": "not_run",
+        "review_status": "not_reviewed",
+        "harness_gap_ids": [],
+        "validation_evidence": [
+          "Seed file fetched from the specified commit; blob SHA ae7694c15fc2949184a7267dc9fa8e430fd6e037.",
+          "update_file used exact SHA and explicit branch.",
+          "Post-update readback blob equals 68ec2aab89854ca674f64b1c3f087e1f233c54af.",
+          "Diff from seed commit contained one modified file and no additional paths."
+        ]
+      },
+      "execution": {
+        "status": "not_run",
+        "model_runs_allowed": false,
+        "max_model_turns": 8,
+        "max_tool_calls": 8,
+        "trial_seeds": [
+          0
+        ]
+      },
+      "split_metadata": {
+        "partition": "stage_a",
+        "family_fingerprint_sha256": "36bf9b7287d4655fb933562ca8993bd1ca513df1c4c663595cab3939e52c661e",
+        "holdout_sealed": false
+      }
     }
   ],
   "stage_b_policy": {
@@ -3949,6 +4108,7 @@
     "A fourth task-authoring increment added Go release verification (S02) and TinyFish schema/404 recovery (S08). Both reference actual connector outputs and remain ready_for_validation.",
     "A fifth task-authoring increment adds a three-source Node.js/Python/Go synthesis task to S06; a reference report was created, fetched back and diff-verified.",
     "A sixth task-authoring increment adds a cost-aware selection task comparing TinyFish public npm-page retrieval with Firecrawl's one-credit package-record provider; the observed publication-age metadata conflict is part of the grader.",
-    "A further increment adds Firecrawl reverse-dependency discovery (S03) and a second independent long-horizon persistent checkpoint-resume workflow (S07), backed by a separate checkpoint branch and verified single-file report diff."
+    "A further increment adds Firecrawl reverse-dependency discovery (S03) and a second independent long-horizon persistent checkpoint-resume workflow (S07), backed by a separate checkpoint branch and verified single-file report diff.",
+    "The next task increment adds an update_file schema/precondition task using the current blob SHA and an explicit branch; the reference update was read back and diff-checked."
   ]
 }
