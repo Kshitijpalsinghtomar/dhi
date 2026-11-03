@@ -123,3 +123,13 @@ A Node/Python comparison report was created on the dedicated GitHub branch, fetc
 The plugin-native Stage A register now has **22/120** task instances. A third independent S02 task adds Go release-history verification; a third S08 task adds live TinyFish argument-schema recovery, 404 interpretation, and search-based recovery to the canonical source. Both task families are independent from the earlier Node.js/Python currentness and GitHub/Firecrawl recovery cases.
 
 The Go source snapshot and recovery sequence are pinned under `fixtures/plugin_ecology/external_snapshots/`. All records remain ready_for_validation; the Stage B holdout remains empty and sealed. No model run or benchmark score is claimed.
+
+## 11. Current task-panel integrity checkpoint — 2026-11-03
+
+The active plugin-native task manifest contains **30/120 Stage A tasks**, distributed S01=2, S02=3, S03=4, S04=3, S05=4, S06=4, S07=2, S08=3, S09=3 and S10=2. Stage B has **0/120** records and remains sealed.
+
+A cross-record validator and 14 regression tests are committed. It verifies schema compliance, task/family registration, deterministic task and family hashes, exact tool registry membership/digest, task-ID numbering, referenced evidence paths, cross-stage split isolation, per-stratum quotas and the Stage B release boundary. The manifest schema now requires `task_instance_sha256`.
+
+An independent static inspection of the GitHub branch at commit `3d57cc876dcd3f1f82c9d3ff884665de52c7f290` recomputed all 30 task hashes and family fingerprints, confirmed every referenced evidence file exists, confirmed all task tool IDs are present and allowed in the pinned registry, and returned zero structural integrity errors.
+
+Python validator/pytest execution remains outstanding. GitHub Actions run `41594301494` failed before runner allocation; its job reported no runner and no steps. This is not a passing test result and is not evidence of a code failure.
