@@ -36,7 +36,8 @@ status_reason: >
   benchmark + environment regression passed 136 tests in ORBIT-VERIFY-003;
   manifest validation, compileall and runner/adapter import checks also passed. S07 and S09 remain partial.
   No DHI model inference, trained capability result, or verified model trajectory
-  exists. OpenRouter exposes both base candidates, but its account balance is zero.
+  exists. The local runner still lacks a remote GitHub/TinyFish/Firecrawl execution
+  bridge, and OpenRouter exposes both base candidates but its account balance is zero.
 training_status: not_authorized
 benchmark_status: stage_a_authoring_30_of_120; stage_b_sealed_unmaterialized
 last_verified_code_commit: 421955df46975d8b20fba63f8922949a49b4551c
@@ -125,6 +126,16 @@ The isolated verifier run `52254373-656f-4d0c-841d-c3a2c621d7cc`, against code c
 
 The machine-readable report is committed in `experiments/ORBIT-VERIFY-002/`. This validates the authored harness integrity only; it does not establish model capability or validate any task through model execution.
 
+## ORBIT-GRADER-FIX-001
+
+The trace grader now deterministically handles the Stage A `discovery_sequence` and `branch_state_delta` conditions. It accepts a structured repository forecast recorded on `action_started` (the runner's pre-invocation event) and compares it with independently fetched before/after branch inventories. The model-facing tool schema now permits this structured forecast; the local environment preserves it and explicitly marks repository-state comparison as requiring the external-state verifier rather than claiming a filesystem-only match.
+
+Focused verification passed on code head `c478058e651450a520df84aef214dcfa217710ac`: 46 tests, validator and compileall all passed. Full benchmark + environment verification is currently running on head `92bec2c3485220eec6c80a7fe8ae41865a4ef54e`, Deepnote run `43e0726e-e16d-428c-b2dd-f18332e2f882`. See [ORBIT-GRADER-FIX-001](experiments/ORBIT-GRADER-FIX-001/).
+
+## Model execution gap
+
+The plugin-native reference workflow uses connected GitHub/TinyFish/Firecrawl actions, but `DHI_v1/environment/agent_runner.py` does not yet expose a remote plugin execution bridge to the candidate model. It currently builds tool schemas from the local DHI environment catalogue and offers Adaption catalogue search as a read-only discovery meta-tool. That is not equivalent to invoking remote connector actions. This blocks an honest model-facing plugin benchmark run until a separately configured, policy-enforcing gateway is implemented and tested.
+
 ## 9. Research methodology now active
 
 - [ORBIT Research Method](docs/13_ORBIT_RESEARCH_METHOD.md) adapts controlled experiments from Karpathy autoresearch and the broader planning/evaluation/regression/adversarial-review workflow from uditgoenka/autoresearch.
@@ -153,11 +164,14 @@ Current status:
 - No DHI model inference, benchmark score, training data, or training run has been produced.
 
 Next:
-1. Independently review the existing 30 Stage A tasks and close the S07 checkpoint/resume and S09 pre-action prediction-trace gaps.
-2. Continue materializing the remaining 90 Stage A tasks with genuinely distinct families, environment evidence, executable postconditions and independently reviewable graders. Remaining quotas: S01=10, S02=9, S03=8, S04=9, S05=8, S06=8, S07=10, S08=9, S09=9, S10=10.
-4. Build Stage B only after Stage A and the candidate/interface decision are fixed; keep its task bodies sealed outside this public repository.
-5. Keep model execution disabled until Stage A is complete, independently reviewed and frozen; the matched Qwen3.6/GPT-OSS route remains blocked by zero OpenRouter credits.
-6. Reconcile the private 10K intent-arbitration dataset's row semantics and evaluation lineage before any training. No current dataset is authorized for training.
+1. Complete ORBIT-GRADER-FIX-001 full regression on the current head and archive the raw output. Resolve any failures before adding task families.
+2. Implement the model-facing plugin execution gateway for the registered GitHub, TinyFish and Firecrawl tools. The current `agent_runner.py` executes the local DHI workspace catalogue and offers Adaption catalogue search only; that catalogue search is discovery-only, not a remote tool execution bridge. Do not treat ChatGPT's own connected tools as model-run evidence.
+3. Normalize gateway traces into the pinned plugin-trace schema: record model prediction before tool invocation, exact tool ID/arguments, real tool response, independent before/after repository state, credits, and verified postconditions. Ensure the runner can replay/recover checkpoints without mixing scripted reference runs into training data.
+4. Independently review the existing 30 Stage A task contracts, fixture references and graders; close S07 checkpoint/recovery and S09 prediction/observed-effect gaps with model-facing traces.
+5. Then materialize the remaining 90 Stage A tasks using genuinely distinct families and executable postconditions. Remaining quotas: S01=10, S02=9, S03=8, S04=9, S05=8, S06=8, S07=10, S08=9, S09=9, S10=10.
+6. Build Stage B only after Stage A and candidate/interface choices are fixed; keep Stage B bodies sealed outside this public repository.
+7. Keep model execution disabled until the matched model route and tool gateway are affordable and the benchmark is frozen. The OpenRouter account was at zero credits and neither shortlisted model had a free endpoint at the last audit.
+8. Reconcile the private 10K intent-arbitration dataset's row semantics and evaluation lineage before training. No current dataset is authorized for training.
 No DHI candidate model was run. Firecrawl capability discovery cost zero; the discovered package-record execution (one credit) and security/research provider executions (five credits each) were not called. TinyFish Go recovery included a schema-validation rejection followed by a 404 and a successful official-source re-fetch. Consensus search was unavailable because the provider's monthly free quota was exhausted. No Adaption generation/training action was called.
 
 ## 11. Latest committed work
