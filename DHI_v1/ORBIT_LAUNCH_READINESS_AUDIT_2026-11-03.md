@@ -136,3 +136,10 @@ The 30 task records require these external tool IDs (counts are task references,
 6. Run scripted contract tests and then model-generated traces. Scripted reference executions are not ORBIT capability evidence.
 
 This gap is more fundamental than writing the remaining 90 task records. The next engineering priority after ORBIT-VERIFY-004 is the canonical plugin execution path, not further task authoring.
+
+
+## Connector availability clarification — 2026-11-03
+
+The connected assistant session has GitHub MCP actions and Firecrawl Alexandria's `firecrawl_find_tools` action. Their exact contracts are available to this assistant; the prior statement that Firecrawl discovery was “unresolved” referred to the DHI runtime bridge and should not be read as absence of the connected tool.
+
+A live Deepnote integration search for `FIRECRAWL` and `GITHUB` returned no attached project integrations. The verifier has `TINYFISH` attached only. Therefore, assistant-session connector access does not establish that the ORBIT model runner can invoke those actions. The plugin-native runtime still needs a tested MCP/REST transport, project-scoped credentials, canonical ID/schema parity and permission guards. In particular, do not assume a generic Firecrawl REST API key is equivalent to the Alexandria `firecrawl_find_tools` operation without validating its supported transport.
