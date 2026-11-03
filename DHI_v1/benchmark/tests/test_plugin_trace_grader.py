@@ -396,7 +396,8 @@ class PluginTraceGraderTests(unittest.TestCase):
             "data_rows": 2,
             "header_rows": 1,
         }
-        self.assertEqual(grade_task(make_task(condition), trace)["status"], "pass")
+        report = grade_task(make_task(condition), trace)
+        self.assertEqual(report["status"], "pass", report)
 
     def test_branch_state_delta_remains_unscorable_without_normalized_state_adapter(self) -> None:
         condition = {"type": "branch_state_delta", "after_expected": {"new_branch": "orbit/test"}}
