@@ -971,3 +971,23 @@ A same-named remote MCP function is not proof of semantic/schema equivalence to 
 **Blocked before implementation.** Documented remote MCP transport exists for all three providers, but the DHI runtime has neither a verified credential path nor provider-native tool-schema attestation. TinyFish is the first candidate for a read-only smoke because its registered search and fetch_content actions are read-only and documented free.
 
 No model-facing remote tool has been added; no task has been promoted from ready_for_validation; no provider credit has been spent. The next gate is a secure TinyFish credential check and read-only MCP initialize/tools/list smoke, followed by an independent source readback.
+
+## 2026-11-03 — PLUGIN-GATEWAY-001 redacted credential presence probe
+
+A temporary Deepnote notebook cell ran a presence-only check in the DHI verifier runtime. It checked 12 conventional variable names across TinyFish, GitHub and Firecrawl:
+
+- TinyFish: `TINYFISH_API_KEY`, `DHI_TINYFISH_API_KEY`, `MCP_TINYFISH_API_KEY`, `TINYFISH_OAUTH_ACCESS_TOKEN`
+- GitHub: `GITHUB_PERSONAL_ACCESS_TOKEN`, `GITHUB_TOKEN`, `GH_TOKEN`, `DHI_GITHUB_TOKEN`, `MCP_GITHUB_TOKEN`
+- Firecrawl: `FIRECRAWL_API_KEY`, `DHI_FIRECRAWL_API_KEY`, `FIRECRAWL_OAUTH_TOKEN`
+
+All 12 were absent. The code evaluated boolean presence only; no secret values were read, printed, hashed, serialized or persisted. The run sent zero remote requests. The temporary cell was deleted and the verifier machine stopped after the probe.
+
+- Deepnote run: `712a9c26-d126-4cc0-bfdb-a564dd29e3d1` (success)
+- Notebook: `3639f9a98ce5435fa4cd0168eaaca3a1`
+- Output block: `a8b57e8a508349a3a50a144ceeb4313b`
+- Output hash: `sha256:e5a473f06e7d1e78ce66cbbf9e2f157ad6cafb3b353d3c14549019ca0766367c`
+- Project integrations attached: none
+
+This only establishes that the 12 conventional names were not present in that runtime at probe time. It does not rule out a differently named variable or an OAuth mechanism configured elsewhere.
+
+**Decision:** keep PLUGIN-GATEWAY-001 blocked before implementation. The next step is to provision `TINYFISH_API_KEY` through the Deepnote project secret store (or set up a supported OAuth connection) without sharing the credential in chat or committing it. Then perform a read-only TinyFish MCP `initialize`/`tools/list` smoke and an independently verified bounded search/fetch. No model-facing remote tool, provider request, paid action or model inference is authorized yet.
