@@ -163,6 +163,8 @@ The gateway is the next technical research unit. Do not infer a callable endpoin
 
 ## 10. Next authorized action
 
+**Latest recheck (2026-11-03):** A second presence-only `TINYFISH_API_KEY` probe was rejected before execution by the same Deepnote parallel-project quota error. The temporary probe block was deleted, the original regression cell was untouched, the verifier machine remains stopped, and no secret values or provider requests were involved. The reported secret is still not runtime-verified. The experiment record contains the exact attempt details.
+
 **Verify one real read-only provider connection, beginning with TinyFish search/fetch. Do not yet enable remote writes, paid tools, Stage A validation, model inference or training.**
 
 Current facts:
