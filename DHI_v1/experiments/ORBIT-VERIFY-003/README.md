@@ -1,6 +1,6 @@
 # ORBIT-VERIFY-003 — combined benchmark and environment regression
 
-**Status:** running (last observed 2026-11-03T09:07:06Z)  
+**Status:** passed  
 **Code under test:** `421955df46975d8b20fba63f8922949a49b4551c`  
 **Documentation branch at session start:** `ac153edc657167847523fe5257d6b53fff572261`  
 **Branch:** `orbit/plugin-benchmark-fixture`
@@ -34,9 +34,20 @@ The detached run was launched before its experiment manifest was committed. This
 
 ## Result
 
-Pending. The run was still reported as `running` with no terminal status or snapshot as of the timestamp above. Do not interpret this as pass or failure.
+<badge>PASS</badge> All checks passed against code commit `421955df46975d8b20fba63f8922949a49b4551c`.
 
-When terminal, append the exact validator output, pytest collected/pass/fail counts, compile/import exit codes, elapsed times, and a link or checksum for the full saved report. Do not change any task validation status based on this regression run.
+| Check | Result |
+|---|---|
+| Manifest validator | PASS — 30 tasks; Stage A=30; Stage B=0; no errors |
+| Combined benchmark + environment tests | **136 passed, 0 failed** |
+| Compile benchmark + environment | PASS — exit code 0 |
+| Runner / adapter import smoke | PASS — exit code 0 |
+
+Pytest reported `136 passed in 377.05s`; the enclosing subprocess wall-time record was 502.268 seconds. The verifier ran under Python 3.13.18. All required repository files were present.
+
+Full command output, stdout/stderr, timings, and return codes are archived in [results/verification-report.json](results/verification-report.json). Deepnote run: `f661f5ad-7c5e-48b9-9af6-afda1e6f021b`.
+
+Do not change task validation status based on this regression run.
 
 ## Evidence boundary
 
