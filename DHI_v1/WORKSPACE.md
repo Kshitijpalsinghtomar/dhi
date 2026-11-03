@@ -130,7 +130,7 @@ The machine-readable report is committed in `experiments/ORBIT-VERIFY-002/`. Thi
 
 The trace grader now deterministically handles the Stage A `discovery_sequence` and `branch_state_delta` conditions. It accepts a structured repository forecast recorded on `action_started` (the runner's pre-invocation event) and compares it with independently fetched before/after branch inventories. The model-facing tool schema now permits this structured forecast; the local environment preserves it and explicitly marks repository-state comparison as requiring the external-state verifier rather than claiming a filesystem-only match.
 
-Focused verification passed on code head `c478058e651450a520df84aef214dcfa217710ac`: 46 tests, validator and compileall all passed. Full benchmark + environment verification is currently running on head `92bec2c3485220eec6c80a7fe8ae41865a4ef54e`, Deepnote run `43e0726e-e16d-428c-b2dd-f18332e2f882`. See [ORBIT-GRADER-FIX-001](experiments/ORBIT-GRADER-FIX-001/).
+Focused verification passed on code head `c478058e651450a520df84aef214dcfa217710ac`: 46 tests, validator and compileall all passed. Full benchmark + environment verification completed on head `92bec2c3485220eec6c80a7fe8ae41865a4ef54e`, Deepnote run `43e0726e-e16d-428c-b2dd-f18332e2f882`: manifest validator passed; pytest reported 141 passed and one stale schema assertion failure. The active branch corrected that assertion, but a rerun is blocked by Deepnote's parallel-project quota. See the experiment record; do not claim full-suite success. See [ORBIT-GRADER-FIX-001](experiments/ORBIT-GRADER-FIX-001/).
 
 ## Model execution gap
 
