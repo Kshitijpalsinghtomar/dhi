@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import json
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -143,6 +144,26 @@ class TaskManifestValidatorTests(unittest.TestCase):
         self.assertEqual(family_fingerprint(task), family_fingerprint(task))
         self.assertEqual(task_instance_fingerprint(task), task_instance_fingerprint(task))
         self.assertEqual(canonical_json({"b": 1, "a": 2}), '{"a":2,"b":1}')
+
+
+    def test_tool_registry_digest_rejects_contract_mutation(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="orbit-tool-registry-test-") as temporary:
+            root = Path(temporary)
+            registry_path = root / "DHI_v1" / "benchmark" / "fixtures" / "plugin_ecology" / "plugin_tool_registry.json"
+            registry_path.parent.mkdir(parents=True)
+            registry = json.loads(
+                (REPO_ROOT / "DHI_v1" / "benchmark" / "fixtures" / "plugin_ecology" / "plugin_tool_registry.json").read_text(encoding="utf-8")
+            )
+            registry["tools"][0]["exact_contract_description"] += "\\nmutated contract"
+            registry_path.write_text(json.dumps(registry, ensure_ascii=False, indent=2) + "\\n", encoding="utf-8")
+            errors = self.errors(repo_root=root)
+        self.assertTrue(any("tool_schema_sha256 mismatch" in error for error in errors))
+
+    def test_malformed_nested_inventory_returns_errors_instead_of_crashing(self) -> None:
+        changed = copy.deepcopy(self.manifest)
+        changed["tasks"][0]["tool_inventory"] = None
+        errors = self.errors(changed)
+        self.assertTrue(any(error.startswith("[schema]") for error in errors))
 
 
 if __name__ == "__main__":
