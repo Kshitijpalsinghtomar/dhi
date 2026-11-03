@@ -4671,7 +4671,7 @@
     "trace_schema_path": "DHI_v1/benchmark/plugin_trace.schema.json",
     "trace_grader_path": "DHI_v1/benchmark/plugin_trace.py",
     "trace_schema_sha256": "f83b490bb4bd26b8f9c8daa68f6bf500134bd938adb9668be64606c7bd371b22",
-    "trace_grader_sha256": "186b3743865b99aa3eb1fa702ad73364a1d70b7a94c691b885aeae0b24ca2742"
+    "trace_grader_sha256": "d5f82d00bf81bdb9ad1900e052407552e8bf8bcfc236b336fa946bf54b8032cc"
   },
   "existing_development_pilot": {
     "path": "DHI_v1/benchmark/pilot_cases.json",
