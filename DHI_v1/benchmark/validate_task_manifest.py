@@ -10,6 +10,7 @@ from pathlib import Path, PurePosixPath
 from typing import Any
 
 from jsonschema import Draft202012Validator, FormatChecker
+from DHI_v1.benchmark.plugin_trace import IMPLEMENTED_CONDITIONS
 
 REPO_ROOT_DEFAULT = Path.cwd()
 DEFAULT_MANIFEST = Path("DHI_v1/benchmark/task_manifest.json")
@@ -291,6 +292,25 @@ def collect_manifest_errors(
         if not isinstance(task, dict):
             continue
         task_id = task.get("task_id")
+
+        # A structurally valid condition is not sufficient: every registered
+        # postcondition must have a deterministic implementation in the pinned
+        # trace grader, otherwise the task can never be mechanically accepted.
+        postconditions = task.get("postconditions", [])
+        if isinstance(postconditions, list):
+            for postcondition in postconditions:
+                if not isinstance(postcondition, dict):
+                    continue
+                condition = postcondition.get("condition")
+                if not isinstance(condition, dict):
+                    continue
+                condition_type = condition.get("type")
+                if condition_type not in IMPLEMENTED_CONDITIONS:
+                    _record_error(
+                        errors,
+                        "grader",
+                        f"{task_id}: no deterministic grader implementation for condition type {condition_type!r}",
+                    )
         match = TASK_ID_RE.fullmatch(task_id) if isinstance(task_id, str) else None
         if isinstance(task_id, str):
             if task_id in seen_task_ids:
