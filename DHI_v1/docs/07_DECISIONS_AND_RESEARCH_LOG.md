@@ -916,3 +916,33 @@ The full regression run `43e0726e-e16d-428c-b2dd-f18332e2f882` completed against
 ### Execution route constraint
 
 The current Adaption Responses adapter supports model inference with caller-supplied function tools and separately supports read-only connector-catalogue discovery. It does not currently turn catalogue entries into executable remote connector actions. The deterministic DHI environment intentionally exposes only file-workspace tools plus discovery. The plugin-native task profile records connected GitHub/TinyFish/Firecrawl evidence, but those ChatGPT-connected actions are not callable by the DHI model runner through the current adapter. Do not assume Adaption Responses supports remote MCP execution without a documented contract and an integration test. Keep the external-plugin model execution gate closed until such a contract is verified and a policy-enforcing adapter exists.
+
+
+## 2026-11-03 — Correction: ORBIT-GRADER-FIX-001 full regression passed
+
+This entry supersedes the earlier open-gate conclusion in the same-day full-regression adjudication. The corrected runner-schema assertion was executed as part of the complete regression.
+
+### Verified result
+
+- Deepnote run `34ca752c-e864-4a3d-9388-957d2c3e1859` completed with terminal status `success` against code commit `cba8421d4f4c6c4f929d5f4c3196eb83f98f7351`.
+- Cross-record manifest validator: valid; 30 tasks; Stage A=30; Stage B=0; zero errors.
+- Combined benchmark and environment test suites: **142 passed, 0 failed**.
+- `compileall -q DHI_v1/benchmark DHI_v1/environment`: exit code 0.
+- Import smoke for `agent_runner`, `adaption_responses`, and `benchmark.runner`: passed.
+- All four commands returned exit code 0.
+
+### Raw evidence
+
+The run snapshot is available in Deepnote project `6415944e-8d6c-432c-a7cf-3bbaa997799c`, notebook `3639f9a98ce5435fa4cd0168eaaca3a1`, output block `43e281b25689485a9ff1c31e7cbfcbdc`. The machine-readable raw report is `grader-fix-full-report-final.json`; run ID `34ca752c-e864-4a3d-9388-957d2c3e1859`; block content hash `sha256:4a6a556b2ed08feb83f3119939e2642756b5701b36f85d1645f176b66aad25b5`. The detailed run record is in [ORBIT-GRADER-FIX-001](../experiments/ORBIT-GRADER-FIX-001/).
+
+### Current-head equivalence
+
+The branch head at adjudication was `43608791494e445b17556e1ec8fc08b8a9f2f455`. GitHub comparison from tested code commit `cba8421d4f4c6c4f929d5f4c3196eb83f98f7351` to that head shows six commits, with changes only to `DHI_v1/WORKSPACE.md`, this decision log, and the ORBIT-GRADER-FIX-001 README/manifest. No runtime or test source changed after the passing run.
+
+### Retry failures and interpretation
+
+The later notebook run `220cc301-c5de-4c33-b507-784d456935d6` stopped without output. Run `b401c21c-d586-4a69-8e69-80c6cf02ae43` failed before pytest collection because the cell omitted installation of `DHI_v1/environment/requirements-dev.txt` and the detached environment had no `pytest` module. These are verifier bootstrap failures, not code regressions; they do not supersede the completed full pass.
+
+### Decision
+
+Close the runtime/test regression gate at code commit `cba8421d4f4c6c4f929d5f4c3196eb83f98f7351`; the current branch remains code-equivalent. This proves harness/code health only. It does not validate the 30 task instances through a candidate model, establish model capability, authorize training, or authorize paid model/provider actions. The next research bottleneck is the documented, policy-enforcing remote-plugin execution interface.
