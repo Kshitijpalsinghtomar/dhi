@@ -1,6 +1,6 @@
 # ORBIT-GRADER-FIX-001 — deterministic discovery recovery and branch-state scoring
 
-**Status:** focused gate passed; full regression running  
+**Status:** focused gate passed; full regression found one stale test assertion; correction committed, rerun blocked by Deepnote quota  
 **Branch:** `orbit/plugin-benchmark-fixture`  
 **Baseline code:** `49e2ee031b18280206d8d4cc1f33c0e9c272e55b`
 
@@ -44,3 +44,17 @@ The first detached Deepnote attempt (`db19bd2b-a005-42d0-a269-385d8e5de3ae`) did
 ## Decision rule
 
 Keep only if the new regression tests demonstrate both supported conditions and reject the counterexamples above, the manifest validator accepts the task panel, and the full benchmark/environment suites pass. Otherwise reject or revise the adapter; never weaken the evidence requirements.
+
+
+## Full regression result — 2026-11-03
+
+Deepnote run `43e0726e-e16d-428c-b2dd-f18332e2f882` executed against code head `92bec2c3485220eec6c80a7fe8ae41865a4ef54e`.
+
+- Cross-record manifest validator: **PASS** — 30 tasks, Stage A=30, Stage B=0, no errors.
+- Benchmark + environment pytest suite: **141 passed, 1 failed**.
+- The single failure was `test_runner_exposes_structured_repository_branch_forecast_schema`: the test expected a nested `$defs` object, while the emitted schema deliberately contains inline branch item schemas. This is a test-contract mismatch, not evidence of a grader failure.
+- The active branch subsequently updated that assertion to inspect the inline schema directly (test file blob `269e5c9c3f7c678d0da56529b4d36798daca404e`).
+- A rerun was attempted, but Deepnote refused a new run because the account's parallel-project quota was exceeded. The DHI verifier machine itself was stopped. No other project was stopped or modified.
+- Therefore the corrected full suite is **not yet verified**. Compileall/import smoke did not run because the combined script stopped after pytest failed.
+
+Next: rerun the focused schema test, then the full benchmark + environment suite on the current branch head once Deepnote capacity is available. Do not mark the suite green based on the source correction alone.
