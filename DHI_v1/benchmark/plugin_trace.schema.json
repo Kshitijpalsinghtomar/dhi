@@ -431,6 +431,16 @@
             "interrupted",
             "unscorable"
           ]
+        },
+        "side_effect_class": {
+          "enum": [
+            "read_only",
+            "sandbox_write",
+            "external_write",
+            "destructive",
+            "paid_external",
+            "unknown"
+          ]
         }
       },
       "allOf": [
