@@ -114,11 +114,15 @@ class OpenAICompatibleChatClient:
     exposes data/training operations, not chat inference; supply a real endpoint.
     """
     def __init__(self, *, base_url: str, api_key: str, model: str,
-                 timeout_seconds: float = 120.0) -> None:
+                 timeout_seconds: float = 120.0,
+                 provider: dict[str, Any] | None = None) -> None:
         self.base_url = base_url.rstrip("/")
         self.api_key = api_key
         self.model = model
         self.timeout_seconds = timeout_seconds
+        if provider is not None and not isinstance(provider, dict):
+            raise ValueError("provider routing must be a JSON object")
+        self.provider = json.loads(json.dumps(provider)) if provider is not None else None
         if not self.base_url.startswith(("https://", "http://")):
             raise ValueError("base_url must be an HTTP(S) URL")
         if not model.strip() or not api_key:
@@ -133,13 +137,17 @@ class OpenAICompatibleChatClient:
             "tool_choice": "auto", "parallel_tool_calls": True,
             "temperature": temperature,
         }
+        if self.provider is not None:
+            body["provider"] = json.loads(json.dumps(self.provider))
         request = urllib.request.Request(
             f"{self.base_url}/chat/completions",
             data=json.dumps(body).encode("utf-8"),
-            headers={"Authorization": f"Bearer {self.api_key}",
-                     "Content-Type": "application/json"},
+            headers={"Content-Type": "application/json"},
             method="POST",
         )
+        # Do not put the bearer token in Request.headers: urllib's standard
+        # redirect handler copies those headers to a different host.
+        request.add_unredirected_header("Authorization", f"Bearer {self.api_key}")
         try:
             with urllib.request.urlopen(request, timeout=self.timeout_seconds) as response:
                 payload = response.read()
@@ -319,7 +327,12 @@ def client_from_env() -> tuple[ChatCompletionClient, str]:
     missing = [name for name, value in (("DHI_MODEL_BASE_URL", base_url), ("DHI_MODEL_API_KEY", api_key)) if not value]
     if missing:
         raise SystemExit("Missing model endpoint configuration: " + ", ".join(missing))
-    return OpenAICompatibleChatClient(base_url=base_url, api_key=api_key, model=model_name), model_name
+    route = None
+    if base_url.rstrip("/").casefold() == "https://openrouter.ai/api/v1":
+        route = {"only": ["primeintellect"], "allow_fallbacks": False}
+    return OpenAICompatibleChatClient(
+        base_url=base_url, api_key=api_key, model=model_name, provider=route
+    ), model_name
 
 
 def tool_handlers_from_client(client: ChatCompletionClient) -> dict[str, Any]:
