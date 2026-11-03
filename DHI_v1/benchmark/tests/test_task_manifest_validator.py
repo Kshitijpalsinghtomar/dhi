@@ -157,10 +157,13 @@ class TaskManifestValidatorTests(unittest.TestCase):
             registry = json.loads(
                 (REPO_ROOT / "DHI_v1" / "benchmark" / "fixtures" / "plugin_ecology" / "plugin_tool_registry.json").read_text(encoding="utf-8")
             )
-            registry["tools"][0]["exact_contract_description"] += "\\nmutated contract"
-            registry_path.write_text(json.dumps(registry, ensure_ascii=False, indent=2) + "\\n", encoding="utf-8")
+            registry["tools"][0]["exact_contract_description"] += "\nmutated contract"
+            registry_path.write_text(json.dumps(registry, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
             errors = self.errors(repo_root=root)
-        self.assertTrue(any("tool_schema_sha256 mismatch" in error for error in errors))
+        self.assertTrue(
+            any("tool_schema_sha256 mismatch" in error for error in errors),
+            "\n".join(errors),
+        )
 
     def test_malformed_nested_inventory_returns_errors_instead_of_crashing(self) -> None:
         changed = copy.deepcopy(self.manifest)
