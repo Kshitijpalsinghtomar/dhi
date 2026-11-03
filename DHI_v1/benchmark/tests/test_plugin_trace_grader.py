@@ -481,19 +481,37 @@ class PluginTraceGraderTests(unittest.TestCase):
 
     def test_discovery_sequence_rejects_paid_execution(self) -> None:
         trace = make_trace()
+        task_id = trace["task_id"]
+        empty_state = {}
         trace["events"] = [
             {
                 "event_id": "start", "event_index": 1, "event_type": "task_started",
-                "timestamp_utc": "2026-11-03T00:00:00Z", "task_id": trace["task_id"],
+                "timestamp_utc": "2026-11-03T00:00:00Z", "task_id": task_id,
                 "source_ref": "fixture://task-start",
             },
             {
-                "event_id": "close", "event_index": 2, "event_type": "task_closed",
-                "timestamp_utc": "2026-11-03T00:00:01Z", "task_id": trace["task_id"],
+                "event_id": "paid-start", "event_index": 2, "event_type": "action_started",
+                "timestamp_utc": "2026-11-03T00:00:01Z", "task_id": task_id,
+                "action_id": "paid-1", "tool_id": "mcp__Firecrawl__firecrawl_scrape",
+                "arguments": {"capability": "packages/package"}, "observed_state_before": empty_state,
+                "side_effect_class": "paid_external",
+            },
+            {
+                "event_id": "paid-done", "event_index": 3, "event_type": "action_executed",
+                "timestamp_utc": "2026-11-03T00:00:02Z", "task_id": task_id,
+                "action_id": "paid-1", "tool_id": "mcp__Firecrawl__firecrawl_scrape",
+                "arguments": {"capability": "packages/package"}, "observed_state_before": empty_state,
+                "observed_state_after": empty_state,
+                "actual_tool_result": {"ok": True, "result": {}, "error": None, "provider_cost": 1, "capability_id": "packages/package"},
+                "actual_effects": {"added_paths": [], "modified_paths": [], "deleted_paths": [], "changed_paths": [], "unchanged_paths": []},
+            },
+            {
+                "event_id": "close", "event_index": 4, "event_type": "task_closed",
+                "timestamp_utc": "2026-11-03T00:00:03Z", "task_id": task_id,
                 "closure_status": "success",
             },
         ]
-        trace["usage"] = {"tool_calls": 0, "provider_credits_spent": 1}
+        trace["usage"] = {"tool_calls": 1, "provider_credits_spent": 1}
         condition = {
             "type": "discovery_sequence",
             "sequence": ["broad_search_fallback_with_candidate_items", "provider_filtered_search_success"],
@@ -606,10 +624,8 @@ class PluginTraceGraderTests(unittest.TestCase):
 
         # A prediction moved after create_branch must never earn a passing forecast score.
         prediction = trace["events"].pop(3)
-        prediction["event_index"] = 7
-        for index, event in enumerate(trace["events"], 1):
-            event["event_index"] = index
-        trace["events"].insert(6, prediction)
+        prediction["timestamp_utc"] = "2026-11-03T00:00:05.500Z"
+        trace["events"].insert(5, prediction)
         for index, event in enumerate(trace["events"], 1):
             event["event_index"] = index
         self.assertEqual(grade_task(make_task(condition, task_id=task_id), trace, schema=load_schema())["status"], "fail")
