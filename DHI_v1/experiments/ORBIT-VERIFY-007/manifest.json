@@ -1,7 +1,7 @@
 {
   "experiment_id": "ORBIT-VERIFY-007",
   "date": "2026-11-03",
-  "status": "prepared",
+  "status": "passed",
   "code_under_test": "28a0753c283cd0105d103ee4da11ac0847af0014",
   "branch": "orbit/plugin-benchmark-fixture",
   "question": "Does the canonical TinyFish runtime bundle pass exact-head full regression and real-runtime no-network task preparation?",
@@ -39,7 +39,62 @@
     "Do not alter the live task manifest model_runs_allowed flags.",
     "Do not execute the notebook's saved regression or provider-probe blocks."
   ],
-  "full_run": null,
-  "decision": "pending",
-  "evidence_boundary": "Engineering regression and no-network actual-runtime bundle preparation only; not real provider execution or model capability."
+  "full_run": "ec2a3f4f-b421-41a8-9187-92ad21ed1dc2",
+  "decision": "pass_tinyfish_canonical_bundle_engineering_gate_only",
+  "evidence_boundary": "Canonical TinyFish schemas and key-gated handlers from the actual Deepnote TINYFISH integration prepare the TinyFish-only manifest task through the generic dispatcher without network calls. No model loop, actual provider request, task-level grader validation or model capability result is established.",
+  "result": {
+    "manifest_validator": {
+      "passed": true,
+      "valid": true,
+      "task_count": 30,
+      "stage_counts": {
+        "A": 30,
+        "B": 0
+      },
+      "errors": []
+    },
+    "full_pytest": {
+      "passed": 178,
+      "failed": 0,
+      "elapsed_seconds": 390.936,
+      "reported_duration_seconds": 343.92
+    },
+    "compileall": {
+      "passed": true,
+      "returncode": 0,
+      "elapsed_seconds": 67.086
+    },
+    "entrypoint_import_smoke": {
+      "passed": true,
+      "returncode": 0,
+      "elapsed_seconds": 28.628
+    },
+    "plugin_manifest_loader_smoke": {
+      "passed": true,
+      "task_plans": 30,
+      "model_runs_enabled": 0,
+      "elapsed_seconds": 2.153
+    },
+    "actual_tinyfish_runtime_no_network_preflight": {
+      "passed": true,
+      "key_present": true,
+      "schema_ids": [
+        "mcp__TinyFish__fetch_content",
+        "mcp__TinyFish__search"
+      ],
+      "handler_ids": [
+        "mcp__TinyFish__fetch_content",
+        "mcp__TinyFish__search"
+      ],
+      "prepared_task": "ORBIT-A-S02-001",
+      "source_manifest_model_runs_allowed": false,
+      "external_calls": 0,
+      "elapsed_seconds": 5.206
+    },
+    "python": "3.13.18",
+    "platform": "Linux-6.18.57-talos-x86_64-with-glibc2.36",
+    "provider_requests": 0,
+    "training_jobs": 0
+  },
+  "raw_result_path": "DHI_v1/experiments/ORBIT-VERIFY-007/results/verification-report.json"
 }
