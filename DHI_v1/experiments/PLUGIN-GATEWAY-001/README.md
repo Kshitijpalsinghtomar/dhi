@@ -247,3 +247,22 @@ The provider's native MCP tools/list returns 41 tools. This adapter exposes exac
 - The disposable test project was deleted. The primary verifier notebook's original regression block was preserved; temporary diagnostics/test-launch cells were removed. The verifier machine was left stopped.
 
 **Decision:** the credential and provider route are verified, and the policy-limited adapter is implemented. Fourteen direct assertions pass. Full pytest discovery, syntax/compile gate and full regression remain open; do not describe the adapter as fully validated until those gates run in a reliable environment. No model inference or training was performed.
+
+## Scripted model-facing trace and timeout verification — 2026-11-03
+
+The next test traverses the DHI task permission gate, model-facing tool schema, runner, TinyFish REST client and action trace. It uses a scripted model client and mocked HTTP; it is a harness integration test, not an ORBIT model inference result.
+
+- Deepnote project/notebook: DHI ORBIT exact-head verifier / 3639f9a98ce5435fa4cd0168eaaca3a1.
+- Final run: c2d0bac2-7679-4e33-8462-a820d02be2b3.
+- Result: DIRECT_ASSERTION_INVOCATIONS_PASSED=16; IN_MEMORY_COMPILE_PASSED=6.
+- The model-facing schema included the always-visible catalog.search discovery meta-tool plus the explicitly allowlisted tinyfish.search. It did not include tinyfish.fetch_content.
+- The scripted model made one tinyfish.search call. The REST request used the fixed Search endpoint with the runtime key in the header; the response was mocked and this unit/integration test made no external TinyFish request.
+- The action event recorded the selected tool, provider result, pre-action forecast and matched observed workspace delta. The task final response and protected README postcondition were independently checked.
+- The key string was absent from the serialized trajectory.
+- A transport timeout test confirms the configured timeout is passed through, a timeout is not retried, and the key is not echoed in the error.
+
+The first run of the model-facing test failed because its initial test assumption omitted catalog.search, which DHI intentionally always exposes for dynamic tool discovery. The test was corrected to expect catalog.search plus the explicitly allowed TinyFish search tool. No production-code change was needed for that correction. The corrected focused run passed 15 direct invocations; the timeout test then brought the total to 16.
+
+The six changed Python files also passed in-memory compilation with compile(source_text, filename, 'exec'). This checks Python syntax without writing bytecode. It is not the same as compileall or a full test-suite pass.
+
+Remaining verification gate: pytest discovery has timed out before collection in the Deepnote execution environment. The complete benchmark/environment regression has not been rerun on the adapter commit. The 16 direct assertions and in-memory compile are useful focused evidence, but do not substitute for the full pytest gate. The test-only notebook cells were deleted after capturing the run; the original regression block and earlier TinyFish provider-smoke evidence cells remain. The verifier machine was stopped.
