@@ -2934,7 +2934,7 @@
         "partition": "stage_a",
         "family_fingerprint_sha256": "9dca420812586a63b50b3bf0713d0e7c37d84783d75ae32e231b7ab8416d74f3",
         "holdout_sealed": false,
-        "task_instance_sha256": "e1ca31dd67676fbcbae10e54705fef9cb93df6ba559770451766f553d7ab0f87"
+        "task_instance_sha256": "25950daead2804e5dd1900d7ddaf62ec29e5b829efaa23d971e6139be4eb596d"
       }
     },
     {
