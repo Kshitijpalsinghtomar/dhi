@@ -109,3 +109,11 @@ The local file-workspace harness coverage above remains accurate for that harnes
 Ten initial Stage A task instances (one per stratum) are now materialized in [task_manifest.json](task_manifest.json). S02 current-source verification is supported through TinyFish; S03 free capability discovery is supported through Firecrawl; GitHub supports exact file reads, sandbox-branch writes, state verification, and a real 404 recovery. S07 checkpoint/resume and S09 pre-action prediction capture remain partial. All twelve task records are ready for model validation, not validated. Stage B remains unmaterialized and sealed.
 
 The synthetic plugin fixture includes exact source files, current-source and tool-discovery snapshots, an untrusted issue body, a persistent resume checkpoint, and verified reference reports. No DHI model run or capability score was produced. A credit-consuming Firecrawl provider execution was not run.
+
+## 9. Plugin-native task authoring increment — 2026-11-03
+
+The plugin-native Stage A register now contains **20 task instances** across the ten strata, with 20 distinct task-family records. Distribution: S01=2, S02=2, S03=3, S04=2, S05=2, S06=2, S07=1, S08=2, S09=2, S10=2. The 120-task Stage A target and sealed 120-task Stage B target are unchanged.
+
+New task families cover direct-answer restraint, research-provider discovery, GitHub commit-diff selection, TinyFish multi-URL argument correctness, Node/Python cross-source synthesis, Firecrawl degraded-discovery recovery, GitHub branch-effect prediction, and untrusted paid-action instructions.
+
+A Node/Python comparison report was created on the dedicated GitHub branch, fetched back, and diff-checked as the only new path from its baseline. The task manifest passed the committed JSON Schema and cross-record uniqueness/count checks with zero schema errors. All 20 tasks remain ready for validation, not validated; no model execution or capability score is claimed. Stage B is still empty and sealed.
