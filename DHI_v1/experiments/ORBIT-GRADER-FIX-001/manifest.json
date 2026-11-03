@@ -1,7 +1,7 @@
 {
   "experiment_id": "ORBIT-GRADER-FIX-001",
   "date": "2026-11-03",
-  "status": "protocol_committed_red_execution_pending",
+  "status": "focused_pass_full_regression_running",
   "branch": "orbit/plugin-benchmark-fixture",
   "baseline_branch_head": "49e2ee031b18280206d8d4cc1f33c0e9c272e55b",
   "test_only_commit": "49e2ee031b182b80206d8d4cc1f33c0e9c272e55b",
@@ -41,5 +41,41 @@
     "stderr": "/root/venv/bin/python: No module named pytest",
     "interpretation": "Test process did not collect or execute tests; not a RED result."
   },
-  "decision_rule": "Keep only after focused RED then GREEN evidence, task-manifest validation, and full regression pass."
+  "decision_rule": "Keep only after focused RED then GREEN evidence, task-manifest validation, and full regression pass.",
+  "current_code_head": "92bec2c3485220eec6c80a7fe8ae41865a4ef54e",
+  "focused_verification": {
+    "run_id": "48da192e-720f-4449-b5bd-d2e36797c0b7",
+    "tested_head": "c478058e651450a520df84aef214dcfa217710ac",
+    "validator": {
+      "passed": true,
+      "task_count": 30,
+      "stage_counts": {
+        "A": 30,
+        "B": 0
+      }
+    },
+    "tests": {
+      "passed": 46,
+      "failed": 0
+    },
+    "compileall": {
+      "passed": true,
+      "scope": [
+        "DHI_v1/benchmark"
+      ]
+    },
+    "all_passed": true
+  },
+  "full_verification": {
+    "run_id": "43e0726e-e16d-428c-b2dd-f18332e2f882",
+    "tested_head": "92bec2c3485220eec6c80a7fe8ae41865a4ef54e",
+    "status": "running",
+    "scope": [
+      "DHI_v1/benchmark/tests",
+      "DHI_v1/environment/tests",
+      "manifest validator",
+      "compileall",
+      "runner imports"
+    ]
+  }
 }
