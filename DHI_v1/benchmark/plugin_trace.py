@@ -245,6 +245,11 @@ def _walk(value: Any):
             yield from _walk(item)
 
 
+def _raw_text(value: Any) -> str:
+    """Flatten scalar string values from a raw tool observation, excluding assistant claims."""
+    return "\\n".join(item for item in _walk(value) if isinstance(item, str))
+
+
 def _evidence_text(trace: dict[str, Any]) -> str:
     return _canonical_json(trace.get("events", [])) + "\n" + _artifact_text(trace)
 
@@ -480,7 +485,22 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
         if not observations:
             return _result("unscorable", "trace contains no raw file-fetch observation")
         if not matching_responses:
-            return _result("fail", "no fetched file matched the requested path/blob SHA")
+            observed = [
+                {
+                    "tool_id": item.get("tool_id"),
+                    "request": item.get("request"),
+                    "response_keys": sorted(item.get("response", {}).keys()) if isinstance(item.get("response"), dict) else None,
+                    "response_sha": (
+                        item.get("response", {}).get("sha") or item.get("response", {}).get("blob_sha")
+                    ) if isinstance(item.get("response"), dict) else None,
+                }
+                for item in observations
+            ]
+            return _result("fail", "no fetched file matched the requested path/blob SHA", {
+                "expected_path": expected_path,
+                "expected_blob": expected_blob,
+                "observed": observed,
+            })
         response = matching_responses[-1]
         if expected_rows is not None:
             content_value = response.get("content")
