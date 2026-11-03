@@ -251,3 +251,22 @@ A new agent must:
 7. Commit every meaningful checkpoint, including failures and blockers, then update this workspace before switching tasks.
 
 Do not use this chat as a handover. The repository must remain sufficient to resume the work.
+
+
+## 12. Independent launch-readiness adjudication — 2026-11-03
+
+See [ORBIT launch-readiness audit](ORBIT_LAUNCH_READINESS_AUDIT_2026-11-03.md). Independent review confirms the current status is **not ready for model training or release**: no DHI-v1 inference, no model-generated trajectory, no base-model winner, no approved training set, and no DHI-v1 checkpoint.
+
+The TinyFish provider path is verified and the DHI adapter has 16 focused direct assertions plus six in-memory source compilations. These are scripted/mocked adapter checks, not pytest and not ORBIT inference. The old full regressions (136 at `421955d`, 142 at `cba8421`) predate the TinyFish adapter and must not be represented as adapter regression passes.
+
+### ORBIT-VERIFY-004 — exact adapter regression
+
+A frozen verification protocol has been committed in `experiments/ORBIT-VERIFY-004/`. The Deepnote project files were compared against the exact code-under-test commit `5b144c531e8a548787918f0fcdf9e681f05d96e8`; all execution-critical source/test files matched, and the 4,704-line task manifest matched across 19 bounded windows. The experiment runs only a new selected cell. The saved notebook regression cell is not to be executed or modified.
+
+### Launch sequence and planning estimate
+
+The only immediate engineering action is ORBIT-VERIFY-004. After it passes: validate the existing 30 Stage A tasks, close S07/S09, complete the remaining Stage A panel, then obtain funded matched inference for Qwen3.6-35B-A3B and GPT-OSS-20B. Only actual model-execution traces with independently verified outcomes may seed the first ORBIT SFT dataset.
+
+Planning estimate from removal of current hard blockers: first SFT checkpoint approximately **3–6 weeks**, with public-release packaging/independent validation potentially adding **1–2 weeks**. This is conditional on funded inference/compute, a frozen benchmark and valid trajectories; it is not a promised date.
+
+No new provider integration, dataset augmentation, model architecture experiment, DPO/RL run, Stage B exposure, merge, deployment or paid provider action is authorized by this handover.
