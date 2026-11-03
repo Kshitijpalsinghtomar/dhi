@@ -154,6 +154,18 @@ def _build_plan(
     required = _string_list(inventory.get("required_tool_ids"), f"{task_id}.required_tool_ids")
     if set(visible) & set(discoverable):
         raise PluginTaskLoadError(f"{task_id}: visible and discoverable tool IDs overlap")
+    registry_references = set(visible) | set(discoverable) | set(required)
+    for tool_id in sorted(registry_references):
+        registry_item = task_index.get(tool_id)
+        if registry_item is None:
+            raise PluginTaskLoadError(
+                f"{task_id}: tool {tool_id!r} is not present in the pinned registry"
+            )
+        if registry_item.get("allowed_in_benchmark") is not True:
+            raise PluginTaskLoadError(
+                f"{task_id}: tool {tool_id!r} is not allowed in the benchmark"
+            )
+
     offered_ids = set(visible) | set(discoverable)
     missing_required = set(required) - offered_ids
     if missing_required:
