@@ -266,3 +266,13 @@ The first run of the model-facing test failed because its initial test assumptio
 The six changed Python files also passed in-memory compilation with compile(source_text, filename, 'exec'). This checks Python syntax without writing bytecode. It is not the same as compileall or a full test-suite pass.
 
 Remaining verification gate: pytest discovery has timed out before collection in the Deepnote execution environment. The complete benchmark/environment regression has not been rerun on the adapter commit. The 16 direct assertions and in-memory compile are useful focused evidence, but do not substitute for the full pytest gate. The test-only notebook cells were deleted after capturing the run; the original regression block and earlier TinyFish provider-smoke evidence cells remain. The verifier machine was stopped.
+
+## Alternate local test-runner attempt — 2026-11-03
+
+An alternate local container runner was attempted after Deepnote pytest collection timed out. The exact branch remote could not be reached:
+
+- Command: git ls-remote https://github.com/Kshitijpalsinghtomar/dhi.git refs/heads/orbit/plugin-benchmark-fixture
+- Result: failed before checkout with DNS error, Could not resolve host: github.com.
+- No local checkout was created and no tests ran in that environment.
+
+This is an execution-environment/network limitation, not a code or test failure. The next full-suite attempt requires a runner that can access GitHub and check out the exact branch.
