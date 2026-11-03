@@ -1,6 +1,6 @@
 from pathlib import Path
 from DHI_v1.environment.dhi_env import DHIEnvironment, TaskSpec
-from DHI_v1.environment.agent_runner import run_agent_task
+from DHI_v1.environment.agent_runner import build_tool_schemas, run_agent_task
 
 
 class FakeToolCallingClient:
@@ -150,6 +150,19 @@ def test_discovery_and_hidden_call_in_same_model_turn_requires_schema_refresh(tm
     assert "fs_search_text" not in client.tool_sets[0]
     assert "fs_search_text" in client.tool_sets[1]
     assert result.closure["success"] is True
+
+
+def test_runner_exposes_structured_repository_branch_forecast_schema(tmp_path):
+    env = DHIEnvironment(tmp_path / "workspace")
+    schemas, _ = build_tool_schemas(env)
+    effects = schemas[0]["function"]["parameters"]["properties"]["__dhi_expected_effects"]
+    repository_state = effects["properties"]["repository_state"]
+    assert set(repository_state["required"]) == {
+        "added_branches", "modified_branches", "deleted_branches", "unchanged_branches"
+    }
+    branch_ref = repository_state["$defs"]["branch_ref"]
+    assert branch_ref["required"] == ["name", "head_sha"]
+    assert branch_ref["properties"]["head_sha"]["pattern"] == "^[a-f0-9]{40}$"
 
 
 def test_runner_records_and_scores_pre_action_effect_forecast(tmp_path):
