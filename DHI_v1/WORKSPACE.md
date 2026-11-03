@@ -30,15 +30,15 @@ codename: ORBIT
 phase: plugin_native_stage_a_seed_authored
 status: in_progress
 status_reason: >
-  The plugin-native task route is now active. Thirty Stage A task records across all ten
-  strata are authored against actual connected GitHub, TinyFish and Firecrawl
-  tools, with exact tool-contract and fixture snapshots. Eight strata have a
-  bounded supported task route; S07 and S09 remain partial pending model-run
-  checkpoint traces and pre-action prediction capture. No DHI model has been run. Comparable base-model inference
-  access and verified trajectories remain incomplete.
+  The plugin-native task route now has 30 Stage A task records across all ten strata.
+  The manifest validator passes and 44 focused manifest/grader tests plus compileall
+  passed at code commit 421955df46975d8b20fba63f8922949a49b4551c. S07 and S09 remain
+  partial pending model-run checkpoint and pre-action prediction traces. No DHI model
+  inference, trained capability result, or verified model trajectory exists. OpenRouter
+  exposes both base candidates, but its account balance is zero, so no inference was run.
 training_status: not_authorized
 benchmark_status: stage_a_authoring_30_of_120; stage_b_sealed_unmaterialized
-last_verified_repository_head_before_this_workspace_checkpoint: 48f2b393aac45a44a2928a6f360f1370574e4dae
+last_verified_code_commit: 421955df46975d8b20fba63f8922949a49b4551c
 ```
 </details>
 
@@ -66,7 +66,8 @@ last_verified_repository_head_before_this_workspace_checkpoint: 48f2b393aac45a44
 | Scripted reference pilot | 8/8 passed | Harness/reference validation only; not an LLM result or training data |
 | Historical environment/benchmark tests | 75 passed on 2026-10-31 | Historical run; do not claim latest HEAD is tested |
 | ORBIT adjudication gate | Focused tests passed on 2026-10-31 | Gate code verification only |
-| INFER-001 hosted inference preflight | Hosted catalogue succeeded; Responses inference not run | Only Gemma 4 31B matches a selected candidate in the hosted catalogue; Qwen/GPT-OSS base comparison unavailable through that route |
+| INFER-001 hosted inference preflight | Adaption-hosted catalogue read only | Gemma 4 31B was the only selected candidate in that Adaption catalogue; no Adaption Responses inference was run |
+| INFER-002 OpenRouter inference preflight | Qwen3.6-35B-A3B and GPT-OSS-20B both listed with tool-capable PrimeIntellect endpoints | OpenRouter balance $0; no free endpoint for either model; no inference was run |
 | ADAPTION-001 live platform audit | Completed; read-only | Qwen/Gemma require 10,000 effective training rows; GPT-OSS recipe returned for 300 rows; dataset not eligible; zero credits spent |
 | Untouched candidate model screening | Not run | No model winner |
 | DHI-v1 executed model trajectories | None recorded | No trajectory SFT source yet |
@@ -74,12 +75,13 @@ last_verified_repository_head_before_this_workspace_checkpoint: 48f2b393aac45a44
 | Plugin-native Stage A authoring | 30 tasks materialized; 30 ready for validation | Actual GitHub/TinyFish/Firecrawl tool contracts and pinned evidence; no model runs |
 | Plugin reference workflows | Release report and checkpoint-resume report completed | Scripted reference evidence only; not DHI model capability results |
 | Plugin-native task grading | Not run | Grader contracts are authored; independent and model-facing validation still pending |
-| Manifest integrity | Static structural check passed 30/30 records | Python validator and pytest regression suite are committed but not yet executed |
+| Manifest and trace-grader verification | Passed at code commit 421955df46975d8b20fba63f8922949a49b4551c | Validator: 30/30 valid, Stage A=30, Stage B=0; 44 focused tests passed; compileall passed. Harness integrity only, not a model result |
 
 ## 6. Data status and hard stops
 
 - Both 120-row Invent task-spec candidates are quarantined because task-contract JSON was generated as a completion rather than a natural answer/valid execution trajectory.
 - The 300-row ORBIT collaboration-behaviour candidate (`169af31f-06e0-4a48-84ab-b84c9f9ce924`) is Invent-sourced and not training-ready: only 98 visible complete pairs were reviewed (25 candidate, 53 revise, 20 reject); 202 rows remain unreviewed. This was model-assisted partial triage, not full independent adjudication.
+- The 10,000-row augmented intent dataset (`843888da-28e2-420e-909e-88b203d16404`) has `rephrased_prompt`/`enhanced_completion` columns, but its evaluation input path and config source point to the separate 300-row `c1f4df14-b12c-430c-91ad-e10b559d1cee` dataset and a 100-row sample. Its A grade is not accepted as a certificate for the 10K export. See `experiments/TRAINING-ACCESS-002/`.
 - Adaption's evaluation of that dataset returned grade A / 9.4 on a 100-row evaluation sample. This is text-quality metadata, not an agent-capability score and not evidence of executed tool traces.
 - Live Adaption recommendations confirmed a 10,000-effective-row minimum for Qwen3.6-35B-A3B and Gemma 4 31B. GPT-OSS-20B returned a LoRA recipe for the 300-row set, but this does not override its provenance/review failure.
 - Do not train on any of those datasets, do not promote their Adaption grades to capability evidence, and do not fabricate tool traces or outcomes.
@@ -88,25 +90,35 @@ last_verified_repository_head_before_this_workspace_checkpoint: 48f2b393aac45a44
 
 ## 7. Current blockers and platform boundary
 
-The previous hosted-model catalogue preflight is complete. The connected Adaption MCP integration is useful for training-registry inspection, dataset inventory/evaluation, data transformation estimates, hyperparameter recommendations, and AutoScientist runs. It does **not** expose the hosted Responses inference operation.
+Adaption's connected MCP integration is useful for training-registry inspection, dataset inventory/evaluation, data transformation estimates, hyperparameter recommendations and AutoScientist runs, but it does not expose hosted Responses inference. OpenRouter now provides a separate inference route for Qwen3.6-35B-A3B and the mandatory GPT-OSS-20B challenger; both have tool-capable endpoints at PrimeIntellect. The OpenRouter account has **$0 remaining credit**, and no free endpoint was found for either model, so no model call or benchmark run was made.
 
 Current facts:
 - Live training registry lists Qwen/Qwen3.6-35B-A3B, openai/gpt-oss-20b, and google/gemma-4-31B-it for supported SFT/DPO methods.
+- OpenRouter route audit: Qwen3.6 and GPT-OSS are both present; PrimeIntellect offers Qwen fp8 at $0.01/$0.092 per million input/output tokens and GPT-OSS fp4 at $0.009/$0.038. These are live catalogue prices only; account balance is $0, and no model call was attempted.
+- Adaption's recommender returned a Qwen3.6 LoRA configuration for the 10K-row dataset, but its evaluation record points to a different 300-row dataset. No training is authorized until raw rows and lineage are verified.
 - The separate hosted Responses catalogue returned six IDs, but only Gemma 4 31B matched a committed candidate. Qwen3.6 and GPT-OSS were absent from that hosted catalogue. Do not treat registry support as inference access.
 - A single Gemma call would test only one integration path; it cannot select the primary model against the mandatory GPT-OSS challenger. It is therefore not the next research action.
 - The live Adaption recommender rejected Qwen3.6 and Gemma on the 300-row dataset because they require at least 10,000 effective rows. GPT-OSS returned a recipe, but the dataset remains ineligible.
 - The recommender did not return a price quote. Dataset generation/adaptation/augmentation actions expose `estimate: true`; the connected training-launch action spends credits and has no estimate field in its exposed schema. Obtain platform cost information before any chargeable launch.
-- No DHI-v1 inference, training run, or new dataset-generation job was launched in ADAPTION-001. Credits spent: zero.
+- No DHI-v1 inference, training run, or new dataset-generation job was launched in ADAPTION-001. The OpenRouter preflight was read-only; no model call was made.
 
 Experiment records:
 - `DHI_v1/experiments/INFER-001/` — secure runtime and hosted catalogue preflight.
 - `DHI_v1/experiments/ADAPTION-001/` — live Adaption model/data eligibility audit.
+- `DHI_v1/experiments/INFER-002/` — OpenRouter base-model route and zero-credit preflight.
+- `DHI_v1/experiments/TRAINING-ACCESS-002/` — current dataset-lineage and Qwen3.6 training-readiness audit.
+- `DHI_v1/experiments/ORBIT-VERIFY-002/` — latest exact-head validator, focused pytest and compileall result.
 
 ## 8. Active verification
 
-VERIFY-001 remains blocked on Deepnote's parallel-project quota. Initial run `93645a78-7cd2-4c64-9c84-353fbd31e15c` verified the exact checkout and passed compileall; pytest did not collect tests because pytest was missing. The retry cell (`f0d38652cb8c490595ca474cc5ae2317`) is ready but both detached and live run creation were rejected before execution by the same quota. No project was stopped. Experiment record: `DHI_v1/experiments/VERIFY-001/`.
+VERIFY-001 remains a historical blocked attempt on the older Deepnote project. It is superseded for the current manifest/grader code by ORBIT-VERIFY-002.
 
-The plugin-native validator CI attempt `41594301494` (head `3d57cc876dcd3f1f82c9d3ff884665de52c7f290`) ended with `failure` before a runner was assigned: the job API reported `runner_id=0`, `steps=[]`, and the log artifact was unavailable. No pytest, compileall or validator command ran in that job. Do not treat that workflow conclusion as a code-test failure or a passing result.
+The isolated verifier run `52254373-656f-4d0c-841d-c3a2c621d7cc`, against code commit `421955df46975d8b20fba63f8922949a49b4551c`, passed:
+- Cross-record manifest validator: `valid=true`, 30 tasks, Stage A=30, Stage B=0, no errors.
+- Focused regression tests: 44 passed, 0 failed (20 manifest-validator + 24 plugin trace grader tests).
+- `compileall -q DHI_v1/benchmark`: return code 0.
+
+The machine-readable report is committed in `experiments/ORBIT-VERIFY-002/`. This validates the authored harness integrity only; it does not establish model capability or validate any task through model execution.
 
 ## 9. Research methodology now active
 
@@ -136,13 +148,13 @@ Current status:
 - No DHI model inference, benchmark score, training data, or training run has been produced.
 
 Next:
-1. Execute `python -m DHI_v1.benchmark.validate_task_manifest` and the focused/full pytest suites on a working Python runner. The validator and 17 regression tests are committed; CI has not yet executed them because no runner was provisioned.
+1. Run all remaining benchmark test modules as a broad regression check; manifest validation, 44 focused tests, and compileall have passed.
 2. Continue materializing the remaining 90 Stage A tasks with genuinely distinct families, environment evidence, executable postconditions and independently reviewable graders. Remaining quotas: S01=10, S02=9, S03=8, S04=9, S05=8, S06=8, S07=10, S08=9, S09=9, S10=10.
-3. Implement the plugin action-trace adapter for pre-action effect predictions and cross-session checkpoint/recovery events. Close the remaining S07/S09 model-run trace gaps.
-4. Independently review all 30 current task prompts and graders. Keep `ready_for_validation` until the task is exercised through the frozen task runner or an independent deterministic reference check.
-5. Build Stage B from 120 structurally distinct holdout tasks only after Stage A and the candidate/interface decision are fixed. Do not put sealed Stage B task bodies in this public repository; keep them outside the shared manifest until an explicit release decision.
-6. Keep model execution disabled until Stage A is complete, independently reviewed and frozen; preserve the Qwen3.6/GPT-OSS matched-comparison requirement.
-
+3. Independently review all 30 current task prompts and graders; keep `ready_for_validation` until the task is exercised through the frozen task runner or an independent deterministic reference check.
+4. Implement the plugin action-trace adapter for pre-action effect predictions and cross-session checkpoint/recovery events. Close the remaining S07/S09 model-run trace gaps.
+5. Build Stage B from 120 structurally distinct holdout tasks only after Stage A and the candidate/interface decision are fixed. Do not put sealed Stage B task bodies in this public repository.
+6. Keep model execution disabled until Stage A is complete, independently reviewed and frozen; the matched Qwen3.6/GPT-OSS route has been found but is blocked by the zero-credit OpenRouter account. Do not substitute one model or a free model for the matched screen.
+7. Audit the private 10K intent-arbitration export row by row and reconcile its evaluation lineage before any training. Do not use the returned Qwen3.6 LoRA recommendation as authorization.
 No DHI candidate model was run. Firecrawl capability discovery cost zero; the discovered package-record execution (one credit) and security/research provider executions (five credits each) were not called. TinyFish Go recovery included a schema-validation rejection followed by a 404 and a successful official-source re-fetch. Consensus search was unavailable because the provider's monthly free quota was exhausted. No Adaption generation/training action was called.
 
 ## 11. Latest committed work
@@ -183,6 +195,9 @@ No DHI candidate model was run. Firecrawl capability discovery cost zero; the di
 | `ORBIT-TASKS-004` | Expanded Stage A to 30 task instances; S07 checkpoint/resume, additional schema, effect and multi-source cases added |
 | `ORBIT-REGISTRY-001` | Corrected missing `mcp__GitHub__update_file` contract and recomputed the 16-tool registry SHA-256 |
 | `ORBIT-MANIFEST-VALIDATOR-001` | Added cross-record validator and 17 regression tests; required task-instance/family fingerprints |
+| `ORBIT-VERIFY-002` | Manifest validator passed 30/30; 44 focused tests passed; compileall passed at 421955df |
+| `INFER-002` | OpenRouter listed Qwen3.6 and GPT-OSS tool-capable endpoints; $0 credits; no inference |
+| `TRAINING-ACCESS-002` | Qwen3.6 LoRA recommendation returned for the 10K export; evaluation-lineage mismatch keeps dataset on hold |
 | `ORBIT-INTEGRITY-001` | Independent static inspection confirmed 30/30 hashes, registered tools, and complete evidence references; Python tests remain unexecuted |
 | `ORBIT-METHOD-001` | Reviewed Karpathy and uditgoenka autoresearch; committed ORBIT's adapted evidence-first method and experiment template |
 | `ORBIT-REFERENCE-001` | Verified multi-file GitHub workflow and a persistent checkpoint/resume workflow with readback and single-path diffs |
