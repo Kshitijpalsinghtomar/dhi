@@ -41,6 +41,7 @@ def make_trace(events: list[dict] | None = None, *, artifacts: list[dict] | None
                 "event_type": "task_started",
                 "timestamp_utc": "2026-11-03T00:00:00Z",
                 "task_id": "ORBIT-A-S09-001",
+                "source_ref": "fixture://task-start",
             },
             {
                 "event_id": "e2",
@@ -63,6 +64,7 @@ def make_trace(events: list[dict] | None = None, *, artifacts: list[dict] | None
                 "action_id": "act-1",
                 "tool_id": "mcp__GitHub__create_file",
                 "arguments": {"path": "reports/result.md"},
+                "observed_state_before": {"README.md": "b" * 64},
             },
             {
                 "event_id": "e4",
@@ -73,6 +75,8 @@ def make_trace(events: list[dict] | None = None, *, artifacts: list[dict] | None
                 "action_id": "act-1",
                 "tool_id": "mcp__GitHub__create_file",
                 "arguments": {"path": "reports/result.md"},
+                "observed_state_before": {"README.md": "b" * 64},
+                "observed_state_after": {"README.md": "b" * 64, "reports/result.md": "e" * 64},
                 "actual_tool_result": {"ok": True, "result": {"blob_sha": "d" * 40}, "error": None},
                 "actual_effects": {
                     "added_paths": ["reports/result.md"],
@@ -88,7 +92,7 @@ def make_trace(events: list[dict] | None = None, *, artifacts: list[dict] | None
                 "event_type": "task_closed",
                 "timestamp_utc": "2026-11-03T00:00:04Z",
                 "task_id": "ORBIT-A-S09-001",
-                "closure": {"status": "success"},
+                "closure_status": "success",
             },
         ],
         "final_answer": "Created and verified reports/result.md",
