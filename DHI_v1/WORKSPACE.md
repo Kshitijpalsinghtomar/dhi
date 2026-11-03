@@ -355,3 +355,38 @@ A live OpenRouter provider catalogue confirms the exact slug for display provide
 ```
 
 Use `tool_choice=auto` for both Qwen3.6-35B-A3B and GPT-OSS-20B. This resolves the provider-name ambiguity only; no client code has been changed and no inference call was made. The remaining blockers are implementation/tests for the provider-routing request field, project-scoped `DHI_MODEL_API_KEY`, funding/cost cap, and the plugin-native execution/benchmark gates. See [INFER-003](experiments/INFER-003/README.md).
+
+
+## 17. ORBIT-VERIFY-005 passed — canonical plugin loader regression — 2026-11-03
+
+**The manifest task-loader engineering gate is now closed.** See [ORBIT-VERIFY-005](experiments/ORBIT-VERIFY-005/README.md).
+
+- Code under test: `ea3269aec35527386804ac357a953933de31fbf0`.
+- Deepnote run: `384fec58-6f67-407a-b599-301b3b9de74a`.
+- Manifest validator: PASS — valid=true, 30 tasks, Stage A=30, Stage B=0, no errors.
+- Full benchmark + environment pytest: **166 passed, 0 failed**.
+- `compileall`: PASS.
+- Entrypoint import smoke: PASS.
+- Plugin loader smoke: **30 plans resolved; zero model runs enabled**.
+- Python: 3.13.18.
+- Raw report: `experiments/ORBIT-VERIFY-005/results/verification-report.json`.
+
+Eight new focused tests verify canonical provider IDs, per-task policy filtering, write-decoy denial, sandbox-write allowlisting, schema fingerprint checks, unknown-tool rejection, and disabled model execution. The permission red test demonstrated that an unrelated side-effect label (`external_purchase`) could not grant read-only access; the policy mapping was narrowed to explicit read/discovery labels or declared create/update workflows.
+
+### Correct next engineering step — plugin-native runner bridge
+
+The loader is **not** the runner. The current agent runner still executes the deterministic file-workspace pilot and cannot execute the 30 manifest tasks end-to-end. No GitHub or Firecrawl handlers exist, and TinyFish internal tool IDs still differ from the pinned registry IDs. The next work unit must:
+
+1. load a `PluginTaskPlan` into a dedicated plugin-native agent runner;
+2. construct the model-visible tool schemas from exact, pinned provider contracts using canonical IDs;
+3. fail before model invocation if any required task tool has no callable, schema-attested handler;
+4. enforce both task allowlists and tool-argument/path/branch permissions at dispatch time;
+5. capture pre-action prediction, action-start, raw provider result, independent readback, actual effect, and postcondition evidence in the plugin trace;
+6. use the existing independent grader to score the 30 tasks through real handlers, not hand-authored scripted outcomes.
+
+Provider status remains:
+- TinyFish Search/Fetch: DHI REST implementation and live provider smoke verified, but native registry schema parity/canonical ID mapping still needs to be made explicit.
+- GitHub: no DHI runtime handler or Deepnote project secret. Implement read-only actions first; writes only in disposable branches with exact allowed paths and SHA preconditions. Deletes/merges remain excluded.
+- Firecrawl Alexandria discovery: exact `firecrawl_find_tools` contract remains unresolved; generic Firecrawl search/scrape is not a valid substitute.
+
+Keep benchmark expansion frozen at 30 until this execution path works and tasks are independently validated. All 30 manifest tasks still have `model_runs_allowed=false`. No inference or training is authorized by this engineering pass.
