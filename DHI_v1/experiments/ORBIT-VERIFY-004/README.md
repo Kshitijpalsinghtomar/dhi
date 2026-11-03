@@ -33,3 +33,20 @@ A pass establishes engineering/harness integrity for the frozen code only. It do
 ## Result
 
 Pending. Do not infer success from a started or running job. Update this record only after retrieving the terminal run status and full outputs.
+
+
+## Execution attempt 1 — runner bootstrap blocker
+
+- Run: `72a2e697-89b4-4408-beba-c2185b2f95d1`
+- Manifest validator: PASS — 30 tasks, Stage A=30, Stage B=0, no errors.
+- Full pytest command: did not collect or execute tests; the live kernel returned `No module named pytest` immediately.
+- Compileall: PASS.
+- Entrypoint import smoke: PASS.
+- Overall: BLOCKED by missing development dependency, not a test failure. This attempt is not counted as a suite pass.
+
+## Execution attempt 2 — declared dependency bootstrap
+
+- Run: `96ac3bf5-9a06-4a9f-9e80-3bc29c541f38`
+- The selected verification cell now checks for `pytest` and `jsonschema` and installs only `DHI_v1/environment/requirements-dev.txt` when missing, then repeats the frozen four checks.
+- Status at this update: running. Do not mark the experiment passed until its terminal run result and every command output are retrieved.
+- The notebook's saved regression cell was not executed or modified.
