@@ -143,10 +143,13 @@ def _validate_evidence_references(
     repo_root: Path,
     errors: list[str],
 ) -> None:
+    environment = task.get("environment") if isinstance(task.get("environment"), dict) else {}
+    inventory = task.get("tool_inventory") if isinstance(task.get("tool_inventory"), dict) else {}
+    grader = task.get("grader") if isinstance(task.get("grader"), dict) else {}
     candidates = {
-        "environment.external_snapshot_ref": task.get("environment", {}).get("external_snapshot_ref"),
-        "tool_inventory.inventory_snapshot_ref": task.get("tool_inventory", {}).get("inventory_snapshot_ref"),
-        "grader.review_rubric_ref": task.get("grader", {}).get("review_rubric_ref"),
+        "environment.external_snapshot_ref": environment.get("external_snapshot_ref"),
+        "tool_inventory.inventory_snapshot_ref": inventory.get("inventory_snapshot_ref"),
+        "grader.review_rubric_ref": grader.get("review_rubric_ref"),
     }
     for label, reference in candidates.items():
         if reference is None:
@@ -188,8 +191,14 @@ def collect_manifest_errors(
             "count",
             f"materialized_task_count={manifest.get('materialized_task_count')!r}, actual={len(tasks)}",
         )
-    actual_stage_counts = Counter(task.get("stage") for task in tasks if isinstance(task, dict))
+    actual_stage_counts = Counter(
+        task.get("stage")
+        for task in tasks
+        if isinstance(task, dict) and isinstance(task.get("stage"), str)
+    )
     declared_stage_counts = manifest.get("materialized_stage_counts", {})
+    if not isinstance(declared_stage_counts, dict):
+        declared_stage_counts = {}
     for stage in ("A", "B"):
         if declared_stage_counts.get(stage) != actual_stage_counts.get(stage, 0):
             _record_error(
@@ -198,7 +207,11 @@ def collect_manifest_errors(
                 f"stage {stage}: declared={declared_stage_counts.get(stage)!r}, actual={actual_stage_counts.get(stage, 0)}",
             )
 
-    stratum_ids = [item.get("stratum_id") for item in strata if isinstance(item, dict)]
+    stratum_ids = [
+        item.get("stratum_id")
+        for item in strata
+        if isinstance(item, dict) and isinstance(item.get("stratum_id"), str)
+    ]
     duplicate_strata = sorted(key for key, count in Counter(stratum_ids).items() if count > 1)
     if duplicate_strata:
         _record_error(errors, "strata", f"duplicate stratum IDs: {', '.join(duplicate_strata)}")
@@ -227,9 +240,9 @@ def collect_manifest_errors(
             continue
         task_id = task.get("task_id")
         match = TASK_ID_RE.fullmatch(task_id) if isinstance(task_id, str) else None
-        if task_id in seen_task_ids:
-            _record_error(errors, "task-id", f"duplicate task_id: {task_id}")
-        if task_id is not None:
+        if isinstance(task_id, str):
+            if task_id in seen_task_ids:
+                _record_error(errors, "task-id", f"duplicate task_id: {task_id}")
             seen_task_ids.add(task_id)
 
         stage = task.get("stage")
@@ -259,7 +272,9 @@ def collect_manifest_errors(
         if isinstance(group_id, str) and stage in {"A", "B"}:
             task_groups_by_stage[stage].add(group_id)
 
-        split = task.get("split_metadata", {})
+        split = task.get("split_metadata")
+        if not isinstance(split, dict):
+            split = {}
         expected_partition = "stage_a" if stage == "A" else "stage_b" if stage == "B" else None
         if expected_partition and split.get("partition") != expected_partition:
             _record_error(errors, "split", f"{task_id}: stage {stage} requires partition {expected_partition}")
@@ -293,10 +308,12 @@ def collect_manifest_errors(
                     f"task instance hash mismatch for {task_id}: declared={declared_instance_hash!r}, computed={computed_instance_hash}",
                 )
 
-        inventory = task.get("tool_inventory", {})
-        visible = set(inventory.get("visible_tool_ids", []))
-        discoverable = set(inventory.get("discoverable_tool_ids", []))
-        required = set(inventory.get("required_tool_ids", []))
+        inventory = task.get("tool_inventory")
+        if not isinstance(inventory, dict):
+            inventory = {}
+        visible = set(item for item in inventory.get("visible_tool_ids", []) if isinstance(item, str))
+        discoverable = set(item for item in inventory.get("discoverable_tool_ids", []) if isinstance(item, str))
+        required = set(item for item in inventory.get("required_tool_ids", []) if isinstance(item, str))
         unavailable = sorted(required - visible - discoverable)
         for tool_id in unavailable:
             _record_error(errors, "tool-inventory", f"{task_id}: required tool {tool_id} is neither visible nor discoverable")
@@ -400,6 +417,8 @@ def collect_manifest_errors(
     # Stage B task bodies may not live in a manifest whose policy says the holdout
     # is not materialized or remains sealed/restricted from model developers.
     stage_b_policy = manifest.get("stage_b_policy", {})
+    if not isinstance(stage_b_policy, dict):
+        stage_b_policy = {}
     stage_b_count = actual_stage_counts.get("B", 0)
     if stage_b_count:
         if (
@@ -427,7 +446,9 @@ def collect_manifest_errors(
         for task in tasks:
             if not isinstance(task, dict):
                 continue
-            validation = task.get("validation", {})
+            validation = task.get("validation")
+            if not isinstance(validation, dict):
+                validation = {}
             if (
                 validation.get("status") != "validated"
                 or validation.get("contract_check") != "pass"
