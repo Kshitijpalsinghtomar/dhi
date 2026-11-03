@@ -467,6 +467,15 @@
         "status": "test_assumption_corrected",
         "detail": "The first integration-test draft assumed only tinyfish.search would be visible. DHI deliberately keeps catalog.search visible for dynamic tool discovery. The test was corrected to expect catalog.search plus allowlisted tinyfish.search, while keeping tinyfish.fetch_content hidden."
       }
+    },
+    "local_runner_attempt": {
+      "checked_on": "2026-11-03",
+      "command": "git ls-remote https://github.com/Kshitijpalsinghtomar/dhi.git refs/heads/orbit/plugin-benchmark-fixture",
+      "result": "blocked_before_checkout",
+      "error": "Could not resolve host: github.com",
+      "repository_checkout_created": false,
+      "tests_run": false,
+      "interpretation": "The local container lacks outbound DNS/network access to GitHub. This is an execution-environment limitation, not a code or test failure."
     }
   },
   "results": {
@@ -534,7 +543,7 @@
       "https://github.com/modelcontextprotocol/modelcontextprotocol/blob/main/docs/specification/2026-07-28/basic/transports/streamable-http.mdx"
     ]
   },
-  "next_gate": "Run the committed TinyFish test file and existing environment/benchmark regression suite in a reliable pytest runner using the exact branch checkout. Verify adapter integration does not regress the existing runner, catalogue discovery or benchmark-task allowlists. Keep model inference/training disabled and task status ready_for_validation until the full gate passes.",
+  "next_gate": "Run pytest and the full benchmark/environment regression in a runner that can resolve GitHub and check out the exact branch. The current Deepnote pytest runner times out before collection, and the local container cannot resolve github.com. Do not infer a code failure from either environment limitation. Keep model inference/training disabled and Stage A tasks ready_for_validation until the full gate passes.",
   "code_equivalence_check": {
     "tested_commit": "cba8421d4f4c6c4f929d5f4c3196eb83f98f7351",
     "current_branch_ref": "orbit/plugin-benchmark-fixture",
