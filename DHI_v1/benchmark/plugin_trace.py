@@ -295,6 +295,8 @@ def _result(status: str, reason: str, evidence: Any = None) -> dict[str, Any]:
 
 def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[str, Any]:
     kind = condition.get("type")
+    if kind not in IMPLEMENTED_CONDITIONS:
+        return _result("unscorable", f"no deterministic verifier implemented for condition type {kind!r}")
     actions = _action_events(trace)
     text_value = _artifact_text(trace)
     evidence_text = _evidence_text(trace)
@@ -571,14 +573,21 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
         for key, value in condition.items():
             if key in ignored_keys:
                 continue
-            expected_values.extend(_flatten_expected({key: value}))
-        missing = [value for value in expected_values if str(value).casefold() not in raw_text.casefold()]
+            expected_values.extend(_flatten_source_values(value))
+        normalized_raw = _normalize_fact_text(raw_text)
+        missing = [
+            value for value in expected_values
+            if _normalize_fact_text(value) not in normalized_raw
+        ]
         missing_rows = []
         for row in condition.get("expected_rows", []):
             if not isinstance(row, list):
                 continue
-            row_values = [str(value).casefold() for value in row]
-            if not any(all(value in line.casefold() for value in row_values) for line in raw_text.splitlines()):
+            row_values = [_normalize_fact_text(value) for value in row]
+            if not any(
+                all(value in _normalize_fact_text(line) for value in row_values)
+                for line in raw_text.splitlines()
+            ):
                 missing_rows.append(row)
         if missing_rows:
             missing.append({"missing_rows": missing_rows})
