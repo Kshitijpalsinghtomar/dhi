@@ -39,7 +39,7 @@ The benchmark must not silently substitute one environment for another. Every ta
 
 ## Current coverage interpretation
 
-The current plugin-native Stage A seed has 22 task instances and 22 independent task-family records. Distribution: S01=2, S02=3, S03=3, S04=2, S05=2, S06=2, S07=1, S08=3, S09=2, S10=2.
+The current plugin-native Stage A seed has 30 task instances and 30 independent task-family records. Distribution: S01=2, S02=3, S03=4, S04=3, S05=4, S06=4, S07=2, S08=3, S09=3, S10=2.
 - S01: no-tool restraint — supported.
 - S02: live official-source verification — supported through TinyFish; Node.js, Python and Go release snapshots are separately pinned.
 - S03: tool/capability discovery — supported through free Firecrawl discovery; package metadata and security advisory contracts are independently covered.
@@ -55,8 +55,14 @@ This is a plugin-native capability map, not a claim that every plugin or every c
 
 ## Evidence and limitations
 
-- The task register contains **22/120 Stage A tasks** across all ten strata; 98 Stage A tasks remain.
+- The task register contains **30/120 Stage A tasks** across all ten strata; 90 Stage A tasks remain.
 - Stage B has **0/120 task instances** and remains sealed/unmaterialized.
-- All 22 task records are `ready_for_validation`, not `validated`. No DHI candidate model was run and no capability score is claimed.
+- All 30 task records are `ready_for_validation`, not `validated`. No DHI candidate model was run and no capability score is claimed.
 - The existing 12-case local smoke pilot remains outside the 240-task panel.
 - The live plugin authoring actions demonstrate environment access and fixture integrity; they are not a substitute for running each task through the DHI model adapter.
+
+## Integrity validator
+
+The cross-record validator is `DHI_v1/benchmark/validate_task_manifest.py`; its 14 regression tests are in `DHI_v1/benchmark/tests/test_task_manifest_validator.py`. It verifies canonical SHA-256 hashes for each task and family, exact tool IDs against the 16-tool registry, every evidence path, stage/family separation and sealed Stage B policy.
+
+The validator implementation and tests are committed, but the Python suite has not yet run. GitHub Actions run `41594301494` failed before runner allocation (`runner_id=0`, no job steps); no code test result is available. The separate static integrity inspection is recorded in [PANEL_INTEGRITY_VALIDATION_2026-11-03.md](PANEL_INTEGRITY_VALIDATION_2026-11-03.md).
