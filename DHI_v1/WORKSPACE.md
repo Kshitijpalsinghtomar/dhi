@@ -547,3 +547,44 @@ Implementation order:
 Do not call live repository writes. Writes must be confined to the task's explicitly allowed disposable branch/path and independently checked with readback and compare-commits. The 16-task coverage is not authorization to execute them.
 
 Firecrawl Alexandria's assistant-session contract remains available here, but Deepnote has no Firecrawl project transport. OpenRouter remains at $0 credits and no project-scoped model credentials exist. Model inference and training remain blocked until the runtime and measurement gates are independently closed.
+
+
+## 23. ORBIT-VERIFY-008 passed — scripted plugin runner / trace / grader — 2026-11-03
+
+**The provider-agnostic model-facing plugin loop now passes full engineering regression.** See [ORBIT-VERIFY-008](experiments/ORBIT-VERIFY-008/README.md).
+
+- Code revision: `fec93ba59842d866149c7d03383b1833745077d2`.
+- Deepnote run: `570dd432-474f-4520-8f17-700d480358bb`.
+- Full benchmark + environment pytest: **182 passed, 0 failed**.
+- Manifest validator: PASS — 30 Stage A tasks, Stage B=0, no errors.
+- Compileall and entrypoint import smoke: PASS.
+- Loader smoke: all 30 plans resolve; model runs enabled: **0**.
+- Focused runner suite: **4 passed**.
+- No model, provider, or training calls.
+- Python: 3.13.18.
+- Raw report: `experiments/ORBIT-VERIFY-008/results/verification-report.json`.
+
+### Current ORBIT implementation
+
+1. `plugin_task_loader.py` resolves the immutable task manifest against the pinned registry.
+2. `plugin_execution.py` exposes canonical schemas and enforces strict JSON Schema arguments, permission allowlists, handler presence and exact-task sandbox-write guards.
+3. `plugin_runner.py` calls a bounded chat-completion client, routes every tool call through the prepared dispatcher, captures independent state hashes, writes append-only trace events, validates them with `plugin_trace.schema.json`, and invokes `grade_task`.
+4. The TinyFish adapter publishes canonical `mcp__TinyFish__search` and `mcp__TinyFish__fetch_content` IDs; the actual Deepnote TINYFISH integration can prepare the TinyFish-only task with no network request.
+
+The runner test is deliberately scripted and uses fake GitHub read handlers. It proves the end-to-end local mechanics, not hosted-model capability or a real provider task.
+
+### Next work unit — GitHub canonical REST runtime bundle
+
+The exact task manifest shows **16 of 30** Stage A tasks require GitHub. The assistant's connected GitHub MCP actions are available in this conversation but are not callable by the Deepnote model runner. Deepnote still has no attached GitHub project integration.
+
+Build an independent stdlib REST client that:
+- exposes canonical registry IDs `mcp__GitHub__fetch_file`, `mcp__GitHub__fetch`, `mcp__GitHub__compare_commits`, `mcp__GitHub__create_branch`, `mcp__GitHub__create_file`, and `mcp__GitHub__update_file`;
+- returns exact schema/handler bundles only when `GITHUB_TOKEN` is attached;
+- allows writes only when the explicit runtime write flag and allowed-repository list are configured;
+- never supplies a generic write guard; `prepare_plugin_execution` still requires a task-specific path/branch guard;
+- enforces HTTPS/API host allowlists, response/time limits, no automatic retries, and redacted exception messages;
+- uses fake HTTP transport tests first and performs no live repository mutation.
+
+The first preflight must print only boolean presence/configuration states, never a credential value. If the GITHUB token is absent, handler exposure stays empty; do not substitute the assistant's own connected tools.
+
+Firecrawl Alexandria has a known assistant-session contract, but no Deepnote project transport. OpenRouter is still at $0 credits. **All 30 source-manifest tasks remain `model_runs_allowed=false`**; no model inference or training is authorized yet.
