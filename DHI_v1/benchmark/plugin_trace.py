@@ -247,7 +247,19 @@ def _walk(value: Any):
 
 def _raw_text(value: Any) -> str:
     """Flatten scalar string values from a raw tool observation, excluding assistant claims."""
-    return "\\n".join(item for item in _walk(value) if isinstance(item, str))
+    return "\n".join(item for item in _walk(value) if isinstance(item, str))
+
+
+def _flatten_source_values(value: Any):
+    """Yield scalar expected values without confusing object keys with observed facts."""
+    if isinstance(value, dict):
+        for item in value.values():
+            yield from _flatten_source_values(item)
+    elif isinstance(value, list):
+        for item in value:
+            yield from _flatten_source_values(item)
+    elif value is not None:
+        yield value
 
 
 def _evidence_text(trace: dict[str, Any]) -> str:
