@@ -108,9 +108,9 @@ def make_trace(events: list[dict] | None = None, *, artifacts: list[dict] | None
     }
 
 
-def make_task(condition: dict) -> dict:
+def make_task(condition: dict, *, task_id: str = "ORBIT-A-S09-001") -> dict:
     return {
-        "task_id": "ORBIT-A-S09-001",
+        "task_id": task_id,
         "task_instance_sha256": "a" * 64,
         "postconditions": [{
             "verifier_id": "test-condition",
@@ -601,7 +601,7 @@ class PluginTraceGraderTests(unittest.TestCase):
             "after_expected": {"new_branch": new_branch["name"], "base": new_branch["head_sha"]},
             "unchanged_existing_heads": True,
         }
-        report = grade_task(make_task(condition), trace, schema=load_schema())
+        report = grade_task(make_task(condition, task_id=task_id), trace, schema=load_schema())
         self.assertEqual(report["status"], "pass", report)
 
         # A prediction moved after create_branch must never earn a passing forecast score.
