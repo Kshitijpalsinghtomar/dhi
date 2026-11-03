@@ -128,210 +128,210 @@
       "family_id": "ORBIT-S01-DIRECT-ARITHMETIC-01",
       "stage": "A",
       "independence_group_id": "ORBIT-S01-INDEP-A-001",
-      "family_fingerprint_sha256": "ef608eae25b9a519f89ca061d4b1bd61bbce229f4b14c4eb4737b61602e3f8c0",
+      "family_fingerprint_sha256": "12ca99e9ec315b54371ad3fb916a6a6500c1e0819074cb625be179d8697162f5",
       "review_status": "draft"
     },
     {
       "family_id": "ORBIT-S02-NODEJS-RELEASE-VERIFY-01",
       "stage": "A",
       "independence_group_id": "ORBIT-S02-INDEP-A-001",
-      "family_fingerprint_sha256": "887bdc8131b6c296686cad3f797ea4d7cf17e232656789d6355e9450372d3cb0",
+      "family_fingerprint_sha256": "76f0127e9ca74ff0d143db7261b7eb006673403da25b158f2c92cad0a867e007",
       "review_status": "draft"
     },
     {
       "family_id": "ORBIT-S03-FIRECRAWL-PROVIDER-DISCOVERY-01",
       "stage": "A",
       "independence_group_id": "ORBIT-S03-INDEP-A-001",
-      "family_fingerprint_sha256": "8f901294e7103f013d1f3a1e2074e0a106431ae961d49f347e4681563e7d187a",
+      "family_fingerprint_sha256": "8a8e11244424187288cd1204b8f394aed9b0a67d49e521f1c4d3a2ecd739a2cb",
       "review_status": "draft"
     },
     {
       "family_id": "ORBIT-S04-GITHUB-READ-VS-WRITE-SELECTION-01",
       "stage": "A",
       "independence_group_id": "ORBIT-S04-INDEP-A-001",
-      "family_fingerprint_sha256": "47f21062f15746902b65cd964553896ada1047a84c188f38dc91a18e79a999de",
+      "family_fingerprint_sha256": "e0668359b7a1be00bd5e4435a2e99722be5d18de783a82c3ec68b68ec540cf68",
       "review_status": "draft"
     },
     {
       "family_id": "ORBIT-S05-GITHUB-FETCH-FILE-SCHEMA-01",
       "stage": "A",
       "independence_group_id": "ORBIT-S05-INDEP-A-001",
-      "family_fingerprint_sha256": "24272efa66f5262ae82760cbb4c26979c14b1332c76e4fe9563f9e5b64c820c8",
+      "family_fingerprint_sha256": "c8ba3e1c790bd5dd549583dcd606f82a5d8fc42ab442483293990e4aa43c3293",
       "review_status": "draft"
     },
     {
       "family_id": "ORBIT-S06-NORTHSTAR-RELEASE-READINESS-REPORT-01",
       "stage": "A",
       "independence_group_id": "ORBIT-S06-INDEP-A-001",
-      "family_fingerprint_sha256": "1d3b66d51e023e3e8ade8d838d9d75a8d6e88bac0fe0d985f2e6b75467698a82",
+      "family_fingerprint_sha256": "33d57c47bf02a8fb1a5e21148ad8c0f3127eb2687fb53bc1019852020874af3c",
       "review_status": "draft"
     },
     {
       "family_id": "ORBIT-S07-CROSS-PLUGIN-RESUME-WORKFLOW-01",
       "stage": "A",
       "independence_group_id": "ORBIT-S07-INDEP-A-001",
-      "family_fingerprint_sha256": "0c49821309273be8a1e43e11050c1537625f3c4b2c1227e7f20501dea1063821",
+      "family_fingerprint_sha256": "edd88daeafb9f3b0e21be16d09a510b51b94ba36ceb68ce7f90c070553a00286",
       "review_status": "draft"
     },
     {
       "family_id": "ORBIT-S08-GITHUB-404-RECOVERY-01",
       "stage": "A",
       "independence_group_id": "ORBIT-S08-INDEP-A-001",
-      "family_fingerprint_sha256": "4f2398dcbe324e15ad9e5a7b4882756cff669a3cce7420a441a7b8c8ed3feb8e",
+      "family_fingerprint_sha256": "a259758fc79c2861128762f1d94ce86576051dcefde06008956e8c326b0a7cec",
       "review_status": "draft"
     },
     {
       "family_id": "ORBIT-S09-GITHUB-WRITE-PREDICT-VERIFY-01",
       "stage": "A",
       "independence_group_id": "ORBIT-S09-INDEP-A-001",
-      "family_fingerprint_sha256": "0d1dd48fb60702ea8e926fba6e3366c7cd696905d15bc4275814d429f48c3759",
+      "family_fingerprint_sha256": "4334cdf2c8b8ab6424bf15b07befc8c6cbc8634c4f2e6f9670f16b68d3ab6995",
       "review_status": "draft"
     },
     {
       "family_id": "ORBIT-S10-UNTRUSTED-ISSUE-INSTRUCTION-01",
       "stage": "A",
       "independence_group_id": "ORBIT-S10-INDEP-A-001",
-      "family_fingerprint_sha256": "4a329a40d969a86e69b12080cb27c2c559bcdf20ffa62521040f0dae1874709b",
+      "family_fingerprint_sha256": "ca3cafb0d98f38dd4b02bba4c7c4de09c677b18e00a183b5b37e6e1c378ff1ea",
       "review_status": "draft"
     },
     {
       "family_id": "ORBIT-S02-PYTHON-RELEASE-VERIFY-02",
       "stage": "A",
       "independence_group_id": "ORBIT-S02-INDEP-A-002",
-      "family_fingerprint_sha256": "ea9820e5c8f740e83531ec5c5ba14a60bf4cc139c2832638eb57feaceeb8dc96",
+      "family_fingerprint_sha256": "d89a09743af0caf3b61cdab258ab6e3962bcdc52cee2122a80d75a6953e632f1",
       "review_status": "draft"
     },
     {
       "family_id": "ORBIT-S03-OSV-ADVISORY-DISCOVERY-02",
       "stage": "A",
       "independence_group_id": "ORBIT-S03-INDEP-A-002",
-      "family_fingerprint_sha256": "538b44052e00b885e8dbe613851f84e30692467d036d0e4260b51eefb5cf1ed6",
+      "family_fingerprint_sha256": "17856455bb6d1b0e3623fc36bbbd2678861813fa67276ee014bd93f3e76f8fcb",
       "review_status": "draft"
     },
     {
       "family_id": "ORBIT-S01-VOWEL-COUNT-DIRECT-02",
       "stage": "A",
       "independence_group_id": "ORBIT-S01-INDEP-A-002",
-      "family_fingerprint_sha256": "674ef1eecb3b3ca0cd47afda7e692a6ee103a7d806a9426dc573908c8d223080",
+      "family_fingerprint_sha256": "f77037f78b0eb9417a934e99de4645b74e05c31017346292f1e1d6b43f8b3e6b",
       "review_status": "draft"
     },
     {
       "family_id": "ORBIT-S03-RESEARCH-PROVIDER-DISCOVERY-03",
       "stage": "A",
       "independence_group_id": "ORBIT-S03-INDEP-A-003",
-      "family_fingerprint_sha256": "bf63d914a6e099a77d1d210a0dd82aefaad24dd728f78b60a97d1672f84d8a95",
+      "family_fingerprint_sha256": "2b11bb97a6c2b2c4f1529252f3f1fb26096e3156c8c12798335b3118a190a0fa",
       "review_status": "draft"
     },
     {
       "family_id": "ORBIT-S04-GITHUB-COMMIT-DIFF-TOOL-SELECTION-02",
       "stage": "A",
       "independence_group_id": "ORBIT-S04-INDEP-A-002",
-      "family_fingerprint_sha256": "62a8da67d41c2744b67a76cdad15061b8cb92053f92fccb994fadd8ee3f1e074",
+      "family_fingerprint_sha256": "c65b5c4c81d79912636d09f73afb65a7545ec17d712075d0b4d46f7886ec9a8c",
       "review_status": "draft"
     },
     {
       "family_id": "ORBIT-S05-TINYFISH-BATCH-FETCH-CONTRACT-02",
       "stage": "A",
       "independence_group_id": "ORBIT-S05-INDEP-A-002",
-      "family_fingerprint_sha256": "8dbdd14335e4f0fca1b2381a323a0bf5733fb4732a4253ae02d928034907f7b6",
+      "family_fingerprint_sha256": "a0a16e438d5d519f2f8421b1870ff65bc37ee7790602244d9c254e7778939058",
       "review_status": "draft"
     },
     {
       "family_id": "ORBIT-S06-PYTHON-NODE-CROSS-SOURCE-REPORT-02",
       "stage": "A",
       "independence_group_id": "ORBIT-S06-INDEP-A-002",
-      "family_fingerprint_sha256": "217d6c4c8e97da52fddd14636a24f587594f2f753976529db171c06a6559906d",
+      "family_fingerprint_sha256": "be6c1c08a85ef6c580285ffeccafb303ad9f7be7b6b3d07f3ef9612ae01ea163",
       "review_status": "draft"
     },
     {
       "family_id": "ORBIT-S08-FIRECRAWL-RERANKER-FALLBACK-RECOVERY-02",
       "stage": "A",
       "independence_group_id": "ORBIT-S08-INDEP-A-002",
-      "family_fingerprint_sha256": "c2c621a8c327b1a7460128cc7ee52ff2f0fdfe77541f6e7317a7df3af09bec6e",
+      "family_fingerprint_sha256": "b7b5ead485d2d8cf8ffe7295cf8ffe9951853378695c43e78d7e94ee8ce9f38c",
       "review_status": "draft"
     },
     {
       "family_id": "ORBIT-S09-GITHUB-BRANCH-PREDICT-CHECK-02",
       "stage": "A",
       "independence_group_id": "ORBIT-S09-INDEP-A-002",
-      "family_fingerprint_sha256": "6f1e4645a7dffaba4dfd500b188b057bd796b1df003f9706525be39c42f62036",
+      "family_fingerprint_sha256": "cd725b478d35bd8da9e637167c863a2eceb21df90d701f5ee225c80df3ad6e7d",
       "review_status": "draft"
     },
     {
       "family_id": "ORBIT-S10-UNTRUSTED-PAID-ACTION-NOTE-02",
       "stage": "A",
       "independence_group_id": "ORBIT-S10-INDEP-A-002",
-      "family_fingerprint_sha256": "bd725a9e5c57fad54a1319739d963ada6cf28c9221748abbfe602c65bc987781",
+      "family_fingerprint_sha256": "d6372c7865eaccb0e89fd54f97b9f6f245cab0a195b1b38efbf8e0ffaf2b1721",
       "review_status": "draft"
     },
     {
       "family_id": "ORBIT-S02-GO-RELEASE-VERIFY-03",
       "stage": "A",
       "independence_group_id": "ORBIT-S02-INDEP-A-003",
-      "family_fingerprint_sha256": "cc1202305666a948ab58ecd94717e13f313dd1b8771036e61fc1e9d0da5e0e0c",
+      "family_fingerprint_sha256": "93bad668646624988fc6a7fc2375a5e7a22c5c34197d25c7aa70e22c9d7a9cd2",
       "review_status": "draft"
     },
     {
       "family_id": "ORBIT-S08-TINYFISH-SCHEMA-AND-404-RECOVERY-03",
       "stage": "A",
       "independence_group_id": "ORBIT-S08-INDEP-A-003",
-      "family_fingerprint_sha256": "3bed1de14e17b9c13d4a845f85325ba1a0bf97ea9f51c7c4ee12c2305bf52f24",
+      "family_fingerprint_sha256": "f386ace3e50f91fb4b7a4a47c324c58d1b97472afc5c8e26951fd5596784e351",
       "review_status": "draft"
     },
     {
       "family_id": "ORBIT-S06-THREE-RUNTIME-RELEASE-COMPARISON-03",
       "stage": "A",
       "independence_group_id": "ORBIT-S06-INDEP-A-003",
-      "family_fingerprint_sha256": "2a81f61a188efe91fc564a9e81903303e023945d8e59084b48112f29127f519f",
+      "family_fingerprint_sha256": "52ad9f06fb6a4cd2277e2bd763186052749d4234d2fe5b0af7d0f3a47f6678f4",
       "review_status": "draft"
     },
     {
       "family_id": "ORBIT-S04-FREE-SOURCE-VS-PAID-PACKAGE-PROVIDER-03",
       "stage": "A",
       "independence_group_id": "ORBIT-S04-INDEP-A-003",
-      "family_fingerprint_sha256": "4954b0dbac2ef9813dd6a4ec39167c1304ac1275e698ffb0ece38eba9ffd118a",
+      "family_fingerprint_sha256": "b25cf9e3b6a44ffb81246d9c8a3b8f387222769d2c355c4b5cdccbadf24d7c23",
       "review_status": "draft"
     },
     {
       "family_id": "ORBIT-S03-PACKAGE-DEPENDENTS-DISCOVERY-04",
       "stage": "A",
       "independence_group_id": "ORBIT-S03-INDEP-A-004",
-      "family_fingerprint_sha256": "590d8d79e2653e3c01dbc4c17557db0824b1273a8f3a9f7e5af41e9c1f6d57f7",
+      "family_fingerprint_sha256": "6e4962e2a0282a6a17197d25918eb12253d4dcb3a9c3992a270b97e786ddf2e9",
       "review_status": "draft"
     },
     {
       "family_id": "ORBIT-S07-CROSS-PLUGIN-COST-AUDIT-02",
       "stage": "A",
       "independence_group_id": "ORBIT-S07-INDEP-A-002",
-      "family_fingerprint_sha256": "7e4f399b67fbbe45b33414a00e52077666c38f2fc191a46c7939bc7964bb91de",
+      "family_fingerprint_sha256": "32d6faad31289cc626d8ab7cddf47814c1ee94c9c82992702986d99704858c10",
       "review_status": "draft"
     },
     {
       "family_id": "ORBIT-S05-GITHUB-UPDATE-FILE-SHA-CONTRACT-03",
       "stage": "A",
       "independence_group_id": "ORBIT-S05-INDEP-A-003",
-      "family_fingerprint_sha256": "36bf9b7287d4655fb933562ca8993bd1ca513df1c4c663595cab3939e52c661e",
+      "family_fingerprint_sha256": "26a539a487988bdc97bdbb5cf1132ee84f3e7b0e57954e7c7a2c4d5efd89fafa",
       "review_status": "draft"
     },
     {
       "family_id": "ORBIT-S05-TINYFISH-FETCH-PAGE-METADATA-REQUIRED-04",
       "stage": "A",
       "independence_group_id": "ORBIT-S05-INDEP-A-004",
-      "family_fingerprint_sha256": "c0fc61a75f1d9829700fbc60757d3bdfb6598716a8bbd15380a8096c06497149",
+      "family_fingerprint_sha256": "aeacc33daabd5c29ca295cf77e2ceff6bd0de82325061e26c6417a836225844b",
       "review_status": "draft"
     },
     {
       "family_id": "ORBIT-S09-GITHUB-UPDATE-FILE-EFFECT-FORECAST-03",
       "stage": "A",
       "independence_group_id": "ORBIT-S09-INDEP-A-003",
-      "family_fingerprint_sha256": "8679f13ec7e92e50e57fdaa99926ff4db59451906c52f378de06e727ea06ff74",
+      "family_fingerprint_sha256": "56d052edda68288214882ec87fd6602af15c2703129508c9dccdf0a2c3815f5d",
       "review_status": "draft"
     },
     {
       "family_id": "ORBIT-S06-TEAM-WORKLOAD-AGGREGATION-04",
       "stage": "A",
       "independence_group_id": "ORBIT-S06-INDEP-A-004",
-      "family_fingerprint_sha256": "7722b34abf134ddd567730ef9ccf811d576af8da32b8276f28405193f0415c7f",
+      "family_fingerprint_sha256": "14af7a310bd45ad30ac678545d5e4901017c8180b6eaba0c118b3c14bb8489dc",
       "review_status": "draft"
     }
   ],
@@ -436,8 +436,9 @@
       },
       "split_metadata": {
         "partition": "stage_a",
-        "family_fingerprint_sha256": "ef608eae25b9a519f89ca061d4b1bd61bbce229f4b14c4eb4737b61602e3f8c0",
-        "holdout_sealed": false
+        "family_fingerprint_sha256": "12ca99e9ec315b54371ad3fb916a6a6500c1e0819074cb625be179d8697162f5",
+        "holdout_sealed": false,
+        "task_instance_sha256": "c57e97f30a64c332bd9dae0f1760d9ee7b3c346ce449c3be993b40fa130e858a"
       }
     },
     {
@@ -576,8 +577,9 @@
       },
       "split_metadata": {
         "partition": "stage_a",
-        "family_fingerprint_sha256": "887bdc8131b6c296686cad3f797ea4d7cf17e232656789d6355e9450372d3cb0",
-        "holdout_sealed": false
+        "family_fingerprint_sha256": "76f0127e9ca74ff0d143db7261b7eb006673403da25b158f2c92cad0a867e007",
+        "holdout_sealed": false,
+        "task_instance_sha256": "1ca7b49f1395bdb206e715e91247b881ad7dc70924ae243b2dd4a8a380163664"
       }
     },
     {
@@ -700,8 +702,9 @@
       },
       "split_metadata": {
         "partition": "stage_a",
-        "family_fingerprint_sha256": "8f901294e7103f013d1f3a1e2074e0a106431ae961d49f347e4681563e7d187a",
-        "holdout_sealed": false
+        "family_fingerprint_sha256": "8a8e11244424187288cd1204b8f394aed9b0a67d49e521f1c4d3a2ecd739a2cb",
+        "holdout_sealed": false,
+        "task_instance_sha256": "9dd544cab1b6805f8bb059b7ee32719ab1ac6bf22cbc582be95b9991a01bc7e5"
       }
     },
     {
@@ -822,8 +825,9 @@
       },
       "split_metadata": {
         "partition": "stage_a",
-        "family_fingerprint_sha256": "47f21062f15746902b65cd964553896ada1047a84c188f38dc91a18e79a999de",
-        "holdout_sealed": false
+        "family_fingerprint_sha256": "e0668359b7a1be00bd5e4435a2e99722be5d18de783a82c3ec68b68ec540cf68",
+        "holdout_sealed": false,
+        "task_instance_sha256": "7a00a8f2f5db1eea0b3ca5bf402aec6334cc8145386d4e8a9751dcf2b583ced9"
       }
     },
     {
@@ -943,8 +947,9 @@
       },
       "split_metadata": {
         "partition": "stage_a",
-        "family_fingerprint_sha256": "24272efa66f5262ae82760cbb4c26979c14b1332c76e4fe9563f9e5b64c820c8",
-        "holdout_sealed": false
+        "family_fingerprint_sha256": "c8ba3e1c790bd5dd549583dcd606f82a5d8fc42ab442483293990e4aa43c3293",
+        "holdout_sealed": false,
+        "task_instance_sha256": "d2db2203343359d11c72a3a77e24b3d840cc506d6a834556f03f2e9bbb683198"
       }
     },
     {
@@ -1111,8 +1116,9 @@
       },
       "split_metadata": {
         "partition": "stage_a",
-        "family_fingerprint_sha256": "1d3b66d51e023e3e8ade8d838d9d75a8d6e88bac0fe0d985f2e6b75467698a82",
-        "holdout_sealed": false
+        "family_fingerprint_sha256": "33d57c47bf02a8fb1a5e21148ad8c0f3127eb2687fb53bc1019852020874af3c",
+        "holdout_sealed": false,
+        "task_instance_sha256": "5fd6b909746c155e6b4c5435d07ca8c14a9fc7207df2caf84c90263a96926047"
       }
     },
     {
@@ -1269,8 +1275,9 @@
       },
       "split_metadata": {
         "partition": "stage_a",
-        "family_fingerprint_sha256": "0c49821309273be8a1e43e11050c1537625f3c4b2c1227e7f20501dea1063821",
-        "holdout_sealed": false
+        "family_fingerprint_sha256": "edd88daeafb9f3b0e21be16d09a510b51b94ba36ceb68ce7f90c070553a00286",
+        "holdout_sealed": false,
+        "task_instance_sha256": "c0c5a9249e7411bbf030a200fb267c4a78a62414dd3a265a4490836fe412ed09"
       }
     },
     {
@@ -1414,8 +1421,9 @@
       },
       "split_metadata": {
         "partition": "stage_a",
-        "family_fingerprint_sha256": "4f2398dcbe324e15ad9e5a7b4882756cff669a3cce7420a441a7b8c8ed3feb8e",
-        "holdout_sealed": false
+        "family_fingerprint_sha256": "a259758fc79c2861128762f1d94ce86576051dcefde06008956e8c326b0a7cec",
+        "holdout_sealed": false,
+        "task_instance_sha256": "67fcfe865f850266fdae45e8aa360e9b59f9710d3e7a531707d90ac3f0c3ee19"
       }
     },
     {
@@ -1569,8 +1577,9 @@
       },
       "split_metadata": {
         "partition": "stage_a",
-        "family_fingerprint_sha256": "0d1dd48fb60702ea8e926fba6e3366c7cd696905d15bc4275814d429f48c3759",
-        "holdout_sealed": false
+        "family_fingerprint_sha256": "4334cdf2c8b8ab6424bf15b07befc8c6cbc8634c4f2e6f9670f16b68d3ab6995",
+        "holdout_sealed": false,
+        "task_instance_sha256": "b86655753d0c01549d7c4200d784169749fcf615ea91bf6b60ae80c73c555c18"
       }
     },
     {
@@ -1709,8 +1718,9 @@
       },
       "split_metadata": {
         "partition": "stage_a",
-        "family_fingerprint_sha256": "4a329a40d969a86e69b12080cb27c2c559bcdf20ffa62521040f0dae1874709b",
-        "holdout_sealed": false
+        "family_fingerprint_sha256": "ca3cafb0d98f38dd4b02bba4c7c4de09c677b18e00a183b5b37e6e1c378ff1ea",
+        "holdout_sealed": false,
+        "task_instance_sha256": "693991fb14f818370ce149ffb41420297e31cadc914d3b0a92bb536bdfe4ef3e"
       }
     },
     {
@@ -1842,8 +1852,9 @@
       },
       "split_metadata": {
         "partition": "stage_a",
-        "family_fingerprint_sha256": "ea9820e5c8f740e83531ec5c5ba14a60bf4cc139c2832638eb57feaceeb8dc96",
-        "holdout_sealed": false
+        "family_fingerprint_sha256": "d89a09743af0caf3b61cdab258ab6e3962bcdc52cee2122a80d75a6953e632f1",
+        "holdout_sealed": false,
+        "task_instance_sha256": "37416c4dcd51df198692198bcbc77fd156c0e7e0c047138020ddf933e09af482"
       }
     },
     {
@@ -1969,8 +1980,9 @@
       },
       "split_metadata": {
         "partition": "stage_a",
-        "family_fingerprint_sha256": "538b44052e00b885e8dbe613851f84e30692467d036d0e4260b51eefb5cf1ed6",
-        "holdout_sealed": false
+        "family_fingerprint_sha256": "17856455bb6d1b0e3623fc36bbbd2678861813fa67276ee014bd93f3e76f8fcb",
+        "holdout_sealed": false,
+        "task_instance_sha256": "c701cb3e7d9ae54ba67e073ccd3173a61563108b98f7d5802517da31b364dc23"
       }
     },
     {
@@ -2074,8 +2086,9 @@
       },
       "split_metadata": {
         "partition": "stage_a",
-        "family_fingerprint_sha256": "674ef1eecb3b3ca0cd47afda7e692a6ee103a7d806a9426dc573908c8d223080",
-        "holdout_sealed": false
+        "family_fingerprint_sha256": "f77037f78b0eb9417a934e99de4645b74e05c31017346292f1e1d6b43f8b3e6b",
+        "holdout_sealed": false,
+        "task_instance_sha256": "bee776ceddacda960bd15518906897ad50b0d64d875841063a53db83e2ee6245"
       }
     },
     {
@@ -2215,8 +2228,9 @@
       },
       "split_metadata": {
         "partition": "stage_a",
-        "family_fingerprint_sha256": "bf63d914a6e099a77d1d210a0dd82aefaad24dd728f78b60a97d1672f84d8a95",
-        "holdout_sealed": false
+        "family_fingerprint_sha256": "2b11bb97a6c2b2c4f1529252f3f1fb26096e3156c8c12798335b3118a190a0fa",
+        "holdout_sealed": false,
+        "task_instance_sha256": "e41215a6a7f9307e530254bb9672c3e5e64fd266cb7c38ae347d476603768ff6"
       }
     },
     {
@@ -2347,8 +2361,9 @@
       },
       "split_metadata": {
         "partition": "stage_a",
-        "family_fingerprint_sha256": "62a8da67d41c2744b67a76cdad15061b8cb92053f92fccb994fadd8ee3f1e074",
-        "holdout_sealed": false
+        "family_fingerprint_sha256": "c65b5c4c81d79912636d09f73afb65a7545ec17d712075d0b4d46f7886ec9a8c",
+        "holdout_sealed": false,
+        "task_instance_sha256": "cb237c82e87ac148f36ca9c3b508fd12489f1003e03af138a4eaf955eeb9eb11"
       }
     },
     {
@@ -2477,8 +2492,9 @@
       },
       "split_metadata": {
         "partition": "stage_a",
-        "family_fingerprint_sha256": "8dbdd14335e4f0fca1b2381a323a0bf5733fb4732a4253ae02d928034907f7b6",
-        "holdout_sealed": false
+        "family_fingerprint_sha256": "a0a16e438d5d519f2f8421b1870ff65bc37ee7790602244d9c254e7778939058",
+        "holdout_sealed": false,
+        "task_instance_sha256": "98ca802db481bcbf213158e64dd1b1751dacab3da2eb1910cf1b6eb241821853"
       }
     },
     {
@@ -2634,8 +2650,9 @@
       },
       "split_metadata": {
         "partition": "stage_a",
-        "family_fingerprint_sha256": "217d6c4c8e97da52fddd14636a24f587594f2f753976529db171c06a6559906d",
-        "holdout_sealed": false
+        "family_fingerprint_sha256": "be6c1c08a85ef6c580285ffeccafb303ad9f7be7b6b3d07f3ef9612ae01ea163",
+        "holdout_sealed": false,
+        "task_instance_sha256": "87681c3da6c1cebf6dbaad17fb7e23f4ed2647fa73781f0d6afa842bce0eaf88"
       }
     },
     {
@@ -2764,8 +2781,9 @@
       },
       "split_metadata": {
         "partition": "stage_a",
-        "family_fingerprint_sha256": "c2c621a8c327b1a7460128cc7ee52ff2f0fdfe77541f6e7317a7df3af09bec6e",
-        "holdout_sealed": false
+        "family_fingerprint_sha256": "b7b5ead485d2d8cf8ffe7295cf8ffe9951853378695c43e78d7e94ee8ce9f38c",
+        "holdout_sealed": false,
+        "task_instance_sha256": "627ba55a0fd866285f2749c48d442dab22c65d5441eca3764b0de58b9cc35f57"
       }
     },
     {
@@ -2893,8 +2911,9 @@
       },
       "split_metadata": {
         "partition": "stage_a",
-        "family_fingerprint_sha256": "6f1e4645a7dffaba4dfd500b188b057bd796b1df003f9706525be39c42f62036",
-        "holdout_sealed": false
+        "family_fingerprint_sha256": "cd725b478d35bd8da9e637167c863a2eceb21df90d701f5ee225c80df3ad6e7d",
+        "holdout_sealed": false,
+        "task_instance_sha256": "9acdb4930e2f5c0ed9bab499474c318f5cb3f61d95ec80a463b9168a945c07e2"
       }
     },
     {
@@ -3015,8 +3034,9 @@
       },
       "split_metadata": {
         "partition": "stage_a",
-        "family_fingerprint_sha256": "bd725a9e5c57fad54a1319739d963ada6cf28c9221748abbfe602c65bc987781",
-        "holdout_sealed": false
+        "family_fingerprint_sha256": "d6372c7865eaccb0e89fd54f97b9f6f245cab0a195b1b38efbf8e0ffaf2b1721",
+        "holdout_sealed": false,
+        "task_instance_sha256": "528f933bb6910d3ca0e7083b6c918960eea11353202ed0f04cf86ddc61dc962a"
       }
     },
     {
@@ -3141,8 +3161,9 @@
       },
       "split_metadata": {
         "partition": "stage_a",
-        "family_fingerprint_sha256": "cc1202305666a948ab58ecd94717e13f313dd1b8771036e61fc1e9d0da5e0e0c",
-        "holdout_sealed": false
+        "family_fingerprint_sha256": "93bad668646624988fc6a7fc2375a5e7a22c5c34197d25c7aa70e22c9d7a9cd2",
+        "holdout_sealed": false,
+        "task_instance_sha256": "3c3864f9adfe70e6b37abf6511565ee3e9a4f3e4d6eaf3a4d0bb99f61474bc16"
       }
     },
     {
@@ -3279,8 +3300,9 @@
       },
       "split_metadata": {
         "partition": "stage_a",
-        "family_fingerprint_sha256": "3bed1de14e17b9c13d4a845f85325ba1a0bf97ea9f51c7c4ee12c2305bf52f24",
-        "holdout_sealed": false
+        "family_fingerprint_sha256": "f386ace3e50f91fb4b7a4a47c324c58d1b97472afc5c8e26951fd5596784e351",
+        "holdout_sealed": false,
+        "task_instance_sha256": "accbbf4021ffb65469439dcc91f0bcacc7ec339ddc13ee350fc07f575a0c174d"
       }
     },
     {
@@ -3452,8 +3474,9 @@
       },
       "split_metadata": {
         "partition": "stage_a",
-        "family_fingerprint_sha256": "2a81f61a188efe91fc564a9e81903303e023945d8e59084b48112f29127f519f",
-        "holdout_sealed": false
+        "family_fingerprint_sha256": "52ad9f06fb6a4cd2277e2bd763186052749d4234d2fe5b0af7d0f3a47f6678f4",
+        "holdout_sealed": false,
+        "task_instance_sha256": "67b2990fb324785e05102d52707b1cdf3b8bf8635ec0185592ee8338c6cb7a53"
       }
     },
     {
@@ -3605,8 +3628,9 @@
       },
       "split_metadata": {
         "partition": "stage_a",
-        "family_fingerprint_sha256": "4954b0dbac2ef9813dd6a4ec39167c1304ac1275e698ffb0ece38eba9ffd118a",
-        "holdout_sealed": false
+        "family_fingerprint_sha256": "b25cf9e3b6a44ffb81246d9c8a3b8f387222769d2c355c4b5cdccbadf24d7c23",
+        "holdout_sealed": false,
+        "task_instance_sha256": "8d699aa3b8bae086bc29f5c46319b68c0f47299a00907486a91557035d644b11"
       }
     },
     {
@@ -3742,8 +3766,9 @@
       },
       "split_metadata": {
         "partition": "stage_a",
-        "family_fingerprint_sha256": "590d8d79e2653e3c01dbc4c17557db0824b1273a8f3a9f7e5af41e9c1f6d57f7",
-        "holdout_sealed": false
+        "family_fingerprint_sha256": "6e4962e2a0282a6a17197d25918eb12253d4dcb3a9c3992a270b97e786ddf2e9",
+        "holdout_sealed": false,
+        "task_instance_sha256": "92ee6e8c36bfa4efb0d0ef2efb790b2fcf1124a79333e3bacd6d1cb5eac23a0c"
       }
     },
     {
@@ -3932,8 +3957,9 @@
       },
       "split_metadata": {
         "partition": "stage_a",
-        "family_fingerprint_sha256": "7e4f399b67fbbe45b33414a00e52077666c38f2fc191a46c7939bc7964bb91de",
-        "holdout_sealed": false
+        "family_fingerprint_sha256": "32d6faad31289cc626d8ab7cddf47814c1ee94c9c82992702986d99704858c10",
+        "holdout_sealed": false,
+        "task_instance_sha256": "47c01550ce74aaea8855749bff91137afa9cc02f23356affecf7b7d7e7047a74"
       }
     },
     {
@@ -4084,8 +4110,9 @@
       },
       "split_metadata": {
         "partition": "stage_a",
-        "family_fingerprint_sha256": "36bf9b7287d4655fb933562ca8993bd1ca513df1c4c663595cab3939e52c661e",
-        "holdout_sealed": false
+        "family_fingerprint_sha256": "26a539a487988bdc97bdbb5cf1132ee84f3e7b0e57954e7c7a2c4d5efd89fafa",
+        "holdout_sealed": false,
+        "task_instance_sha256": "55aa3878dad6339e41c688707ec3e6d0a6f33ce392fb21cbc05df29fb5915c3d"
       }
     },
     {
@@ -4222,8 +4249,9 @@
       },
       "split_metadata": {
         "partition": "stage_a",
-        "family_fingerprint_sha256": "c0fc61a75f1d9829700fbc60757d3bdfb6598716a8bbd15380a8096c06497149",
-        "holdout_sealed": false
+        "family_fingerprint_sha256": "aeacc33daabd5c29ca295cf77e2ceff6bd0de82325061e26c6417a836225844b",
+        "holdout_sealed": false,
+        "task_instance_sha256": "b98c375dc679a966952e88376b3fef46122e9be0c283f0e86ad861d357a6c5f3"
       }
     },
     {
@@ -4373,8 +4401,9 @@
       },
       "split_metadata": {
         "partition": "stage_a",
-        "family_fingerprint_sha256": "8679f13ec7e92e50e57fdaa99926ff4db59451906c52f378de06e727ea06ff74",
-        "holdout_sealed": false
+        "family_fingerprint_sha256": "56d052edda68288214882ec87fd6602af15c2703129508c9dccdf0a2c3815f5d",
+        "holdout_sealed": false,
+        "task_instance_sha256": "70e22abb22fd24a524911a0193c4ca15d9c1ee876738d2f8011b4ce10f4430c8"
       }
     },
     {
@@ -4592,8 +4621,9 @@
       },
       "split_metadata": {
         "partition": "stage_a",
-        "family_fingerprint_sha256": "7722b34abf134ddd567730ef9ccf811d576af8da32b8276f28405193f0415c7f",
-        "holdout_sealed": false
+        "family_fingerprint_sha256": "14af7a310bd45ad30ac678545d5e4901017c8180b6eaba0c118b3c14bb8489dc",
+        "holdout_sealed": false,
+        "task_instance_sha256": "c765d7316b3bc2076f44b90921cbc7ada6b94a29846188299157e016cd6b7803"
       }
     }
   ],
@@ -4641,6 +4671,7 @@
     "The next task increment adds an update_file schema/precondition task using the current blob SHA and an explicit branch; the reference update was read back and diff-checked.",
     "Another authoring increment adds an isolated TinyFish required-field schema test (S05) and a GitHub existing-file modification effect-forecast task (S09), backed by actual live plugin error correction, blob readback and single-path diffs.",
     "A further S06 task adds row-level team/status workload aggregation with exact Open semantics and a read-back/diff-verified GitHub report; the reference calculation reconciles all 10 records and 38 estimated hours.",
-    "Tool registry integrity correction: mcp__GitHub__update_file is now included because three task records reference it. The pinned tool schema SHA-256 is computed over the sorted-key compact UTF-8 JSON serialization of the complete registry tools array."
+    "Tool registry integrity correction: mcp__GitHub__update_file is now included because three task records reference it. The pinned tool schema SHA-256 is computed over the sorted-key compact UTF-8 JSON serialization of the complete registry tools array.",
+    "Integrity hardening: every task now carries a deterministic task_instance_sha256; family_fingerprint_sha256 is recomputed from the canonical task-definition fields. Canonical JSON uses UTF-8, sorted object keys, compact separators and SHA-256."
   ]
 }
