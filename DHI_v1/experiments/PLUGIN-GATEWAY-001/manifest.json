@@ -105,8 +105,38 @@
   "runtime_observation": {
     "deepnote_project_id": "6415944e-8d6c-432c-a7cf-3bbaa997799c",
     "integrations_attached": [],
-    "interpretation": "No provider integration is attached to the inspected verifier project. Manual process-environment credentials were not probed; no secret values were read or logged.",
-    "remote_mcp_requests_sent": 0
+    "interpretation": "No provider integration is attached to the inspected verifier project, and the presence-only probe found none of the 12 checked conventional TinyFish/GitHub/Firecrawl credential variables. No secret values were read or emitted.",
+    "remote_mcp_requests_sent": 0,
+    "credential_probe": {
+      "run_id": "712a9c26-d126-4cc0-bfdb-a564dd29e3d1",
+      "notebook_id": "3639f9a98ce5435fa4cd0168eaaca3a1",
+      "output_block_id": "a8b57e8a508349a3a50a144ceeb4313b",
+      "output_block_content_hash": "sha256:e5a473f06e7d1e78ce66cbbf9e2f157ad6cafb3b353d3c14549019ca0766367c",
+      "status": "success",
+      "method": "presence_only_bool(os.environ.get(name, '').strip())",
+      "variables_checked": [
+        "TINYFISH_API_KEY",
+        "DHI_TINYFISH_API_KEY",
+        "MCP_TINYFISH_API_KEY",
+        "TINYFISH_OAUTH_ACCESS_TOKEN",
+        "GITHUB_PERSONAL_ACCESS_TOKEN",
+        "GITHUB_TOKEN",
+        "GH_TOKEN",
+        "DHI_GITHUB_TOKEN",
+        "MCP_GITHUB_TOKEN",
+        "FIRECRAWL_API_KEY",
+        "DHI_FIRECRAWL_API_KEY",
+        "FIRECRAWL_OAUTH_TOKEN"
+      ],
+      "present_count": 0,
+      "total_checked": 12,
+      "secret_values_emitted": false,
+      "secret_values_persisted": false,
+      "remote_requests_sent": 0,
+      "temporary_block_deleted": true,
+      "verifier_machine_stopped_after_probe": true,
+      "interpretation": "No conventional credentials among the 12 checked names were present in the DHI verifier runtime. This is not proof that differently named credentials or an OAuth integration cannot exist."
+    }
   },
   "results": {
     "raw_artifacts": [],
@@ -130,5 +160,6 @@
       "https://github.com/firecrawl/firecrawl-mcp-server",
       "https://github.com/modelcontextprotocol/modelcontextprotocol/blob/main/docs/specification/2026-07-28/basic/transports/streamable-http.mdx"
     ]
-  }
+  },
+  "next_gate": "Provision TINYFISH_API_KEY as a secure Deepnote project secret (or configure a supported OAuth integration) without sharing it in chat; then run TinyFish read-only initialize/tools/list and one bounded search/fetch smoke."
 }
