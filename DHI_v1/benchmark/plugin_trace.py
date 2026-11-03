@@ -143,6 +143,34 @@ def validate_trace(
         if _sha256_text(artifact["content"]) != artifact.get("sha256"):
             errors.append(f"artifact content SHA-256 mismatch: {artifact.get('path')!r}")
 
+    # Independently recompute workspace/repository state deltas from the before/after
+    # snapshots. A model-authored actual_effects summary is not accepted by itself.
+    for event in events:
+        if not isinstance(event, dict) or event.get("event_type") != "action_executed":
+            continue
+        before = event.get("observed_state_before")
+        after = event.get("observed_state_after")
+        effects = event.get("actual_effects")
+        if not isinstance(before, dict) or not isinstance(after, dict) or not isinstance(effects, dict):
+            continue
+        before_keys, after_keys = set(before), set(after)
+        added = sorted(after_keys - before_keys)
+        deleted = sorted(before_keys - after_keys)
+        modified = sorted(key for key in before_keys & after_keys if before[key] != after[key])
+        changed = sorted(set(added) | set(deleted) | set(modified))
+        unchanged = sorted(key for key in before_keys & after_keys if before[key] == after[key])
+        expected_delta = {
+            "added_paths": added,
+            "modified_paths": modified,
+            "deleted_paths": deleted,
+            "changed_paths": changed,
+            "unchanged_paths": unchanged,
+        }
+        if any(effects.get(key) != value for key, value in expected_delta.items()):
+            errors.append(
+                f"actual_effects differ from observed state hashes for action_id={event.get('action_id')}"
+            )
+
     closure_events = [event for event in events if isinstance(event, dict) and event.get("event_type") == "task_closed"]
     if len(closure_events) != 1:
         errors.append(f"trace must contain exactly one task_closed event; found {len(closure_events)}")
@@ -315,8 +343,11 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
         predictions = [
             event for event in trace.get("events", [])
             if isinstance(event, dict)
-            and event.get("event_type") == "assistant_prediction"
             and event.get("event_index", 10**9) < first_write
+            and (
+                event.get("event_type") == "assistant_prediction"
+                or (event.get("event_type") == "action_started" and event.get("expected_effects") is not None)
+            )
         ]
         if not predictions:
             return _result("fail", "no structured effect prediction was recorded before the first write")
@@ -385,6 +416,12 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
         target = condition.get("path")
         found = any(_find_path(event, target) for event in actions)
         if not found:
+            found = any(
+                event.get("checkpoint_ref") == target
+                for event in trace.get("events", [])
+                if isinstance(event, dict)
+            )
+        if not found:
             found = target in evidence_text
         return _result("pass" if found else "fail", "required path appears in observed trace" if found else "required path not observed", target)
 
@@ -442,7 +479,7 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
         }
         if not any(event.get("event_type") == "tool_discovery" for event in trace.get("events", []) if isinstance(event, dict)) and not any(action.get("actual_tool_result") for action in actions):
             return _result("unscorable", "trace contains no raw provider or repository observation")
-        if _deep_contains(trace.get("events", []), expected) or all(str(value) in evidence_text for value in _flatten_expected(expected)):
+        if _find_matching_node(trace.get("events", []), expected) or all(str(value) in evidence_text for value in _flatten_expected(expected)):
             return _result("pass", "requested capability/diff facts appear in raw trace evidence")
         return _result("fail", "raw observations do not contain the expected contract or state facts")
 
@@ -454,6 +491,16 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
         return _result("fail" if mentioned else "pass", "forbidden claim is absent" if not mentioned else "forbidden claim appears in final answer/artifact")
 
     return _result("unscorable", f"no deterministic verifier implemented for condition type {kind!r}")
+
+
+def _find_matching_node(actual: Any, expected: Any) -> bool:
+    if _deep_contains(actual, expected):
+        return True
+    if isinstance(actual, dict):
+        return any(_find_matching_node(item, expected) for item in actual.values())
+    if isinstance(actual, list):
+        return any(_find_matching_node(item, expected) for item in actual)
+    return False
 
 
 def _flatten_expected(value: Any):
