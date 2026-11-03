@@ -106,3 +106,8 @@ A subsequent broad GitHub compare summary listed implementation files in its agg
 - `DHI_v1/benchmark/task_manifest.schema.json` — `d581c2be8a26b9a447ab8163b365cf2370d426f0`
 
 This covers the runner/environment implementation, runner/environment tests, plugin grader and schema, manifest validator and tests, and both task-manifest files. Therefore the 142-test and validator result remains code-equivalent for these benchmark/runtime files. This is a content-hash check, not a new test execution. All later branch work remains record/documentation changes; do not claim a new runtime test run.
+
+
+### Credential-probe execution reference
+
+The presence-only probe completed successfully in Deepnote run `712a9c26-d126-4cc0-bfdb-a564dd29e3d1` using notebook `3639f9a98ce5435fa4cd0168eaaca3a1`. Output block `a8b57e8a508349a3a50a144ceeb4313b` has content hash `sha256:e5a473f06e7d1e78ce66cbbf9e2f157ad6cafb3b353d3c14549019ca0766367c`. It returned `present_count=0`, `total_checked=12`, and `remote_requests_sent=0`. The temporary block was deleted; the verifier machine was stopped after execution.
