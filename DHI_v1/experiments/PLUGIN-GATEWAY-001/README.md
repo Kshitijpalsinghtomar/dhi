@@ -146,3 +146,25 @@ The user asked for a fresh check after the earlier quota rejection. The existing
 - An attempt to create a separate temporary notebook was rejected because this is a single-notebook project; the existing notebook was used only for the temporary probe and restored afterward.
 
 **Result:** still blocked before execution. The reported `TINYFISH_API_KEY` setup remains unverified. The prior 0/12 probe predates the user's setup report and is not evidence of the current secret state. Do not stop another project to free quota. Retry only after a Deepnote run slot is available.
+
+
+## Corrected Deepnote integration attachment and isolated recheck — 2026-11-03
+
+A fresh workspace inventory found a **workspace integration named `TINYFISH` (type `env`)**. The integration existed, but it was not attached to the DHI verifier project. This was the setup issue missed by the earlier checks.
+
+- Integration ID: `cf58b868-fdea-46d7-a821-512aa413e007`
+- Verifier project: `6415944e-8d6c-432c-a7cf-3bbaa997799c`
+- Attachment succeeded; a subsequent `get_project` readback showed `TINYFISH` attached as an `env` integration.
+- No integration secret/configuration values were inspected.
+
+The first detached run, `34ec5435-ed95-4057-bb34-9cbf489a482d`, was accepted after attachment, but it ran the pre-existing regression cell first. That cell failed with `ModuleNotFoundError: No module named 'pytest'`, so the presence-only cell later in the notebook did **not** execute. The original regression cell was not modified.
+
+A live run selecting only the presence cell was then rejected with:
+
+`Your plan quota for parallel running projects has been exceeded. Please stop one of your running projects.`
+
+To keep the regression notebook untouched, a separate temporary standard project and one-cell notebook were created and attached to the same integration. Its detached run was also rejected with the same quota error. The temporary project was deleted in full. The temporary probe block in the original verifier notebook was deleted as well; a final notebook readback showed only the original regression cell remains.
+
+A workspace machine snapshot showed 10 projects in total, with one other project machine running and the DHI verifier stopped. No other project was stopped or modified by this check.
+
+**Corrected conclusion:** the TINYFISH workspace integration is now attached to the DHI verifier, but the value-presence check has not completed. Do not say the key is absent or present. No secret value was read/emitted and no TinyFish MCP request was sent. The next gate is one available parallel-project slot, then the one-cell presence-only probe; only after a positive result may read-only MCP initialization proceed.
