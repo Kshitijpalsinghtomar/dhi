@@ -1074,3 +1074,22 @@ Verification:
 - Syntax check: run `d2b4d227-9f9d-4d20-a293-0c560e266e41` was interrupted during the first `py_compile` bytecode write. No compileall success is claimed.
 
 **Decision:** provider credentials/transport are verified and the DHI adapter is implemented with explicit task allowlists. The 14 direct assertions are passing, but the adapter is not yet fully validated: pytest collection, syntax/compile, and the full regression remain open because the current Deepnote runner stalls before collection/writing. Continue with a reliable runner; do not start model inference/training or mark tasks validated until those gates pass.
+
+## 2026-11-03 — TinyFish model-facing scripted trace and timeout assertions passed
+
+A further focused integration test traverses the DHI task permission gate, model-facing tool schema, runner, TinyFish REST client and action trace. It uses a scripted model client and mocked HTTP; it is a scripted-integration evidence class, not an ORBIT model-generated trajectory.
+
+The task explicitly allowlisted tinyfish.search and did not allow tinyfish.fetch_content. The runner correctly presented the always-visible catalog.search discovery meta-tool plus the allowlisted TinyFish Search tool; it did not present Fetch. The scripted model issued one Search call. The test verified:
+
+- the request used the fixed TinyFish Search endpoint and runtime key header;
+- the external response was captured in the action event;
+- the pre-action no-workspace-change forecast matched the observed workspace delta;
+- the task final answer and independent postcondition/protected-path checks passed;
+- the API key string was absent from the serialized trajectory;
+- the non-allowlisted Fetch operation was not exposed to the model.
+
+A transport-timeout test also proves the configured bound is passed to the request, a timeout is not retried, and the key is not echoed in the error.
+
+Final focused verification: Deepnote run c2d0bac2-7679-4e33-8462-a820d02be2b3, on the notebook DHI ORBIT exact-head verifier. Output: DIRECT_ASSERTION_INVOCATIONS_PASSED=16; IN_MEMORY_COMPILE_PASSED=6. The six changed Python files were compiled in memory without writing bytecode. HTTP was mocked; these unit/integration tests made zero TinyFish network calls. A first version of the model-facing test incorrectly expected the catalogue discovery meta-tool to be hidden; after observing the runner's deliberate always-visible discovery behavior, the test was corrected. No production code change was needed for that correction.
+
+Decision: accept the focused adapter/runner contract as a limited pass. Do not call the adapter fully validated: pytest collection and the complete environment/benchmark regression remain unverified because Deepnote pytest times out before collection. No model inference/training, provider write, browser automation or paid TinyFish operation occurred.
