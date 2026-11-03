@@ -493,7 +493,7 @@ class PluginTraceGraderTests(unittest.TestCase):
                 "closure_status": "success",
             },
         ]
-        trace["usage"] = {"tool_calls": 1, "provider_credits_spent": 1}
+        trace["usage"] = {"tool_calls": 0, "provider_credits_spent": 1}
         condition = {
             "type": "discovery_sequence",
             "sequence": ["broad_search_fallback_with_candidate_items", "provider_filtered_search_success"],
@@ -612,7 +612,7 @@ class PluginTraceGraderTests(unittest.TestCase):
         trace["events"].insert(6, prediction)
         for index, event in enumerate(trace["events"], 1):
             event["event_index"] = index
-        self.assertEqual(grade_task(make_task(condition), trace, schema=load_schema())["status"], "fail")
+        self.assertEqual(grade_task(make_task(condition, task_id=task_id), trace, schema=load_schema())["status"], "fail")
 
 
 
