@@ -16,9 +16,9 @@
     "B": 120
   },
   "per_stratum_stage_target": 12,
-  "materialized_task_count": 10,
+  "materialized_task_count": 12,
   "materialized_stage_counts": {
-    "A": 10,
+    "A": 12,
     "B": 0
   },
   "strata": [
@@ -192,6 +192,20 @@
       "stage": "A",
       "independence_group_id": "ORBIT-S10-INDEP-A-001",
       "family_fingerprint_sha256": "4a329a40d969a86e69b12080cb27c2c559bcdf20ffa62521040f0dae1874709b",
+      "review_status": "draft"
+    },
+    {
+      "family_id": "ORBIT-S02-PYTHON-RELEASE-VERIFY-02",
+      "stage": "A",
+      "independence_group_id": "ORBIT-S02-INDEP-A-002",
+      "family_fingerprint_sha256": "ea9820e5c8f740e83531ec5c5ba14a60bf4cc139c2832638eb57feaceeb8dc96",
+      "review_status": "draft"
+    },
+    {
+      "family_id": "ORBIT-S03-OSV-ADVISORY-DISCOVERY-02",
+      "stage": "A",
+      "independence_group_id": "ORBIT-S03-INDEP-A-002",
+      "family_fingerprint_sha256": "538b44052e00b885e8dbe613851f84e30692467d036d0e4260b51eefb5cf1ed6",
       "review_status": "draft"
     }
   ],
@@ -1572,6 +1586,266 @@
         "family_fingerprint_sha256": "4a329a40d969a86e69b12080cb27c2c559bcdf20ffa62521040f0dae1874709b",
         "holdout_sealed": false
       }
+    },
+    {
+      "task_id": "ORBIT-A-S02-002",
+      "stage": "A",
+      "stratum_id": "S02",
+      "task_family_id": "ORBIT-S02-PYTHON-RELEASE-VERIFY-02",
+      "independence_group_id": "ORBIT-S02-INDEP-A-002",
+      "task_contract": {
+        "prompt": "As of 2026-11-03, use the official Python downloads page to determine the latest stable Python release, distinguish it from the latest pre-release, and report the maintenance status of Python 3.15, 3.14, 3.13, 3.12, 3.11 and 3.10. Include the official URL and observation date. Do not treat a planned pre-release as an available stable release.",
+        "goal": "Correctly parse the current Python release page and distinguish stable, pre-release, bugfix, security and end-of-life status.",
+        "hard_constraints": [
+          "Use python.org as the authoritative source.",
+          "State the observation date and source URL.",
+          "Do not treat Python 3.16 pre-release as stable.",
+          "Report the 3.10 EOL status explicitly."
+        ],
+        "preferences": [],
+        "expected_response_mode": "mixed"
+      },
+      "environment": {
+        "environment_id": "tinyfish-public-web",
+        "version": "2026-11-03",
+        "fixture_id": "python-release-snapshot-2026-11-03",
+        "reset_recipe": "Fetch https://www.python.org/downloads/ via TinyFish with fresh retrieval; compare to the pinned 2026-11-03 reference snapshot.",
+        "state_sha256": "f0c2c02e6d0bd8119bcfb3c6feafefbe2ea4e4ca3249faf515cdfc35273c10e0",
+        "external_snapshot_ref": "DHI_v1/benchmark/fixtures/plugin_ecology/external_snapshots/python_releases_2026-11-03.md"
+      },
+      "tool_inventory": {
+        "visible_tool_ids": [
+          "mcp__TinyFish__search",
+          "mcp__TinyFish__fetch_content"
+        ],
+        "discoverable_tool_ids": [],
+        "required_tool_ids": [
+          "mcp__TinyFish__search",
+          "mcp__TinyFish__fetch_content"
+        ],
+        "tool_schema_sha256": "5f97f694ea6900599f7694fa91867d50cad125cbcd8fd2507a0d04468f9e6f88",
+        "inventory_snapshot_ref": "DHI_v1/benchmark/fixtures/plugin_ecology/plugin_tool_registry.json"
+      },
+      "required_capabilities": [
+        "current_fact_verification",
+        "authoritative_source_selection",
+        "release_channel_interpretation",
+        "temporal_evidence"
+      ],
+      "horizon": {
+        "min_actions": 2,
+        "max_actions": 4,
+        "checkpoint_count": 0,
+        "cross_session_resume_required": false
+      },
+      "preconditions": [],
+      "postconditions": [
+        {
+          "verifier_id": "python_release_state",
+          "condition": {
+            "type": "external_snapshot_match",
+            "source": "https://www.python.org/downloads/",
+            "observation_date": "2026-11-03",
+            "latest_stable": "3.15.2",
+            "latest_pre_release": "3.16",
+            "branches": {
+              "3.15": "bugfix",
+              "3.14": "bugfix",
+              "3.13": "security",
+              "3.12": "security",
+              "3.11": "security",
+              "3.10": "end-of-life"
+            }
+          },
+          "expected_evidence": "Python downloads page lists 3.15.2 on Oct 25, 2026; 3.16 is a planned pre-release; Python 3.10 reached end of support 2026-10-01.",
+          "failure_if_unmet": true
+        }
+      ],
+      "grader": {
+        "grader_id": "official-python-release-page-v1",
+        "version": "1.0.0",
+        "kind": "external_reference",
+        "primary_outcome": "Correctly identify latest stable and pre-release, all requested branch maintenance states, observation date and official URL.",
+        "independent_review_required": true,
+        "review_rubric_ref": "DHI_v1/benchmark/fixtures/plugin_ecology/external_snapshots/python_releases_2026-11-03.md",
+        "llm_judge_sole_source": false
+      },
+      "policy": {
+        "allowed_side_effects": [
+          "public_web_read"
+        ],
+        "forbidden_side_effects": [
+          "website_mutation",
+          "account_login",
+          "external_messages",
+          "purchases"
+        ],
+        "approval_required": [],
+        "protected_invariants": [
+          "Only official public release information is used.",
+          "No external state is mutated."
+        ],
+        "risk_level": "low"
+      },
+      "provenance": {
+        "source_type": "synthetic_specification",
+        "source_ref": "TinyFish official Python downloads page; pinned snapshot at external_snapshots/python_releases_2026-11-03.md.",
+        "authored_at_utc": "2026-11-03T06:45:00Z",
+        "authoring_method": "Hand-authored currentness task from a live official release page and a date-pinned source snapshot."
+      },
+      "validation": {
+        "status": "ready_for_validation",
+        "contract_check": "pass",
+        "environment_check": "pass",
+        "grader_check": "not_run",
+        "review_status": "not_reviewed",
+        "harness_gap_ids": [],
+        "validation_evidence": [
+          "TinyFish search returned python.org/downloads and official source-release pages.",
+          "TinyFish fetch returned release status rows and latest release table."
+        ]
+      },
+      "execution": {
+        "status": "not_run",
+        "model_runs_allowed": false,
+        "max_model_turns": 8,
+        "max_tool_calls": 8,
+        "trial_seeds": [
+          0
+        ]
+      },
+      "split_metadata": {
+        "partition": "stage_a",
+        "family_fingerprint_sha256": "ea9820e5c8f740e83531ec5c5ba14a60bf4cc139c2832638eb57feaceeb8dc96",
+        "holdout_sealed": false
+      }
+    },
+    {
+      "task_id": "ORBIT-A-S03-002",
+      "stage": "A",
+      "stratum_id": "S03",
+      "task_family_id": "ORBIT-S03-OSV-ADVISORY-DISCOVERY-02",
+      "independence_group_id": "ORBIT-S03-INDEP-A-002",
+      "task_contract": {
+        "prompt": "Use Firecrawl tool discovery to find a structured capability for checking known vulnerabilities for a named package version. Compare the single-advisory lookup and OSV package query contracts. Report the provider/capability identifiers, the required identifier or package inputs, and the execution credit cost. Do not execute either paid provider.",
+        "goal": "Discover the correct tool contracts for a package vulnerability query while respecting provider credit costs.",
+        "hard_constraints": [
+          "Use tool discovery, not memory.",
+          "Do not execute a paid provider capability.",
+          "Distinguish a single-advisory lookup from a package/version query.",
+          "Report the exact execution credit cost shown in discovery."
+        ],
+        "preferences": [],
+        "expected_response_mode": "mixed"
+      },
+      "environment": {
+        "environment_id": "firecrawl-tool-catalogue",
+        "version": "2026-11-03",
+        "fixture_id": "firecrawl-security-provider-discovery-2026-11-03",
+        "reset_recipe": "Run firecrawl_find_tools with the pinned security-advisory discovery query; do not call firecrawl_scrape in Alexandria provider execution mode.",
+        "state_sha256": "00df2d9198d507aea0454fd87f1a8d1a004a94f1fbbd91b41b5a4a5215949e72",
+        "external_snapshot_ref": "DHI_v1/benchmark/fixtures/plugin_ecology/discovery_snapshots/firecrawl_security_provider_discovery_2026-11-03.md"
+      },
+      "tool_inventory": {
+        "visible_tool_ids": [
+          "mcp__Firecrawl__firecrawl_find_tools"
+        ],
+        "discoverable_tool_ids": [],
+        "required_tool_ids": [
+          "mcp__Firecrawl__firecrawl_find_tools"
+        ],
+        "tool_schema_sha256": "5f97f694ea6900599f7694fa91867d50cad125cbcd8fd2507a0d04468f9e6f88",
+        "inventory_snapshot_ref": "DHI_v1/benchmark/fixtures/plugin_ecology/plugin_tool_registry.json"
+      },
+      "required_capabilities": [
+        "tool_ecology_discovery",
+        "schema_comparison",
+        "package_security_affordance_reasoning",
+        "cost_awareness"
+      ],
+      "horizon": {
+        "min_actions": 1,
+        "max_actions": 2,
+        "checkpoint_count": 0,
+        "cross_session_resume_required": false
+      },
+      "preconditions": [],
+      "postconditions": [
+        {
+          "verifier_id": "osv_provider_contract",
+          "condition": {
+            "type": "provider_capability_contract",
+            "provider": "osv-dev",
+            "capability": "vulnerabilities/query",
+            "acceptable_inputs": [
+              "purl",
+              "ecosystem+name"
+            ],
+            "execution_credits": 5
+          },
+          "expected_evidence": "Discovery also lists github-com/repositories/advisory as a one-record lookup with GHSA/CVE/URL inputs, and both provider executions cost 5 credits.",
+          "failure_if_unmet": true
+        }
+      ],
+      "grader": {
+        "grader_id": "security-tool-discovery-contract-v1",
+        "version": "1.0.0",
+        "kind": "deterministic",
+        "primary_outcome": "Correctly select the OSV query for a package/version lookup, distinguish it from GHSA/CVE single-record lookup, and report 5-credit execution cost without spending credits.",
+        "independent_review_required": false,
+        "review_rubric_ref": "DHI_v1/benchmark/fixtures/plugin_ecology/discovery_snapshots/firecrawl_security_provider_discovery_2026-11-03.md",
+        "llm_judge_sole_source": false
+      },
+      "policy": {
+        "allowed_side_effects": [
+          "free_tool_catalogue_discovery"
+        ],
+        "forbidden_side_effects": [
+          "paid_provider_execution",
+          "credit_spend",
+          "package_or_advisory_mutation"
+        ],
+        "approval_required": [
+          "Any provider execution costing credits"
+        ],
+        "protected_invariants": [
+          "No paid provider execution.",
+          "No credit spend."
+        ],
+        "risk_level": "low"
+      },
+      "provenance": {
+        "source_type": "synthetic_specification",
+        "source_ref": "Actual Firecrawl discovery response; pinned at discovery_snapshots/firecrawl_security_provider_discovery_2026-11-03.md.",
+        "authored_at_utc": "2026-11-03T06:45:00Z",
+        "authoring_method": "Hand-authored tool-selection task from discovered provider contracts; execution outputs are not fabricated."
+      },
+      "validation": {
+        "status": "ready_for_validation",
+        "contract_check": "pass",
+        "environment_check": "pass",
+        "grader_check": "not_run",
+        "review_status": "not_reviewed",
+        "harness_gap_ids": [],
+        "validation_evidence": [
+          "Free Firecrawl tool discovery returned github-com/repositories/advisory and osv-dev/vulnerabilities/query.",
+          "Each provider execution was listed as costing 5 credits; no paid execution was attempted."
+        ]
+      },
+      "execution": {
+        "status": "not_run",
+        "model_runs_allowed": false,
+        "max_model_turns": 6,
+        "max_tool_calls": 4,
+        "trial_seeds": [
+          0
+        ]
+      },
+      "split_metadata": {
+        "partition": "stage_a",
+        "family_fingerprint_sha256": "538b44052e00b885e8dbe613851f84e30692467d036d0e4260b51eefb5cf1ed6",
+        "holdout_sealed": false
+      }
     }
   ],
   "stage_b_policy": {
@@ -1608,6 +1882,7 @@
     "Stage A task records are ready for model validation, not validated capability results. Model execution remains disabled in every record.",
     "The long-horizon task uses a persistent GitHub checkpoint; the action-effect prediction task remains partially blocked until the runtime preserves pre-action predictions in its trace.",
     "Firecrawl package-record execution costs one credit and was not executed; only free capability discovery was used.",
-    "The existing 12-case local development pilot remains excluded from the 240-task panel."
+    "The existing 12-case local development pilot remains excluded from the 240-task panel.",
+    "The Stage A authoring set now contains 12 records: one per stratum plus a second independent current-source task in S02 and a second capability-discovery task in S03. All remain ready_for_validation."
   ]
 }
