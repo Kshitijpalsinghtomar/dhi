@@ -168,3 +168,49 @@ To keep the regression notebook untouched, a separate temporary standard project
 A workspace machine snapshot showed 10 projects in total, with one other project machine running and the DHI verifier stopped. No other project was stopped or modified by this check.
 
 **Corrected conclusion:** the TINYFISH workspace integration is now attached to the DHI verifier, but the value-presence check has not completed. Do not say the key is absent or present. No secret value was read/emitted and no TinyFish MCP request was sent. The next gate is one available parallel-project slot, then the one-cell presence-only probe; only after a positive result may read-only MCP initialization proceed.
+
+
+## Successful TinyFish credential and read-only MCP smoke — 2026-11-03
+
+The workspace `TINYFISH` environment integration was attached to the verifier project and the credential-presence check completed successfully.
+
+### Credential presence
+
+- Deepnote run: `1615aa6b-df74-4457-acdb-ae4775e71f56`
+- Notebook: `DHI ORBIT exact-head verifier` (`3639f9a98ce5435fa4cd0168eaaca3a1`)
+- Probe block: `70976f07d11f4d9bb5d037bbced4598e`
+- Result: `TINYFISH_API_KEY_PRESENT=yes`
+- The code evaluated only boolean presence; no key characters were printed, hashed or persisted.
+
+### MCP protocol and tool inventory
+
+A direct Streamable HTTP client was run from the DHI verifier runtime against the fixed endpoint `https://agent.tinyfish.ai/mcp`. It read the secret only from `os.environ['TINYFISH_API_KEY']` and sent it in the documented `X-API-Key` header.
+
+- Deepnote run: `38cb9d2e-fe8d-4272-83c9-4a2d3de5f6d5`
+- Probe block: `269abaaf016b4a1cbdca91156379bb47`
+- MCP `initialize`: HTTP 200, negotiated protocol `2025-11-25`
+- Server: `tinyfish` version `0.1.1`
+- `tools/list`: HTTP 200, 41 native tools returned
+- Registered read-only tools present: `search`, `fetch_content`
+- Native schema SHA-256: `search=b2ee8cd67760d54416c5339c25fa6f68f63edf744498555a0f9a44149850ec64`; `fetch_content=ff34d9c4b4e0e6442d3a38b2ca79c126824200aec29e8cecfcf40f9ecbd49c51`.
+
+The server exposes far more than the DHI task registry needs. The DHI boundary must permit only these two registered read-only tools; the other 39 native tools are not approved for model exposure.
+
+### Read-only tool call and independent readback
+
+- Deepnote run: `04dbee0a-6c4b-4547-8e8f-0303ba3a8bf1`
+- Probe block: `d66ae17c83684665911adafd3016bdaa`
+- TinyFish `search`: HTTP 200, no MCP error; bounded to GitHub; returned the official repository URL `https://github.com/tinyfish-io/tinyfish-mcp-server`.
+- TinyFish `fetch_content`: HTTP 200, no MCP error; extracted 10,723 characters. Normalized-result SHA-256: `eafb2a4607a436dcfb4da1f29696daf1413f46f0d3fd7e53ee0203cb22e764e8`.
+- Independent non-MCP readback: plain HTTPS GET of the same official README from `raw.githubusercontent.com`; HTTP 200; SHA-256 `6af64d6f344818d642c79f3888522a838098e62913523e5a1d7785d0d2ef050c`.
+- Both representations independently contained the markers `TINYFISH_API_KEY`, `X-API-Key`, `search`, `fetch_content`, and `@tiny-fish/mcp`.
+
+The readback is marker-level corroboration, not a byte-for-byte equality claim between the MCP extraction and raw README. Official provider examples classify Search and Fetch as free; this smoke did not invoke automation, browser sessions, monitors, datasets, deep research, wallet actions or any paid feature. No provider write, model inference or training was run.
+
+### Decision and boundary
+
+**Confirmed:** the DHI verifier can access the configured credential, initialize TinyFish MCP, discover the live tool schema, and execute its two registered read-only operations. This closes the provider credential/transport feasibility gate.
+
+**Not yet implemented:** a DHI-owned policy-enforcing adapter; tool schema fingerprint enforcement; task-scoped tool filtering; model-facing remote tools; normalized agent prediction/action traces; or any ORBIT model evaluation. A 41-tool native inventory must never be exposed wholesale. Next work is a test-first client/adapter that pins the `search` and `fetch_content` schemas and denies all other provider tools, with env-only auth, no secret logging, bounded timeouts, no automatic retries, and per-task allowlists.
+
+One initial attempt at the search/fetch cell failed locally before dispatch because the notebook cell had deleted the endpoint variable; no provider request was sent by that attempt. The corrected selected-cell run above completed successfully.
