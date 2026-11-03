@@ -5,7 +5,7 @@
 **Inspected commit:** `3d57cc876dcd3f1f82c9d3ff884665de52c7f290`  
 **Manifest:** `DHI_v1/benchmark/task_manifest.json`  
 **Validator implementation:** `DHI_v1/benchmark/validate_task_manifest.py`  
-**Regression suite:** `DHI_v1/benchmark/tests/test_task_manifest_validator.py`
+**Regression suite:** `DHI_v1/benchmark/tests/test_task_manifest_validator.py` (17 tests at the current branch head)
 
 ## Result of the static integrity inspection
 
@@ -56,11 +56,11 @@ The registry was corrected to include `mcp__GitHub__update_file`, which was alre
 
 ## Runtime test status — not executed
 
-The Python implementation and 14 regression tests are committed, but they have **not** been executed in a Python runtime.
+The Python implementation and 17 regression tests are committed (latest test-file commit `48f2b393aac45a44a2928a6f360f1370574e4dae`), but they have **not** been executed in a Python runtime.
 
 GitHub Actions run `41594301494` was triggered for commit `3d57cc876dcd3f1f82c9d3ff884665de52c7f290` and ended with conclusion `failure`. The job endpoint reported `runner_id=0` and an empty `steps` array; the log download returned no artifact. Therefore no pytest, compileall, or validator command ran. The failure is not evidence that the Python implementation or tests failed.
 
-Repeat these commands from the repository root when a working Python runner is available:
+The validator was also hardened against malformed nested records after the static inspection commit; all later code/test changes remain unexecuted. Repeat these commands from the repository root when a working Python runner is available:
 
 ```bash
 python -m DHI_v1.benchmark.validate_task_manifest
