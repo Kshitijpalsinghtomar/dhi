@@ -745,3 +745,22 @@ Created `reports/runtime-release-state.md` on `orbit/plugin-benchmark-fixture`, 
 
 ### Decision
 Continue authoring genuinely distinct plugin-native Stage A task families. Do not fill counts with prompt paraphrases. Keep Stage B sealed and candidate model execution disabled until Stage A is complete, independently reviewed and frozen, and the required inference comparison route is available.
+
+## 2026-11-03 — Add Go release verification and TinyFish schema/404 recovery
+
+### Evidence collected
+- TinyFish search and fetch of the official Go Release History page returned Go 1.27.3 dated 2026-10-19 as the latest listed 1.27 minor revision and the general support rule (a major release is supported until two newer major releases).
+- The Go page does not state an explicit Go 1.27 end-of-support date; the task requires the model to preserve this uncertainty rather than invent one.
+- A TinyFish `fetch_content` invocation without `page_metadata` was rejected by the live connector schema before dispatch. The corrected request returned HTTP 404 for an intentionally wrong Go page path. TinyFish search recovered the canonical official URL, and a fully schema-correct fetch succeeded.
+
+### New task instances
+- `ORBIT-A-S02-003`: official Go release/version/support-policy verification.
+- `ORBIT-A-S08-003`: TinyFish argument-schema correction, 404 interpretation and official-source recovery.
+
+### Artifacts
+- `DHI_v1/benchmark/fixtures/plugin_ecology/external_snapshots/go_releases_2026-11-03.md`
+- `DHI_v1/benchmark/fixtures/plugin_ecology/external_snapshots/go_release_recovery_2026-11-03.md`
+- Updated task manifest and plugin execution evidence.
+
+### Panel status
+Stage A now contains **22/120** task instances; Stage B remains **0/120**, unmaterialized and sealed. Per-stratum counts: S01=2, S02=3, S03=3, S04=2, S05=2, S06=2, S07=1, S08=3, S09=2, S10=2. All tasks remain ready_for_validation, and no DHI model inference or score has been produced.
