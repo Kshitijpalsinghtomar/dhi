@@ -163,27 +163,29 @@ The gateway is the next technical research unit. Do not infer a callable endpoin
 
 ## 10. Next authorized action
 
-**Latest verified result (2026-11-03):** The TINYFISH env integration is attached to the DHI verifier. A selected-cell run verified `TINYFISH_API_KEY_PRESENT=yes`; MCP `initialize` and `tools/list` succeeded (HTTP 200, protocol `2025-11-25`, server `tinyfish` 0.1.1, 41 native tools); bounded `search` and `fetch_content` calls both returned HTTP 200; an independent raw README GET corroborated the provider auth/tool markers. Only those two registered read-only actions were invoked. No other native tool, paid action, provider write, model inference or training was executed. Full run IDs and schema fingerprints are in `PLUGIN-GATEWAY-001`.
+**Latest verified state (2026-11-03):** TinyFish credential presence is verified; provider initialize/tools/list and bounded read-only search/fetch are verified. The DHI-owned REST adapter is committed and exposes only `tinyfish.search` and `tinyfish.fetch_content`; both require explicit per-task allowlisting. Fourteen direct test invocations from the committed test module passed. Deepnote pytest discovery timed out before collection in both the main verifier and a clean temporary project; a py_compile attempt was interrupted during bytecode writing. The disposable project and temporary debugging cells were deleted; the original regression block is untouched. The primary verifier machine is stopped. Full pytest/compile/full-suite validation remains open.
 
-**Verify one real read-only provider connection, beginning with TinyFish search/fetch. Do not yet enable remote writes, paid tools, Stage A validation, model inference or training.**
+**Next:** run the exact committed TinyFish test file and existing agent/environment regression suite in a reliable runner that supports pytest collection. Then add trace-level verification for pre-action prediction, actual Search/Fetch output, redaction, and verified closure. Do not start model inference or training yet.
 
 Current facts:
-- The corrected runtime/test regression is green: 142 passed, 0 failed at code commit cba8421d4f4c6c4f929d5f4c3196eb83f98f7351; no runtime/test source changed afterward.
-- Thirty Stage A task instances exist across all ten strata; 90 more are needed to reach 120. Stage B has 0/120 and remains sealed.
-- All 30 Stage A tasks remain ready_for_validation, not validated. S07 checkpoint/recovery and S09 model-prediction/effect validation remain partial.
-- The model runner still exposes local file-workspace tools plus Adaption read-only catalogue discovery; it has no remote MCP client.
-- The DHI verifier has the workspace `TINYFISH` environment integration attached. The credential-presence probe now passes. TinyFish MCP initialize/tools/list and bounded registered read-only search/fetch calls passed, with independent README readback. The provider exposed 41 native tools, but only search/fetch_content are approved; the DHI-owned allowlisted adapter is not yet implemented. See PLUGIN-GATEWAY-001 for run IDs and schema hashes.
-- No provider MCP request, model inference, candidate evaluation, training, or paid provider action has occurred.
+- The historical corrected regression passed 142 tests at code commit `cba8421d4f4c6c4f929d5f4c3196eb83f98f7351`. That is not a full-suite pass for the new TinyFish adapter code.
+- The current adapter's committed unit test functions were directly invoked: 14 invocations passed, 0 failed, with mocked HTTP. This is focused assertion evidence, not a pytest suite run.
+- Pytest was installed from the checked-in development requirements, but the pytest process timed out before test collection in two Deepnote environments. The compile check was interrupted; no compileall success is claimed.
+- The user-facing notebook remains **DHI ORBIT exact-head verifier** (`3639f9a98ce5435fa4cd0168eaaca3a1`). Its original regression block is preserved. Temporary test/debug cells were removed.
+- Stage A remains 30/120 across all ten strata; all 30 are `ready_for_validation`, not validated. Stage B remains 0/120 and sealed. S07 and S09 remain partial.
+- The DHI TinyFish REST adapter permits only Search and Fetch; all 39 other provider-native MCP tools remain excluded. No browser automation, monitor, dataset, research, wallet or write action is permitted through this adapter.
+- No DHI model inference, candidate evaluation, or training has run. Dataset provenance/lineage gates remain closed.
 
 Next:
-1. `PLUGIN-GATEWAY-001` now confirms runtime credential presence, TinyFish MCP initialize/tools/list, and bounded read-only `search`/`fetch_content` with independent readback. Next: implement a test-first DHI-owned client with exact schema fingerprint pins, env-only auth, a task-level allowlist restricted to those two tools, safe argument validation, no automatic retries, bounded timeouts and secret-redacted traces. Keep all other 39 native tools inaccessible.
-2. Only after the key-presence check succeeds, use the documented hosted/local TinyFish MCP route for a read-only initialize + tools/list smoke. Pin the native search and fetch_content schemas and verify they match the registered task contracts. Then execute one bounded read-only search/fetch, capture raw responses, and independently fetch the same source for a readback comparison. Do not run browser automation.
-3. Implement the provider adapter only after that RED/GREEN contract test exists. Enforce task allowlists, tool schema fingerprints, provider/host pinning, secret redaction, timeouts, no blind retries, prediction-before-call and trace normalization.
+1. Run pytest and the existing full environment/benchmark suite in a reliable runner with the exact GitHub branch checkout. Fix any failures before calling the adapter validated.
+2. Add schema fingerprint checks against the current official REST API reference and tests for trace redaction, response-shape normalization, invalid URLs, timeout behavior and fail-closed behavior when the key is missing.
+3. Build one model-facing task fixture with explicit `allowed_tool_ids` for Search/Fetch only; verify prediction-before-action, action result capture and independent final state/closure. Do not conflate tool connectivity with model capability.
 4. Audit GitHub next: obtain a minimally scoped credential for a disposable benchmark repository, discover native tool names/schemas, map read and sandbox-write actions, and keep the read-only route for read-only tasks. Never expose deletes or merges.
-5. Keep Firecrawl deferred until a documented endpoint exposes the exact Alexandria discovery schema; keep the paid Alexandria execution disabled pending an explicit cost budget and approval.
-6. Only after the gateway is executable, produce model-facing traces for existing tasks. Independently validate task contracts, environment and graders; close S07 and S09 gaps before marking tasks validated.
-7. Only then expand the remaining Stage A quotas: S01=10, S02=9, S03=8, S04=9, S05=8, S06=8, S07=10, S08=9, S09=9, S10=10. Keep Stage B bodies sealed outside this public repository.
-8. Keep model inference and training disabled until the gateway works, benchmark validation is frozen, matched model access is affordable, and dataset lineage is reconciled.
+5. Keep Firecrawl deferred until a documented endpoint exposes the exact Alexandria discovery schema; keep paid Alexandria execution disabled pending explicit cost authorization.
+6. Close S07 checkpoint/recovery and S09 model-prediction/effect gaps before marking any Stage A tasks validated.
+7. Only after independent validation, expand the remaining Stage A quotas: S01=10, S02=9, S03=8, S04=9, S05=8, S06=8, S07=10, S08=9, S09=9, S10=10. Keep Stage B bodies sealed outside this public repository.
+8. Keep inference and training disabled until the benchmark gates are frozen, model endpoint access is affordable, and dataset lineage is reconciled.
+
 ## 11. Latest committed work
 
 | Commit | Change |
