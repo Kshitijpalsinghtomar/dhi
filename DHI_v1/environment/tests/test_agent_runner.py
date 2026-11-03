@@ -165,6 +165,44 @@ def test_runner_exposes_structured_repository_branch_forecast_schema(tmp_path):
     assert branch_ref["properties"]["head_sha"]["pattern"] == "^[a-f0-9]{40}$"
 
 
+def test_runner_passes_repository_branch_forecast_into_pre_action_trace(tmp_path):
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    (workspace / "README.md").write_text("# Demo\\n", encoding="utf-8")
+    env = DHIEnvironment(workspace)
+    task = TaskSpec(
+        task_id="agent-runner-branch-forecast",
+        prompt="Read and report the repository branch state forecast.",
+        goal="A structured branch-state prediction is recorded before the action.",
+        visible_tool_ids=["fs.read_file"],
+        postconditions=[{"type": "contains", "path": "README.md", "text": "Demo"}],
+    )
+    branches = [{"name": "main", "head_sha": "a" * 40}]
+    expected = {
+        "repository_state": {
+            "added_branches": [],
+            "modified_branches": [],
+            "deleted_branches": [],
+            "unchanged_branches": branches,
+        }
+    }
+    client = FakeToolCallingClient([
+        tool_call("c1", "fs_read_file", {
+            "path": "README.md",
+            "__dhi_expected_effects": expected,
+        }),
+        final_answer("The current main branch is unchanged."),
+    ])
+
+    result = run_agent_task(env, task, client, max_model_turns=3)
+    starts = [event for event in env.events if event.get("event_type") == "action_started"]
+    assert len(starts) == 1
+    assert starts[0]["expected_effects"]["repository_state"] == expected["repository_state"]
+    assert result.closure["success"] is True
+    completed = [event for event in env.events if event.get("event_type") == "action_executed"]
+    assert completed[0]["prediction_comparison"]["status"] == "requires_external_state_verifier"
+
+
 def test_runner_records_and_scores_pre_action_effect_forecast(tmp_path):
     workspace = tmp_path / "workspace"
     workspace.mkdir()
