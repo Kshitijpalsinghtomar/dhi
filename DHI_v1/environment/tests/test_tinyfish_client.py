@@ -186,7 +186,7 @@ def make_task(**overrides):
 
 
 def make_environment(tmp_path, handlers):
-    catalogue = DEFAULT_TOOL_CATALOGUE + TINYFISH_TOOL_CATALOGUE
+    catalogue = DEFAULT_TOOL_CATALOGUE
     return DHIEnvironment(tmp_path, catalogue=catalogue, tool_handlers=handlers)
 
 
