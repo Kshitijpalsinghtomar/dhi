@@ -30,12 +30,13 @@ codename: ORBIT
 phase: plugin_native_stage_a_seed_authored
 status: in_progress
 status_reason: >
-  The plugin-native task route now has 30 Stage A task records across all ten strata.
-  The manifest validator passes and 44 focused manifest/grader tests plus compileall
-  passed at code commit 421955df46975d8b20fba63f8922949a49b4551c. S07 and S09 remain
-  partial pending model-run checkpoint and pre-action prediction traces. No DHI model
-  inference, trained capability result, or verified model trajectory exists. OpenRouter
-  exposes both base candidates, but its account balance is zero, so no inference was run.
+  The plugin-native task route has 30 Stage A task records across all ten strata.
+  Manifest validation passed and the full benchmark-only regression suite passed
+  82 tests at code commit 421955df46975d8b20fba63f8922949a49b4551c. A combined
+  benchmark + environment regression is running as ORBIT-VERIFY-003; its result
+  is pending and no pass/fail claim is made. S07 and S09 remain partial.
+  No DHI model inference, trained capability result, or verified model trajectory
+  exists. OpenRouter exposes both base candidates, but its account balance is zero.
 training_status: not_authorized
 benchmark_status: stage_a_authoring_30_of_120; stage_b_sealed_unmaterialized
 last_verified_code_commit: 421955df46975d8b20fba63f8922949a49b4551c
@@ -76,6 +77,8 @@ last_verified_code_commit: 421955df46975d8b20fba63f8922949a49b4551c
 | Plugin reference workflows | Release report and checkpoint-resume report completed | Scripted reference evidence only; not DHI model capability results |
 | Plugin-native task grading | Not run | Grader contracts are authored; independent and model-facing validation still pending |
 | Manifest and trace-grader verification | Passed at code commit 421955df46975d8b20fba63f8922949a49b4551c | Validator: 30/30 valid, Stage A=30, Stage B=0; 44 focused tests passed; compileall passed. Harness integrity only, not a model result |
+| Full benchmark regression | Passed | Deepnote run 7da82150-e44d-415d-ac00-206b112cf811: 82 benchmark tests passed; manifest validator and benchmark compileall passed at code commit 421955df46975d8b20fba63f8922949a49b4551c. Environment tests were not included |
+| Combined benchmark + environment regression | Running; no result yet | ORBIT-VERIFY-003 / Deepnote run f661f5ad-7c5e-48b9-9af6-afda1e6f021b; tests, compileall and import smoke are pending terminal output |
 
 ## 6. Data status and hard stops
 
@@ -113,6 +116,8 @@ Experiment records:
 
 VERIFY-001 remains a historical blocked attempt on the older Deepnote project. It is superseded for the current manifest/grader code by ORBIT-VERIFY-002.
 
+ORBIT-VERIFY-003 is the combined benchmark + environment regression run. It uses the existing isolated verifier project, pinned code commit `421955df46975d8b20fba63f8922949a49b4551c`, and run ID `f661f5ad-7c5e-48b9-9af6-afda1e6f021b`. The run covers the manifest validator, both test directories, package compileall, and runner/adapter import smoke. Its latest observed status is `running`; inspect its terminal output before recording results. See [ORBIT-VERIFY-003](experiments/ORBIT-VERIFY-003/).
+
 The isolated verifier run `52254373-656f-4d0c-841d-c3a2c621d7cc`, against code commit `421955df46975d8b20fba63f8922949a49b4551c`, passed:
 - Cross-record manifest validator: `valid=true`, 30 tasks, Stage A=30, Stage B=0, no errors.
 - Focused regression tests: 44 passed, 0 failed (20 manifest-validator + 24 plugin trace grader tests).
@@ -134,7 +139,7 @@ Completed in the current authoring branch:
 - [Task-record JSON Schema](benchmark/task_manifest.schema.json) defines all task-record fields and split requirements.
 - [Task register](benchmark/task_manifest.json) now contains **30 Stage A task instances** and 30 task-family records, distributed across all ten strata. Stage A target is 120; Stage B remains unmaterialized and sealed.
 - [Plugin-native execution profile](benchmark/PLUGIN_NATIVE_EXECUTION_PROFILE.md) distinguishes connected plugin execution from local file-workspace capabilities and records write/cost boundaries.
-- [Plugin tool registry snapshot](benchmark/fixtures/plugin_ecology/plugin_tool_registry.json) pins 15 exact tool contracts for GitHub, TinyFish, Firecrawl, Deepnote, Consensus, Scite, and Wolfram.
+- [Plugin tool registry snapshot](benchmark/fixtures/plugin_ecology/plugin_tool_registry.json) pins 16 exact tool contracts for GitHub, TinyFish, Firecrawl, Deepnote, Consensus, Scite, and Wolfram.
 - [Execution evidence](benchmark/fixtures/plugin_ecology/plugin_execution_evidence.json) records live plugin access checks, source snapshots, branch mutations/readbacks, the real 404 recovery, and explicit limitations.
 - The Northstar synthetic fixture, Node.js current-source snapshot, Firecrawl discovery snapshot, and checkpoint/resume sandbox are committed in the authoring branch.
 
@@ -148,13 +153,12 @@ Current status:
 - No DHI model inference, benchmark score, training data, or training run has been produced.
 
 Next:
-1. Run all remaining benchmark test modules as a broad regression check; manifest validation, 44 focused tests, and compileall have passed.
-2. Continue materializing the remaining 90 Stage A tasks with genuinely distinct families, environment evidence, executable postconditions and independently reviewable graders. Remaining quotas: S01=10, S02=9, S03=8, S04=9, S05=8, S06=8, S07=10, S08=9, S09=9, S10=10.
-3. Independently review all 30 current task prompts and graders; keep `ready_for_validation` until the task is exercised through the frozen task runner or an independent deterministic reference check.
-4. Implement the plugin action-trace adapter for pre-action effect predictions and cross-session checkpoint/recovery events. Close the remaining S07/S09 model-run trace gaps.
-5. Build Stage B from 120 structurally distinct holdout tasks only after Stage A and the candidate/interface decision are fixed. Do not put sealed Stage B task bodies in this public repository.
-6. Keep model execution disabled until Stage A is complete, independently reviewed and frozen; the matched Qwen3.6/GPT-OSS route has been found but is blocked by the zero-credit OpenRouter account. Do not substitute one model or a free model for the matched screen.
-7. Audit the private 10K intent-arbitration export row by row and reconcile its evaluation lineage before any training. Do not use the returned Qwen3.6 LoRA recommendation as authorization.
+1. Complete ORBIT-VERIFY-003, inspect its raw terminal output, and commit exact results. Resolve any demonstrated environment/runner regressions before authoring more tasks.
+2. Independently review the existing 30 Stage A tasks and close the S07 checkpoint/resume and S09 pre-action prediction-trace gaps.
+3. Continue materializing the remaining 90 Stage A tasks with genuinely distinct families, environment evidence, executable postconditions and independently reviewable graders. Remaining quotas: S01=10, S02=9, S03=8, S04=9, S05=8, S06=8, S07=10, S08=9, S09=9, S10=10.
+4. Build Stage B only after Stage A and the candidate/interface decision are fixed; keep its task bodies sealed outside this public repository.
+5. Keep model execution disabled until Stage A is complete, independently reviewed and frozen; the matched Qwen3.6/GPT-OSS route remains blocked by zero OpenRouter credits.
+6. Reconcile the private 10K intent-arbitration dataset's row semantics and evaluation lineage before any training. No current dataset is authorized for training.
 No DHI candidate model was run. Firecrawl capability discovery cost zero; the discovered package-record execution (one credit) and security/research provider executions (five credits each) were not called. TinyFish Go recovery included a schema-validation rejection followed by a 404 and a successful official-source re-fetch. Consensus search was unavailable because the provider's monthly free quota was exhausted. No Adaption generation/training action was called.
 
 ## 11. Latest committed work
