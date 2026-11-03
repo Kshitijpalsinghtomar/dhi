@@ -110,3 +110,29 @@ The largest uncertainty is not code-writing time. It is access to inference/comp
 ## Explicit non-goals for the next work unit
 
 No new provider integration, adapter expansion, dataset augmentation, model architecture experiment, Stage B exposure, paid action, model training, merge or deployment. The only immediate work is exact-head verification and then closing the benchmark/inference blockers.
+
+
+## Critical execution-path audit — 2026-11-03
+
+A second independent code trace found that the 30-task plugin-native manifest is **not wired to the current model-facing pilot runner**:
+
+- `run_model_pilot.py` invokes `run_pilot_benchmark` over `benchmark/pilot_cases.json`; it does not load `benchmark/task_manifest.json`.
+- `benchmark/runner.py` currently selects only `file_workspace` and optional `adaption_catalogue` pilot cases.
+- `DHIEnvironment.DEFAULT_TOOL_CATALOGUE` exposes local catalogue/filesystem IDs, Adaption catalogue discovery and the TinyFish internal catalogue IDs.
+- `agent_runner.tool_handlers_from_client` adds only Adaption catalogue discovery and TinyFish Search/Fetch. It has no GitHub or Firecrawl handler.
+- The plugin-native manifest instead requires `mcp__TinyFish__search`, `mcp__TinyFish__fetch_content`, `mcp__GitHub__*` and `mcp__Firecrawl__firecrawl_find_tools` IDs. The TinyFish internal IDs are not identical to the manifest IDs; there is no canonical mapping in the runner.
+
+The 30 task records require these external tool IDs (counts are task references, not unique tasks): TinyFish Search 5, TinyFish Fetch 7, Firecrawl discovery 5, GitHub fetch_file 14, GitHub create_file 7, GitHub compare_commits 9, GitHub fetch 2, GitHub create_branch 1 and GitHub update_file 2. Many tasks have multiple required tools.
+
+**Correction to status wording:** 30 Stage A task records are authored and contract-checked, but they are not all end-to-end executable through the current ORBIT runner. Their status is *authored / ready for execution-path integration and validation*, not benchmark-validated. Do not expand Stage A to 120 or claim task validation until the manifest-to-runner bridge and the missing provider handlers are implemented and tested.
+
+### Required implementation boundary
+
+1. Canonicalize tool IDs against `plugin_tool_registry.json`; the manifest, tool schema, allowlist, runner handler map and trace must use the same stable ID.
+2. Add a plugin-native execution profile that loads a manifest task, constructs only its visible tool schemas, enforces its per-task allowlist, and dispatches to provider handlers.
+3. Keep TinyFish Search/Fetch under the canonical registry identity while preserving their fixed endpoints, secret redaction and read-only policy.
+4. Implement GitHub read operations first; allow sandbox branch/file writes only after a separate disposable-repository/branch and token-permission contract is tested. Deletes and merges stay excluded.
+5. Resolve Firecrawl Alexandria discovery against its exact registered contract; do not substitute generic Firecrawl search/scrape tools.
+6. Run scripted contract tests and then model-generated traces. Scripted reference executions are not ORBIT capability evidence.
+
+This gap is more fundamental than writing the remaining 90 task records. The next engineering priority after ORBIT-VERIFY-004 is the canonical plugin execution path, not further task authoring.
