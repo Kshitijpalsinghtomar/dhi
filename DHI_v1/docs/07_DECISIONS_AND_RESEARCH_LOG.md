@@ -1020,3 +1020,12 @@ The user requested a fresh check of the reported `TINYFISH_API_KEY` project secr
 The temporary probe block `c2f3037678ba404282f745ad39f6a935` was deleted. The verifier machine remained stopped. No secret value was read or emitted, and no TinyFish or other provider request was sent. A separate notebook could not be created because the project permits only one notebook, so the temporary cell was used and removed in the existing notebook.
 
 **Decision:** credential presence remains unverified; keep the gateway blocked. Do not stop another project to free capacity. Repeat the presence-only check only after a Deepnote run slot is available; proceed to TinyFish read-only MCP initialization and tool-schema inspection only if the key is present.
+
+
+## 2026-11-03 — Corrected TinyFish integration attachment; runtime probe still blocked
+
+A fresh Deepnote workspace inventory found the `TINYFISH` environment integration (ID `cf58b868-fdea-46d7-a821-512aa413e007`). It existed at workspace scope but was not attached to the DHI verifier project. The integration was attached to project `6415944e-8d6c-432c-a7cf-3bbaa997799c`, and `get_project` readback confirmed the `TINYFISH` env integration is now attached. No integration credential/config values were inspected.
+
+The first post-attachment detached run (`34ec5435-ed95-4057-bb34-9cbf489a482d`) failed in the existing regression cell with `ModuleNotFoundError: No module named 'pytest'` before the presence-only cell executed. A live run selecting only the presence block was then rejected by Deepnote's parallel-project quota. A separate one-cell temporary project was also rejected by the same quota and then deleted. The original regression cell was preserved; all temporary probe blocks were deleted. A workspace machine snapshot showed one other project machine running while the DHI verifier was stopped; it was left untouched.
+
+**Decision:** the integration-attachment issue is corrected, but `TINYFISH_API_KEY` presence remains unknown and no TinyFish MCP request has been sent. Do not infer absence or successful authentication. Retry only after a run slot is available, using the isolated presence-only cell. No other project may be stopped by this agent to create capacity.
