@@ -271,5 +271,77 @@ class PluginTraceGraderTests(unittest.TestCase):
         self.assertEqual(grade_task(make_task(condition), trace)["status"], "pass")
 
 
+    def test_source_fact_uses_raw_response_not_final_answer_claim(self) -> None:
+        trace = make_trace()
+        trace["final_answer"] = "Go 1.27.3 released on 2026-10-19"
+        condition = {"type": "source_fact", "source": "https://go.dev/doc/devel/release", "expected": "Go 1.27.3 released on 2026-10-19"}
+        self.assertEqual(grade_task(make_task(condition), trace)["status"], "unscorable")
+
+    def test_source_fact_passes_when_source_request_and_response_support_it(self) -> None:
+        trace = make_trace()
+        trace["events"][3]["arguments"] = {"url": "https://go.dev/doc/devel/release"}
+        trace["events"][3]["actual_tool_result"]["result"] = {"content": "Go 1.27.3 released on 2026-10-19"}
+        condition = {"type": "source_fact", "source": "https://go.dev/doc/devel/release", "expected": "Go 1.27.3 released on 2026-10-19"}
+        self.assertEqual(grade_task(make_task(condition), trace)["status"], "pass")
+
+    def test_provider_contract_requires_structured_discovery_evidence(self) -> None:
+        trace = make_trace()
+        trace["events"].insert(1, {
+            "event_id": "discover",
+            "event_index": 2,
+            "event_type": "tool_discovery",
+            "timestamp_utc": "2026-11-03T00:00:00Z",
+            "task_id": "ORBIT-A-S09-001",
+            "query": "package metadata",
+            "visible_tool_ids": [],
+            "discovered_tool_ids": ["packages/package"],
+            "discovery_results": [{
+                "provider": "package-registry-metadata-download-stats",
+                "capability": "packages/package",
+                "required_inputs": ["registry", "name"],
+                "execution_credits": 1,
+            }],
+        })
+        for index, event in enumerate(trace["events"], 1):
+            event["event_index"] = index
+        condition = {
+            "type": "provider_capability_contract",
+            "provider": "package-registry-metadata-download-stats",
+            "capability": "packages/package",
+            "required_inputs": ["registry", "name"],
+            "execution_credits": 1,
+            "discovery_credits": 0,
+        }
+        self.assertEqual(grade_task(make_task(condition), trace)["status"], "fail")
+
+    def test_file_blob_match_verifies_sha_and_csv_data_rows(self) -> None:
+        csv_text = "id,name\\n1,A\\n2,B\\n"
+        trace = make_trace()
+        trace["events"][2]["tool_id"] = "mcp__GitHub__fetch_file"
+        trace["events"][3]["tool_id"] = "mcp__GitHub__fetch_file"
+        trace["events"][2]["arguments"] = {"path": "data/items.csv"}
+        trace["events"][3]["arguments"] = {"path": "data/items.csv"}
+        trace["events"][3]["actual_tool_result"]["result"] = {
+            "sha": "d" * 40,
+            "content": csv_text,
+        }
+        condition = {
+            "type": "file_blob_match",
+            "path": "data/items.csv",
+            "blob_sha": "d" * 40,
+            "data_rows": 2,
+            "header_rows": 1,
+        }
+        self.assertEqual(grade_task(make_task(condition), trace)["status"], "pass")
+
+    def test_branch_state_delta_remains_unscorable_without_normalized_state_adapter(self) -> None:
+        condition = {"type": "branch_state_delta", "after_expected": {"new_branch": "orbit/test"}}
+        self.assertEqual(grade_task(make_task(condition), make_trace())["status"], "unscorable")
+
+    def test_discovery_sequence_remains_unscorable_without_normalized_recovery_events(self) -> None:
+        condition = {"type": "discovery_sequence", "sequence": ["fallback", "scoped_success"]}
+        self.assertEqual(grade_task(make_task(condition), make_trace())["status"], "unscorable")
+
+
 if __name__ == "__main__":
     unittest.main()
