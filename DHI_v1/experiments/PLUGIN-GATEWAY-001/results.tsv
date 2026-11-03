@@ -1,0 +1,2 @@
+experiment_id	commit	baseline_commit	hypothesis_id	intervention	primary_metric	metric_delta	guard_status	seed	status	decision	raw_artifact_ref
+PLUGIN-GATEWAY-001	43608791494e445b17556e1ec8fc08b8a9f2f455	cba8421d4f4c6c4f929d5f4c3196eb83f98f7351	gateway-auth-and-contracts	provider protocol feasibility audit	provider tool contract and credential path verifiability		no provider calls; no secrets; no cost		blocked	blocked	DHI_v1/experiments/PLUGIN-GATEWAY-001/README.md
