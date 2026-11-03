@@ -72,24 +72,13 @@ def build_tool_schemas(env: DHIEnvironment) -> tuple[list[dict[str, Any]], dict[
                     "type": "object",
                     "required": ["added_branches", "modified_branches", "deleted_branches", "unchanged_branches"],
                     "properties": {
-                        "added_branches": {"type": "array", "items": {"$ref": "#/$defs/branch_ref"}},
-                        "modified_branches": {"type": "array", "items": {"$ref": "#/$defs/branch_ref"}},
-                        "deleted_branches": {"type": "array", "items": {"$ref": "#/$defs/branch_ref"}},
-                        "unchanged_branches": {"type": "array", "items": {"$ref": "#/$defs/branch_ref"}},
+                        "added_branches": {"type": "array", "items": {"type": "object", "required": ["name", "head_sha"], "properties": {"name": {"type": "string", "minLength": 1}, "head_sha": {"type": "string", "pattern": "^[a-f0-9]{40}$"}}, "additionalProperties": False}},
+                        "modified_branches": {"type": "array", "items": {"type": "object", "required": ["name", "head_sha"], "properties": {"name": {"type": "string", "minLength": 1}, "head_sha": {"type": "string", "pattern": "^[a-f0-9]{40}$"}}, "additionalProperties": False}},
+                        "deleted_branches": {"type": "array", "items": {"type": "object", "required": ["name", "head_sha"], "properties": {"name": {"type": "string", "minLength": 1}, "head_sha": {"type": "string", "pattern": "^[a-f0-9]{40}$"}}, "additionalProperties": False}},
+                        "unchanged_branches": {"type": "array", "items": {"type": "object", "required": ["name", "head_sha"], "properties": {"name": {"type": "string", "minLength": 1}, "head_sha": {"type": "string", "pattern": "^[a-f0-9]{40}$"}}, "additionalProperties": False}},
                     },
                     "additionalProperties": False,
                 },
-            },
-            "$defs": {
-                "branch_ref": {
-                    "type": "object",
-                    "required": ["name", "head_sha"],
-                    "properties": {
-                        "name": {"type": "string", "minLength": 1},
-                        "head_sha": {"type": "string", "pattern": "^[a-f0-9]{40}$"},
-                    },
-                    "additionalProperties": False,
-                }
             },
             "additionalProperties": False,
         }
