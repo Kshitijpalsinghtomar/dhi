@@ -64,3 +64,16 @@ Real spend depends on actual conversation growth, reasoning tokens, tool-call tu
 ## Decision
 
 No model inference, model selection, training, data generation or paid request was performed in this experiment. The exact candidate routes are technically available, but the zero-credit account, absent runtime key and missing provider pin prevent a reproducible model-runner evaluation.
+
+
+## Provider pin confirmation — 2026-11-03
+
+A live OpenRouter `list_providers` query confirms the exact provider slug is **`primeintellect`** (display name `PrimeIntellect`). OpenRouter's own documentation search confirms provider routing is supplied in the request body for Chat Completions and Responses. The frozen hard-pin configuration for the DHI runner is:
+
+```json
+{"provider":{"only":["primeintellect"],"allow_fallbacks":false}}
+```
+
+This makes the provider constraint an allowlist and denies fallback to another provider. Use `tool_choice=auto` for both model candidates because GPT-OSS-20B's PrimeIntellect endpoint does not advertise `required`.
+
+This resolves the *routing-configuration unknown*, not the implementation or funding blockers. The DHI client still needs a tested optional provider-routing field, the Deepnote verifier needs `DHI_MODEL_API_KEY` in a secret-backed environment integration, and the OpenRouter account must have a measured spend cap before any request. No inference call was made.
