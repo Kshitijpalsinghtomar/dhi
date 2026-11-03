@@ -492,3 +492,58 @@ Build this test-first, initially with scripted local clients/handlers and no liv
 7. add a scripted TinyFish task test proving schema/permission/trace/closure behaviour without calling a provider.
 
 Only after this runner/trace path is tested should GitHub's 16-task runtime bridge be implemented. Firecrawl Alexandria's assistant-session tool contract is known, but no Deepnote project transport/integration is attached. OpenRouter also remains at $0 credits, with no project-scoped model secret. Do not enable live model runs or start training yet.
+
+
+## 22. ORBIT-VERIFY-008 passed — scripted model-facing plugin runner — 2026-11-03
+
+**The provider-agnostic plugin runner, append-only trace and deterministic grading path now pass the full engineering regression.** See [ORBIT-VERIFY-008](experiments/ORBIT-VERIFY-008/README.md).
+
+- Code under test: `fec93ba59842d866149c7d03383b1833745077d2`.
+- Deepnote run: `570dd432-474f-4520-8f17-700d480358bb`.
+- Full benchmark + environment pytest: **182 passed, 0 failed**.
+- Manifest validation: PASS — all 30 Stage A tasks valid, no errors.
+- Compileall and entrypoint import smoke: PASS.
+- Loader smoke: all 30 task plans resolve; model runs enabled: **0**.
+- Focused runner tests: **4 passed**.
+- No hosted model, provider, or training calls.
+- Python: 3.13.18.
+- Raw report: `experiments/ORBIT-VERIFY-008/results/verification-report.json`.
+
+### What is now implemented
+
+`DHI_v1/benchmark/plugin_runner.py` runs a bounded model-client/tool loop from an already prepared `PreparedPluginExecution`. It:
+- requires both the original manifest task record and prepared task plan to allow model execution;
+- presents canonical function schemas and adds optional pre-action forecast metadata;
+- removes that metadata before strict argument validation;
+- sends every function call through the fail-closed dispatcher;
+- emits append-only `task_started`, `assistant_prediction`, `action_started`, `action_executed`, and `task_closed` events;
+- derives state-effect records from independently supplied before/after hash maps;
+- refuses sandbox-write tasks without an independent state observer;
+- validates trace sequence/schema and calls the deterministic task grader.
+
+The scripted test uses a fake GitHub read handler. It proves a read-only fetch can be dispatched and graded, while a visible-but-denied write tool is rejected before handler invocation.
+
+### Boundary that remains open
+
+This does not prove a hosted model can solve the task or call real providers. The runner has not yet been connected to a callable GitHub/Firecrawl provider transport, and the task-level external snapshot graders are not all independently implemented. The source manifest still has `model_runs_allowed=false` for every task. Do not change those flags in this step.
+
+### Next work unit — GitHub canonical REST runtime bundle
+
+GitHub appears in **16 of 30** Stage A task records, the largest provider slice. The assistant's connected GitHub actions are not callable by the Deepnote runner; a project-scoped integration or a tested REST transport is required. Build the REST bundle using the exact registry IDs, with a separate capability allowlist and a task-specific write guard.
+
+Initial required registered IDs (from the frozen task manifest):
+- read: `mcp__GitHub__fetch_file`, `mcp__GitHub__fetch`, `mcp__GitHub__compare_commits`;
+- write: `mcp__GitHub__create_branch`, `mcp__GitHub__create_file`, `mcp__GitHub__update_file`.
+
+Implementation order:
+1. add red tests for the schemas/handler bundle and absence of handlers when the runtime token is not configured;
+2. add the bounded stdlib HTTP transport, allow only `api.github.com`, cap response size/time, redact tokens and response errors, disable automatic retries, and validate response JSON/base64;
+3. implement read-only operations first, then create/update/branch methods with exact request contracts;
+4. expose canonical IDs and schemas only; no token value may be logged or included in trace events;
+5. return write handlers but do **not** provide a generic write guard—the task-specific guard remains mandatory in `prepare_plugin_execution`;
+6. fake-HTTP test each request and response shape, prove unknown hosts/paths and malformed inputs fail closed, then prepare real manifest GitHub task plans with fake handlers;
+7. verify whether a `GITHUB_TOKEN` is actually attached to Deepnote without printing its value. If no token is present, leave GitHub handlers absent and record the blocker; do not substitute assistant-session GitHub actions.
+
+Do not call live repository writes. Writes must be confined to the task's explicitly allowed disposable branch/path and independently checked with readback and compare-commits. The 16-task coverage is not authorization to execute them.
+
+Firecrawl Alexandria's assistant-session contract remains available here, but Deepnote has no Firecrawl project transport. OpenRouter remains at $0 credits and no project-scoped model credentials exist. Model inference and training remain blocked until the runtime and measurement gates are independently closed.
