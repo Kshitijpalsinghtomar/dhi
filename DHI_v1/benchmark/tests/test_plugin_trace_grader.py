@@ -568,16 +568,12 @@ class PluginTraceGraderTests(unittest.TestCase):
                 "actual_effects": {"added_paths": [], "modified_paths": [], "deleted_paths": [], "changed_paths": [], "unchanged_paths": ["README.md"]},
             },
             {
-                "event_id": "prediction", "event_index": 4, "event_type": "assistant_prediction",
-                "timestamp_utc": "2026-11-03T00:00:03Z", "task_id": task_id,
-                "expected_effects": expected_effect,
-            },
-            {
                 "event_id": "create-start", "event_index": 5, "event_type": "action_started",
                 "timestamp_utc": "2026-11-03T00:00:04Z", "task_id": task_id,
                 "action_id": "create-branch", "tool_id": "mcp__GitHub__create_branch",
                 "arguments": {"branch_name": new_branch["name"], "sha": new_branch["head_sha"]},
                 "observed_state_before": state_map, "side_effect_class": "external_write",
+                "expected_effects": expected_effect,
             },
             {
                 "event_id": "create-done", "event_index": 6, "event_type": "action_executed",
@@ -623,9 +619,16 @@ class PluginTraceGraderTests(unittest.TestCase):
         self.assertEqual(report["status"], "pass", report)
 
         # A prediction moved after create_branch must never earn a passing forecast score.
-        prediction = trace["events"].pop(3)
-        prediction["timestamp_utc"] = "2026-11-03T00:00:05.500Z"
-        trace["events"].insert(5, prediction)
+        trace["events"][3].pop("expected_effects")
+        late_prediction = {
+            "event_id": "late-prediction",
+            "event_index": 8,
+            "event_type": "assistant_prediction",
+            "timestamp_utc": "2026-11-03T00:00:07.500Z",
+            "task_id": task_id,
+            "expected_effects": expected_effect,
+        }
+        trace["events"].insert(-1, late_prediction)
         for index, event in enumerate(trace["events"], 1):
             event["event_index"] = index
         self.assertEqual(grade_task(make_task(condition, task_id=task_id), trace, schema=load_schema())["status"], "fail")
