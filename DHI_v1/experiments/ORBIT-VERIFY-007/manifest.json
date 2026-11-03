@@ -1,0 +1,45 @@
+{
+  "experiment_id": "ORBIT-VERIFY-007",
+  "date": "2026-11-03",
+  "status": "prepared",
+  "code_under_test": "28a0753c283cd0105d103ee4da11ac0847af0014",
+  "branch": "orbit/plugin-benchmark-fixture",
+  "question": "Does the canonical TinyFish runtime bundle pass exact-head full regression and real-runtime no-network task preparation?",
+  "hypothesis": "Canonical TinyFish IDs, key-gated handlers, and registry-derived schemas do not regress the benchmark/environment code and prepare the existing TinyFish-only task correctly.",
+  "intervention": "Change TinyFish IDs to mcp__TinyFish__search and mcp__TinyFish__fetch_content; add tinyfish_plugin_bundle_from_env; update scripted function-name expectation; add four focused bundle tests.",
+  "source_identity": {
+    "exact_match_files": [
+      "DHI_v1/environment/tinyfish_client.py",
+      "DHI_v1/environment/tests/test_tinyfish_client.py",
+      "DHI_v1/benchmark/tests/test_tinyfish_plugin_bundle.py",
+      "DHI_v1/benchmark/plugin_execution.py",
+      "DHI_v1/benchmark/plugin_task_loader.py"
+    ],
+    "task_manifest_blob_sha256": "f1a73f4cc377f0ea72a37f7d2f9a3e7476ffe033",
+    "task_manifest_unchanged_from_verify_006": true
+  },
+  "focused_runs": {
+    "red": "62b94d25-bd3e-417a-8088-91f6bad009cc",
+    "focused_green": "be6a0185-5eb8-4385-8299-f9c7be2a8658",
+    "actual_runtime_no_network_preflight": "571b0e74-fdf8-4c52-836e-ffc1a4b3a103"
+  },
+  "commands": [
+    "python -m DHI_v1.benchmark.validate_task_manifest --json",
+    "python -m pytest -q DHI_v1/benchmark/tests DHI_v1/environment/tests",
+    "python -m compileall -q DHI_v1/benchmark DHI_v1/environment",
+    "entrypoint import smoke",
+    "load all 30 plugin task plans and assert model_runs_allowed is false",
+    "build TINYFISH bundle and prepare ORBIT-A-S02-001 without network"
+  ],
+  "guardrails": [
+    "No TinyFish Search/Fetch HTTP requests.",
+    "No GitHub or Firecrawl provider requests.",
+    "No model inference or training.",
+    "No paid provider operations.",
+    "Do not alter the live task manifest model_runs_allowed flags.",
+    "Do not execute the notebook's saved regression or provider-probe blocks."
+  ],
+  "full_run": null,
+  "decision": "pending",
+  "evidence_boundary": "Engineering regression and no-network actual-runtime bundle preparation only; not real provider execution or model capability."
+}
