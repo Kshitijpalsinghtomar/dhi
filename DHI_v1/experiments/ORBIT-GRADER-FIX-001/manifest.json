@@ -1,7 +1,7 @@
 {
   "experiment_id": "ORBIT-GRADER-FIX-001",
   "date": "2026-11-03",
-  "status": "focused_pass_full_regression_running",
+  "status": "full_regression_one_failure_rerun_blocked",
   "branch": "orbit/plugin-benchmark-fixture",
   "baseline_branch_head": "49e2ee031b18280206d8d4cc1f33c0e9c272e55b",
   "test_only_commit": "49e2ee031b182b80206d8d4cc1f33c0e9c272e55b",
