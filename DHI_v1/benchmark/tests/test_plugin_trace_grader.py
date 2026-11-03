@@ -300,6 +300,7 @@ class PluginTraceGraderTests(unittest.TestCase):
                 "capability": "packages/package",
                 "required_inputs": ["registry", "name"],
                 "execution_credits": 1,
+                "discovery_credits": 0,
             }],
         })
         for index, event in enumerate(trace["events"], 1):
@@ -321,6 +322,16 @@ class PluginTraceGraderTests(unittest.TestCase):
         trace["events"][3]["tool_id"] = "mcp__GitHub__fetch_file"
         trace["events"][2]["arguments"] = {"path": "data/items.csv"}
         trace["events"][3]["arguments"] = {"path": "data/items.csv"}
+        trace["events"][2]["observed_state_before"] = {"data/items.csv": "b" * 64}
+        trace["events"][3]["observed_state_before"] = {"data/items.csv": "b" * 64}
+        trace["events"][3]["observed_state_after"] = {"data/items.csv": "b" * 64}
+        trace["events"][3]["actual_effects"] = {
+            "added_paths": [],
+            "modified_paths": [],
+            "deleted_paths": [],
+            "changed_paths": [],
+            "unchanged_paths": ["data/items.csv"],
+        }
         trace["events"][3]["actual_tool_result"]["result"] = {
             "sha": "d" * 40,
             "content": csv_text,
