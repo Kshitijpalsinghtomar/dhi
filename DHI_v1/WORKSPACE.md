@@ -34,17 +34,16 @@ status_reason: >
   ORBIT-GRADER-FIX-001 completed the corrected full regression successfully:
   Deepnote run 34ca752c-e864-4a3d-9388-957d2c3e1859 passed 142 tests,
   manifest validation, compileall and runner/adapter import smoke at code
-  commit cba8421d4f4c6c4f929d5f4c3196eb83f98f7351. No runtime or test source
-  changes were made after that verified code commit. PLUGIN-GATEWAY-001 found
-  documented remote MCP endpoints for GitHub, TinyFish and Firecrawl, but
-  provider-native tool mapping and DHI runtime credentials remain unverified.
-  The isolated verifier project has no attached integrations. A redacted
-  presence-only probe found none of 12 conventional TinyFish/GitHub/Firecrawl
-  credential variables; no secret values were read or emitted. No provider
-  request or model-facing remote action was run. Firecrawl Alexandria is not
-  yet proven equivalent to the standard MCP tools. S07 and S09 remain partial.
-  No DHI model inference, trained capability result, or verified model
-  trajectory exists. OpenRouter's last audited balance was zero.
+  commit cba8421d4f4c6c4f929d5f4c3196eb83f98f7351. Direct Git-blob checks
+  confirm 11 relevant runtime, benchmark, schema, manifest and test files
+  remain byte-identical to that tested commit. PLUGIN-GATEWAY-001 found
+  documented remote MCP endpoints, but native tool mapping and runtime
+  credentials are not yet verified. The user reports TINYFISH_API_KEY was
+  added to Deepnote; the post-provision probe was blocked before execution by
+  the parallel-project quota. No provider request or model-facing remote
+  action was run. Firecrawl Alexandria mapping remains unresolved. S07 and
+  S09 remain partial. No DHI model inference, trained capability result, or
+  verified model trajectory exists. OpenRouter's last audited balance was $0.
 training_status: not_authorized
 benchmark_status: stage_a_authoring_30_of_120; stage_b_sealed_unmaterialized
 last_verified_code_commit: cba8421d4f4c6c4f929d5f4c3196eb83f98f7351
@@ -171,7 +170,7 @@ Current facts:
 - Thirty Stage A task instances exist across all ten strata; 90 more are needed to reach 120. Stage B has 0/120 and remains sealed.
 - All 30 Stage A tasks remain ready_for_validation, not validated. S07 checkpoint/recovery and S09 model-prediction/effect validation remain partial.
 - The model runner still exposes local file-workspace tools plus Adaption read-only catalogue discovery; it has no remote MCP client.
-- The isolated Deepnote verifier project has no attached provider integrations. A presence-only probe checked 12 conventional TinyFish/GitHub/Firecrawl environment variable names; 0/12 were present. No secret values were read or emitted, no remote request was sent, and the temporary probe cell was deleted.
+- The isolated Deepnote verifier project has no attached provider integrations. The initial presence-only probe (before the user's latest secret-setup report) found 0/12 conventional provider credential names. The new post-provision probe was blocked before execution by the parallel-project quota. No secret values were read or emitted, no remote request was sent, and the temporary probe cell was deleted.
 - No provider MCP request, model inference, candidate evaluation, training, or paid provider action has occurred.
 
 Next:
