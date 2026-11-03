@@ -1093,3 +1093,9 @@ A transport-timeout test also proves the configured bound is passed to the reque
 Final focused verification: Deepnote run c2d0bac2-7679-4e33-8462-a820d02be2b3, on the notebook DHI ORBIT exact-head verifier. Output: DIRECT_ASSERTION_INVOCATIONS_PASSED=16; IN_MEMORY_COMPILE_PASSED=6. The six changed Python files were compiled in memory without writing bytecode. HTTP was mocked; these unit/integration tests made zero TinyFish network calls. A first version of the model-facing test incorrectly expected the catalogue discovery meta-tool to be hidden; after observing the runner's deliberate always-visible discovery behavior, the test was corrected. No production code change was needed for that correction.
 
 Decision: accept the focused adapter/runner contract as a limited pass. Do not call the adapter fully validated: pytest collection and the complete environment/benchmark regression remain unverified because Deepnote pytest times out before collection. No model inference/training, provider write, browser automation or paid TinyFish operation occurred.
+
+## 2026-11-03 — Alternate local full-suite runner blocked by DNS
+
+After focused TinyFish adapter assertions and in-memory compilation passed, an alternate local runner was attempted to execute the full pytest/environment/benchmark suite from the exact active branch. The command `git ls-remote https://github.com/Kshitijpalsinghtomar/dhi.git refs/heads/orbit/plugin-benchmark-fixture` failed before checkout with `Could not resolve host: github.com`. No local checkout was created and no tests ran in that container.
+
+Decision: keep the full pytest/regression gate open. This is a runner network/DNS limitation, not evidence of a code failure or a test pass. The next full-suite run requires an environment with GitHub network access and an exact checkout of orbit/plugin-benchmark-fixture.
