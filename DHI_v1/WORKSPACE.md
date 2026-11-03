@@ -38,8 +38,9 @@ status_reason: >
   changes were made after that verified code commit. PLUGIN-GATEWAY-001 found
   documented remote MCP endpoints for GitHub, TinyFish and Firecrawl, but
   provider-native tool mapping and DHI runtime credentials remain unverified.
-  The isolated verifier project has no attached integrations; manual
-  process-environment credential presence has not been probed. No provider
+  The isolated verifier project has no attached integrations. A redacted
+  presence-only probe found none of 12 conventional TinyFish/GitHub/Firecrawl
+  credential variables; no secret values were read or emitted. No provider
   request or model-facing remote action was run. Firecrawl Alexandria is not
   yet proven equivalent to the standard MCP tools. S07 and S09 remain partial.
   No DHI model inference, trained capability result, or verified model
@@ -170,11 +171,11 @@ Current facts:
 - Thirty Stage A task instances exist across all ten strata; 90 more are needed to reach 120. Stage B has 0/120 and remains sealed.
 - All 30 Stage A tasks remain ready_for_validation, not validated. S07 checkpoint/recovery and S09 model-prediction/effect validation remain partial.
 - The model runner still exposes local file-workspace tools plus Adaption read-only catalogue discovery; it has no remote MCP client.
-- The isolated Deepnote verifier project has no attached provider integrations. Manual process-environment credential presence has not been checked; no secret values have been read or logged.
+- The isolated Deepnote verifier project has no attached provider integrations. A presence-only probe checked 12 conventional TinyFish/GitHub/Firecrawl environment variable names; 0/12 were present. No secret values were read or emitted, no remote request was sent, and the temporary probe cell was deleted.
 - No provider MCP request, model inference, candidate evaluation, training, or paid provider action has occurred.
 
 Next:
-1. Check whether a TinyFish credential can be provisioned through the DHI runtime's secret store without placing it in chat, source control, notebook output or task data. If a credential is not available, record the blocker and stop before network calls.
+1. Provision `TINYFISH_API_KEY` as a secure Deepnote project secret (or configure a supported TinyFish OAuth connection). Do not paste the key into chat, source control, notebook content or output. The runtime probe found none of the 12 conventional credential variables, so no live call is possible until this is set.
 2. Using the documented hosted/local TinyFish MCP route, perform a read-only initialize + tools/list smoke. Pin the native search and fetch_content schemas and verify they match the registered task contracts. Then execute one bounded read-only search/fetch, capture raw responses, and independently fetch the same source for a readback comparison. Do not run browser automation.
 3. Implement the provider adapter only after that RED/GREEN contract test exists. Enforce task allowlists, tool schema fingerprints, provider/host pinning, secret redaction, timeouts, no blind retries, prediction-before-call and trace normalization.
 4. Audit GitHub next: obtain a minimally scoped credential for a disposable benchmark repository, discover native tool names/schemas, map read and sandbox-write actions, and keep the read-only route for read-only tasks. Never expose deletes or merges.
