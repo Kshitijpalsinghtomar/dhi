@@ -98,6 +98,13 @@ def make_trace(events: list[dict] | None = None, *, artifacts: list[dict] | None
         "final_answer": "Created and verified reports/result.md",
         "final_artifacts": artifacts if artifacts is not None else [],
         "usage": {"tool_calls": 1, "provider_credits_spent": 0},
+        "closure": {
+            "status": "success",
+            "verified_postconditions": [],
+            "failed_postconditions": [],
+            "final_state_sha256": "d" * 64,
+            "closed_at_utc": "2026-11-03T00:00:04Z",
+        },
     }
 
 
@@ -198,7 +205,15 @@ class PluginTraceGraderTests(unittest.TestCase):
         }
         self.assertEqual(grade_task(make_task(condition), make_trace())["status"], "pass")
         trace = make_trace()
-        trace["events"][1], trace["events"][3] = trace["events"][3], trace["events"][1]
+        started = trace["events"][2]
+        prediction = trace["events"][1]
+        trace["events"] = [
+            trace["events"][0],
+            started,
+            prediction,
+            trace["events"][3],
+            trace["events"][4],
+        ]
         for index, event in enumerate(trace["events"], 1):
             event["event_index"] = index
         self.assertEqual(grade_task(make_task(condition), trace)["status"], "fail")
@@ -327,6 +342,27 @@ class PluginTraceGraderTests(unittest.TestCase):
             "execution_credits": 1,
             "discovery_credits": 0,
         }
+        self.assertEqual(grade_task(make_task(condition), trace)["status"], "pass")
+        trace = make_trace()
+        trace["events"].insert(1, {
+            "event_id": "discover",
+            "event_index": 2,
+            "event_type": "tool_discovery",
+            "timestamp_utc": "2026-11-03T00:00:00Z",
+            "task_id": "ORBIT-A-S09-001",
+            "query": "package metadata",
+            "visible_tool_ids": [],
+            "discovered_tool_ids": ["packages/package"],
+            "discovery_results": [{
+                "provider": "package-registry-metadata-download-stats",
+                "capability": "packages/package",
+                "required_inputs": ["registry", "name"],
+                "execution_credits": 1,
+                "discovery_credits": 1,
+            }],
+        })
+        for index, event in enumerate(trace["events"], 1):
+            event["event_index"] = index
         self.assertEqual(grade_task(make_task(condition), trace)["status"], "fail")
 
     def test_file_blob_match_verifies_sha_and_csv_data_rows(self) -> None:
