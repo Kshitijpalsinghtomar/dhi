@@ -1,0 +1,45 @@
+{
+  "experiment_id": "ORBIT-GRADER-FIX-001",
+  "date": "2026-11-03",
+  "status": "protocol_committed_red_execution_pending",
+  "branch": "orbit/plugin-benchmark-fixture",
+  "baseline_branch_head": "49e2ee031b18280206d8d4cc1f33c0e9c272e55b",
+  "test_only_commit": "49e2ee031b182b80206d8d4cc1f33c0e9c272e55b",
+  "question": "Implement deterministic grader support for discovery_sequence and branch_state_delta used by Stage A tasks S08-002 and S09-002.",
+  "hypothesis": "Ordered, normalized tool_discovery evidence and pre-action branch-state prediction plus before/after branch snapshots are sufficient for deterministic scoring without an LLM-only judge.",
+  "scope": [
+    "DHI_v1/benchmark/plugin_trace.py",
+    "DHI_v1/benchmark/plugin_trace.schema.json",
+    "DHI_v1/benchmark/tests/test_plugin_trace_grader.py",
+    "DHI_v1/benchmark/task_manifest.json"
+  ],
+  "task_ids": [
+    "ORBIT-A-S08-002",
+    "ORBIT-A-S09-002"
+  ],
+  "falsifiers": [
+    "Fallback omitted or lacks candidate items / continuation",
+    "Provider-filtered second discovery is missing, reordered, or contract/cost mismatched",
+    "Paid provider execution or credit spend occurs",
+    "Prediction appears after the branch mutation",
+    "Before/after branch list evidence is missing",
+    "New branch name/base SHA mismatch",
+    "Any pre-existing branch head changes or extra branch appears",
+    "Any file path changes during branch creation"
+  ],
+  "safeguards": {
+    "model_inference": false,
+    "training": false,
+    "paid_provider_execution": false,
+    "stage_b_access": false,
+    "task_validation_promotion": false
+  },
+  "initial_attempt": {
+    "run_id": "db19bd2b-a005-42d0-a269-385d8e5de3ae",
+    "status": "setup_blocked",
+    "returncode": 1,
+    "stderr": "/root/venv/bin/python: No module named pytest",
+    "interpretation": "Test process did not collect or execute tests; not a RED result."
+  },
+  "decision_rule": "Keep only after focused RED then GREEN evidence, task-manifest validation, and full regression pass."
+}
