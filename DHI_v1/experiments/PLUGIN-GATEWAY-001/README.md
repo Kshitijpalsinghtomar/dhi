@@ -130,3 +130,19 @@ A temporary presence-only probe cell was added to the existing verifier notebook
 - Verifier machine is stopped.
 
 **Interpretation:** credential provisioning is reported but unverified. The earlier 0/12 result was captured before this latest reported configuration and must not be used to infer the current secret state. The next step is to free a Deepnote parallel-run slot (without stopping another user's project from this agent), then rerun the presence-only check and proceed to the read-only TinyFish handshake only if the key is present.
+
+
+## Second post-provision credential recheck — 2026-11-03
+
+The user asked for a fresh check after the earlier quota rejection. The existing verifier machine was stopped, and the original verifier notebook contained only its original regression cell. A second presence-only probe was added temporarily and a detached read-only run was attempted. Deepnote again rejected execution before the notebook started:
+
+`Your plan quota for parallel running projects has been exceeded. Please stop one of your running projects.`
+
+- Temporary probe block: `c2f3037678ba404282f745ad39f6a935`; deleted immediately after the rejection.
+- Original regression block `43e281b25689485a9ff1c31e7cbfcbdc` was not changed.
+- No secret value was read, emitted, hashed, or persisted.
+- No TinyFish endpoint or other provider was contacted; zero remote requests.
+- The verifier project's machine remained stopped.
+- An attempt to create a separate temporary notebook was rejected because this is a single-notebook project; the existing notebook was used only for the temporary probe and restored afterward.
+
+**Result:** still blocked before execution. The reported `TINYFISH_API_KEY` setup remains unverified. The prior 0/12 probe predates the user's setup report and is not evidence of the current secret state. Do not stop another project to free quota. Retry only after a Deepnote run slot is available.
