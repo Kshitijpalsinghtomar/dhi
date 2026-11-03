@@ -166,13 +166,13 @@ The TinyFish adapter implementation is now present and has passed the focused sc
 
 **Latest verified state (2026-11-03):** TinyFish credential presence and provider read-only Search/Fetch are verified. The DHI-owned REST adapter exposes only `tinyfish.search` and `tinyfish.fetch_content`, both behind explicit task allowlists. A scripted model-facing test exercised the model tool schema, one Search call, the pre-action no-workspace-change forecast, response capture, secret-free trace and independent closure. Sixteen direct assertions passed; six changed Python sources passed in-memory compilation. These tests use a scripted model and mocked HTTP, not ORBIT inference. Pytest collection and the full benchmark/environment suite remain unverified because Deepnote's pytest process times out before collection.
 
-**Next:** run the committed adapter tests and existing environment/benchmark regression suite in a reliable pytest runner using the exact GitHub branch checkout. Do not start model inference or training yet.
+**Next:** run pytest and the existing environment/benchmark regression suite in a runner that can access GitHub and check out the exact branch. Deepnote pytest discovery times out before collection, and the local container cannot resolve github.com. Do not start model inference or training yet.
 
 Current facts:
 - The historical corrected harness regression passed 142 tests at code commit `cba8421d4f4c6c4f929d5f4c3196eb83f98f7351`. That predates the TinyFish adapter and does not validate current HEAD.
 - The focused TinyFish test module has 16 direct assertion invocations passing, including the scripted model-facing runner/trace test and bounded transport timeout/no-retry check.
 - Six changed Python sources passed in-memory compilation with `compile(source, filename, 'exec')`. This is a syntax compilation check, not bytecode `compileall`.
-- Pytest was installed from the checked-in development requirements, but collection timed out before the test suite ran in two Deepnote projects. No pytest/full-suite pass is claimed.
+- Pytest was installed from the checked-in development requirements, but collection timed out before the test suite ran in two Deepnote projects. An alternate local git checkout attempt also failed before checkout because the container could not resolve github.com. No pytest/full-suite pass is claimed.
 - The user-facing notebook remains **DHI ORBIT exact-head verifier** (`3639f9a98ce5435fa4cd0168eaaca3a1`). Its original regression block is preserved. Newly added test/debug blocks and the disposable test project were deleted. The verifier machine is stopped.
 - Stage A remains 30/120 across all ten strata; all 30 are `ready_for_validation`, not validated. Stage B remains 0/120 and sealed. S07 and S09 remain partial.
 - TinyFish's DHI adapter permits only Search and Fetch; all 39 other provider-native MCP tools remain excluded. No browser automation, monitor, dataset, research, wallet or write action is permitted through this adapter.
