@@ -330,3 +330,22 @@ def test_model_task_executes_only_allowlisted_tinyfish_tool_and_records_trace(tm
     assert event["actual_tool_result"]["result"] == response_payload
     assert event["prediction_comparison"]["status"] == "matched"
     assert secret not in json.dumps(environment.events, ensure_ascii=False)
+
+
+def test_transport_timeout_is_bounded_and_never_retried_or_echoed_key():
+    secret = "timeout-key-must-not-leak"
+    client = TinyFishReadOnlyClient(api_key=secret, timeout_seconds=3.25)
+    calls = []
+
+    def time_out(request, timeout):
+        calls.append(request)
+        assert timeout == 3.25
+        raise TimeoutError("transport timed out for " + secret)
+
+    with patch("urllib.request.urlopen", side_effect=time_out):
+        with pytest.raises(TinyFishClientError, match="transport failure") as captured:
+            client.search({"query": "bounded timeout test"})
+
+    assert len(calls) == 1
+    assert "TimeoutError" in str(captured.value)
+    assert secret not in str(captured.value)
