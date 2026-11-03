@@ -2,7 +2,7 @@
 
 **Last updated:** 2026-11-03  
 **Repository:** https://github.com/Kshitijpalsinghtomar/dhi  
-**Active research branch:** `orbit/plugin-benchmark-fixture` (default `main` remains unchanged; branch is intentionally unmerged)  
+**Active research branch:** `orbit/plugin-benchmark-fixture` (default `main` remains unchanged; branch is intentionally unmerged; 186 commits ahead, 0 behind at last comparison)  
 **Live-state rule:** This file is the first read at every session. It supersedes older chat summaries and dated handover snapshots when describing current status.
 
 ## 1. Identity
@@ -31,13 +31,15 @@ phase: plugin_native_stage_a_seed_authored
 status: in_progress
 status_reason: >
   The plugin-native task route has 30 Stage A task records across all ten strata.
-  Manifest validation passed and the full benchmark-only regression suite passed
-  82 tests at code commit 421955df46975d8b20fba63f8922949a49b4551c. The combined
-  benchmark + environment regression passed 136 tests in ORBIT-VERIFY-003;
-  manifest validation, compileall and runner/adapter import checks also passed. S07 and S09 remain partial.
-  No DHI model inference, trained capability result, or verified model trajectory
-  exists. The local runner still lacks a remote GitHub/TinyFish/Firecrawl execution
-  bridge, and OpenRouter exposes both base candidates but its account balance is zero.
+  Historical ORBIT-VERIFY-003 passed 136 tests at code commit
+  421955df46975d8b20fba63f8922949a49b4551c. The later ORBIT-GRADER-FIX-001
+  regression on 92bec2c3485220eec6c80a7fe8ae41865a4ef54e passed manifest
+  validation and 141 tests but had one stale runner-schema assertion failure.
+  The active branch corrected that assertion; rerun is blocked by Deepnote's
+  parallel-project quota. S07 and S09 remain partial. No DHI model inference,
+  trained capability result, or verified model trajectory exists. The local
+  runner still lacks a remote GitHub/TinyFish/Firecrawl execution bridge, and
+  OpenRouter's last audited balance was zero.
 training_status: not_authorized
 benchmark_status: stage_a_authoring_30_of_120; stage_b_sealed_unmaterialized
 last_verified_code_commit: 421955df46975d8b20fba63f8922949a49b4551c
@@ -164,7 +166,7 @@ Current status:
 - No DHI model inference, benchmark score, training data, or training run has been produced.
 
 Next:
-1. Complete ORBIT-GRADER-FIX-001 full regression on the current head and archive the raw output. Resolve any failures before adding task families.
+1. Rerun the focused branch-forecast schema test and full benchmark + environment regression on the current head when Deepnote quota is available. Archive raw outputs; do not promote the gate until all tests pass.
 2. Implement the model-facing plugin execution gateway for the registered GitHub, TinyFish and Firecrawl tools. The current `agent_runner.py` executes the local DHI workspace catalogue and offers Adaption catalogue search only; that catalogue search is discovery-only, not a remote tool execution bridge. Do not treat ChatGPT's own connected tools as model-run evidence.
 3. Normalize gateway traces into the pinned plugin-trace schema: record model prediction before tool invocation, exact tool ID/arguments, real tool response, independent before/after repository state, credits, and verified postconditions. Ensure the runner can replay/recover checkpoints without mixing scripted reference runs into training data.
 4. Independently review the existing 30 Stage A task contracts, fixture references and graders; close S07 checkpoint/recovery and S09 prediction/observed-effect gaps with model-facing traces.
