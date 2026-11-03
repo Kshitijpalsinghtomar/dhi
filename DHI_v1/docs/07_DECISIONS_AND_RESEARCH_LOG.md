@@ -787,3 +787,27 @@ Adopt the combined and DHI-specific protocol in [13_ORBIT_RESEARCH_METHOD.md](13
 - The branch contains 30 Stage A task instances; Stage B remains 0/120 and sealed.
 - All task records remain ready_for_validation; no DHI model inference, capability score, or training run is claimed.
 - This decision changes the research operating method, not the benchmark scope, model candidates, or training authorization.
+
+## 2026-11-03 — Implement cross-record ORBIT task manifest integrity validation
+
+### Defects found and repaired
+- Three task records referenced `mcp__GitHub__update_file`, but the pinned plugin registry listed only 15 tools and omitted that exact contract. Added the exact connected tool description, bringing the registry to 16 tools, and recomputed the canonical registry digest.
+- Five task evidence references pointed to checkpoint/report files that had been created on separate experiment branches. Copied the exact source blobs onto the active plugin benchmark branch so every task reference resolves within the branch used for review.
+- The workspace had stale 22-task counts even though the manifest contained 30. The current checkpoint is corrected to 30/120 Stage A.
+
+### Integrity contract
+- Added `task_instance_sha256` to required schema fields.
+- Recomputed deterministic `family_fingerprint_sha256` from the substantive task definition: stratum, task contract, environment, tool inventory, capabilities, horizon, preconditions, postconditions, grader and policy.
+- Recomputed task-instance hashes from the full task record excluding only its own hash field.
+- Canonical hash serialization is UTF-8 JSON with sorted keys and compact separators; SHA-256 is used throughout.
+- Added `validate_task_manifest.py` to check JSON Schema plus cross-record counts, task ID numbering, family registration, stage/independence split, hashes, tool registry membership/digest, required-tool visibility, repository evidence references and Stage B secrecy.
+- Added 14 unittest regression cases in `tests/test_task_manifest_validator.py` for valid authoring state, partial quotas, count drift, duplicate IDs, identity mismatch, family/hash drift, unregistered tools, missing evidence, undiscoverable required tools, sealed Stage B exposure, incomplete freeze gates and deterministic serialization.
+
+### Static inspection
+At GitHub commit `3d57cc876dcd3f1f82c9d3ff884665de52c7f290`, an independent static check recomputed all 30 task-instance hashes and 30 family fingerprints, verified all 16 task tool contracts and the registry digest, confirmed every referenced evidence file exists, confirmed no Stage B body is present, and returned zero structural integrity errors.
+
+### Runtime test limitation
+GitHub Actions run `41594301494` for the branch ended in failure before a runner was allocated. The job API reported `runner_id=0` and no steps; log retrieval returned no artifact. Therefore the validator module, pytest tests, and compileall were **not executed** by that CI run. This is recorded as an infrastructure execution blocker, not a code test failure or pass. The repeatable commands are in `benchmark/README.md`.
+
+### Current decision
+Keep the manifest at `status=authoring`; do not mark any task validated or freeze the panel. Next, execute the validator/tests on a working Python runner, continue the 90 remaining Stage A tasks with distinct families, and preserve Stage B outside this shared public repository until the confirmation release gate is authorized.
