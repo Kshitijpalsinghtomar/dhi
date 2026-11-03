@@ -858,3 +858,20 @@ A matched base-model smoke is now technically routable but financially blocked o
 No training, augmentation, or data-generation job is authorized from this audit. Retrieve the actual private 10K export, inspect row semantics and duplicates, reconcile evaluation lineage, produce a clean train/validation split, and obtain cost information before any paid run. Keep intent-arbitration instruction data separate from ORBIT task contracts and real tool-execution trajectories.
 
 Machine-readable record: [TRAINING-ACCESS-002](../experiments/TRAINING-ACCESS-002/).
+
+
+## 2026-11-03 — Extend ORBIT verification to the environment and model-runner layer
+
+### Verified prior result
+
+The latest completed full benchmark-only regression run, `7da82150-e44d-415d-ac00-206b112cf811`, passed **82 benchmark tests**, and the manifest validator and benchmark compile check passed at code commit `421955df46975d8b20fba63f8922949a49b4551c`. This is broader than the earlier 44 focused tests, but it does not cover the environment test modules.
+
+### Combined verification started
+
+A combined verification was started in the existing isolated Deepnote verifier. It includes the manifest validator, both benchmark and environment test directories (136 declared test functions at source inspection), compileall for both packages, and an import smoke for the runner and adapters. Run ID: `f661f5ad-7c5e-48b9-9af6-afda1e6f021b`. Its durable record is [ORBIT-VERIFY-003](../experiments/ORBIT-VERIFY-003/).
+
+At the last status check, the run remained `running` and had no terminal snapshot. No pass/fail count is claimed.
+
+### Process deviation and boundary
+
+The combined run was launched before its experiment manifest was committed, contrary to the commit-before-run rule. This has been recorded in ORBIT-VERIFY-003. The tested code revision is pinned; this was a regression check only. No model inference, training, data generation, provider-credit spend, task-validation status change, or model-capability claim occurred.
