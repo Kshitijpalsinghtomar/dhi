@@ -228,7 +228,6 @@ def collect_manifest_errors(
     per_stratum: dict[tuple[str, str], list[int]] = defaultdict(list)
     seen_task_ids: set[str] = set()
     task_family_ids: set[str] = set()
-    task_groups_by_stage: dict[str, set[str]] = defaultdict(set)
     task_fingerprints_by_family: dict[str, set[str]] = defaultdict(set)
     registry: dict[str, dict[str, Any]] = {}
     registry_hash: str | None = None
@@ -270,8 +269,6 @@ def collect_manifest_errors(
         group_id = task.get("independence_group_id")
         if isinstance(family_id, str):
             task_family_ids.add(family_id)
-        if isinstance(group_id, str) and valid_stage:
-            task_groups_by_stage[stage].add(group_id)
 
         split = task.get("split_metadata")
         if not isinstance(split, dict):
@@ -312,9 +309,12 @@ def collect_manifest_errors(
         inventory = task.get("tool_inventory")
         if not isinstance(inventory, dict):
             inventory = {}
-        visible = set(item for item in inventory.get("visible_tool_ids", []) if isinstance(item, str))
-        discoverable = set(item for item in inventory.get("discoverable_tool_ids", []) if isinstance(item, str))
-        required = set(item for item in inventory.get("required_tool_ids", []) if isinstance(item, str))
+        visible_values = inventory.get("visible_tool_ids", [])
+        discoverable_values = inventory.get("discoverable_tool_ids", [])
+        required_values = inventory.get("required_tool_ids", [])
+        visible = set(item for item in visible_values if isinstance(item, str)) if isinstance(visible_values, list) else set()
+        discoverable = set(item for item in discoverable_values if isinstance(item, str)) if isinstance(discoverable_values, list) else set()
+        required = set(item for item in required_values if isinstance(item, str)) if isinstance(required_values, list) else set()
         unavailable = sorted(required - visible - discoverable)
         for tool_id in unavailable:
             _record_error(errors, "tool-inventory", f"{task_id}: required tool {tool_id} is neither visible nor discoverable")
@@ -379,16 +379,21 @@ def collect_manifest_errors(
         if not isinstance(task, dict):
             continue
         family_id = task.get("task_family_id")
+        if not isinstance(family_id, str):
+            _record_error(errors, "family", f"task {task.get('task_id')} has a non-string family ID")
+            continue
         family = family_by_id.get(family_id)
         if family is None:
             _record_error(errors, "family", f"task {task.get('task_id')} references unknown family {family_id!r}")
             continue
+        split_metadata = task.get("split_metadata")
+        if not isinstance(split_metadata, dict):
+            split_metadata = {}
         metadata = (
             task.get("stage"),
             task.get("independence_group_id"),
-            task.get("split_metadata", {}).get("family_fingerprint_sha256"),
+            split_metadata.get("family_fingerprint_sha256"),
         )
-        task_family_meta[family_id].add(metadata)
         expected = (
             family.get("stage"),
             family.get("independence_group_id"),
