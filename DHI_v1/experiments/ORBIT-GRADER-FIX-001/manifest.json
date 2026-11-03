@@ -1,7 +1,7 @@
 {
   "experiment_id": "ORBIT-GRADER-FIX-001",
   "date": "2026-11-03",
-  "status": "full_regression_one_failure_rerun_blocked",
+  "status": "full_regression_passed",
   "branch": "orbit/plugin-benchmark-fixture",
   "baseline_branch_head": "49e2ee031b18280206d8d4cc1f33c0e9c272e55b",
   "test_only_commit": "49e2ee031b182b80206d8d4cc1f33c0e9c272e55b",
@@ -42,7 +42,7 @@
     "interpretation": "Test process did not collect or execute tests; not a RED result."
   },
   "decision_rule": "Keep only after focused RED then GREEN evidence, task-manifest validation, and full regression pass.",
-  "current_code_head": "92bec2c3485220eec6c80a7fe8ae41865a4ef54e",
+  "current_code_head": "cba8421d4f4c6c4f929d5f4c3196eb83f98f7351",
   "focused_verification": {
     "run_id": "48da192e-720f-4449-b5bd-d2e36797c0b7",
     "tested_head": "c478058e651450a520df84aef214dcfa217710ac",
@@ -67,6 +67,71 @@
     "all_passed": true
   },
   "full_verification": {
+    "run_id": "34ca752c-e864-4a3d-9388-957d2c3e1859",
+    "tested_head": "cba8421d4f4c6c4f929d5f4c3196eb83f98f7351",
+    "status": "success",
+    "environment": {
+      "provider": "Deepnote",
+      "project_id": "6415944e-8d6c-432c-a7cf-3bbaa997799c",
+      "notebook_id": "3639f9a98ce5435fa4cd0168eaaca3a1",
+      "output_block_id": "43e281b25689485a9ff1c31e7cbfcbdc",
+      "python": "3.13.18"
+    },
+    "validator": {
+      "passed": true,
+      "task_count": 30,
+      "stage_counts": {
+        "A": 30,
+        "B": 0
+      },
+      "errors": []
+    },
+    "tests": {
+      "command": "python -m pytest -q DHI_v1/benchmark/tests DHI_v1/environment/tests",
+      "passed": 142,
+      "failed": 0,
+      "pytest_elapsed_seconds": 356.82
+    },
+    "compileall": {
+      "passed": true,
+      "command": "python -m compileall -q DHI_v1/benchmark DHI_v1/environment"
+    },
+    "import_smoke": {
+      "passed": true,
+      "modules": [
+        "DHI_v1.environment.agent_runner",
+        "DHI_v1.environment.adaption_responses",
+        "DHI_v1.benchmark.runner"
+      ]
+    },
+    "command_return_codes": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "all_passed": true,
+    "raw_artifact": {
+      "project_path": "grader-fix-full-report-final.json",
+      "run_id": "34ca752c-e864-4a3d-9388-957d2c3e1859",
+      "output_block_id": "43e281b25689485a9ff1c31e7cbfcbdc",
+      "output_block_content_hash": "sha256:4a6a556b2ed08feb83f3119939e2642756b5701b36f85d1645f176b66aad25b5"
+    },
+    "current_branch_head_at_adjudication": "43608791494e445b17556e1ec8fc08b8a9f2f455",
+    "code_equivalence_check": {
+      "compared_base": "cba8421d4f4c6c4f929d5f4c3196eb83f98f7351",
+      "compared_head": "43608791494e445b17556e1ec8fc08b8a9f2f455",
+      "commits_ahead": 6,
+      "changed_files": [
+        "DHI_v1/WORKSPACE.md",
+        "DHI_v1/docs/07_DECISIONS_AND_RESEARCH_LOG.md",
+        "DHI_v1/experiments/ORBIT-GRADER-FIX-001/README.md",
+        "DHI_v1/experiments/ORBIT-GRADER-FIX-001/manifest.json"
+      ],
+      "runtime_and_test_sources_changed": false
+    }
+  },
+  "prior_full_verification": {
     "run_id": "43e0726e-e16d-428c-b2dd-f18332e2f882",
     "tested_head": "92bec2c3485220eec6c80a7fe8ae41865a4ef54e",
     "status": "running",
@@ -77,5 +142,18 @@
       "compileall",
       "runner imports"
     ]
-  }
+  },
+  "followup_attempts": [
+    {
+      "run_id": "220cc301-c5de-4c33-b507-784d456935d6",
+      "status": "stopped",
+      "interpretation": "No test output; no code conclusion."
+    },
+    {
+      "run_id": "b401c21c-d586-4a69-8e69-80c6cf02ae43",
+      "status": "error",
+      "error": "ModuleNotFoundError: No module named pytest",
+      "interpretation": "Notebook bootstrap omitted requirements installation; test collection never began."
+    }
+  ]
 }
