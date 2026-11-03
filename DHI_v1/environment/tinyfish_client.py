@@ -20,8 +20,8 @@ from urllib.parse import urlsplit
 
 SEARCH_ENDPOINT = "https://api.search.tinyfish.ai"
 FETCH_ENDPOINT = "https://api.fetch.tinyfish.ai"
-SEARCH_TOOL_ID = "tinyfish.search"
-FETCH_TOOL_ID = "tinyfish.fetch_content"
+SEARCH_TOOL_ID = "mcp__TinyFish__search"
+FETCH_TOOL_ID = "mcp__TinyFish__fetch_content"
 
 _SEARCH_PROPERTIES: dict[str, dict[str, Any]] = {
     "query": {"type": "string", "minLength": 1, "maxLength": 2000},
@@ -314,3 +314,19 @@ def tinyfish_tool_handlers_from_env() -> dict[str, Any]:
     if not api_key:
         return {}
     return TinyFishReadOnlyClient(api_key=api_key).tool_handlers()
+
+
+def tinyfish_plugin_bundle_from_env() -> tuple[dict[str, dict[str, Any]], dict[str, Any]]:
+    """Return canonical registry schemas and key-gated TinyFish handlers.
+
+    Schemas are available independently of credentials so callers can construct
+    a task contract and report a precise missing-handler blocker. The handler
+    mapping is empty unless TINYFISH_API_KEY is configured in the runtime.
+    """
+    schemas: dict[str, dict[str, Any]] = {}
+    for item in TINYFISH_TOOL_CATALOGUE:
+        tool_id = item["tool_id"]
+        if tool_id in schemas:
+            raise TinyFishClientError(f"duplicate TinyFish catalogue tool ID: {tool_id}")
+        schemas[tool_id] = json.loads(json.dumps(item["input_schema"]))
+    return schemas, tinyfish_tool_handlers_from_env()
