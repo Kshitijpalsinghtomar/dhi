@@ -323,40 +323,43 @@ def client_from_env() -> tuple[ChatCompletionClient, str]:
 
 
 def tool_handlers_from_client(client: ChatCompletionClient) -> dict[str, Any]:
-    """Expose read-only host catalogues supplied by the configured model provider.
+    """Return only separately approved read-only provider handlers.
 
-    The Adaption connector catalogue is a discovery-only tool, not an execution
-    bridge. A connector must receive a separately approved callable schema before
-    the model can perform an external operation.
+    Adaption contributes a discovery-only catalogue action. TinyFish contributes
+    only its task-allowlisted public Search and Fetch REST actions when the
+    runtime secret is configured. No other TinyFish native tool is exposed.
     """
+    handlers: dict[str, Any] = {}
     search_catalogue = getattr(client, "search_tools_catalogue", None)
-    if not callable(search_catalogue):
-        return {}
+    if callable(search_catalogue):
+        catalogue_snapshot = None
+        snapshot_sha256 = None
+        list_catalogue = getattr(client, "list_tools_catalogue", None)
+        if callable(list_catalogue):
+            catalogue_snapshot = list_catalogue()
+            snapshot_sha256 = hashlib.sha256(
+                json.dumps(catalogue_snapshot, sort_keys=True, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+            ).hexdigest()
 
-    catalogue_snapshot = None
-    snapshot_sha256 = None
-    list_catalogue = getattr(client, "list_tools_catalogue", None)
-    if callable(list_catalogue):
-        catalogue_snapshot = list_catalogue()
-        snapshot_sha256 = hashlib.sha256(
-            json.dumps(catalogue_snapshot, sort_keys=True, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
-        ).hexdigest()
+        def adaption_catalogue_search(arguments: dict[str, Any]) -> dict[str, Any]:
+            try:
+                request = {
+                    "query": arguments.get("query", ""),
+                    "available_only": arguments.get("available_only", True),
+                    "limit": arguments.get("limit", 10),
+                }
+                if catalogue_snapshot is not None:
+                    request["catalogue_snapshot"] = catalogue_snapshot
+                result = search_catalogue(**request)
+                if snapshot_sha256 is not None:
+                    result["catalogue_snapshot_sha256"] = snapshot_sha256
+                    result["catalogue_snapshot_scope"] = "fixed_for_this_agent_run"
+                return result
+            except (ModelClientError, ValueError) as exc:
+                raise DHIEnvironmentError(str(exc)) from exc
 
-    def adaption_catalogue_search(arguments: dict[str, Any]) -> dict[str, Any]:
-        try:
-            request = {
-                "query": arguments.get("query", ""),
-                "available_only": arguments.get("available_only", True),
-                "limit": arguments.get("limit", 10),
-            }
-            if catalogue_snapshot is not None:
-                request["catalogue_snapshot"] = catalogue_snapshot
-            result = search_catalogue(**request)
-            if snapshot_sha256 is not None:
-                result["catalogue_snapshot_sha256"] = snapshot_sha256
-                result["catalogue_snapshot_scope"] = "fixed_for_this_agent_run"
-            return result
-        except (ModelClientError, ValueError) as exc:
-            raise DHIEnvironmentError(str(exc)) from exc
+        handlers["catalog.adaption_search"] = adaption_catalogue_search
 
-    return {"catalog.adaption_search": adaption_catalogue_search}
+    from .tinyfish_client import tinyfish_tool_handlers_from_env
+    handlers.update(tinyfish_tool_handlers_from_env())
+    return handlers
