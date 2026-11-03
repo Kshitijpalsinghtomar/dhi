@@ -262,6 +262,14 @@ def _flatten_source_values(value: Any):
         yield value
 
 
+def _normalize_fact_text(value: Any) -> str:
+    """Normalize spacing and case while preserving the substance of observed source facts."""
+    if value is None:
+        return ""
+    text = value if isinstance(value, str) else str(value)
+    return " ".join(text.casefold().split())
+
+
 def _evidence_text(trace: dict[str, Any]) -> str:
     return _canonical_json(trace.get("events", [])) + "\n" + _artifact_text(trace)
 
