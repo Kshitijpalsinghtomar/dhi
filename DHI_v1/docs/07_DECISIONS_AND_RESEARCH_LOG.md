@@ -998,3 +998,14 @@ This only establishes that the 12 conventional names were not present in that ru
 A broad GitHub compare summary listed implementation/test files in its aggregate file list after the passing 142-test commit, so the branch-equivalence claim was checked file by file rather than relying on the aggregate summary. Direct reads at tested commit `cba8421d4f4c6c4f929d5f4c3196eb83f98f7351` and current branch ref `orbit/plugin-benchmark-fixture` returned identical Git blob SHAs for all 11 relevant runtime, benchmark, schema, manifest and test files. The complete path/hash list is in [PLUGIN-GATEWAY-001](../experiments/PLUGIN-GATEWAY-001/README.md).
 
 This confirms the 142-test result applies to the current runtime/benchmark code contents. It is not a fresh test execution. No implementation code was changed during the gateway feasibility or credential-probe work.
+
+
+## 2026-11-03 — User-reported TinyFish secret setup; verification blocked by Deepnote quota
+
+The user reported that `TINYFISH_API_KEY` had been added to the DHI verifier project's secret store. This is a user-reported configuration change, not a runtime-verified secret.
+
+A temporary presence-only probe cell was created in the existing verifier notebook. Deepnote rejected both the project machine start and a detached read-only run before execution with the parallel-project quota error: `Your plan quota for parallel running projects has been exceeded. Please stop one of your running projects.`
+
+The temporary cell was deleted. The existing regression cell was left untouched. The verifier machine remains stopped. No credential values were read or printed; no TinyFish MCP `initialize`, `tools/list`, or `tools/call` request was sent.
+
+**Decision:** keep the TinyFish execution gate blocked. After a Deepnote run slot is available, repeat the presence-only `TINYFISH_API_KEY` check. Only if that check succeeds should the read-only MCP handshake and bounded `search`/`fetch_content` test proceed. Do not paste the secret into chat or stop another project through this agent.
