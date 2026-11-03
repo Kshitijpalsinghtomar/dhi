@@ -83,7 +83,7 @@ def make_trace(events: list[dict] | None = None, *, artifacts: list[dict] | None
                     "modified_paths": [],
                     "deleted_paths": [],
                     "changed_paths": ["reports/result.md"],
-                    "unchanged_paths": [],
+                    "unchanged_paths": ["README.md"],
                 },
             },
             {
