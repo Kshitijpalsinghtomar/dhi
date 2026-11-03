@@ -724,13 +724,26 @@ def grade_task(
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Validate or grade an ORBIT plugin-native trace bundle.")
     parser.add_argument("trace", type=Path, help="Path to the trace JSON bundle")
-    parser.add_argument("--task", type=Path, help="Path to the registered task record JSON")
+    parser.add_argument("--task", type=Path, help="Path to one registered task record JSON")
+    parser.add_argument("--task-id", help="Select a task by ID from the committed manifest")
+    parser.add_argument("--manifest", type=Path, default=Path("DHI_v1/benchmark/task_manifest.json"), help="Task manifest used with --task-id")
     parser.add_argument("--schema", type=Path, default=DEFAULT_SCHEMA, help="Path to plugin_trace.schema.json")
     args = parser.parse_args(argv)
+    if args.task and args.task_id:
+        parser.error("use either --task or --task-id, not both")
     try:
         trace = json.loads(args.trace.read_text(encoding="utf-8"))
         schema = json.loads(args.schema.read_text(encoding="utf-8"))
-        if args.task:
+        if args.task_id:
+            manifest = json.loads(args.manifest.read_text(encoding="utf-8"))
+            matches = [
+                item for item in manifest.get("tasks", [])
+                if isinstance(item, dict) and item.get("task_id") == args.task_id
+            ]
+            if len(matches) != 1:
+                raise ValueError(f"expected exactly one task {args.task_id!r} in manifest; found {len(matches)}")
+            report = grade_task(matches[0], trace, schema=schema)
+        elif args.task:
             task = json.loads(args.task.read_text(encoding="utf-8"))
             report = grade_task(task, trace, schema=schema)
         else:
