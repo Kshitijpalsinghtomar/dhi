@@ -369,7 +369,7 @@ class PluginTraceGraderTests(unittest.TestCase):
         self.assertEqual(grade_task(make_task(condition), trace)["status"], "fail")
 
     def test_file_blob_match_verifies_sha_and_csv_data_rows(self) -> None:
-        csv_text = "id,name\\n1,A\\n2,B\\n"
+        csv_text = "id,name\n1,A\n2,B\n"
         trace = make_trace()
         trace["events"][2]["tool_id"] = "mcp__GitHub__fetch_file"
         trace["events"][3]["tool_id"] = "mcp__GitHub__fetch_file"
