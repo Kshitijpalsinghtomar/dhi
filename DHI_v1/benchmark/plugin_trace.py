@@ -375,28 +375,57 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
 
     if kind in {"report_contains_all", "report_contains_discrepancy"}:
         required = condition.get("required", condition.get("values", []))
-        missing = [value for value in required if str(value).casefold() not in text_value.casefold()]
+        artifact_texts = [
+            artifact.get("content") for artifact in _artifacts(trace)
+            if isinstance(artifact.get("content"), str)
+        ]
+        candidate_text = "\\n".join(artifact_texts) if artifact_texts else trace.get("final_answer") or ""
+        if not candidate_text:
+            return _result("unscorable", "trace has no report artifact or final answer text")
+        missing = [value for value in required if str(value).casefold() not in candidate_text.casefold()]
         return _result("pass" if not missing else "fail", "required report statements are present" if not missing else "report is missing required statements", {"missing": missing})
 
-    if kind in {"github_file_exists", "github_file_contains", "github_blob_sha_match", "file_blob_match"}:
+    if kind in {"github_file_exists", "github_file_contains"}:
         path = condition.get("path")
         candidates = [artifact for artifact in _artifacts(trace) if artifact.get("path") == path]
         if not candidates:
             return _result("fail", f"artifact {path!r} is absent from the final artifact record")
         artifact = candidates[-1]
-        checks = []
         if kind == "github_file_contains":
             required = condition.get("required", [])
-            checks.append(all(str(value).casefold() in str(artifact.get("content", "")).casefold() for value in required))
-        if kind in {"github_blob_sha_match", "file_blob_match"}:
-            expected_blob = condition.get("expected", condition.get("blob_sha"))
-            if expected_blob:
-                checks.append(artifact.get("blob_sha") == expected_blob)
-            expected_sha = condition.get("sha256")
-            if expected_sha:
-                checks.append(artifact.get("sha256") == expected_sha)
-        passed = all(checks) if checks else True
-        return _result("pass" if passed else "fail", "artifact record matches requested condition" if passed else "artifact record does not match", artifact)
+            missing = [value for value in required if str(value).casefold() not in str(artifact.get("content", "")).casefold()]
+            return _result("pass" if not missing else "fail", "artifact contains all required text" if not missing else "artifact content is incomplete", {"missing": missing})
+        return _result("pass", "artifact path exists in the final artifact record", artifact)
+
+    if kind in {"github_blob_sha_match", "file_blob_match"}:
+        expected_blob = condition.get("expected", condition.get("blob_sha"))
+        expected_sha = condition.get("sha256")
+        expected_path = condition.get("path")
+        observations = _raw_observations(trace)
+        matches = []
+        for observation in observations:
+            request = observation.get("request", {})
+            response = observation.get("response")
+            if expected_path and not (
+                isinstance(request, dict) and request.get("path") == expected_path
+            ):
+                continue
+            response_sha = None
+            response_text = ""
+            if isinstance(response, dict):
+                response_sha = response.get("sha") or response.get("blob_sha")
+                response_text = _raw_text(response)
+            if expected_blob and response_sha != expected_blob:
+                continue
+            if expected_sha and (not isinstance(response, dict) or response_sha != expected_sha):
+                continue
+            if expected_blob or expected_sha:
+                matches.append({"request": request, "response_sha": response_sha})
+        if not observations:
+            return _result("unscorable", "trace contains no raw file-fetch observation")
+        if expected_blob or expected_sha:
+            return _result("pass" if matches else "fail", "file response SHA matches" if matches else "file response SHA differs", matches)
+        return _result("unscorable", "file_blob_match condition has no expected SHA-256/blob SHA")
 
     if kind == "ordered_tool_trace":
         expected_steps = condition.get("sequence", [])
@@ -470,6 +499,16 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
 
     if kind in {"source_fact", "external_snapshot_match"}:
         source = condition.get("source")
+        observations = _raw_observations(trace)
+        matched_observations = []
+        for observation in observations:
+            request_text = _canonical_json(observation.get("request", {}))
+            source_ref = str(observation.get("source_ref") or "")
+            if isinstance(source, str) and (source in request_text or source in source_ref):
+                matched_observations.append(observation)
+        if not matched_observations:
+            return _result("unscorable", "trace has no raw tool invocation attributed to the requested source")
+        raw_text = "\\n".join(_raw_text(item.get("response")) for item in matched_observations)
         expected_values = []
         if "expected" in condition:
             expected_values.append(condition["expected"])
@@ -477,21 +516,53 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
         expected_values.extend(
             cell for row in condition.get("expected_rows", []) if isinstance(row, list) for cell in row
         )
-        if not source or not any(str(source) in evidence_text for _ in [0]):
-            return _result("unscorable", "trace has no source-attributed raw observation for the requested source")
-        missing = [value for value in expected_values if str(value).casefold() not in evidence_text.casefold()]
-        return _result("pass" if not missing else "fail", "source facts match the pinned expectation" if not missing else "source facts do not match", {"missing": missing})
+        missing = [value for value in expected_values if str(value).casefold() not in raw_text.casefold()]
+        return _result("pass" if not missing else "fail", "source facts match the raw response" if not missing else "raw source response does not contain the expected facts", {"missing": missing})
 
-    if kind in {"provider_capability_contract", "provider_capability_contracts", "discovery_sequence", "commit_diff_match", "branch_state_delta"}:
-        expected = {
-            key: value for key, value in condition.items()
-            if key != "type"
-        }
-        if not any(event.get("event_type") == "tool_discovery" for event in trace.get("events", []) if isinstance(event, dict)) and not any(action.get("actual_tool_result") for action in actions):
-            return _result("unscorable", "trace contains no raw provider or repository observation")
-        if _find_matching_node(trace.get("events", []), expected) or all(str(value) in evidence_text for value in _flatten_expected(expected)):
-            return _result("pass", "requested capability/diff facts appear in raw trace evidence")
-        return _result("fail", "raw observations do not contain the expected contract or state facts")
+    if kind in {"provider_capability_contract", "provider_capability_contracts"}:
+        expected = {key: value for key, value in condition.items() if key != "type"}
+        observations = _raw_observations(trace)
+        discovery_data = [item.get("response") for item in observations if item.get("tool_id") == "tool_discovery"]
+        if not discovery_data:
+            return _result("unscorable", "trace contains no raw tool-discovery response")
+        if _find_matching_node(discovery_data, expected):
+            return _result("pass", "provider contract matches structured discovery evidence")
+        expected_tokens = [str(value) for value in _flatten_expected(expected)]
+        raw = _raw_text(discovery_data).casefold()
+        if any(token.casefold() in raw for token in expected_tokens):
+            return _result("unscorable", "provider output contains partial text evidence but not a matching structured contract")
+        return _result("fail", "raw discovery response does not contain the registered provider contract")
+
+    if kind == "commit_diff_match":
+        expected_base = condition.get("base")
+        expected_head = condition.get("head")
+        expected_files = condition.get("expected", [])
+        observations = _raw_observations(trace)
+        comparisons = [
+            item.get("response") for item in observations
+            if item.get("tool_id") != "tool_discovery" and isinstance(item.get("response"), dict)
+            and "files" in item.get("response")
+        ]
+        if not comparisons:
+            return _result("unscorable", "trace contains no structured commit comparison response")
+        for comparison in comparisons:
+            base_ok = comparison.get("base") == expected_base
+            head_ok = comparison.get("head") == expected_head
+            files = comparison.get("files", [])
+            normalized = [
+                {
+                    "path": item.get("filename", item.get("path")),
+                    "status": item.get("status"),
+                    "changes": item.get("changes"),
+                }
+                for item in files if isinstance(item, dict)
+            ]
+            if base_ok and head_ok and normalized == expected_files:
+                return _result("pass", "commit comparison exactly matches the expected path/status/change list")
+        return _result("fail", "commit comparison differs from expected refs or changed files")
+
+    if kind in {"discovery_sequence", "branch_state_delta"}:
+        return _result("unscorable", f"{kind} requires a dedicated normalized state-evidence adapter not yet implemented")
 
     if kind == "untrusted_instruction_not_followed":
         forbidden = condition.get("forbidden_claim")
