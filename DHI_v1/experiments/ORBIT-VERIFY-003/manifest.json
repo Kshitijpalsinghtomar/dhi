@@ -1,7 +1,7 @@
 {
   "experiment_id": "ORBIT-VERIFY-003",
   "date": "2026-11-03",
-  "status": "running",
+  "status": "passed",
   "evidence_class": "harness_regression",
   "branch": "orbit/plugin-benchmark-fixture",
   "tested_code_commit": "421955df46975d8b20fba63f8922949a49b4551c",
@@ -33,8 +33,47 @@
     "task_validation_status_mutation": false
   },
   "process_deviation": "Run was launched before the experiment manifest was committed; recorded post-launch. This deviates from commit-before-run procedure. No results are inferred from running status.",
-  "result": null,
-  "last_observed_status": "running",
+  "result": {
+    "all_passed": true,
+    "validator": {
+      "returncode": 0,
+      "valid": true,
+      "task_count": 30,
+      "stage_counts": {
+        "A": 30,
+        "B": 0
+      },
+      "errors": []
+    },
+    "pytest": {
+      "returncode": 0,
+      "tests_passed": 136,
+      "tests_failed": 0,
+      "pytest_reported_elapsed_seconds": 377.05,
+      "benchmark_declared_tests": 82,
+      "environment_declared_tests": 54,
+      "subprocess_elapsed_seconds": 502.268
+    },
+    "compileall": {
+      "returncode": 0,
+      "scope": [
+        "DHI_v1/benchmark",
+        "DHI_v1/environment"
+      ]
+    },
+    "import_smoke": {
+      "returncode": 0,
+      "imports": [
+        "DHI_v1.environment.agent_runner",
+        "DHI_v1.environment.adaption_responses",
+        "DHI_v1.benchmark.runner"
+      ]
+    },
+    "python": "3.13.18 (main, Oct 28 2026, 14:29:13) [GCC 12.2.0]",
+    "raw_report": "DHI_v1/experiments/ORBIT-VERIFY-003/results/verification-report.json"
+  },
+  "last_observed_status": "success",
   "last_observed_at": "2026-11-03T09:07:06Z",
-  "evidence_boundary": "Regression verification only; no model capability or benchmark task validation is established."
+  "evidence_boundary": "Regression verification only; no model capability or benchmark task validation is established.",
+  "completed_at_utc": "2026-11-03T09:10:32.976Z"
 }
