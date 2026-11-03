@@ -38,7 +38,7 @@ status_reason: >
   access and verified trajectories remain incomplete.
 training_status: not_authorized
 benchmark_status: stage_a_authoring_30_of_120; stage_b_sealed_unmaterialized
-last_verified_repository_head_before_this_workspace_checkpoint: 3d57cc876dcd3f1f82c9d3ff884665de52c7f290
+last_verified_repository_head_before_this_workspace_checkpoint: 48f2b393aac45a44a2928a6f360f1370574e4dae
 ```
 </details>
 
@@ -136,7 +136,7 @@ Current status:
 - No DHI model inference, benchmark score, training data, or training run has been produced.
 
 Next:
-1. Execute `python -m DHI_v1.benchmark.validate_task_manifest` and the focused/full pytest suites on a working Python runner. The validator and 14 regression tests are committed; CI has not yet executed them because no runner was provisioned.
+1. Execute `python -m DHI_v1.benchmark.validate_task_manifest` and the focused/full pytest suites on a working Python runner. The validator and 17 regression tests are committed; CI has not yet executed them because no runner was provisioned.
 2. Continue materializing the remaining 90 Stage A tasks with genuinely distinct families, environment evidence, executable postconditions and independently reviewable graders. Remaining quotas: S01=10, S02=9, S03=8, S04=9, S05=8, S06=8, S07=10, S08=9, S09=9, S10=10.
 3. Implement the plugin action-trace adapter for pre-action effect predictions and cross-session checkpoint/recovery events. Close the remaining S07/S09 model-run trace gaps.
 4. Independently review all 30 current task prompts and graders. Keep `ready_for_validation` until the task is exercised through the frozen task runner or an independent deterministic reference check.
@@ -182,7 +182,7 @@ No DHI candidate model was run. Firecrawl capability discovery cost zero; the di
 | `ORBIT-TASKS-003` | Added Go release verification and TinyFish schema/404 recovery; Stage A reached 22 task families |
 | `ORBIT-TASKS-004` | Expanded Stage A to 30 task instances; S07 checkpoint/resume, additional schema, effect and multi-source cases added |
 | `ORBIT-REGISTRY-001` | Corrected missing `mcp__GitHub__update_file` contract and recomputed the 16-tool registry SHA-256 |
-| `ORBIT-MANIFEST-VALIDATOR-001` | Added cross-record validator and 14 regression tests; required task-instance/family fingerprints |
+| `ORBIT-MANIFEST-VALIDATOR-001` | Added cross-record validator and 17 regression tests; required task-instance/family fingerprints |
 | `ORBIT-INTEGRITY-001` | Independent static inspection confirmed 30/30 hashes, registered tools, and complete evidence references; Python tests remain unexecuted |
 | `ORBIT-METHOD-001` | Reviewed Karpathy and uditgoenka autoresearch; committed ORBIT's adapted evidence-first method and experiment template |
 | `ORBIT-REFERENCE-001` | Verified multi-file GitHub workflow and a persistent checkpoint/resume workflow with readback and single-path diffs |
