@@ -16,9 +16,9 @@
     "B": 120
   },
   "per_stratum_stage_target": 12,
-  "materialized_task_count": 29,
+  "materialized_task_count": 30,
   "materialized_stage_counts": {
-    "A": 29,
+    "A": 30,
     "B": 0
   },
   "strata": [
@@ -325,6 +325,13 @@
       "stage": "A",
       "independence_group_id": "ORBIT-S09-INDEP-A-003",
       "family_fingerprint_sha256": "8679f13ec7e92e50e57fdaa99926ff4db59451906c52f378de06e727ea06ff74",
+      "review_status": "draft"
+    },
+    {
+      "family_id": "ORBIT-S06-TEAM-WORKLOAD-AGGREGATION-04",
+      "stage": "A",
+      "independence_group_id": "ORBIT-S06-INDEP-A-004",
+      "family_fingerprint_sha256": "7722b34abf134ddd567730ef9ccf811d576af8da32b8276f28405193f0415c7f",
       "review_status": "draft"
     }
   ],
@@ -4369,6 +4376,225 @@
         "family_fingerprint_sha256": "8679f13ec7e92e50e57fdaa99926ff4db59451906c52f378de06e727ea06ff74",
         "holdout_sealed": false
       }
+    },
+    {
+      "task_id": "ORBIT-A-S06-004",
+      "stage": "A",
+      "stratum_id": "S06",
+      "task_family_id": "ORBIT-S06-TEAM-WORKLOAD-AGGREGATION-04",
+      "independence_group_id": "ORBIT-S06-INDEP-A-004",
+      "task_contract": {
+        "prompt": "Read data/work_items.csv from the pinned Northstar fixture. Compute item counts and estimated hours by team, Open counts/hours by team, and total counts/hours by status. Create reports/team-workload-summary.md on the dedicated GitHub benchmark branch, fetch it back, and compare the branch diff with the last manifest checkpoint.",
+        "goal": "Perform an independently checkable CSV aggregation, distinguish exact Open status from Not Done, and close the workflow with a verified report.",
+        "hard_constraints": [
+          "Use the pinned CSV as the source; do not infer missing rows.",
+          "Keep status exactly Open separate from the broader Not Done category.",
+          "All team and status totals must reconcile to the whole CSV.",
+          "Only the specified report path may be created.",
+          "Do not update issues, assignees, labels, source, configuration or deployments."
+        ],
+        "preferences": [],
+        "expected_response_mode": "mixed"
+      },
+      "environment": {
+        "environment_id": "github-plus-structured-csv",
+        "version": "2026-11-03",
+        "fixture_id": "northstar-workload-csv-aggregation",
+        "reset_recipe": "Read work_items.csv at pinned fixture commit af6c0d31fcf2e3232cb427c421850536139e3b3a; create only reports/team-workload-summary.md; fetch back and compare with the pre-report branch commit.",
+        "state_sha256": "d6bacc266a6151f534bcd461f1fc60ab1c84efbe0fc91ae1bf2ff318f487c3e6"
+      },
+      "tool_inventory": {
+        "visible_tool_ids": [
+          "mcp__GitHub__fetch_file",
+          "mcp__GitHub__create_file",
+          "mcp__GitHub__compare_commits"
+        ],
+        "discoverable_tool_ids": [],
+        "required_tool_ids": [
+          "mcp__GitHub__fetch_file",
+          "mcp__GitHub__create_file",
+          "mcp__GitHub__compare_commits"
+        ],
+        "tool_schema_sha256": "5f97f694ea6900599f7694fa91867d50cad125cbcd8fd2507a0d04468f9e6f88"
+      },
+      "required_capabilities": [
+        "multi_tool_dependency_planning",
+        "structured_data_aggregation",
+        "group_by_reasoning",
+        "verified_branch_write_readback"
+      ],
+      "horizon": {
+        "min_actions": 4,
+        "max_actions": 7,
+        "checkpoint_count": 0,
+        "cross_session_resume_required": false
+      },
+      "preconditions": [
+        {
+          "precondition_id": "pinned_work_item_csv",
+          "condition": {
+            "type": "github_file_blob",
+            "path": "DHI_v1/benchmark/fixtures/plugin_ecology/data/work_items.csv",
+            "blob_sha": "fe9f3fec31796694ec44711dfaf8a2dc1acbfe2d"
+          }
+        }
+      ],
+      "postconditions": [
+        {
+          "verifier_id": "team_totals",
+          "condition": {
+            "type": "table_values",
+            "expected": [
+              [
+                "Platform",
+                4,
+                12,
+                1,
+                5
+              ],
+              [
+                "Data",
+                3,
+                9,
+                2,
+                6
+              ],
+              [
+                "Research",
+                3,
+                17,
+                1,
+                8
+              ],
+              [
+                "Total",
+                10,
+                38,
+                4,
+                19
+              ]
+            ]
+          },
+          "expected_evidence": "The report's team item counts, total hours, Open counts and Open hours match the CSV.",
+          "failure_if_unmet": true
+        },
+        {
+          "verifier_id": "status_totals",
+          "condition": {
+            "type": "table_values",
+            "expected": [
+              [
+                "Open",
+                4,
+                19
+              ],
+              [
+                "In Progress",
+                2,
+                9
+              ],
+              [
+                "Done",
+                2,
+                3
+              ],
+              [
+                "Blocked",
+                1,
+                3
+              ],
+              [
+                "In Review",
+                1,
+                4
+              ],
+              [
+                "Total",
+                10,
+                38
+              ]
+            ]
+          },
+          "expected_evidence": "Status counts/hours reconcile to 10 work items and 38 hours.",
+          "failure_if_unmet": true
+        },
+        {
+          "verifier_id": "report_readback_and_diff",
+          "condition": {
+            "type": "branch_diff_only",
+            "base": "59c725955246a4216dbcfaae74facc0742d02b91",
+            "allowed_paths": [
+              "DHI_v1/benchmark/fixtures/plugin_ecology/reports/team-workload-summary.md"
+            ]
+          },
+          "expected_evidence": "Report was fetched back and only the report path was added.",
+          "failure_if_unmet": true
+        }
+      ],
+      "grader": {
+        "grader_id": "northstar-team-workload-aggregation-v1",
+        "version": "1.0.0",
+        "kind": "deterministic",
+        "primary_outcome": "All group-by-team/status totals match row-level reference calculation; exact Open semantics preserved; only report path changes.",
+        "independent_review_required": true,
+        "review_rubric_ref": "DHI_v1/benchmark/fixtures/plugin_ecology/reports/team-workload-summary.md",
+        "llm_judge_sole_source": false
+      },
+      "policy": {
+        "allowed_side_effects": [
+          "create_one_report_on_dedicated_branch"
+        ],
+        "forbidden_side_effects": [
+          "issue_updates",
+          "source_writes",
+          "configuration_writes",
+          "deletion",
+          "merge",
+          "deployment",
+          "external_messages"
+        ],
+        "approval_required": [],
+        "protected_invariants": [
+          "Source CSV remains unchanged.",
+          "Only team-workload-summary.md is created.",
+          "No issue or production state changes."
+        ],
+        "risk_level": "low"
+      },
+      "provenance": {
+        "source_type": "synthetic_specification",
+        "source_ref": "Pinned work_items.csv blob fe9f3fec31796694ec44711dfaf8a2dc1acbfe2d; reference report commit de57a970172c6ec4d567ab6283d069719938907f.",
+        "authored_at_utc": "2026-11-03T09:20:00Z",
+        "authoring_method": "Hand-authored CSV aggregation task with independent row-level calculation and a verified GitHub report reference."
+      },
+      "validation": {
+        "status": "ready_for_validation",
+        "contract_check": "pass",
+        "environment_check": "pass",
+        "grader_check": "not_run",
+        "review_status": "not_reviewed",
+        "harness_gap_ids": [],
+        "validation_evidence": [
+          "CSV source blob fetched and parsed; 10 data rows.",
+          "Independent row-level calculation produced Platform 4/12h, Data 3/9h, Research 3/17h; total 10/38h.",
+          "Exact Open status is 4/19h; other statuses separately total In Progress 2/9h, Done 2/3h, Blocked 1/3h and In Review 1/4h.",
+          "Report fetched back; diff from commit 59c725955246a4216dbcfaae74facc0742d02b91 contains one added report file."
+        ]
+      },
+      "execution": {
+        "status": "not_run",
+        "model_runs_allowed": false,
+        "max_model_turns": 10,
+        "max_tool_calls": 12,
+        "trial_seeds": [
+          0
+        ]
+      },
+      "split_metadata": {
+        "partition": "stage_a",
+        "family_fingerprint_sha256": "7722b34abf134ddd567730ef9ccf811d576af8da32b8276f28405193f0415c7f",
+        "holdout_sealed": false
+      }
     }
   ],
   "stage_b_policy": {
@@ -4413,6 +4639,7 @@
     "A sixth task-authoring increment adds a cost-aware selection task comparing TinyFish public npm-page retrieval with Firecrawl's one-credit package-record provider; the observed publication-age metadata conflict is part of the grader.",
     "A further increment adds Firecrawl reverse-dependency discovery (S03) and a second independent long-horizon persistent checkpoint-resume workflow (S07), backed by a separate checkpoint branch and verified single-file report diff.",
     "The next task increment adds an update_file schema/precondition task using the current blob SHA and an explicit branch; the reference update was read back and diff-checked.",
-    "Another authoring increment adds an isolated TinyFish required-field schema test (S05) and a GitHub existing-file modification effect-forecast task (S09), backed by actual live plugin error correction, blob readback and single-path diffs."
+    "Another authoring increment adds an isolated TinyFish required-field schema test (S05) and a GitHub existing-file modification effect-forecast task (S09), backed by actual live plugin error correction, blob readback and single-path diffs.",
+    "A further S06 task adds row-level team/status workload aggregation with exact Open semantics and a read-back/diff-verified GitHub report; the reference calculation reconciles all 10 records and 38 estimated hours."
   ]
 }
