@@ -457,3 +457,38 @@ The current DHI TinyFish REST adapter exposes internal IDs `tinyfish.search` and
 After TinyFish, prioritize the GitHub REST adapter because 16 Stage A tasks require GitHub; keep writes limited to task-specific disposable branches and exact allowed paths. Firecrawl's Alexandria `firecrawl_find_tools` contract is known in the assistant session, but the Deepnote verifier has no Firecrawl project integration/transport. The assistant's connected app actions are not callable by the model runner.
 
 OpenRouter is still at $0 credits, and there is no `OPENROUTER` Deepnote integration. No model inference or training is authorized by this successful engineering gate.
+
+
+## 21. ORBIT-VERIFY-007 passed — canonical TinyFish runtime bundle — 2026-11-03
+
+**The TinyFish canonical adapter gate is closed.** See [ORBIT-VERIFY-007](experiments/ORBIT-VERIFY-007/README.md).
+
+- Code under test: `28a0753c283cd0105d103ee4da11ac0847af0014`.
+- Deepnote run: `ec2a3f4f-b421-41a8-9187-92ad21ed1dc2`.
+- Full benchmark + environment pytest: **178 passed, 0 failed**.
+- Manifest validator: PASS — 30 tasks, Stage A=30, Stage B=0, no errors.
+- `compileall` and import smoke: PASS.
+- Loader smoke: all 30 plans resolve; model runs enabled: **0**.
+- Actual Deepnote TINYFISH no-network preflight: PASS — schemas and callable handlers exist for canonical IDs `mcp__TinyFish__search` and `mcp__TinyFish__fetch_content`; `ORBIT-A-S02-001` prepares successfully through `prepare_plugin_execution`.
+- Actual provider calls / model inference / training: **0**.
+- Python: 3.13.18.
+- Raw report: `experiments/ORBIT-VERIFY-007/results/verification-report.json`.
+
+The old internal aliases `tinyfish.search` and `tinyfish.fetch_content` have been replaced by the exact plugin registry IDs. `tinyfish_plugin_bundle_from_env()` returns registry-aligned schemas regardless of credentials and exposes handlers only when `TINYFISH_API_KEY` exists. The actual attached Deepnote TINYFISH environment supplied both handlers. No key value is printed or stored in source.
+
+### What this does not close
+
+The generic plugin dispatcher is still not wired into the model-facing turn loop, and no action trace is yet emitted in the ORBIT plugin trace schema. Therefore, the 7 TinyFish-requiring tasks are **adapter-preparable**, not end-to-end benchmark validated. The source manifest continues to mark every task `model_runs_allowed=false`.
+
+### Next work unit — model-facing plugin runner and trace
+
+Build this test-first, initially with scripted local clients/handlers and no live model:
+1. load one `PluginTaskPlan` and call `prepare_plugin_execution` before any model request;
+2. send its canonical model-visible function schemas through a bounded model-client interface;
+3. dispatch each tool call through the existing guarded dispatcher;
+4. record append-only `task_started`, pre-action `assistant_prediction`, `action_started`, `action_executed`, and `task_closed` events using the existing plugin trace schema;
+5. capture only independently grounded raw handler results and before/after state/effect data; do not let model-authored summaries stand in for verified effects;
+6. validate the final trace with `plugin_trace.validate_trace` and grade it with `grade_task`;
+7. add a scripted TinyFish task test proving schema/permission/trace/closure behaviour without calling a provider.
+
+Only after this runner/trace path is tested should GitHub's 16-task runtime bridge be implemented. Firecrawl Alexandria's assistant-session tool contract is known, but no Deepnote project transport/integration is attached. OpenRouter also remains at $0 credits, with no project-scoped model secret. Do not enable live model runs or start training yet.
