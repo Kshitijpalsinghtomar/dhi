@@ -128,6 +128,7 @@ def test_prepared_runner_preserves_canonical_ids_and_dispatches_only_allowed_too
 def test_sandbox_write_guard_must_authorize_the_exact_task_and_arguments():
     plan = _plan("ORBIT-A-S06-001")
     schemas = {tool_id: _schema() for tool_id in plan.visible_tool_ids}
+    schemas["mcp__GitHub__create_file"] = _schema(("path",))
     calls = []
     handlers = {tool_id: lambda args: calls.append(args) or {"ok": True}
                 for tool_id in plan.allowed_tool_ids}
