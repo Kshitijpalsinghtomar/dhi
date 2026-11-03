@@ -142,6 +142,15 @@ class TaskManifestValidatorTests(unittest.TestCase):
         errors = self.errors(changed)
         self.assertTrue(any(error.startswith("[frozen]") for error in errors))
 
+    def test_every_task_condition_must_have_a_deterministic_grader(self) -> None:
+        changed = copy.deepcopy(self.manifest)
+        changed["tasks"][0]["postconditions"][0]["condition"]["type"] = "unimplemented_condition"
+        errors = self.errors(changed)
+        self.assertTrue(
+            any(error.startswith("[grader]") and "unimplemented_condition" in error for error in errors),
+            "\\n".join(errors),
+        )
+
     def test_fingerprint_helpers_are_deterministic(self) -> None:
         task = copy.deepcopy(self.manifest["tasks"][0])
         self.assertEqual(family_fingerprint(task), family_fingerprint(task))
