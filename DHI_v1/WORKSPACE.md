@@ -71,7 +71,7 @@ last_verified_repository_head_before_this_workspace_checkpoint: d30a30cec1c39e53
 | Untouched candidate model screening | Not run | No model winner |
 | DHI-v1 executed model trajectories | None recorded | No trajectory SFT source yet |
 | DHI-v1 training | Not authorized / not run | Data and benchmark gates remain closed |
-| Plugin-native Stage A authoring | 10 tasks materialized; 10 ready for validation | Actual GitHub/TinyFish/Firecrawl tool contracts and pinned evidence; no model runs |
+| Plugin-native Stage A authoring | 12 tasks materialized; 12 ready for validation | Actual GitHub/TinyFish/Firecrawl tool contracts and pinned evidence; no model runs |
 | Plugin reference workflows | Release report and checkpoint-resume report completed | Scripted reference evidence only; not DHI model capability results |
 | Plugin-native task grading | Not run | Grader contracts are authored; independent and model-facing validation still pending |
 
@@ -118,7 +118,7 @@ Completed in the current authoring branch:
 - The Northstar synthetic fixture, Node.js current-source snapshot, Firecrawl discovery snapshot, and checkpoint/resume sandbox are committed in the authoring branch.
 
 Current status:
-- 10/120 Stage A task instances exist; one per stratum.
+- 12/120 Stage A task instances exist: one per stratum, plus a second task in S02 and S03.
 - 0/120 Stage B tasks exist; Stage B remains sealed.
 - S01, S02, S03, S04, S05, S06, S08 and S10 have bounded plugin-native task routes.
 - S07 is partial: the GitHub checkpoint was re-read and the resumed report was verified, but model-run interruption/recovery traces remain to be validated.
