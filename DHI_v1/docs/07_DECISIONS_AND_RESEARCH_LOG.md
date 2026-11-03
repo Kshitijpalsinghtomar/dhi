@@ -764,3 +764,26 @@ Continue authoring genuinely distinct plugin-native Stage A task families. Do no
 
 ### Panel status
 Stage A now contains **22/120** task instances; Stage B remains **0/120**, unmaterialized and sealed. Per-stratum counts: S01=2, S02=3, S03=3, S04=2, S05=2, S06=2, S07=1, S08=3, S09=2, S10=2. All tasks remain ready_for_validation, and no DHI model inference or score has been produced.
+
+## 2026-11-03 — Adopt an evidence-first ORBIT research method from autoresearch references
+
+### Sources reviewed
+- `karpathy/autoresearch` at `228791fb499afffb54b46200aca536f79142f117`: README, `program.md`, `prepare.py`, and `train.py`. Core method: frozen evaluation/data preparation, narrow mutable surface, baseline first, fixed run budget, one change per experiment, commit-before-run, and durable results ledger.
+- `uditgoenka/autoresearch` at `7bddd056dfd0b0ded8360588d8101b1ecb5c0baa`: skill dispatcher, planning, research discovery, evaluation, regression, adversarial reasoning, security, blind-judge, behavior-preservation, and fork-and-flush protocols.
+
+### Decision
+Adopt the combined and DHI-specific protocol in [13_ORBIT_RESEARCH_METHOD.md](13_ORBIT_RESEARCH_METHOD.md), with the per-experiment contract in [EXPERIMENT_RECORD_TEMPLATE.md](../experiments/EXPERIMENT_RECORD_TEMPLATE.md).
+
+### Adaptations and limits
+- Adopt baseline-first, frozen conditions, one bounded intervention, commit-before-run, explicit failure logging, regression guards, held-out confirmation and durable ledgers.
+- Add ORBIT-specific requirements for actual tool traces, pre-action effect predictions, independently observed state deltas, postcondition verification, permission boundaries, and separating model capability from harness capability.
+- Use adversarial critics and blind reviewers to test explanations, not to substitute consensus for empirical evidence.
+- Restrict fork-and-flush to budgeted exploratory candidate generation. It cannot touch sealed Stage B, authorize paid actions, establish significance, or auto-merge.
+- Do not copy Karpathy's five-minute budget or val_bpb; those are specific to its training setup.
+- Do not copy upstream autonomy or hook assumptions as a security boundary. ORBIT retains explicit authorization and Git-first controls.
+
+### Current state
+- Method and template committed on `orbit/plugin-benchmark-fixture`.
+- The branch contains 30 Stage A task instances; Stage B remains 0/120 and sealed.
+- All task records remain ready_for_validation; no DHI model inference, capability score, or training run is claimed.
+- This decision changes the research operating method, not the benchmark scope, model candidates, or training authorization.
