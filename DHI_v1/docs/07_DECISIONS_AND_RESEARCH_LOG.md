@@ -1009,3 +1009,14 @@ A temporary presence-only probe cell was created in the existing verifier notebo
 The temporary cell was deleted. The existing regression cell was left untouched. The verifier machine remains stopped. No credential values were read or printed; no TinyFish MCP `initialize`, `tools/list`, or `tools/call` request was sent.
 
 **Decision:** keep the TinyFish execution gate blocked. After a Deepnote run slot is available, repeat the presence-only `TINYFISH_API_KEY` check. Only if that check succeeds should the read-only MCP handshake and bounded `search`/`fetch_content` test proceed. Do not paste the secret into chat or stop another project through this agent.
+
+
+## 2026-11-03 — Second TinyFish credential recheck blocked by Deepnote quota
+
+The user requested a fresh check of the reported `TINYFISH_API_KEY` project secret. A temporary presence-only probe was created in the existing verifier notebook; the existing regression block was not modified. A detached read-only run was rejected before execution with:
+
+`Your plan quota for parallel running projects has been exceeded. Please stop one of your running projects.`
+
+The temporary probe block `c2f3037678ba404282f745ad39f6a935` was deleted. The verifier machine remained stopped. No secret value was read or emitted, and no TinyFish or other provider request was sent. A separate notebook could not be created because the project permits only one notebook, so the temporary cell was used and removed in the existing notebook.
+
+**Decision:** credential presence remains unverified; keep the gateway blocked. Do not stop another project to free capacity. Repeat the presence-only check only after a Deepnote run slot is available; proceed to TinyFish read-only MCP initialization and tool-schema inspection only if the key is present.
