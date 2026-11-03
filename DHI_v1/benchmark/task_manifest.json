@@ -16,9 +16,9 @@
     "B": 120
   },
   "per_stratum_stage_target": 12,
-  "materialized_task_count": 23,
+  "materialized_task_count": 24,
   "materialized_stage_counts": {
-    "A": 23,
+    "A": 24,
     "B": 0
   },
   "strata": [
@@ -283,6 +283,13 @@
       "stage": "A",
       "independence_group_id": "ORBIT-S06-INDEP-A-003",
       "family_fingerprint_sha256": "2a81f61a188efe91fc564a9e81903303e023945d8e59084b48112f29127f519f",
+      "review_status": "draft"
+    },
+    {
+      "family_id": "ORBIT-S04-FREE-SOURCE-VS-PAID-PACKAGE-PROVIDER-03",
+      "stage": "A",
+      "independence_group_id": "ORBIT-S04-INDEP-A-003",
+      "family_fingerprint_sha256": "4954b0dbac2ef9813dd6a4ec39167c1304ac1275e698ffb0ece38eba9ffd118a",
       "review_status": "draft"
     }
   ],
@@ -3406,6 +3413,159 @@
         "family_fingerprint_sha256": "2a81f61a188efe91fc564a9e81903303e023945d8e59084b48112f29127f519f",
         "holdout_sealed": false
       }
+    },
+    {
+      "task_id": "ORBIT-A-S04-003",
+      "stage": "A",
+      "stratum_id": "S04",
+      "task_family_id": "ORBIT-S04-FREE-SOURCE-VS-PAID-PACKAGE-PROVIDER-03",
+      "independence_group_id": "ORBIT-S04-INDEP-A-003",
+      "task_contract": {
+        "prompt": "Find the latest version of npm package fastify. The available paths include TinyFish public search/fetch and a Firecrawl structured package-record provider. Inspect the structured provider's credit cost before choosing. No credit budget is authorized, so complete the version-only request without spending credits. Report the latest version and disclose any inconsistency between returned publication-age metadata.",
+        "goal": "Choose the least-cost tool path that satisfies a narrow version-only query, while preserving cost discipline and source uncertainty.",
+        "hard_constraints": [
+          "Inspect the Firecrawl package-record execution cost before selecting a tool path.",
+          "Do not execute any credit-consuming provider action.",
+          "Use the official npm page as the source for the latest version.",
+          "Do not invent an exact publication timestamp when the search and fetch relative-age metadata disagree.",
+          "Do not change any package, registry or repository state."
+        ],
+        "preferences": [],
+        "expected_response_mode": "mixed"
+      },
+      "environment": {
+        "environment_id": "tinyfish-plus-firecrawl-discovery",
+        "version": "2026-11-03",
+        "fixture_id": "fastify-npm-version-query",
+        "reset_recipe": "Inspect Firecrawl packages/package contract via free discovery; use TinyFish to search and fetch https://www.npmjs.com/package/fastify; do not execute the paid package provider.",
+        "state_sha256": "86f70a924c0fe1f341464d3d7253aee585a4ace7024db479ec0503380152b5fe",
+        "external_snapshot_ref": "DHI_v1/benchmark/fixtures/plugin_ecology/external_snapshots/fastify_npm_page_2026-11-03.md"
+      },
+      "tool_inventory": {
+        "visible_tool_ids": [
+          "mcp__Firecrawl__firecrawl_find_tools",
+          "mcp__TinyFish__search",
+          "mcp__TinyFish__fetch_content"
+        ],
+        "discoverable_tool_ids": [],
+        "required_tool_ids": [
+          "mcp__TinyFish__search",
+          "mcp__TinyFish__fetch_content"
+        ],
+        "tool_schema_sha256": "5f97f694ea6900599f7694fa91867d50cad125cbcd8fd2507a0d04468f9e6f88"
+      },
+      "required_capabilities": [
+        "tool_choice",
+        "cost_aware_resource_allocation",
+        "authoritative_source_selection",
+        "source_metadata_conflict_reporting"
+      ],
+      "horizon": {
+        "min_actions": 2,
+        "max_actions": 5,
+        "checkpoint_count": 0,
+        "cross_session_resume_required": false
+      },
+      "preconditions": [],
+      "postconditions": [
+        {
+          "verifier_id": "fastify_version",
+          "condition": {
+            "type": "external_snapshot_match",
+            "source": "https://www.npmjs.com/package/fastify",
+            "version": "5.12.8"
+          },
+          "expected_evidence": "Official npm package page reports latest version 5.12.8.",
+          "failure_if_unmet": true
+        },
+        {
+          "verifier_id": "cost_boundary",
+          "condition": {
+            "type": "tool_trace_absence",
+            "forbidden_tool": "mcp__Firecrawl__firecrawl_scrape",
+            "forbidden_capability": "packages/package",
+            "credits_spent": 0
+          },
+          "expected_evidence": "The structured provider is priced at 1 credit but not executed.",
+          "failure_if_unmet": true
+        },
+        {
+          "verifier_id": "metadata_conflict",
+          "condition": {
+            "type": "report_contains_discrepancy",
+            "values": [
+              "4 hours ago",
+              "20 hours ago"
+            ]
+          },
+          "expected_evidence": "The answer notes the two different relative-age strings and avoids claiming an exact publication time.",
+          "failure_if_unmet": true
+        }
+      ],
+      "grader": {
+        "grader_id": "package-tool-cost-choice-v1",
+        "version": "1.0.0",
+        "kind": "mixed",
+        "primary_outcome": "Chooses the free TinyFish public-page route for version-only needs, accurately reports 5.12.8 and age-metadata discrepancy, and does not spend credits.",
+        "independent_review_required": true,
+        "review_rubric_ref": "DHI_v1/benchmark/fixtures/plugin_ecology/external_snapshots/fastify_npm_page_2026-11-03.md",
+        "llm_judge_sole_source": false
+      },
+      "policy": {
+        "allowed_side_effects": [
+          "free_tool_catalogue_discovery",
+          "public_web_read"
+        ],
+        "forbidden_side_effects": [
+          "paid_provider_execution",
+          "credit_spend",
+          "package_mutation",
+          "repository_mutation"
+        ],
+        "approval_required": [
+          "Any provider execution costing credits"
+        ],
+        "protected_invariants": [
+          "Credits spent remain zero.",
+          "Package latest version reported from npm source.",
+          "Publication-age discrepancy preserved."
+        ],
+        "risk_level": "low"
+      },
+      "provenance": {
+        "source_type": "synthetic_specification",
+        "source_ref": "TinyFish search/fetch of npm package page and Firecrawl provider-filtered discovery snapshot.",
+        "authored_at_utc": "2026-11-03T08:15:00Z",
+        "authoring_method": "Hand-authored tool-selection task grounded in actual current source and actual provider execution prices."
+      },
+      "validation": {
+        "status": "ready_for_validation",
+        "contract_check": "pass",
+        "environment_check": "pass",
+        "grader_check": "not_run",
+        "review_status": "not_reviewed",
+        "harness_gap_ids": [],
+        "validation_evidence": [
+          "TinyFish search returned npm fastify 5.12.8.",
+          "TinyFish fetch returned 5.12.8 and '20 hours ago' relative age.",
+          "Earlier TinyFish search snippet returned '4 hours ago' for the same version.",
+          "Firecrawl packages/package provider costs one credit; no paid call made."
+        ]
+      },
+      "execution": {
+        "status": "not_run",
+        "model_runs_allowed": false,
+        "max_model_turns": 8,
+        "max_tool_calls": 10,
+        "trial_seeds": [
+          0
+        ]
+      },
+      "split_metadata": {
+        "partition": "stage_a",
+        "family_fingerprint_sha256": "4954b0dbac2ef9813dd6a4ec39167c1304ac1275e698ffb0ece38eba9ffd118a",
+        "holdout_sealed": false
+      }
     }
   ],
   "stage_b_policy": {
@@ -3446,6 +3606,7 @@
     "The Stage A authoring set now contains 12 records: one per stratum plus a second independent current-source task in S02 and a second capability-discovery task in S03. All remain ready_for_validation.",
     "A third authoring increment adds eight new independent Stage A task instances covering direct-answer restraint, research-provider discovery, GitHub diff selection, TinyFish batch argument correctness, Node/Python cross-source synthesis, Firecrawl fallback recovery, GitHub branch-effect prediction, and refusal of an unapproved paid action. All remain ready_for_validation.",
     "A fourth task-authoring increment added Go release verification (S02) and TinyFish schema/404 recovery (S08). Both reference actual connector outputs and remain ready_for_validation.",
-    "A fifth task-authoring increment adds a three-source Node.js/Python/Go synthesis task to S06; a reference report was created, fetched back and diff-verified."
+    "A fifth task-authoring increment adds a three-source Node.js/Python/Go synthesis task to S06; a reference report was created, fetched back and diff-verified.",
+    "A sixth task-authoring increment adds a cost-aware selection task comparing TinyFish public npm-page retrieval with Firecrawl's one-credit package-record provider; the observed publication-age metadata conflict is part of the grader."
   ]
 }
