@@ -128,7 +128,7 @@
       "family_id": "ORBIT-S01-DIRECT-ARITHMETIC-01",
       "stage": "A",
       "independence_group_id": "ORBIT-S01-INDEP-A-001",
-      "family_fingerprint_sha256": "12ca99e9ec315b54371ad3fb916a6a6500c1e0819074cb625be179d8697162f5",
+      "family_fingerprint_sha256": "d6254e4785924e8e2228eb56bfead2ca060d105f4033e62f3951bd5e58e234cc",
       "review_status": "draft"
     },
     {
@@ -212,7 +212,7 @@
       "family_id": "ORBIT-S01-VOWEL-COUNT-DIRECT-02",
       "stage": "A",
       "independence_group_id": "ORBIT-S01-INDEP-A-002",
-      "family_fingerprint_sha256": "f77037f78b0eb9417a934e99de4645b74e05c31017346292f1e1d6b43f8b3e6b",
+      "family_fingerprint_sha256": "a92c539dee15625aec9fb168f38cfee3425052ea8a74e1611093b94d3de0a3bf",
       "review_status": "draft"
     },
     {
@@ -385,6 +385,16 @@
           },
           "expected_evidence": "Final answer is exactly 703 and tool-call count is zero.",
           "failure_if_unmet": true
+        },
+        {
+          "verifier_id": "tool_abstention",
+          "condition": {
+            "type": "tool_trace_absence",
+            "tool_calls": 0,
+            "credits_spent": 0
+          },
+          "expected_evidence": "Trace contains zero action_started/action_executed events and zero provider credits spent.",
+          "failure_if_unmet": true
         }
       ],
       "grader": {
@@ -436,9 +446,9 @@
       },
       "split_metadata": {
         "partition": "stage_a",
-        "family_fingerprint_sha256": "12ca99e9ec315b54371ad3fb916a6a6500c1e0819074cb625be179d8697162f5",
+        "family_fingerprint_sha256": "d6254e4785924e8e2228eb56bfead2ca060d105f4033e62f3951bd5e58e234cc",
         "holdout_sealed": false,
-        "task_instance_sha256": "c57e97f30a64c332bd9dae0f1760d9ee7b3c346ce449c3be993b40fa130e858a"
+        "task_instance_sha256": "0187a24b2e56fe218bab434898dd928064ddce80593938342aa9876ebf15ddf7"
       }
     },
     {
@@ -2035,6 +2045,16 @@
           },
           "expected_evidence": "Final answer exactly 7 and zero tool calls.",
           "failure_if_unmet": true
+        },
+        {
+          "verifier_id": "tool_abstention",
+          "condition": {
+            "type": "tool_trace_absence",
+            "tool_calls": 0,
+            "credits_spent": 0
+          },
+          "expected_evidence": "Trace contains zero action_started/action_executed events and zero provider credits spent.",
+          "failure_if_unmet": true
         }
       ],
       "grader": {
@@ -2086,9 +2106,9 @@
       },
       "split_metadata": {
         "partition": "stage_a",
-        "family_fingerprint_sha256": "f77037f78b0eb9417a934e99de4645b74e05c31017346292f1e1d6b43f8b3e6b",
+        "family_fingerprint_sha256": "a92c539dee15625aec9fb168f38cfee3425052ea8a74e1611093b94d3de0a3bf",
         "holdout_sealed": false,
-        "task_instance_sha256": "bee776ceddacda960bd15518906897ad50b0d64d875841063a53db83e2ee6245"
+        "task_instance_sha256": "861b6e79a06e2fbb11afa9d3ea172ff8776d6e9eb7380e5abb6ec24fe846a4a5"
       }
     },
     {
@@ -4672,6 +4692,7 @@
     "Another authoring increment adds an isolated TinyFish required-field schema test (S05) and a GitHub existing-file modification effect-forecast task (S09), backed by actual live plugin error correction, blob readback and single-path diffs.",
     "A further S06 task adds row-level team/status workload aggregation with exact Open semantics and a read-back/diff-verified GitHub report; the reference calculation reconciles all 10 records and 38 estimated hours.",
     "Tool registry integrity correction: mcp__GitHub__update_file is now included because three task records reference it. The pinned tool schema SHA-256 is computed over the sorted-key compact UTF-8 JSON serialization of the complete registry tools array.",
-    "Integrity hardening: every task now carries a deterministic task_instance_sha256; family_fingerprint_sha256 is recomputed from the canonical task-definition fields. Canonical JSON uses UTF-8, sorted object keys, compact separators and SHA-256."
+    "Integrity hardening: every task now carries a deterministic task_instance_sha256; family_fingerprint_sha256 is recomputed from the canonical task-definition fields. Canonical JSON uses UTF-8, sorted object keys, compact separators and SHA-256.",
+    "No-tool Stage A tasks S01-001 and S01-002 now have explicit zero-tool/zero-credit postconditions. Family and task-instance SHA-256 fingerprints were recomputed after this contract change."
   ]
 }
