@@ -12,9 +12,9 @@ from DHI_v1.benchmark.plugin_task_loader import (
 )
 
 
-ROOT = Path(__file__).resolve().parents[2]
-MANIFEST = ROOT / "task_manifest.json"
-REGISTRY = ROOT / "fixtures" / "plugin_ecology" / "plugin_tool_registry.json"
+ROOT = Path(__file__).resolve().parents[3]
+MANIFEST = ROOT / "DHI_v1" / "benchmark" / "task_manifest.json"
+REGISTRY = ROOT / "DHI_v1" / "benchmark" / "fixtures" / "plugin_ecology" / "plugin_tool_registry.json"
 
 
 def test_loader_preserves_canonical_provider_tool_ids():
