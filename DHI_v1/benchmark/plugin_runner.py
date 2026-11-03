@@ -16,7 +16,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable, Mapping, Protocol
 
-from .plugin_execution import PreparedPluginExecution
+from .plugin_execution import PreparedPluginExecution, PluginToolPermissionError
 from .plugin_trace import grade_task, validate_trace
 
 
@@ -226,9 +226,8 @@ def _event(
 
 
 def _safe_handler_error(exc: Exception) -> str:
-    if isinstance(exc, (PermissionError, ValueError)):
-        # Permission/schema errors are generated locally and contain no provider
-        # response body. Arbitrary handler exceptions may contain credentials.
+    if isinstance(exc, PluginToolPermissionError):
+        # This exception is generated locally by the dispatch boundary.
         return f"{type(exc).__name__}: {str(exc)[:500]}"
     return f"{type(exc).__name__}: handler failed; exception details withheld"
 
@@ -321,8 +320,8 @@ def run_plugin_task(
     instance_sha = metadata.get("task_instance_sha256") if isinstance(metadata, Mapping) else None
     if instance_sha != plan.task_instance_sha256:
         raise PluginRunnerError("task_record task_instance_sha256 does not match prepared task")
-    if plan.task_manifest_sha256 != getattr(plan, "task_manifest_sha256", None):
-        raise PluginRunnerError("prepared task manifest identity is invalid")
+    if not isinstance(plan.task_manifest_sha256, str) or not re.fullmatch(r"[a-f0-9]{64}", plan.task_manifest_sha256):
+        raise PluginRunnerError("prepared task manifest identity is missing or invalid")
 
     write_tools = [
         tool_id for tool_id in plan.allowed_tool_ids
