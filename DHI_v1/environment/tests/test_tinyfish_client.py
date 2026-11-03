@@ -263,7 +263,7 @@ def test_model_task_executes_only_allowlisted_tinyfish_tool_and_records_trace(tm
             names = [item["function"]["name"] for item in tools]
             self.presented_tool_names.append(names)
             if len(self.presented_tool_names) == 1:
-                assert names == ["catalog_search", "tinyfish_search"]
+                assert names == ["catalog_search", "mcp__TinyFish__search"]
                 args = {
                     "query": "official Python documentation",
                     "__dhi_expected_effects": {
@@ -279,7 +279,7 @@ def test_model_task_executes_only_allowlisted_tinyfish_tool_and_records_trace(tm
                                 "id": "call-tinyfish-search",
                                 "type": "function",
                                 "function": {
-                                    "name": "tinyfish_search",
+                                    "name": "mcp__TinyFish__search",
                                     "arguments": json.dumps(args),
                                 },
                             }],
@@ -322,7 +322,7 @@ def test_model_task_executes_only_allowlisted_tinyfish_tool_and_records_trace(tm
     assert result.final_answer and "https://docs.python.org/3/" in result.final_answer
     assert result.tool_call_count == 1
     assert result.closure["success"] is True
-    assert model.presented_tool_names == [["catalog_search", "tinyfish_search"], ["catalog_search", "tinyfish_search"]]
+    assert model.presented_tool_names == [["catalog_search", "mcp__TinyFish__search"], ["catalog_search", "mcp__TinyFish__search"]]
     assert len(action_events) == 1
     event = action_events[0]
     assert event["selected_tool_id"] == SEARCH_TOOL_ID
