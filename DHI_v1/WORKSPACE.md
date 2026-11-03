@@ -30,14 +30,14 @@ codename: ORBIT
 phase: plugin_native_stage_a_seed_authored
 status: in_progress
 status_reason: >
-  The plugin-native task route is now active. Ten Stage A task records (one per
-  stratum) are authored against actual connected GitHub, TinyFish and Firecrawl
+  The plugin-native task route is now active. Twenty Stage A task records across all ten
+  strata are authored against actual connected GitHub, TinyFish and Firecrawl
   tools, with exact tool-contract and fixture snapshots. Seven strata have a
   bounded supported task route; S07 and S09 remain partial pending model-run
   checkpoint traces and pre-action prediction capture. No DHI model has been run. Comparable base-model inference
   access and verified trajectories remain incomplete.
 training_status: not_authorized
-benchmark_status: stage_a_authoring_10_of_120; stage_b_sealed_unmaterialized
+benchmark_status: stage_a_authoring_20_of_120; stage_b_sealed_unmaterialized
 last_verified_repository_head_before_this_workspace_checkpoint: d30a30cec1c39e53c5bbff2b1c3d01adccca4572
 ```
 </details>
@@ -53,7 +53,7 @@ last_verified_repository_head_before_this_workspace_checkpoint: d30a30cec1c39e53
 - Twelve hand-authored diagnostic seeds: eight common executable cases, one Adaption-specific discovery case, and three unsupported future-runtime cases.
 - Plugin-native task profile with 15 exact connected tool contracts pinned in `benchmark/fixtures/plugin_ecology/plugin_tool_registry.json`.
 - Synthetic Northstar plugin ecology fixture with source data, untrusted issue content, external snapshots, checkpoint and report artifacts.
-- Ten initial Stage A task instances (one in each stratum) recorded in `benchmark/task_manifest.json`.
+- Twenty Stage A task instances across all ten strata recorded in `benchmark/task_manifest.json`.
 - Observable grader for tool use, no-tool restraint, recovery, state changes, protected paths, and verified closure.
 - Model-facing entrypoints:
   - `python -m DHI_v1.benchmark.run_model_pilot`
@@ -71,7 +71,7 @@ last_verified_repository_head_before_this_workspace_checkpoint: d30a30cec1c39e53
 | Untouched candidate model screening | Not run | No model winner |
 | DHI-v1 executed model trajectories | None recorded | No trajectory SFT source yet |
 | DHI-v1 training | Not authorized / not run | Data and benchmark gates remain closed |
-| Plugin-native Stage A authoring | 12 tasks materialized; 12 ready for validation | Actual GitHub/TinyFish/Firecrawl tool contracts and pinned evidence; no model runs |
+| Plugin-native Stage A authoring | 20 tasks materialized; 20 ready for validation | Actual GitHub/TinyFish/Firecrawl tool contracts and pinned evidence; no model runs |
 | Plugin reference workflows | Release report and checkpoint-resume report completed | Scripted reference evidence only; not DHI model capability results |
 | Plugin-native task grading | Not run | Grader contracts are authored; independent and model-facing validation still pending |
 
@@ -111,26 +111,26 @@ VERIFY-001 is blocked on Deepnote's parallel-project quota. Initial run `93645a7
 
 Completed in the current authoring branch:
 - [Task-record JSON Schema](benchmark/task_manifest.schema.json) defines all task-record fields and split requirements.
-- [Task register](benchmark/task_manifest.json) now contains **10 Stage A task instances**, one per stratum, and 10 initial task-family records. Stage A target is 120; Stage B remains unmaterialized and sealed.
+- [Task register](benchmark/task_manifest.json) now contains **20 Stage A task instances** and 20 task-family records, distributed across all ten strata. Stage A target is 120; Stage B remains unmaterialized and sealed.
 - [Plugin-native execution profile](benchmark/PLUGIN_NATIVE_EXECUTION_PROFILE.md) distinguishes connected plugin execution from local file-workspace capabilities and records write/cost boundaries.
 - [Plugin tool registry snapshot](benchmark/fixtures/plugin_ecology/plugin_tool_registry.json) pins 15 exact tool contracts for GitHub, TinyFish, Firecrawl, Deepnote, Consensus, Scite, and Wolfram.
 - [Execution evidence](benchmark/fixtures/plugin_ecology/plugin_execution_evidence.json) records live plugin access checks, source snapshots, branch mutations/readbacks, the real 404 recovery, and explicit limitations.
 - The Northstar synthetic fixture, Node.js current-source snapshot, Firecrawl discovery snapshot, and checkpoint/resume sandbox are committed in the authoring branch.
 
 Current status:
-- 12/120 Stage A task instances exist: one per stratum, plus a second task in S02 and S03.
+- 20/120 Stage A task instances exist: S01, S02, S04, S05, S06, S08, S09 and S10 have two each; S03 has three; S07 has one.
 - 0/120 Stage B tasks exist; Stage B remains sealed.
 - S01, S02, S03, S04, S05, S06, S08 and S10 have bounded plugin-native task routes.
 - S07 is partial: the GitHub checkpoint was re-read and the resumed report was verified, but model-run interruption/recovery traces remain to be validated.
 - S09 is partial: GitHub write/readback/diff works, but the runner still needs a structured pre-action prediction trace.
-- Every task has `validation.status=ready_for_validation`; none is labelled validated.
+- Every one of the 20 tasks has `validation.status=ready_for_validation`; none is labelled validated.
 - No DHI model inference, benchmark score, training data, or training run has been produced.
 
 Next:
 1. Add 11 further distinct task instances per stratum to complete the 120-task Stage A screen. Vary underlying task families, plugin combinations, schemas, dependencies and side-effect policies; do not create paraphrases to fill counts.
 2. Implement the plugin action-trace adapter for pre-action effect predictions and cross-session checkpoint/recovery events. Close the remaining S07/S09 trace gaps.
 3. Add a cross-record panel validator and regression tests for task-ID uniqueness, counts, family/split hashes, fixture/tool hashes, postcondition presence, and Stage B sealing.
-4. Independently review all ten seed task prompts and graders. Run deterministic reference checks, then model pilots only after the matched inference access and benchmark-freeze gates pass.
+4. Independently review all 20 seed task prompts and graders. Run deterministic reference checks, then model pilots only after the matched inference access and benchmark-freeze gates pass.
 5. Build Stage B from 120 structurally distinct holdout tasks only after Stage A and the candidate/interface decision are fixed. Keep Stage B prompts and fixtures sealed.
 6. Keep model execution disabled until the Stage A task panel is complete, independently reviewed and frozen; preserve the Qwen3.6/GPT-OSS matched-comparison requirement.
 
@@ -169,7 +169,9 @@ No DHI candidate model was run. Firecrawl capability discovery cost zero; the di
 | `MANIFEST-001a` | Required task-family split hashes, Stage B sealing metadata, and complete validation evidence before a task can be marked validated |
 | `PLUGIN-REGISTRY-001` | Pinned 15 actual connected plugin tool contracts and created the Northstar synthetic plugin fixture |
 | `ORBIT-TASKS-001` | Authored ten Stage A plugin-native tasks, one per stratum; manifest passed schema validation |
+| `ORBIT-TASKS-002` | Expanded the plugin-native Stage A register to 20 independent task families; schema and cross-record checks passed |
 | `ORBIT-REFERENCE-001` | Verified multi-file GitHub workflow and a persistent checkpoint/resume workflow with readback and single-path diffs |
+| `ORBIT-REFERENCE-002` | Verified two-source Node/Python release report, Firecrawl fallback recovery, and branch-effect prediction reference |
 | `VERIFY-001 run 93645a78` | Exact checkout verified; compileall passed; pytest blocked by missing package before collection |
 | `VERIFY-001` retry | Blocked before execution by Deepnote quota in detached and live modes; retry cell is ready |
 | `VERIFY-001` | Initial compileall passed; pytest blocked by missing dependency; retry blocked by Deepnote quota |
