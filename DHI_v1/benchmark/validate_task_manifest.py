@@ -138,6 +138,58 @@ def _load_tool_registry(
     return ids, computed
 
 
+def _validate_trace_contract(
+    manifest: dict[str, Any],
+    repo_root: Path,
+    errors: list[str],
+) -> None:
+    """Pin the deterministic trace schema and grader implementation used by every task."""
+    integrity = manifest.get("integrity")
+    if not isinstance(integrity, dict):
+        _record_error(errors, "trace-contract", "manifest.integrity must be an object")
+        return
+
+    expected_paths = {
+        "trace_schema_path": "DHI_v1/benchmark/plugin_trace.schema.json",
+        "trace_grader_path": "DHI_v1/benchmark/plugin_trace.py",
+    }
+    loaded: dict[str, Path] = {}
+    for field, expected_path in expected_paths.items():
+        declared = integrity.get(field)
+        if declared != expected_path:
+            _record_error(
+                errors,
+                "trace-contract",
+                f"{field} must be pinned to {expected_path!r}; got {declared!r}",
+            )
+        path = _safe_repo_path(repo_root, expected_path)
+        if path is None or not path.is_file():
+            _record_error(errors, "trace-contract", f"missing trace contract file: {expected_path}")
+            continue
+        loaded[field] = path
+        digest_field = "trace_schema_sha256" if field == "trace_schema_path" else "trace_grader_sha256"
+        try:
+            actual_digest = hashlib.sha256(path.read_bytes()).hexdigest()
+        except OSError as exc:
+            _record_error(errors, "trace-contract", f"cannot read {expected_path}: {exc}")
+            continue
+        declared_digest = integrity.get(digest_field)
+        if declared_digest != actual_digest:
+            _record_error(
+                errors,
+                "trace-contract",
+                f"{digest_field} mismatch: declared={declared_digest!r}, actual={actual_digest}",
+            )
+
+    schema_path = loaded.get("trace_schema_path")
+    if schema_path is not None:
+        try:
+            trace_schema = json.loads(schema_path.read_text(encoding="utf-8"))
+            Draft202012Validator.check_schema(trace_schema)
+        except (OSError, json.JSONDecodeError, Exception) as exc:
+            _record_error(errors, "trace-contract", f"plugin trace schema is invalid: {exc}")
+
+
 def _validate_evidence_references(
     task: dict[str, Any],
     repo_root: Path,
@@ -233,6 +285,7 @@ def collect_manifest_errors(
     registry_hash: str | None = None
     if root is not None:
         registry, registry_hash = _load_tool_registry(root, errors)
+        _validate_trace_contract(manifest, root, errors)
 
     for task in tasks:
         if not isinstance(task, dict):
