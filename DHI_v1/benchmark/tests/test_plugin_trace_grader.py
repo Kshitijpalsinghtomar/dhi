@@ -606,6 +606,8 @@ class PluginTraceGraderTests(unittest.TestCase):
                 "closure_status": "success",
             },
         ]
+        for index, event in enumerate(events, 1):
+            event["event_index"] = index
         trace = make_trace(events)
         trace["task_id"] = task_id
         trace["usage"] = {"tool_calls": 3, "provider_credits_spent": 0}
