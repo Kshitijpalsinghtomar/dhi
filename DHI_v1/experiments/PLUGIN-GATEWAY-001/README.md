@@ -214,3 +214,36 @@ The readback is marker-level corroboration, not a byte-for-byte equality claim b
 **Not yet implemented:** a DHI-owned policy-enforcing adapter; tool schema fingerprint enforcement; task-scoped tool filtering; model-facing remote tools; normalized agent prediction/action traces; or any ORBIT model evaluation. A 41-tool native inventory must never be exposed wholesale. Next work is a test-first client/adapter that pins the `search` and `fetch_content` schemas and denies all other provider tools, with env-only auth, no secret logging, bounded timeouts, no automatic retries, and per-task allowlists.
 
 One initial attempt at the search/fetch cell failed locally before dispatch because the notebook cell had deleted the endpoint variable; no provider request was sent by that attempt. The corrected selected-cell run above completed successfully.
+
+
+## DHI-owned TinyFish REST adapter implemented — 2026-11-03
+
+The connected TinyFish app was used directly to retrieve and inspect the official provider documentation. This clarified an important auth distinction:
+
+- [TinyFish Authentication](https://docs.tinyfish.ai/authentication) says direct REST requests use `X-API-Key`; its MCP client integration uses OAuth 2.1 for standard assistant clients.
+- [TinyFish MCP Integration](https://docs.tinyfish.ai/mcp-integration) documents the hosted MCP endpoint and its OAuth flow. The earlier DHI runtime MCP handshake using `X-API-Key` did succeed, but the DHI-owned adapter does **not** depend on that auth ambiguity.
+- [Search API Reference](https://docs.tinyfish.ai/search-api/reference): `GET https://api.search.tinyfish.ai`.
+- [Fetch API Reference](https://docs.tinyfish.ai/fetch-api/reference): `POST https://api.fetch.tinyfish.ai`.
+
+DHI now uses the documented Search and Fetch REST endpoints directly, with `TINYFISH_API_KEY` read only from the runtime environment and sent in the `X-API-Key` header. No key is hardcoded, serialized into traces, or emitted in errors.
+
+### Committed implementation
+
+- `DHI_v1/environment/tinyfish_client.py`: stdlib REST client for only `tinyfish.search` and `tinyfish.fetch_content`; fixed HTTPS hosts; strict argument validation; public HTTP(S) URL validation; private/loopback/link-local/reserved IP and embedded-credential rejection; 1–10 fetch URLs; bounded timeout; no automatic retries; safe error messages.
+- `DHI_v1/environment/dhi_env.py`: adds these two tools to the catalogue, but only exposes handler-backed tools and hides both unless the task carries an explicit `allowed_tool_ids` entry.
+- `DHI_v1/environment/agent_runner.py`: wires in the two env-backed handlers while preserving Adaption discovery.
+- `DHI_v1/benchmark/runner.py`: propagates per-case `allowed_tool_ids` into `TaskSpec`.
+- `DHI_v1/benchmark/run_model_pilot.py`: passes approved provider handlers into the model pilot.
+- `DHI_v1/environment/tests/test_tinyfish_client.py`: request construction, key header, strict args, URL safety, no retry/secret redaction, environment factory, explicit task allowlist and runner wiring tests.
+
+The provider's native MCP tools/list returns 41 tools. This adapter exposes exactly two read-only actions to DHI; the other 39 native tools remain inaccessible. Browser automation, agent runs, monitors, datasets, research, wallet actions and all write/mutation tools are outside the adapter.
+
+### Verification evidence and limits
+
+- Deepnote project/notebook: `DHI ORBIT exact-head verifier` / `3639f9a98ce5435fa4cd0168eaaca3a1`.
+- Direct test invocation: run `76e3e48b-2a71-424a-a59d-b651ca42a21b`; 14 committed test invocations passed, 0 failed. The module was imported and each test function was called directly; all six parameterized URL-safety cases were exercised. HTTP requests were mocked, so the unit tests themselves made no provider calls.
+- The declared development requirements installed successfully (`pytest 9.2.0`; `jsonschema 4.23.0`). However, pytest discovery timed out before collection in both the main verifier and a clean temporary project (runs `fed1e171-9ce0-4b72-b771-c260cbc5c2e5` and `07559432-6472-492f-a965-b7a68f70e6a0`). This is an execution-runner limitation, not a reported assertion failure.
+- A separate `py_compile` check was interrupted during the first bytecode write (run `d2b4d227-9f9d-4d20-a293-0c560e266e41`). No compileall pass is claimed for the adapter commit.
+- The disposable test project was deleted. The primary verifier notebook's original regression block was preserved; temporary diagnostics/test-launch cells were removed. The verifier machine was left stopped.
+
+**Decision:** the credential and provider route are verified, and the policy-limited adapter is implemented. Fourteen direct assertions pass. Full pytest discovery, syntax/compile gate and full regression remain open; do not describe the adapter as fully validated until those gates run in a reliable environment. No model inference or training was performed.
