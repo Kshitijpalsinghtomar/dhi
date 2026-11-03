@@ -183,6 +183,8 @@ class PluginTraceGraderTests(unittest.TestCase):
         condition = {"type": "branch_diff_only", "allowed_paths": ["reports/result.md"]}
         self.assertEqual(grade_task(make_task(condition), make_trace())["status"], "pass")
         trace = make_trace()
+        trace["events"][3]["observed_state_after"]["src/api.py"] = "f" * 64
+        trace["events"][3]["actual_effects"]["added_paths"].append("src/api.py")
         trace["events"][3]["actual_effects"]["changed_paths"].append("src/api.py")
         self.assertEqual(grade_task(make_task(condition), trace)["status"], "fail")
 
