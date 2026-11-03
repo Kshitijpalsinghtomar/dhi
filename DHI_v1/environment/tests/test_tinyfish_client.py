@@ -6,6 +6,7 @@ from urllib.parse import parse_qs, urlsplit
 import pytest
 
 from DHI_v1.environment.dhi_env import DEFAULT_TOOL_CATALOGUE, DHIEnvironment, TaskSpec
+from DHI_v1.environment.agent_runner import tool_handlers_from_client
 from DHI_v1.environment.tinyfish_client import (
     FETCH_TOOL_ID,
     SEARCH_TOOL_ID,
@@ -206,7 +207,7 @@ def test_tinyfish_tools_are_not_discoverable_without_explicit_task_allowlist(tmp
 
     assert SEARCH_TOOL_ID not in {item["tool_id"] for item in discovered}
     assert result.ok is False
-    assert "not allowed" in result.error.lower()
+    assert "explicit task allowlist" in result.error.lower()
 
 
 def test_tinyfish_tools_can_be_discovered_only_when_task_allowlists_them(tmp_path):
@@ -221,3 +222,13 @@ def test_tinyfish_tools_can_be_discovered_only_when_task_allowlists_them(tmp_pat
 
     assert SEARCH_TOOL_ID in {item["tool_id"] for item in discovered}
     assert FETCH_TOOL_ID not in {item["tool_id"] for item in discovered}
+
+
+def test_model_runner_registers_only_tinyfish_read_only_handlers_from_env():
+    class MinimalClient:
+        pass
+
+    with patch.dict("os.environ", {"TINYFISH_API_KEY": "runtime-secret"}):
+        handlers = tool_handlers_from_client(MinimalClient())
+
+    assert set(handlers) == {SEARCH_TOOL_ID, FETCH_TOOL_ID}
