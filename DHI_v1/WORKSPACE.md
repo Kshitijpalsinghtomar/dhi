@@ -27,25 +27,29 @@ This is a research target, not a result or novelty claim. A prompt, RAG store, f
 ```yaml
 programme: DHI-v1
 codename: ORBIT
-phase: plugin_native_gateway_adapter_validation
+phase: github_adapter_offline_validation
 status: in_progress
 status_reason: >
-  The plugin-native task route has 30 Stage A task records across all ten strata.
-  The historical corrected harness regression passed 142 tests at code commit
-  cba8421d4f4c6c4f929d5f4c3196eb83f98f7351; it predates the TinyFish adapter.
-  TinyFish runtime credential presence and read-only provider Search/Fetch are
-  verified. A DHI-owned adapter exposes only those two operations behind
-  explicit per-task allowlists. Sixteen direct assertions, including a
-  scripted model-facing action/trace test, passed; six changed Python files
-  passed in-memory compilation. Pytest collection and full regression remain
-  unverified because Deepnote times out before test collection. Firecrawl
-  Alexandria mapping remains unresolved. S07 and S09 remain partial. No DHI
-  model inference, trained capability result, or verified model trajectory
-  exists. OpenRouter's last audited balance was $0.
+  ORBIT-VERIFY-008 passed the full exact-revision engineering regression:
+  182 benchmark/environment tests passed at code commit
+  fec93ba59842d866149c7d03383b1833745077d2. A credential-gated GitHub REST
+  adapter for six canonical capabilities is now committed. Offline HTTP tests
+  and manifest-bundle tests have been added. Review found that urllib's default
+  redirect handler can forward Authorization headers; the adapter now installs
+  a redirect-rejecting handler on both authenticated API and public GitHub
+  fetch paths. The task-bundle fixtures now restrict handlers to each plan's
+  visible tool IDs and close over IDs correctly. Focused pytest validation is
+  pending in the exact Deepnote verifier after bootstrapping its missing dev
+  dependencies. Deepnote has no GITHUB_TOKEN, write flag or repository
+  allowlist; no live GitHub request or write was made. All 30 Stage A tasks
+  remain ready_for_validation, and all model_runs_allowed flags remain false.
+  S07 and S09 remain partial. No ORBIT inference, model-generated trajectory,
+  trained capability result, or DHI-v1 checkpoint exists. OpenRouter balance
+  is currently $0.
 training_status: not_authorized
 benchmark_status: stage_a_authoring_30_of_120; stage_b_sealed_unmaterialized
-last_verified_code_commit: 97e40863e0f7c393c2b50ea9186edf23847e77a8
-last_verified_test_commit: 1a1ba7543d07fa5990fb6a2686712684dfe4da8c
+last_verified_code_commit: fec93ba59842d866149c7d03383b1833745077d2
+last_verified_test_commit: fec93ba59842d866149c7d03383b1833745077d2
 ```
 </details>
 
@@ -56,6 +60,7 @@ last_verified_test_commit: 1a1ba7543d07fa5990fb6a2686712684dfe4da8c
 - Deterministic file-workspace environment and pinned SHA-256 fixture.
 - Bounded model-to-tool runner with per-turn tool-schema refresh.
 - TinyFish Search/Fetch REST adapter with env-only credentials, strict argument validation, public URL protections, explicit task allowlists and trace-safe errors.
+- Credential-gated GitHub REST adapter draft for the six registered read/write capabilities; fake-HTTP and task-bundle tests are committed. Cross-host redirects are now rejected before following them so bearer credentials cannot be forwarded. Offline pytest validation remains pending; live handlers remain absent until a project-scoped `GITHUB_TOKEN` is attached.
 - Adaption Responses API adapter and hosted-model catalogue reader.
 - Read-only Adaption connector-catalogue discovery.
 - Twelve hand-authored diagnostic seeds: eight common executable cases, one Adaption-specific discovery case, and three unsupported future-runtime cases.
@@ -588,3 +593,34 @@ Build an independent stdlib REST client that:
 The first preflight must print only boolean presence/configuration states, never a credential value. If the GITHUB token is absent, handler exposure stays empty; do not substitute the assistant's own connected tools.
 
 Firecrawl Alexandria has a known assistant-session contract, but no Deepnote project transport. OpenRouter is still at $0 credits. **All 30 source-manifest tasks remain `model_runs_allowed=false`**; no model inference or training is authorized yet.
+
+
+## 24. GitHub adapter security hardening — 2026-11-03
+
+**Branch revision:** `cca077e9c5c6b50fffee94ea3c74576c89c34462`  
+**Previous verified code revision:** `fec93ba59842d866149c7d03383b1833745077d2`  
+**Deepnote verifier:** project `6415944e-8d6c-432c-a7cf-3bbaa997799c`, notebook `3639f9a98ce5435fa4cd0168eaaca3a1`.
+
+The first review of `environment/github_client.py` identified a credential-forwarding risk: Python's default `urllib` redirect handler copies request headers, including Authorization, into the redirected request. The adapter now supplies `_RejectRedirects` when constructing both authenticated API and unauthenticated raw-host openers. Redirects are rejected before any second request is sent.
+
+Two test defects were also corrected:
+- Manifest bundle tests now pass only handlers visible to the selected task, as required by `prepare_plugin_execution`.
+- Fake handler lambdas capture each tool ID at creation time rather than late-binding the loop variable.
+- The synthetic S06 guard now names a disposable sandbox branch, not the active research branch.
+
+A new regression test verifies that the default client opener is configured with the redirect-rejecting handler and that a cross-host redirect is refused. The implementation and both test files were synced to Deepnote and byte identity was checked.
+
+### Validation status
+
+- The initial selected test attempt stopped before collection because `pytest` was absent from the live Deepnote kernel; this is an environment/bootstrap failure, not a code result.
+- A second selected run is installing the repository's pinned development requirements and then running only `test_github_client.py` and `test_github_plugin_bundle.py`. Its run ID is `5855c01e-c3cc-4248-be3a-5ae165d2f70f`; no successful pytest result is claimed yet.
+- Deepnote presence-only preflight: `GITHUB_TOKEN=false`, `DHI_GITHUB_WRITES_ENABLED=false`, `GITHUB_ALLOWED_REPOSITORIES=false`, `TINYFISH_API_KEY=true`.
+- No real GitHub HTTP request, repository write, model inference, or training job occurred.
+
+### Remaining integration gaps
+
+The generic runner still does not enforce manifest preconditions such as S06's required branch-head SHA before a model call, and it does not automatically populate `trace.final_artifacts` from independently read-back files. Therefore the GitHub adapter is not yet sufficient to make S06 end-to-end gradeable. These must be closed separately before any task execution is authorized. All manifest model-run flags remain false.
+
+### Secret request boundary
+
+Do not add a GitHub credential until the offline security and focused pytest gates pass. When requested, start with a fine-grained, read-only token scoped to the one required repository. Keep write handlers disabled; request a separate write-capable scope only after disposable-branch isolation and task-specific precondition checks are verified.
