@@ -39,10 +39,10 @@ The benchmark must not silently substitute one environment for another. Every ta
 
 ## Current coverage interpretation
 
-The first plugin-native Stage A seed now has one task in each of the ten strata:
+The current plugin-native Stage A seed has 12 task instances: one in each stratum, plus a second independent task in S02 and S03:
 - S01: no-tool restraint — supported.
-- S02: live official-source verification — supported through TinyFish.
-- S03: tool/capability discovery — supported through free Firecrawl discovery.
+- S02: live official-source verification — supported through TinyFish; Node.js and Python release tables are separately pinned.
+- S03: tool/capability discovery — supported through free Firecrawl discovery; package metadata and security advisory contracts are independently covered.
 - S04: read-versus-write tool selection — supported through GitHub.
 - S05: exact tool argument and path contracts — supported through GitHub.
 - S06: multi-source dependent workflow and verified branch write — supported through GitHub.
@@ -55,7 +55,7 @@ This is a plugin-native capability map, not a claim that every plugin or every c
 
 ## Evidence and limitations
 
-- The first task register contains **10/120 Stage A tasks**, one per stratum; 110 Stage A tasks remain.
+- The task register contains **12/120 Stage A tasks**: one per stratum, plus second independent tasks in S02 and S03; 108 Stage A tasks remain.
 - Stage B has **0/120 task instances** and remains sealed/unmaterialized.
 - All ten task records are `ready_for_validation`, not `validated`. No DHI candidate model was run and no capability score is claimed.
 - The existing 12-case local smoke pilot remains outside the 240-task panel.
