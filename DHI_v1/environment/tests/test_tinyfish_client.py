@@ -6,7 +6,7 @@ from urllib.parse import parse_qs, urlsplit
 import pytest
 
 from DHI_v1.environment.dhi_env import DEFAULT_TOOL_CATALOGUE, DHIEnvironment, TaskSpec
-from DHI_v1.environment.agent_runner import tool_handlers_from_client
+from DHI_v1.environment.agent_runner import tool_handlers_from_client, run_agent_task
 from DHI_v1.environment.tinyfish_client import (
     FETCH_TOOL_ID,
     SEARCH_TOOL_ID,
@@ -232,3 +232,101 @@ def test_model_runner_registers_only_tinyfish_read_only_handlers_from_env():
         handlers = tool_handlers_from_client(MinimalClient())
 
     assert set(handlers) == {SEARCH_TOOL_ID, FETCH_TOOL_ID}
+
+
+def test_model_task_executes_only_allowlisted_tinyfish_tool_and_records_trace(tmp_path):
+    secret = "trace-must-never-contain-this-secret"
+    response_payload = {
+        "query": "official Python documentation",
+        "results": [{
+            "title": "Python documentation",
+            "url": "https://docs.python.org/3/",
+            "snippet": "Official Python documentation",
+            "position": 1,
+        }],
+        "total_results": 1,
+        "page": 0,
+    }
+    client = TinyFishReadOnlyClient(api_key=secret)
+    environment = DHIEnvironment(
+        tmp_path,
+        catalogue=DEFAULT_TOOL_CATALOGUE,
+        tool_handlers=client.tool_handlers(),
+    )
+    (tmp_path / "README.md").write_text("# Existing fixture\\n", encoding="utf-8")
+
+    class ScriptedModelClient:
+        def __init__(self):
+            self.presented_tool_names = []
+
+        def complete(self, *, messages, tools, temperature=0.0):
+            names = [item["function"]["name"] for item in tools]
+            self.presented_tool_names.append(names)
+            if len(self.presented_tool_names) == 1:
+                assert names == ["tinyfish_search"]
+                args = {
+                    "query": "official Python documentation",
+                    "__dhi_expected_effects": {
+                        "changed_paths": [],
+                        "unchanged_paths": [],
+                    },
+                }
+                return {
+                    "choices": [{
+                        "message": {
+                            "role": "assistant",
+                            "tool_calls": [{
+                                "id": "call-tinyfish-search",
+                                "type": "function",
+                                "function": {
+                                    "name": "tinyfish_search",
+                                    "arguments": json.dumps(args),
+                                },
+                            }],
+                        },
+                    }],
+                }
+            return {
+                "choices": [{
+                    "message": {
+                        "role": "assistant",
+                        "content": "The official Python documentation is https://docs.python.org/3/.",
+                    },
+                }],
+            }
+
+    model = ScriptedModelClient()
+    task = TaskSpec(
+        task_id="tinyfish-model-runner-contract",
+        prompt="Find the official Python documentation.",
+        goal="Return the official Python documentation URL.",
+        allowed_tool_ids=[SEARCH_TOOL_ID],
+        visible_tool_ids=[SEARCH_TOOL_ID],
+        postconditions=[{"type": "exists", "path": "README.md"}],
+        protected_paths=["README.md"],
+    )
+
+    def fake_urlopen(request, timeout):
+        assert request.full_url.startswith("https://api.search.tinyfish.ai")
+        assert header_map(request)["x-api-key"] == secret
+        return FakeHTTPResponse(response_payload)
+
+    with patch("urllib.request.urlopen", side_effect=fake_urlopen):
+        result = run_agent_task(environment, task, model)
+
+    action_events = [
+        event for event in environment.events
+        if event["event_type"] == "action_executed"
+    ]
+    assert result.stopped_reason == "final_answer"
+    assert result.final_answer and "https://docs.python.org/3/" in result.final_answer
+    assert result.tool_call_count == 1
+    assert result.closure["success"] is True
+    assert model.presented_tool_names == [["tinyfish_search"], []]
+    assert len(action_events) == 1
+    event = action_events[0]
+    assert event["selected_tool_id"] == SEARCH_TOOL_ID
+    assert event["actual_tool_result"]["ok"] is True
+    assert event["actual_tool_result"]["result"] == response_payload
+    assert event["prediction_comparison"]["status"] == "matched"
+    assert secret not in json.dumps(environment.events, ensure_ascii=False)
