@@ -60,6 +60,36 @@
       "id": "go-release-snapshot-2026-11-03",
       "sha256": "f6a4b10077330085ed3b2322d6d3a117a8eecfeb8473c1c64820df5120a89577",
       "source": "TinyFish fetch of https://go.dev/doc/devel/release; observed 2026-11-03."
+    },
+    {
+      "id": "fastify-npm-page-2026-11-03",
+      "sha256": "86f70a924c0fe1f341464d3d7253aee585a4ace7024db479ec0503380152b5fe",
+      "source": "TinyFish search and fetch of https://www.npmjs.com/package/fastify; latest version 5.12.8; retrieval-age metadata disagreement preserved."
+    },
+    {
+      "id": "firecrawl-dependents-discovery-2026-11-03",
+      "sha256": "f889722c58e1e9322ea0c9378660f83e148c24051a86c51778a740d50a12a553",
+      "source": "Firecrawl provider-filtered discovery for packages/dependents; discovery 0 credits, execution 1 credit."
+    },
+    {
+      "id": "tool-ecosystem-cost-audit-resume-2026-11-03",
+      "sha256": "07269062b45a6198de9a1aac726f7bf5c49684aef25638319493cc8b0b25a8f6",
+      "source": "Checkpoint commit 8c6295255c88b0baea04529a475af8f85a946cd6 plus registry/discovery snapshots and final report."
+    },
+    {
+      "id": "github-update-effect-forecast-2026-11-03",
+      "sha256": "ef7b46df8fe051f6aa331dc0ce9eb1ba337216cd8c9435b6b63ed402fbe16d00",
+      "source": "Existing-file update seed commit c168564457562ed01a621349b82ae41fe6a2f668 and verified update commit a24a2c3999d18dc2f2d1c876d5785a77b1539652."
+    },
+    {
+      "id": "northstar-team-workload-aggregation-2026-11-03",
+      "sha256": "d6bacc266a6151f534bcd461f1fc60ab1c84efbe0fc91ae1bf2ff318f487c3e6",
+      "source": "Pinned work_items.csv blob, plugin tool registry, and verified team-workload report."
+    },
+    {
+      "id": "node-python-go-release-comparison-2026-11-03",
+      "sha256": "82642a3645df5924e0f99e02996bd4d5b3648f3103cd4582714cc5af463c9cb2",
+      "source": "Three official snapshots plus runtime-release-comparison-v2.md reference report."
     }
   ],
   "tasks": [
@@ -349,6 +379,205 @@
       ],
       "source_snapshot": "DHI_v1/benchmark/fixtures/plugin_ecology/external_snapshots/go_release_recovery_2026-11-03.md",
       "status": "schema_and_404_recovery_demonstrated_model_not_run"
+    },
+    {
+      "task_id": "ORBIT-A-S03-004",
+      "evidence_class": "environment-verified",
+      "tools": [
+        "mcp__Firecrawl__firecrawl_find_tools"
+      ],
+      "actions": [
+        "Provider-filtered discovery returned packages/dependents.",
+        "Required inputs registry/name; optional version and crates-only sample; outputs include count/direct/indirect.",
+        "Discovery cost 0; execution cost 1 credit; no provider execution."
+      ],
+      "source_snapshot": "DHI_v1/benchmark/fixtures/plugin_ecology/discovery_snapshots/firecrawl_dependents_contract_2026-11-03.md",
+      "status": "tool_access_verified_model_not_run"
+    },
+    {
+      "task_id": "ORBIT-A-S04-003",
+      "evidence_class": "environment-verified",
+      "tools": [
+        "mcp__Firecrawl__firecrawl_find_tools",
+        "mcp__TinyFish__search",
+        "mcp__TinyFish__fetch_content"
+      ],
+      "actions": [
+        "Firecrawl package-record provider was confirmed at 1 credit; not executed.",
+        "TinyFish search and npm page fetch returned Fastify 5.12.8.",
+        "Search result described '4 hours ago'; fetched page described '20 hours ago'; discrepancy retained."
+      ],
+      "source_snapshot": "DHI_v1/benchmark/fixtures/plugin_ecology/external_snapshots/fastify_npm_page_2026-11-03.md",
+      "status": "free_tool_selection_and_source_verification_model_not_run"
+    },
+    {
+      "task_id": "ORBIT-A-S05-003",
+      "evidence_class": "environment-verified",
+      "tools": [
+        "mcp__GitHub__fetch_file",
+        "mcp__GitHub__update_file",
+        "mcp__GitHub__compare_commits"
+      ],
+      "actions": [
+        "Fetched existing report and used current blob SHA ae7694c15fc2949184a7267dc9fa8e430fd6e037.",
+        "update_file committed with explicit branch and complete content.",
+        "Post-update fetch blob matched 68ec2aab89854ca674f64b1c3f087e1f233c54af.",
+        "Diff showed one modified path."
+      ],
+      "status": "update_file_schema_and_sha_precondition_verified_model_not_run"
+    },
+    {
+      "task_id": "ORBIT-A-S05-004",
+      "evidence_class": "environment-verified",
+      "tools": [
+        "mcp__TinyFish__fetch_content"
+      ],
+      "actions": [
+        "A call without page_metadata was rejected by the live schema.",
+        "Corrected call supplied page_metadata=true and fetched Go release history successfully."
+      ],
+      "source_snapshot": "DHI_v1/benchmark/fixtures/plugin_ecology/external_snapshots/go_release_recovery_2026-11-03.md",
+      "status": "required_field_contract_reference_verified_model_not_run"
+    },
+    {
+      "task_id": "ORBIT-A-S06-003",
+      "evidence_class": "scripted-reference",
+      "tools": [
+        "mcp__TinyFish__search",
+        "mcp__TinyFish__fetch_content",
+        "mcp__GitHub__create_file",
+        "mcp__GitHub__fetch_file",
+        "mcp__GitHub__compare_commits"
+      ],
+      "output_commit": "6f4340dce8e291535065b206b5f6c9eb830e16b3",
+      "output_path": "DHI_v1/benchmark/fixtures/plugin_ecology/reports/runtime-release-comparison-v2.md",
+      "output_readback_blob": "e04a1650b691ca53dad920f20d21885b9c5dbfd8",
+      "diff_from_baseline": [
+        {
+          "path": "DHI_v1/benchmark/fixtures/plugin_ecology/reports/runtime-release-comparison-v2.md",
+          "status": "added",
+          "changes": 38
+        }
+      ],
+      "status": "three_source_report_readback_and_diff_verified_model_not_run"
+    },
+    {
+      "task_id": "ORBIT-A-S06-004",
+      "evidence_class": "scripted-reference",
+      "tools": [
+        "mcp__GitHub__fetch_file",
+        "mcp__GitHub__create_file",
+        "mcp__GitHub__compare_commits"
+      ],
+      "output_commit": "de57a970172c6ec4d567ab6283d069719938907f",
+      "output_path": "DHI_v1/benchmark/fixtures/plugin_ecology/reports/team-workload-summary.md",
+      "output_readback_blob": "a59d8570eab569d630c5ef574b74a68d2a4e86eb",
+      "ground_truth": {
+        "totals": {
+          "items": 10,
+          "hours": 38
+        },
+        "team": {
+          "Platform": {
+            "items": 4,
+            "hours": 12,
+            "open_items": 1,
+            "open_hours": 5
+          },
+          "Data": {
+            "items": 3,
+            "hours": 9,
+            "open_items": 2,
+            "open_hours": 6
+          },
+          "Research": {
+            "items": 3,
+            "hours": 17,
+            "open_items": 1,
+            "open_hours": 8
+          }
+        },
+        "status": {
+          "Open": {
+            "items": 4,
+            "hours": 19
+          },
+          "In_Progress": {
+            "items": 2,
+            "hours": 9
+          },
+          "Done": {
+            "items": 2,
+            "hours": 3
+          },
+          "Blocked": {
+            "items": 1,
+            "hours": 3
+          },
+          "In_Review": {
+            "items": 1,
+            "hours": 4
+          }
+        }
+      },
+      "diff_from_baseline": [
+        {
+          "path": "DHI_v1/benchmark/fixtures/plugin_ecology/reports/team-workload-summary.md",
+          "status": "added",
+          "changes": 42
+        }
+      ],
+      "status": "reference_aggregation_readback_and_diff_verified_model_not_run"
+    },
+    {
+      "task_id": "ORBIT-A-S07-002",
+      "evidence_class": "scripted-reference",
+      "tools": [
+        "mcp__GitHub__create_branch",
+        "mcp__GitHub__create_file",
+        "mcp__GitHub__fetch_file",
+        "mcp__GitHub__compare_commits"
+      ],
+      "checkpoint_commit": "8c6295255c88b0baea04529a475af8f85a946cd6",
+      "resumed_source_reads": 5,
+      "output_commit": "466d2bfef06dbf87729ff625f9f27688ce500321",
+      "output_path": "DHI_v1/benchmark/fixtures/plugin_ecology/reports/tool-ecosystem-cost-audit.md",
+      "output_readback_blob": "3308462ff380f2f72605e49e7538f4c6498c610a",
+      "diff_from_checkpoint": [
+        {
+          "path": "DHI_v1/benchmark/fixtures/plugin_ecology/reports/tool-ecosystem-cost-audit.md",
+          "status": "added",
+          "changes": 60
+        }
+      ],
+      "status": "persistent_checkpoint_cost_audit_completed_model_run_not_run"
+    },
+    {
+      "task_id": "ORBIT-A-S09-003",
+      "evidence_class": "environment-verified",
+      "tools": [
+        "mcp__GitHub__fetch_file",
+        "mcp__GitHub__update_file",
+        "mcp__GitHub__compare_commits"
+      ],
+      "pre_action_prediction": {
+        "modified_paths": [
+          "DHI_v1/benchmark/fixtures/plugin_ecology/reports/effect-forecast-existing-file.md"
+        ],
+        "added_paths": [],
+        "deleted_paths": []
+      },
+      "seed_commit": "c168564457562ed01a621349b82ae41fe6a2f668",
+      "output_commit": "a24a2c3999d18dc2f2d1c876d5785a77b1539652",
+      "output_readback_blob": "cb97fea22233514e283226c2f546f7bb8770c3b8",
+      "diff_from_seed": [
+        {
+          "path": "DHI_v1/benchmark/fixtures/plugin_ecology/reports/effect-forecast-existing-file.md",
+          "status": "modified",
+          "changes": 11
+        }
+      ],
+      "status": "existing_file_effect_forecast_and_readback_verified_model_not_run"
     }
   ],
   "actual_report_ground_truth": {
