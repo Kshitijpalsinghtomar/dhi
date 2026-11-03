@@ -1,7 +1,11 @@
-# Plugin update contract — seed
+# Plugin update contract — verified result
 
-Status: draft
+Status: complete
 
-This file is an existing report target for the ORBIT GitHub update_file argument-contract task.
+The TinyFish release snapshots and Firecrawl provider discovery records are pinned under `fixtures/plugin_ecology/`.
 
-The task is not complete until the file is updated with the final evidence statement, fetched back, and compared to the seed commit. Only this file may change.
+The ORBIT GitHub update_file action must use the exact current blob SHA returned by fetch_file, the complete replacement content, a non-empty commit message, and the explicit benchmark branch `orbit/plugin-benchmark-fixture`.
+
+The update is verified only after fetching this file again and confirming that the branch diff from the seed commit contains this path as modified, with no other paths changed.
+
+No source, task policy, issue state, deployment or external provider has been changed.
