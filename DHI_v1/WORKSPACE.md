@@ -27,26 +27,25 @@ This is a research target, not a result or novelty claim. A prompt, RAG store, f
 ```yaml
 programme: DHI-v1
 codename: ORBIT
-phase: plugin_native_gateway_contract_audit
+phase: plugin_native_gateway_adapter_validation
 status: in_progress
 status_reason: >
   The plugin-native task route has 30 Stage A task records across all ten strata.
-  ORBIT-GRADER-FIX-001 completed the corrected full regression successfully:
-  Deepnote run 34ca752c-e864-4a3d-9388-957d2c3e1859 passed 142 tests,
-  manifest validation, compileall and runner/adapter import smoke at code
-  commit cba8421d4f4c6c4f929d5f4c3196eb83f98f7351. Direct Git-blob checks
-  confirm 11 relevant runtime, benchmark, schema, manifest and test files
-  remain byte-identical to that tested commit. PLUGIN-GATEWAY-001 found
-  documented remote MCP endpoints, but native tool mapping and runtime
-  credentials are not yet verified. The user reports TINYFISH_API_KEY was
-  added to Deepnote; the post-provision probe was blocked before execution by
-  the parallel-project quota. No provider request or model-facing remote
-  action was run. Firecrawl Alexandria mapping remains unresolved. S07 and
-  S09 remain partial. No DHI model inference, trained capability result, or
-  verified model trajectory exists. OpenRouter's last audited balance was $0.
+  The historical corrected harness regression passed 142 tests at code commit
+  cba8421d4f4c6c4f929d5f4c3196eb83f98f7351; it predates the TinyFish adapter.
+  TinyFish runtime credential presence and read-only provider Search/Fetch are
+  verified. A DHI-owned adapter exposes only those two operations behind
+  explicit per-task allowlists. Sixteen direct assertions, including a
+  scripted model-facing action/trace test, passed; six changed Python files
+  passed in-memory compilation. Pytest collection and full regression remain
+  unverified because Deepnote times out before test collection. Firecrawl
+  Alexandria mapping remains unresolved. S07 and S09 remain partial. No DHI
+  model inference, trained capability result, or verified model trajectory
+  exists. OpenRouter's last audited balance was $0.
 training_status: not_authorized
 benchmark_status: stage_a_authoring_30_of_120; stage_b_sealed_unmaterialized
-last_verified_code_commit: cba8421d4f4c6c4f929d5f4c3196eb83f98f7351
+last_verified_code_commit: 97e40863e0f7c393c2b50ea9186edf23847e77a8
+last_verified_test_commit: 1a1ba7543d07fa5990fb6a2686712684dfe4da8c
 ```
 </details>
 
@@ -56,6 +55,7 @@ last_verified_code_commit: cba8421d4f4c6c4f929d5f4c3196eb83f98f7351
 
 - Deterministic file-workspace environment and pinned SHA-256 fixture.
 - Bounded model-to-tool runner with per-turn tool-schema refresh.
+- TinyFish Search/Fetch REST adapter with env-only credentials, strict argument validation, public URL protections, explicit task allowlists and trace-safe errors.
 - Adaption Responses API adapter and hosted-model catalogue reader.
 - Read-only Adaption connector-catalogue discovery.
 - Twelve hand-authored diagnostic seeds: eight common executable cases, one Adaption-specific discovery case, and three unsupported future-runtime cases.
@@ -82,10 +82,11 @@ last_verified_code_commit: cba8421d4f4c6c4f929d5f4c3196eb83f98f7351
 | DHI-v1 training | Not authorized / not run | Data and benchmark gates remain closed |
 | Plugin-native Stage A authoring | 30 tasks materialized; 30 ready for validation | Actual GitHub/TinyFish/Firecrawl tool contracts and pinned evidence; no model runs |
 | Plugin reference workflows | Release report and checkpoint-resume report completed | Scripted reference evidence only; not DHI model capability results |
-| Plugin-native task grading | Not run | Grader contracts are authored; independent and model-facing validation still pending |
-| Manifest and trace-grader verification | Passed at code commit cba8421d4f4c6c4f929d5f4c3196eb83f98f7351 | Validator: 30/30 valid, Stage A=30, Stage B=0; full benchmark/environment suite: 142 passed, 0 failed; compileall and runner/adapter import smoke passed. Harness integrity only, not a model result |
+| Plugin-native task grading | Not run | Grader contracts are authored; benchmark task validation still pending |
+| TinyFish adapter focused verification | 16 direct assertions passed; six changed Python files compiled in memory | Deepnote run c2d0bac2-7679-4e33-8462-a820d02be2b3. Scripted model-facing integration with mocked HTTP; Fetch hidden unless allowlisted; trace retained result/forecast/closure and omitted key. Pytest/full suite still unverified |
+| Historical manifest and trace-grader verification | Passed before TinyFish adapter changes, at code commit cba8421d4f4c6c4f929d5f4c3196eb83f98f7351 | Validator: 30/30 valid, Stage A=30, Stage B=0; full benchmark/environment suite: 142 passed, 0 failed; compileall/import smoke passed. Does not validate later TinyFish adapter changes |
 | Full benchmark regression | Passed | Deepnote run 7da82150-e44d-415d-ac00-206b112cf811: 82 benchmark tests passed; manifest validator and benchmark compileall passed at code commit 421955df46975d8b20fba63f8922949a49b4551c. Environment tests were not included |
-| Combined benchmark + environment regression | Passed (latest code verification) | ORBIT-GRADER-FIX-001 / Deepnote run 34ca752c-e864-4a3d-9388-957d2c3e1859: 142 passed, 0 failed; validator, compileall and imports passed at code commit cba8421d4f4c6c4f929d5f4c3196eb83f98f7351. Current branch code/test files are unchanged since that commit. |
+| Combined benchmark + environment regression | Historical pass before TinyFish adapter changes | Deepnote run 34ca752c-e864-4a3d-9388-957d2c3e1859: 142 passed, 0 failed at code commit cba8421d4f4c6c4f929d5f4c3196eb83f98f7351. Adapter code and tests were added afterward; rerun the full suite before declaring current HEAD green |
 
 ## 6. Data status and hard stops
 
@@ -142,18 +143,18 @@ Two subsequent notebook retries do not alter that outcome: run `220cc301-c5de-4c
 
 ## Model execution gap
 
-The plugin-native reference workflow uses connected GitHub/TinyFish/Firecrawl actions, but `DHI_v1/environment/agent_runner.py` does not yet expose a remote plugin execution bridge to the candidate model. It currently builds tool schemas from the local DHI environment catalogue and offers Adaption catalogue search as a read-only discovery meta-tool. That is not equivalent to invoking remote connector actions. This blocks an honest model-facing plugin benchmark run until a separately configured, policy-enforcing gateway is implemented and tested.
+The DHI model runner now wires the policy-limited TinyFish REST adapter. It exposes only `tinyfish.search` and `tinyfish.fetch_content`, and both are hidden unless the task explicitly lists them in `allowed_tool_ids`. The provider's other 39 native MCP tools remain excluded. A scripted model-facing task verified schema filtering, one Search call, a pre-action no-workspace-change forecast, result capture, secret absence from the trace, and independent closure. This is a harness integration test, not model inference. A live ORBIT model evaluation is still blocked by the lack of an affordable approved inference endpoint and the remaining benchmark validation gates.
 
 ### PLUGIN-GATEWAY-001 feasibility result
 
 Provider documentation confirms a possible Streamable HTTP direction, but not a verified DHI runtime route:
 - GitHub remote MCP: `https://api.githubcopilot.com/mcp/` and a read-only `/readonly` surface; requires a client-obtained bearer token. The official remote server does not provide authentication, and its native tools have not been schema-matched to the registry's wrapper contracts.
-- TinyFish: `https://agent.tinyfish.ai/mcp`; its official package provides a local proxy that reads TINYFISH_API_KEY and forwards it as X-API-Key. Registered search and fetch_content are read-only/free, but runtime authentication and native schema parity are untested.
+- TinyFish: credential presence, MCP `initialize`/`tools/list`, and bounded provider-native `search`/`fetch_content` calls were verified in the DHI verifier. The DHI adapter uses the documented REST endpoints `https://api.search.tinyfish.ai` and `https://api.fetch.tinyfish.ai`, reads `TINYFISH_API_KEY` from the runtime environment, and sends `X-API-Key`. Only `tinyfish.search` and `tinyfish.fetch_content` are registered in DHI; both require explicit task allowlisting.
 - Firecrawl: the standard hosted MCP's generic web tools are not proven equivalent to the registry's Alexandria firecrawl_find_tools; the registered paid firecrawl_scrape remains excluded.
 
-The inspected Deepnote verifier project has no attached provider integrations. The initial presence-only probe checked 12 conventional TinyFish/GitHub/Firecrawl names before the user reported adding TINYFISH_API_KEY; none were present at that earlier time. After the user reported adding the secret, a fresh runtime probe could not start because Deepnote's parallel-project quota was exceeded. The temporary cell was deleted, the verifier machine remains stopped, and no secret values or provider requests were involved. The secret is user-reported but not runtime-verified. See [PLUGIN-GATEWAY-001](experiments/PLUGIN-GATEWAY-001/) for source contracts and exact probe evidence.
+The workspace TINYFISH environment integration is attached to the DHI verifier. The presence-only check returned `TINYFISH_API_KEY_PRESENT=yes`; no key characters were emitted. TinyFish MCP initialize/tools/list and bounded read-only search/fetch calls succeeded. The temporary one-cell test project used for later adapter verification was deleted; the primary verifier notebook remains `DHI ORBIT exact-head verifier` and its original regression cell is untouched. Its machine is stopped. See [PLUGIN-GATEWAY-001](experiments/PLUGIN-GATEWAY-001/) for exact run IDs and limits.
 
-The gateway is the next technical research unit. Do not infer a callable endpoint from the presence of a ChatGPT connector or a read-only catalogue entry. Inspect the exact registered contracts and documented transport/authentication for each provider; implement only documented operations with a permission/cost policy and contract tests. No remote action or model-facing plugin call is authorized until the adapter has an executable contract and independent state-readback tests.
+The TinyFish adapter implementation is now present and has passed the focused scripted trace/direct-assertion checks described above. The next gate is to run pytest and the full environment/benchmark regression in a reliable runner; the current Deepnote pytest process times out before collection. GitHub remote MCP execution remains a separate unimplemented provider route. Firecrawl Alexandria schema parity remains unresolved. No model inference/training, provider writes, or paid tool operations are authorized by this adapter work.
 
 ## 9. Research methodology now active
 
@@ -163,23 +164,24 @@ The gateway is the next technical research unit. Do not infer a callable endpoin
 
 ## 10. Next authorized action
 
-**Latest verified state (2026-11-03):** TinyFish credential presence is verified; provider initialize/tools/list and bounded read-only search/fetch are verified. The DHI-owned REST adapter is committed and exposes only `tinyfish.search` and `tinyfish.fetch_content`; both require explicit per-task allowlisting. Fourteen direct test invocations from the committed test module passed. Deepnote pytest discovery timed out before collection in both the main verifier and a clean temporary project; a py_compile attempt was interrupted during bytecode writing. The disposable project and temporary debugging cells were deleted; the original regression block is untouched. The primary verifier machine is stopped. Full pytest/compile/full-suite validation remains open.
+**Latest verified state (2026-11-03):** TinyFish credential presence and provider read-only Search/Fetch are verified. The DHI-owned REST adapter exposes only `tinyfish.search` and `tinyfish.fetch_content`, both behind explicit task allowlists. A scripted model-facing test exercised the model tool schema, one Search call, the pre-action no-workspace-change forecast, response capture, secret-free trace and independent closure. Sixteen direct assertions passed; six changed Python sources passed in-memory compilation. These tests use a scripted model and mocked HTTP, not ORBIT inference. Pytest collection and the full benchmark/environment suite remain unverified because Deepnote's pytest process times out before collection.
 
-**Next:** run the exact committed TinyFish test file and existing agent/environment regression suite in a reliable runner that supports pytest collection. Then add trace-level verification for pre-action prediction, actual Search/Fetch output, redaction, and verified closure. Do not start model inference or training yet.
+**Next:** run the committed adapter tests and existing environment/benchmark regression suite in a reliable pytest runner using the exact GitHub branch checkout. Do not start model inference or training yet.
 
 Current facts:
-- The historical corrected regression passed 142 tests at code commit `cba8421d4f4c6c4f929d5f4c3196eb83f98f7351`. That is not a full-suite pass for the new TinyFish adapter code.
-- The current adapter's committed unit test functions were directly invoked: 14 invocations passed, 0 failed, with mocked HTTP. This is focused assertion evidence, not a pytest suite run.
-- Pytest was installed from the checked-in development requirements, but the pytest process timed out before test collection in two Deepnote environments. The compile check was interrupted; no compileall success is claimed.
-- The user-facing notebook remains **DHI ORBIT exact-head verifier** (`3639f9a98ce5435fa4cd0168eaaca3a1`). Its original regression block is preserved. Temporary test/debug cells were removed.
+- The historical corrected harness regression passed 142 tests at code commit `cba8421d4f4c6c4f929d5f4c3196eb83f98f7351`. That predates the TinyFish adapter and does not validate current HEAD.
+- The focused TinyFish test module has 16 direct assertion invocations passing, including the scripted model-facing runner/trace test and bounded transport timeout/no-retry check.
+- Six changed Python sources passed in-memory compilation with `compile(source, filename, 'exec')`. This is a syntax compilation check, not bytecode `compileall`.
+- Pytest was installed from the checked-in development requirements, but collection timed out before the test suite ran in two Deepnote projects. No pytest/full-suite pass is claimed.
+- The user-facing notebook remains **DHI ORBIT exact-head verifier** (`3639f9a98ce5435fa4cd0168eaaca3a1`). Its original regression block is preserved. Newly added test/debug blocks and the disposable test project were deleted. The verifier machine is stopped.
 - Stage A remains 30/120 across all ten strata; all 30 are `ready_for_validation`, not validated. Stage B remains 0/120 and sealed. S07 and S09 remain partial.
-- The DHI TinyFish REST adapter permits only Search and Fetch; all 39 other provider-native MCP tools remain excluded. No browser automation, monitor, dataset, research, wallet or write action is permitted through this adapter.
+- TinyFish's DHI adapter permits only Search and Fetch; all 39 other provider-native MCP tools remain excluded. No browser automation, monitor, dataset, research, wallet or write action is permitted through this adapter.
 - No DHI model inference, candidate evaluation, or training has run. Dataset provenance/lineage gates remain closed.
 
 Next:
-1. Run pytest and the existing full environment/benchmark suite in a reliable runner with the exact GitHub branch checkout. Fix any failures before calling the adapter validated.
-2. Add schema fingerprint checks against the current official REST API reference and tests for trace redaction, response-shape normalization, invalid URLs, timeout behavior and fail-closed behavior when the key is missing.
-3. Build one model-facing task fixture with explicit `allowed_tool_ids` for Search/Fetch only; verify prediction-before-action, action result capture and independent final state/closure. Do not conflate tool connectivity with model capability.
+1. Run the focused pytest module and full benchmark/environment regression in a reliable runner with the exact branch checkout; fix failures before calling the adapter fully validated.
+2. Add a source-grounded REST contract snapshot/fingerprint if an authoritative machine-readable schema becomes available; retain the fixed-endpoint and exact-argument tests.
+3. Keep the scripted model-facing trace separate from model-generated evidence. Once an approved, affordable inference route exists, run a frozen task with prediction-before-action, actual provider response, redaction and independently verified closure.
 4. Audit GitHub next: obtain a minimally scoped credential for a disposable benchmark repository, discover native tool names/schemas, map read and sandbox-write actions, and keep the read-only route for read-only tasks. Never expose deletes or merges.
 5. Keep Firecrawl deferred until a documented endpoint exposes the exact Alexandria discovery schema; keep paid Alexandria execution disabled pending explicit cost authorization.
 6. Close S07 checkpoint/recovery and S09 model-prediction/effect gaps before marking any Stage A tasks validated.
