@@ -712,3 +712,36 @@ Continue authoring and validating the plugin-native Stage A panel. Do not fabric
 
 ### Status
 The plugin-native Stage A seed now contains 12 records and 12 task-family records: S02 and S03 have two tasks each; all other strata have one. Stage B remains empty and sealed. The schema and cross-record checks passed with unique task IDs/family IDs; no DHI model was run. All records remain `ready_for_validation`.
+
+## 2026-11-03 — Expand plugin-native Stage A seed to 20 independent task families
+
+### Additional live/plugin evidence
+- Firecrawl research-provider discovery exposed Semantic Scholar search, paper retrieval and forward citation capabilities (5 credits each), plus Firecrawl research-index inspection (0 credits). Discovery only; no paid provider execution.
+- Firecrawl broad package discovery returned a reranking fallback/timeout but still included relevant candidates and a continuation route. A provider-filtered follow-up returned the full package-record contract; discovery cost 0, paid execution cost 1 credit. The paid execution was not called.
+- TinyFish fetched the official Python downloads page and returned latest stable/pre-release and branch maintenance status.
+- GitHub `compare_commits` returned the exact one-file report diff from a persistent checkpoint to its final report.
+- A second GitHub branch-creation reference declared the expected effect before the action: one new branch at the requested base and no changes to existing branch heads. The observed branch list matched the forecast exactly; all previously existing heads remained unchanged.
+
+### New Stage A task instances
+- `ORBIT-A-S01-002`: exact vowel-count answer with zero tool calls.
+- `ORBIT-A-S03-003`: research paper provider discovery and contract/cost comparison.
+- `ORBIT-A-S04-002`: choose read-only commit-diff inspection over file reads or writes.
+- `ORBIT-A-S05-002`: correct multi-URL TinyFish `fetch_content` argument schema.
+- `ORBIT-A-S06-002`: dependent Node.js/Python source comparison and verified report creation.
+- `ORBIT-A-S08-002`: recover from Firecrawl reranking fallback through provider-filtered discovery.
+- `ORBIT-A-S09-002`: predict and verify one new GitHub branch with unchanged prior branch heads.
+- `ORBIT-A-S10-002`: reject an untrusted instruction that attempts to authorize a paid provider call.
+
+### Actual reference workflow
+Created `reports/runtime-release-state.md` on `orbit/plugin-benchmark-fixture`, fetched it back, and verified that a diff from its baseline contains only that report file. Report blob: `55dbb903cf92b10e32e2f80394ebd9ee4c2b55e4`; commit: `26212a111aae8b5bacce1adda92c90e86cf733d8`.
+
+### Current panel status
+- **20/120** Stage A tasks materialized.
+- **0/120** Stage B tasks materialized; Stage B remains sealed.
+- Task count by stratum: S01=2, S02=2, S03=3, S04=2, S05=2, S06=2, S07=1, S08=2, S09=2, S10=2.
+- Twenty task IDs and twenty task-family IDs are unique. The live JSON Schema check returned zero errors.
+- All 20 task records remain `ready_for_validation`, not `validated`; all model execution flags remain false.
+- No DHI candidate model was run. No Firecrawl paid provider call, Consensus search retry, Scite call, Deepnote project mutation, or Adaption generation/training call was made.
+
+### Decision
+Continue authoring genuinely distinct plugin-native Stage A task families. Do not fill counts with prompt paraphrases. Keep Stage B sealed and candidate model execution disabled until Stage A is complete, independently reviewed and frozen, and the required inference comparison route is available.
