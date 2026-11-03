@@ -235,7 +235,6 @@ class TinyFishReadOnlyClient:
         url = endpoint
         data = None
         headers = {
-            "X-API-Key": self._api_key,
             "Accept": "application/json",
             "User-Agent": "DHI-ORBIT-TinyFish-Adapter/0.1",
         }
@@ -253,6 +252,9 @@ class TinyFishReadOnlyClient:
             raise TinyFishClientError("unsupported TinyFish HTTP method")
 
         request = urllib.request.Request(url, data=data, headers=headers, method=method)
+        # Keep API credentials out of Request.headers: urllib's default redirect
+        # handler copies ordinary headers to the redirected request.
+        request.add_unredirected_header("X-API-Key", self._api_key)
         try:
             with urllib.request.urlopen(request, timeout=self.timeout_seconds) as response:
                 status = response.status
