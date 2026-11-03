@@ -875,3 +875,18 @@ At the last status check, the run remained `running` and had no terminal snapsho
 ### Process deviation and boundary
 
 The combined run was launched before its experiment manifest was committed, contrary to the commit-before-run rule. This has been recorded in ORBIT-VERIFY-003. The tested code revision is pinned; this was a regression check only. No model inference, training, data generation, provider-credit spend, task-validation status change, or model-capability claim occurred.
+
+
+## 2026-11-03 — Correction: ORBIT-VERIFY-003 completed successfully
+
+The earlier entry recorded the combined regression as running. This is the terminal result:
+
+- Deepnote run `f661f5ad-7c5e-48b9-9af6-afda1e6f021b`: `success`.
+- Manifest validator: valid; 30 task records; Stage A=30; Stage B=0; zero errors.
+- Combined benchmark and environment test suites: **136 passed, 0 failed**.
+- `compileall -q DHI_v1/benchmark DHI_v1/environment`: exit code 0.
+- Import smoke for `agent_runner`, `adaption_responses`, and `benchmark.runner`: passed.
+- Runner: Python 3.13.18.
+- Exact output and command timings are archived at [ORBIT-VERIFY-003/results/verification-report.json](../experiments/ORBIT-VERIFY-003/results/verification-report.json).
+
+The tested code commit remains `421955df46975d8b20fba63f8922949a49b4551c`; intervening branch commits are documentation-only. This pass confirms benchmark/environment code health. It does not validate the 30 authored task instances, establish model capability, approve training, or open model execution.
