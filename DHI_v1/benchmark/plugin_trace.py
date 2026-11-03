@@ -547,13 +547,21 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
             return _result("unscorable", "trace has no raw tool invocation attributed to the requested source")
         raw_text = "\\n".join(_raw_text(item.get("response")) for item in matched_observations)
         expected_values = []
-        if "expected" in condition:
-            expected_values.append(condition["expected"])
-        expected_values.extend(condition.get("required_facts", []))
-        expected_values.extend(
-            cell for row in condition.get("expected_rows", []) if isinstance(row, list) for cell in row
-        )
+        ignored_keys = {"type", "source", "observation_date", "expected_rows"}
+        for key, value in condition.items():
+            if key in ignored_keys:
+                continue
+            expected_values.extend(_flatten_expected({key: value}))
         missing = [value for value in expected_values if str(value).casefold() not in raw_text.casefold()]
+        missing_rows = []
+        for row in condition.get("expected_rows", []):
+            if not isinstance(row, list):
+                continue
+            row_values = [str(value).casefold() for value in row]
+            if not any(all(value in line.casefold() for value in row_values) for line in raw_text.splitlines()):
+                missing_rows.append(row)
+        if missing_rows:
+            missing.append({"missing_rows": missing_rows})
         return _result("pass" if not missing else "fail", "source facts match the raw response" if not missing else "raw source response does not contain the expected facts", {"missing": missing})
 
     if kind in {"provider_capability_contract", "provider_capability_contracts"}:
