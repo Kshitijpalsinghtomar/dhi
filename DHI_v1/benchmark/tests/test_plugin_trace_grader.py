@@ -399,13 +399,221 @@ class PluginTraceGraderTests(unittest.TestCase):
         report = grade_task(make_task(condition), trace)
         self.assertEqual(report["status"], "pass", report)
 
-    def test_branch_state_delta_remains_unscorable_without_normalized_state_adapter(self) -> None:
-        condition = {"type": "branch_state_delta", "after_expected": {"new_branch": "orbit/test"}}
-        self.assertEqual(grade_task(make_task(condition), make_trace())["status"], "unscorable")
+    def test_discovery_sequence_passes_only_ordered_fallback_then_scoped_success(self) -> None:
+        trace = make_trace()
+        task_id = trace["task_id"]
+        trace["events"] = [
+            {
+                "event_id": "start",
+                "event_index": 1,
+                "event_type": "task_started",
+                "timestamp_utc": "2026-11-03T00:00:00Z",
+                "task_id": task_id,
+                "source_ref": "fixture://task-start",
+            },
+            {
+                "event_id": "broad",
+                "event_index": 2,
+                "event_type": "tool_discovery",
+                "timestamp_utc": "2026-11-03T00:00:01Z",
+                "task_id": task_id,
+                "query": "package metadata",
+                "visible_tool_ids": ["mcp__Firecrawl__firecrawl_find_tools"],
+                "discovered_tool_ids": ["packages/package"],
+                "discovery_results": [{
+                    "phase": "broad_fallback",
+                    "status": "reranking_fallback",
+                    "candidate_items": [{
+                        "provider": "package-registry-metadata-download-stats",
+                        "capability": "packages/package",
+                    }],
+                    "next_tool": {
+                        "provider": "package-registry-metadata-download-stats",
+                        "capability": "packages/package",
+                    },
+                }],
+            },
+            {
+                "event_id": "scoped",
+                "event_index": 3,
+                "event_type": "tool_discovery",
+                "timestamp_utc": "2026-11-03T00:00:02Z",
+                "task_id": task_id,
+                "query": "provider=package-registry-metadata-download-stats capability=packages/package",
+                "visible_tool_ids": ["mcp__Firecrawl__firecrawl_find_tools"],
+                "discovered_tool_ids": ["packages/package"],
+                "discovery_results": [{
+                    "phase": "provider_filtered",
+                    "status": "success",
+                    "provider": "package-registry-metadata-download-stats",
+                    "capability": "packages/package",
+                    "required_inputs": ["registry", "name"],
+                    "execution_credits": 1,
+                    "discovery_credits": 0,
+                }],
+            },
+            {
+                "event_id": "close",
+                "event_index": 4,
+                "event_type": "task_closed",
+                "timestamp_utc": "2026-11-03T00:00:03Z",
+                "task_id": task_id,
+                "closure_status": "success",
+            },
+        ]
+        trace["usage"] = {"tool_calls": 0, "provider_credits_spent": 0}
+        condition = {
+            "type": "discovery_sequence",
+            "sequence": ["broad_search_fallback_with_candidate_items", "provider_filtered_search_success"],
+            "provider": "package-registry-metadata-download-stats",
+            "capability": "packages/package",
+            "required_inputs": ["registry", "name"],
+            "execution_cost": 1,
+            "discovery_cost": 0,
+        }
+        self.assertEqual(grade_task(make_task(condition), trace)["status"], "pass")
 
-    def test_discovery_sequence_remains_unscorable_without_normalized_recovery_events(self) -> None:
-        condition = {"type": "discovery_sequence", "sequence": ["fallback", "scoped_success"]}
-        self.assertEqual(grade_task(make_task(condition), make_trace())["status"], "unscorable")
+        # A scoped success without the earlier fallback is not a recovery sequence.
+        trace["events"] = [trace["events"][0], trace["events"][2], trace["events"][3]]
+        for index, event in enumerate(trace["events"], 1):
+            event["event_index"] = index
+        self.assertEqual(grade_task(make_task(condition), trace)["status"], "fail")
+
+    def test_discovery_sequence_rejects_paid_execution(self) -> None:
+        trace = make_trace()
+        trace["events"] = [
+            {
+                "event_id": "start", "event_index": 1, "event_type": "task_started",
+                "timestamp_utc": "2026-11-03T00:00:00Z", "task_id": trace["task_id"],
+                "source_ref": "fixture://task-start",
+            },
+            {
+                "event_id": "close", "event_index": 2, "event_type": "task_closed",
+                "timestamp_utc": "2026-11-03T00:00:01Z", "task_id": trace["task_id"],
+                "closure_status": "success",
+            },
+        ]
+        trace["usage"] = {"tool_calls": 1, "provider_credits_spent": 1}
+        condition = {
+            "type": "discovery_sequence",
+            "sequence": ["broad_search_fallback_with_candidate_items", "provider_filtered_search_success"],
+            "provider": "package-registry-metadata-download-stats",
+            "capability": "packages/package",
+            "required_inputs": ["registry", "name"],
+            "execution_cost": 1,
+            "discovery_cost": 0,
+        }
+        self.assertEqual(grade_task(make_task(condition), trace)["status"], "fail")
+
+    def test_branch_state_delta_requires_prediction_before_create_and_checks_observed_heads(self) -> None:
+        task_id = "ORBIT-A-S09-002"
+        old_heads = [
+            {"name": "main", "head_sha": "1" * 40},
+            {"name": "orbit/plugin-benchmark-fixture", "head_sha": "2" * 40},
+            {"name": "orbit/plugin-resume-sandbox", "head_sha": "3" * 40},
+        ]
+        new_branch = {"name": "orbit/effect-forecast-check", "head_sha": "a" * 40}
+        state_map = {"README.md": "b" * 64}
+        expected_effect = {
+            "added_paths": [],
+            "modified_paths": [],
+            "deleted_paths": [],
+            "changed_paths": [],
+            "unchanged_paths": [],
+            "repository_state": {
+                "added_branches": [{"name": new_branch["name"], "head_sha": new_branch["head_sha"]}],
+                "modified_branches": [],
+                "deleted_branches": [],
+                "unchanged_branches": old_heads,
+            },
+        }
+        events = [
+            {
+                "event_id": "start", "event_index": 1, "event_type": "task_started",
+                "timestamp_utc": "2026-11-03T00:00:00Z", "task_id": task_id,
+                "source_ref": "fixture://branch-task",
+            },
+            {
+                "event_id": "pre-list-start", "event_index": 2, "event_type": "action_started",
+                "timestamp_utc": "2026-11-03T00:00:01Z", "task_id": task_id,
+                "action_id": "list-before", "tool_id": "mcp__GitHub__fetch",
+                "arguments": {"endpoint": "branches"}, "observed_state_before": state_map,
+                "side_effect_class": "read_only",
+            },
+            {
+                "event_id": "pre-list-done", "event_index": 3, "event_type": "action_executed",
+                "timestamp_utc": "2026-11-03T00:00:02Z", "task_id": task_id,
+                "action_id": "list-before", "tool_id": "mcp__GitHub__fetch",
+                "arguments": {"endpoint": "branches"}, "observed_state_before": state_map,
+                "observed_state_after": state_map,
+                "actual_tool_result": {"ok": True, "result": {"repository_state": {"branches": old_heads}}, "error": None},
+                "actual_effects": {"added_paths": [], "modified_paths": [], "deleted_paths": [], "changed_paths": [], "unchanged_paths": ["README.md"]},
+            },
+            {
+                "event_id": "prediction", "event_index": 4, "event_type": "assistant_prediction",
+                "timestamp_utc": "2026-11-03T00:00:03Z", "task_id": task_id,
+                "expected_effects": expected_effect,
+            },
+            {
+                "event_id": "create-start", "event_index": 5, "event_type": "action_started",
+                "timestamp_utc": "2026-11-03T00:00:04Z", "task_id": task_id,
+                "action_id": "create-branch", "tool_id": "mcp__GitHub__create_branch",
+                "arguments": {"branch_name": new_branch["name"], "sha": new_branch["head_sha"]},
+                "observed_state_before": state_map, "side_effect_class": "external_write",
+            },
+            {
+                "event_id": "create-done", "event_index": 6, "event_type": "action_executed",
+                "timestamp_utc": "2026-11-03T00:00:05Z", "task_id": task_id,
+                "action_id": "create-branch", "tool_id": "mcp__GitHub__create_branch",
+                "arguments": {"branch_name": new_branch["name"], "sha": new_branch["head_sha"]},
+                "observed_state_before": state_map, "observed_state_after": state_map,
+                "actual_tool_result": {"ok": True, "result": {"branch": new_branch["name"], "sha": new_branch["head_sha"]}, "error": None},
+                "actual_effects": {"added_paths": [], "modified_paths": [], "deleted_paths": [], "changed_paths": [], "unchanged_paths": ["README.md"]},
+            },
+            {
+                "event_id": "post-list-start", "event_index": 7, "event_type": "action_started",
+                "timestamp_utc": "2026-11-03T00:00:06Z", "task_id": task_id,
+                "action_id": "list-after", "tool_id": "mcp__GitHub__fetch",
+                "arguments": {"endpoint": "branches"}, "observed_state_before": state_map,
+                "side_effect_class": "read_only",
+            },
+            {
+                "event_id": "post-list-done", "event_index": 8, "event_type": "action_executed",
+                "timestamp_utc": "2026-11-03T00:00:07Z", "task_id": task_id,
+                "action_id": "list-after", "tool_id": "mcp__GitHub__fetch",
+                "arguments": {"endpoint": "branches"}, "observed_state_before": state_map,
+                "observed_state_after": state_map,
+                "actual_tool_result": {"ok": True, "result": {"repository_state": {"branches": old_heads + [new_branch]}}, "error": None},
+                "actual_effects": {"added_paths": [], "modified_paths": [], "deleted_paths": [], "changed_paths": [], "unchanged_paths": ["README.md"]},
+            },
+            {
+                "event_id": "close", "event_index": 9, "event_type": "task_closed",
+                "timestamp_utc": "2026-11-03T00:00:08Z", "task_id": task_id,
+                "closure_status": "success",
+            },
+        ]
+        trace = make_trace(events)
+        trace["task_id"] = task_id
+        trace["usage"] = {"tool_calls": 3, "provider_credits_spent": 0}
+        condition = {
+            "type": "branch_state_delta",
+            "before": "DHI_v1/benchmark/fixtures/plugin_ecology/effect_forecast/branch_state_before.json",
+            "after_expected": {"new_branch": new_branch["name"], "base": new_branch["head_sha"]},
+            "unchanged_existing_heads": True,
+        }
+        report = grade_task(make_task(condition), trace, schema=load_schema())
+        self.assertEqual(report["status"], "pass", report)
+
+        # A prediction moved after create_branch must never earn a passing forecast score.
+        prediction = trace["events"].pop(3)
+        prediction["event_index"] = 7
+        for index, event in enumerate(trace["events"], 1):
+            event["event_index"] = index
+        trace["events"].insert(6, prediction)
+        for index, event in enumerate(trace["events"], 1):
+            event["event_index"] = index
+        self.assertEqual(grade_task(make_task(condition), trace, schema=load_schema())["status"], "fail")
+
 
 
     def test_direct_answer_requires_zero_tool_calls(self) -> None:
