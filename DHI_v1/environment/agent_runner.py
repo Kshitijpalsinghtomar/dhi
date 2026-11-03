@@ -62,9 +62,8 @@ def build_tool_schemas(env: DHIEnvironment) -> tuple[list[dict[str, Any]], dict[
         properties["__dhi_expected_effects"] = {
             "type": "object",
             "description": (
-                "Optional pre-action effect forecast. For ordinary workspace tools, "
-                "use changed_paths and unchanged_paths. For GitHub branch creation, "
-                "provide repository_state with predicted added/modified/deleted/unchanged branches."
+                "Optional pre-action effect forecast. Use changed_paths and unchanged_paths "
+                "for workspace effects. Use repository_state to forecast GitHub branch effects."
             ),
             "properties": {
                 "changed_paths": {"type": "array", "items": {"type": "string"}},
