@@ -1,7 +1,7 @@
 {
   "experiment_id": "ORBIT-VERIFY-008",
   "date": "2026-11-03",
-  "status": "prepared",
+  "status": "passed",
   "code_under_test": "fec93ba59842d866149c7d03383b1833745077d2",
   "branch": "orbit/plugin-benchmark-fixture",
   "question": "Can a scripted provider-agnostic model-facing plugin runner dispatch through the permission boundary and emit an independently gradeable ORBIT trace?",
@@ -41,7 +41,48 @@
     "Do not modify the source manifest execution flags.",
     "Only local scripted model-client and fake read-only handlers in focused tests."
   ],
-  "full_run": null,
-  "decision": "pending",
-  "evidence_boundary": "Scripted local integration of runner, guarded dispatch, trace schema and deterministic grader only; not model capability or real provider execution."
+  "full_run": "570dd432-474f-4520-8f17-700d480358bb",
+  "decision": "pass_scripted_plugin_runner_trace_and_grading_engineering_gate_only",
+  "evidence_boundary": "The scripted client + fake read-only handler path dispatches through the canonical permission gate, emits a schema-valid append-only trace, and receives an independent deterministic grade. No hosted model, provider, or training call was made. This is not real model capability or end-to-end benchmark task validation.",
+  "result": {
+    "manifest_validator": {
+      "passed": true,
+      "valid": true,
+      "task_count": 30,
+      "stage_counts": {
+        "A": 30,
+        "B": 0
+      },
+      "errors": [],
+      "elapsed_seconds": 31.196
+    },
+    "full_pytest": {
+      "passed": 182,
+      "failed": 0,
+      "elapsed_seconds": 434.443,
+      "reported_duration_seconds": 388.18
+    },
+    "compileall": {
+      "passed": true,
+      "returncode": 0,
+      "elapsed_seconds": 70.609
+    },
+    "entrypoint_import_smoke": {
+      "passed": true,
+      "returncode": 0,
+      "elapsed_seconds": 14.202
+    },
+    "plugin_manifest_loader_smoke": {
+      "passed": true,
+      "task_plans": 30,
+      "model_runs_enabled": 0,
+      "elapsed_seconds": 2.436
+    },
+    "python": "3.13.18",
+    "platform": "Linux-6.18.57-talos-x86_64-with-glibc2.36",
+    "external_model_calls": 0,
+    "external_provider_calls": 0,
+    "training_jobs": 0
+  },
+  "raw_result_path": "DHI_v1/experiments/ORBIT-VERIFY-008/results/verification-report.json"
 }
