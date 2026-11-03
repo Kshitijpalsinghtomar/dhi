@@ -141,7 +141,7 @@ class PluginTraceValidationTests(unittest.TestCase):
         trace = make_trace()
         trace["events"][3]["arguments"]["path"] = "reports/other.md"
         errors = validate_trace(trace, load_schema())
-        self.assertTrue(any("action arguments differ" in error for error in errors))
+        self.assertTrue(any("arguments differ between start and execution" in error for error in errors), "\\n".join(errors))
 
     def test_duplicate_event_ids_are_rejected(self) -> None:
         trace = make_trace()
@@ -246,10 +246,13 @@ class PluginTraceGraderTests(unittest.TestCase):
         self.assertEqual(report["results"][0]["status"], "unscorable")
 
     def test_mixed_supported_and_unsupported_conditions_do_not_overstate_success(self) -> None:
-        task = {"postconditions": [
-            {"verifier_id": "exact", "condition": {"type": "exact_text", "value": "Created and verified reports/result.md"}},
-            {"verifier_id": "external", "condition": {"type": "external_snapshot_match", "source": "https://example.test"}},
-        ]}
+        task = make_task({"type": "exact_text", "value": "Created and verified reports/result.md"})
+        task["postconditions"].append({
+            "verifier_id": "external",
+            "condition": {"type": "external_snapshot_match", "source": "https://example.test"},
+            "expected_evidence": "raw source evidence",
+            "failure_if_unmet": True,
+        })
         report = grade_task(task, make_trace())
         self.assertEqual(report["status"], "unscorable")
 
