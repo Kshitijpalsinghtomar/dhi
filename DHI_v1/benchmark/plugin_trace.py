@@ -952,7 +952,7 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
                 "after": after,
             })
 
-        predictions = [
+        prediction_events = [
             event for event in trace.get("events", [])
             if isinstance(event, dict)
             and event.get("event_type") == "assistant_prediction"
@@ -960,10 +960,24 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
             and isinstance(event.get("expected_effects"), dict)
             and isinstance(event["expected_effects"].get("repository_state"), dict)
         ]
-        if not predictions:
+        # The runtime captures the forecast on action_started, before the
+        # external call. Accept that canonical pre-invocation location as well
+        # as a separate assistant_prediction event.
+        action_prediction = create_start.get("expected_effects")
+        action_prediction = (
+            action_prediction.get("repository_state")
+            if isinstance(action_prediction, dict)
+            and isinstance(action_prediction.get("repository_state"), dict)
+            else None
+        )
+        if action_prediction is not None:
+            predicted_state = action_prediction
+            prediction_event = create_start
+        elif prediction_events:
+            prediction_event = max(prediction_events, key=lambda event: event.get("event_index", 0))
+            predicted_state = prediction_event["expected_effects"]["repository_state"]
+        else:
             return _result("fail", "no structured repository-state prediction was recorded before create_branch")
-        prediction_event = max(predictions, key=lambda event: event.get("event_index", 0))
-        predicted_state = prediction_event["expected_effects"]["repository_state"]
         predicted_added = _branch_effect_map(predicted_state.get("added_branches"))
         predicted_modified = _branch_effect_map(predicted_state.get("modified_branches"))
         predicted_deleted = _branch_effect_map(predicted_state.get("deleted_branches"))
