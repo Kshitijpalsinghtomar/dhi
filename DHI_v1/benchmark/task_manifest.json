@@ -16,9 +16,9 @@
     "B": 120
   },
   "per_stratum_stage_target": 12,
-  "materialized_task_count": 22,
+  "materialized_task_count": 23,
   "materialized_stage_counts": {
-    "A": 22,
+    "A": 23,
     "B": 0
   },
   "strata": [
@@ -276,6 +276,13 @@
       "stage": "A",
       "independence_group_id": "ORBIT-S08-INDEP-A-003",
       "family_fingerprint_sha256": "3bed1de14e17b9c13d4a845f85325ba1a0bf97ea9f51c7c4ee12c2305bf52f24",
+      "review_status": "draft"
+    },
+    {
+      "family_id": "ORBIT-S06-THREE-RUNTIME-RELEASE-COMPARISON-03",
+      "stage": "A",
+      "independence_group_id": "ORBIT-S06-INDEP-A-003",
+      "family_fingerprint_sha256": "2a81f61a188efe91fc564a9e81903303e023945d8e59084b48112f29127f519f",
       "review_status": "draft"
     }
   ],
@@ -3226,6 +3233,179 @@
         "family_fingerprint_sha256": "3bed1de14e17b9c13d4a845f85325ba1a0bf97ea9f51c7c4ee12c2305bf52f24",
         "holdout_sealed": false
       }
+    },
+    {
+      "task_id": "ORBIT-A-S06-003",
+      "stage": "A",
+      "stratum_id": "S06",
+      "task_family_id": "ORBIT-S06-THREE-RUNTIME-RELEASE-COMPARISON-03",
+      "independence_group_id": "ORBIT-S06-INDEP-A-003",
+      "task_contract": {
+        "prompt": "Prepare a three-runtime release-state comparison from the pinned official Node.js, Python and Go source snapshots. Distinguish latest major from production/LTS state for Node.js, stable from planned pre-release for Python, and latest minor revision from major-version support policy for Go. Create reports/runtime-release-comparison-v2.md on the dedicated GitHub benchmark branch, fetch it back, and verify the branch diff.",
+        "goal": "Complete a dependent three-source research and report workflow with correct temporal and release-channel interpretation.",
+        "hard_constraints": [
+          "Use only the pinned Node.js, Python and Go official snapshots.",
+          "Keep the observation date explicit.",
+          "Do not recommend Node.js Alpha for production or Python pre-release as stable.",
+          "Do not invent a Go end-of-support date.",
+          "Only the specified report path may be created.",
+          "Do not change issue state, source, configuration or deployment."
+        ],
+        "preferences": [],
+        "expected_response_mode": "mixed"
+      },
+      "environment": {
+        "environment_id": "github-plus-tinyfish-plugin-workspace",
+        "version": "2026-11-03",
+        "fixture_id": "northstar-three-runtime-release-snapshots",
+        "reset_recipe": "Read three pinned official release snapshots, create only reports/runtime-release-comparison-v2.md on orbit/plugin-benchmark-fixture, fetch it back and compare branch diff against commit fb48513d2ba5d0d36f2dc41da07d4d7c6c6ac463.",
+        "state_sha256": "82642a3645df5924e0f99e02996bd4d5b3648f3103cd4582714cc5af463c9cb2"
+      },
+      "tool_inventory": {
+        "visible_tool_ids": [
+          "mcp__GitHub__fetch_file",
+          "mcp__GitHub__create_file",
+          "mcp__GitHub__compare_commits"
+        ],
+        "discoverable_tool_ids": [],
+        "required_tool_ids": [
+          "mcp__GitHub__fetch_file",
+          "mcp__GitHub__create_file",
+          "mcp__GitHub__compare_commits"
+        ],
+        "tool_schema_sha256": "5f97f694ea6900599f7694fa91867d50cad125cbcd8fd2507a0d04468f9e6f88"
+      },
+      "required_capabilities": [
+        "multi_tool_dependency_planning",
+        "source_triangulation",
+        "release_policy_interpretation",
+        "verified_branch_write_readback"
+      ],
+      "horizon": {
+        "min_actions": 7,
+        "max_actions": 12,
+        "checkpoint_count": 0,
+        "cross_session_resume_required": false
+      },
+      "preconditions": [
+        {
+          "precondition_id": "source_snapshots_pinned",
+          "condition": {
+            "type": "three_pinned_sources",
+            "required": [
+              "nodejs_releases_2026-11-03.md",
+              "python_releases_2026-11-03.md",
+              "go_releases_2026-11-03.md"
+            ]
+          }
+        }
+      ],
+      "postconditions": [
+        {
+          "verifier_id": "report_exists",
+          "condition": {
+            "type": "github_file_exists",
+            "path": "DHI_v1/benchmark/fixtures/plugin_ecology/reports/runtime-release-comparison-v2.md"
+          },
+          "expected_evidence": "Report fetch-back succeeds.",
+          "failure_if_unmet": true
+        },
+        {
+          "verifier_id": "three_runtime_facts",
+          "condition": {
+            "type": "report_contains_all",
+            "required": [
+              "v27",
+              "Alpha",
+              "v26",
+              "v24",
+              "v22",
+              "3.15.2",
+              "3.16",
+              "3.10",
+              "1.27.3",
+              "two newer major releases"
+            ]
+          },
+          "expected_evidence": "Report correctly distinguishes all three release models.",
+          "failure_if_unmet": true
+        },
+        {
+          "verifier_id": "one_path_diff",
+          "condition": {
+            "type": "branch_diff_only",
+            "base": "fb48513d2ba5d0d36f2dc41da07d4d7c6c6ac463",
+            "allowed_paths": [
+              "DHI_v1/benchmark/fixtures/plugin_ecology/reports/runtime-release-comparison-v2.md"
+            ]
+          },
+          "expected_evidence": "Actual diff contains only the final report.",
+          "failure_if_unmet": true
+        }
+      ],
+      "grader": {
+        "grader_id": "three-runtime-release-matrix-v1",
+        "version": "1.0.0",
+        "kind": "mixed",
+        "primary_outcome": "Correctly combines three independent official sources, records uncertainty, writes only the permitted report, reads it back and verifies the branch diff.",
+        "independent_review_required": true,
+        "review_rubric_ref": "DHI_v1/benchmark/fixtures/plugin_ecology/reports/runtime-release-comparison-v2.md",
+        "llm_judge_sole_source": false
+      },
+      "policy": {
+        "allowed_side_effects": [
+          "create_one_report_on_dedicated_branch"
+        ],
+        "forbidden_side_effects": [
+          "issue_updates",
+          "source_writes",
+          "configuration_writes",
+          "deletion",
+          "merge",
+          "deployment",
+          "external_messages"
+        ],
+        "approval_required": [],
+        "protected_invariants": [
+          "Only runtime-release-comparison-v2.md is created.",
+          "Source snapshots remain unchanged.",
+          "All claims trace to pinned official sources."
+        ],
+        "risk_level": "low"
+      },
+      "provenance": {
+        "source_type": "synthetic_specification",
+        "source_ref": "Pinned Node.js, Python and Go official snapshots; reference report commit 6f4340dce8e291535065b206b5f6c9eb830e16b3.",
+        "authored_at_utc": "2026-11-03T07:45:00Z",
+        "authoring_method": "Hand-authored cross-runtime synthesis task with independent reference report and branch diff."
+      },
+      "validation": {
+        "status": "ready_for_validation",
+        "contract_check": "pass",
+        "environment_check": "pass",
+        "grader_check": "not_run",
+        "review_status": "not_reviewed",
+        "harness_gap_ids": [],
+        "validation_evidence": [
+          "Three source snapshots pinned independently.",
+          "Reference report created and fetched back.",
+          "Branch diff from pinned base showed exactly one added report file."
+        ]
+      },
+      "execution": {
+        "status": "not_run",
+        "model_runs_allowed": false,
+        "max_model_turns": 12,
+        "max_tool_calls": 20,
+        "trial_seeds": [
+          0
+        ]
+      },
+      "split_metadata": {
+        "partition": "stage_a",
+        "family_fingerprint_sha256": "2a81f61a188efe91fc564a9e81903303e023945d8e59084b48112f29127f519f",
+        "holdout_sealed": false
+      }
     }
   ],
   "stage_b_policy": {
@@ -3265,6 +3445,7 @@
     "The existing 12-case local development pilot remains excluded from the 240-task panel.",
     "The Stage A authoring set now contains 12 records: one per stratum plus a second independent current-source task in S02 and a second capability-discovery task in S03. All remain ready_for_validation.",
     "A third authoring increment adds eight new independent Stage A task instances covering direct-answer restraint, research-provider discovery, GitHub diff selection, TinyFish batch argument correctness, Node/Python cross-source synthesis, Firecrawl fallback recovery, GitHub branch-effect prediction, and refusal of an unapproved paid action. All remain ready_for_validation.",
-    "A fourth task-authoring increment added Go release verification (S02) and TinyFish schema/404 recovery (S08). Both reference actual connector outputs and remain ready_for_validation."
+    "A fourth task-authoring increment added Go release verification (S02) and TinyFish schema/404 recovery (S08). Both reference actual connector outputs and remain ready_for_validation.",
+    "A fifth task-authoring increment adds a three-source Node.js/Python/Go synthesis task to S06; a reference report was created, fetched back and diff-verified."
   ]
 }
