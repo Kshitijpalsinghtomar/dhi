@@ -801,7 +801,7 @@ Adopt the combined and DHI-specific protocol in [13_ORBIT_RESEARCH_METHOD.md](13
 - Recomputed task-instance hashes from the full task record excluding only its own hash field.
 - Canonical hash serialization is UTF-8 JSON with sorted keys and compact separators; SHA-256 is used throughout.
 - Added `validate_task_manifest.py` to check JSON Schema plus cross-record counts, task ID numbering, family registration, stage/independence split, hashes, tool registry membership/digest, required-tool visibility, repository evidence references and Stage B secrecy.
-- Added 14 unittest regression cases in `tests/test_task_manifest_validator.py` for valid authoring state, partial quotas, count drift, duplicate IDs, identity mismatch, family/hash drift, unregistered tools, missing evidence, undiscoverable required tools, sealed Stage B exposure, incomplete freeze gates and deterministic serialization.
+- Added 17 unittest regression cases in `tests/test_task_manifest_validator.py` for valid authoring state, partial quotas, count drift, duplicate IDs, identity mismatch, family/hash drift, unregistered tools, missing evidence, undiscoverable required tools, sealed Stage B exposure, incomplete freeze gates and deterministic serialization.
 
 ### Static inspection
 At GitHub commit `3d57cc876dcd3f1f82c9d3ff884665de52c7f290`, an independent static check recomputed all 30 task-instance hashes and 30 family fingerprints, verified all 16 task tool contracts and the registry digest, confirmed every referenced evidence file exists, confirmed no Stage B body is present, and returned zero structural integrity errors.
