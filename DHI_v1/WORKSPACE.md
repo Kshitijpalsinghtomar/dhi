@@ -390,3 +390,17 @@ Provider status remains:
 - Firecrawl Alexandria discovery: exact `firecrawl_find_tools` contract remains unresolved; generic Firecrawl search/scrape is not a valid substitute.
 
 Keep benchmark expansion frozen at 30 until this execution path works and tasks are independently validated. All 30 manifest tasks still have `model_runs_allowed=false`. No inference or training is authorized by this engineering pass.
+
+
+## 18. Connector availability clarification — 2026-11-03
+
+The previous provider-gap wording needs a precise correction:
+
+- The connected assistant session **does** expose GitHub MCP actions, including `fetch_file`, `create_file`, `update_file`, `compare_commits`, `create_branch`, and read-only `fetch`.
+- The connected assistant session **does** expose Firecrawl Alexandria's exact `mcp__Firecrawl__firecrawl_find_tools` action. Its contract requires an objective and optionally accepts query, URL, category/provider/capability selectors, expansion level, and pagination. Discovery is free and returns further capability contracts; it does not execute the discovered provider itself.
+- These actions are callable by the assistant through its connected tool session. They are **not currently callable by the ORBIT model runner in Deepnote**. A live Deepnote integration search for `FIRECRAWL` and `GITHUB` returned no attached integrations. The verifier's attached integration remains `TINYFISH`.
+- The tool registry's canonical contracts are therefore known; what is missing is a runtime transport/credential boundary that makes those operations available to the model runner and records their real results.
+
+Do not claim that Firecrawl/GitHub do not exist or that their contracts are unknown. The accurate status is: assistant-session connector available; Deepnote runtime adapter and project-scoped authentication not yet provisioned. For Firecrawl, confirm the supported Alexandria transport before assuming a standard REST API key alone reproduces `firecrawl_find_tools`. For GitHub, a least-privilege project secret plus a tested REST/MCP adapter is still required.
+
+The remaining execution bridge must continue to fail closed when the DHI runtime lacks a required handler, even though the assistant's own connected tools can perform the same operation outside the tested ORBIT runtime.
