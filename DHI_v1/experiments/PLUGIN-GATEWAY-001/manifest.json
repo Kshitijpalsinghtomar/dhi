@@ -1,7 +1,7 @@
 {
   "experiment_id": "PLUGIN-GATEWAY-001",
   "date": "2026-11-03",
-  "status": "blocked",
+  "status": "partial",
   "question": "Can the DHI runtime invoke the exact registered GitHub, TinyFish, and Firecrawl tools through documented remote MCP interfaces with enforced per-task policy and normalized traces?",
   "hypothesis": {
     "mechanism": "Provider-hosted Streamable HTTP MCP endpoints can be connected through a per-provider authenticated client, then filtered by an exact task-level native tool allowlist.",
@@ -79,11 +79,12 @@
       "proxy_auth_env": "TINYFISH_API_KEY",
       "proxy_upstream_auth_header": "X-API-Key",
       "task_tool_ids": [
-        "mcp__TinyFish__search",
-        "mcp__TinyFish__fetch_content"
+        "tinyfish.search",
+        "tinyfish.fetch_content"
       ],
-      "status": "endpoint_documented; exact schema_and_DHI_credentials_unverified",
-      "cost_policy": "Search and fetch are documented free; automation and browser operations are metered and are excluded."
+      "status": "credential_verified; documented_search_fetch_rest_contracts_verified; DHI_read_only_adapter_implemented; direct_assertions_passed; pytest_runner_unverified",
+      "cost_policy": "Search and fetch are documented free; automation and browser operations are metered and are excluded.",
+      "note": "The connected TinyFish app was used directly for official docs research. Docs specify REST X-API-Key auth and MCP OAuth 2.1; DHI uses the documented Search and Fetch REST endpoints. Only these two readonly tools are registered in DHI."
     },
     {
       "provider": "Firecrawl",
@@ -114,7 +115,7 @@
         "credential_values_inspected": false
       }
     ],
-    "interpretation": "TinyFish workspace env integration is attached to the DHI verifier; TINYFISH_API_KEY presence is verified; Streamable HTTP initialize/tools/list succeeded; one bounded search and one fetch_content succeeded; independent raw GitHub README readback corroborated the provider auth/tool markers. Only read-only operations were called. No paid, browser, monitor, dataset, provider write, model-inference, or training operation was performed.",
+    "interpretation": "TinyFish credential presence and read-only Search/Fetch provider operations are verified. A DHI-owned REST adapter is implemented with explicit per-task allowlists and public-URL safeguards. Fourteen direct test assertion invocations passed. The Deepnote pytest runner times out before collection, and the separate compile check was interrupted, so complete syntax/full-suite verification remains open. No model inference, training, provider write, browser automation, paid action or secret disclosure occurred.",
     "remote_mcp_requests_sent": 4,
     "credential_probe": {
       "run_id": "712a9c26-d126-4cc0-bfdb-a564dd29e3d1",
@@ -200,16 +201,20 @@
     },
     "latest_recheck": {
       "checked_on": "2026-11-03",
-      "status": "success",
+      "status": "adapter_committed_direct_assertions_passed",
       "credential_presence": "verified_present",
-      "mcp_initialize": "success",
-      "tools_list": "success",
-      "read_only_search": "success",
-      "read_only_fetch_content": "success",
-      "independent_readback": "success_marker_corroboration",
-      "prior_quota_and_pytest_errors": "superseded_for_current_credential_and_connection_check",
-      "machine_status_after_run": "to_be_checked",
-      "next_gate": "Implement a policy-enforcing TinyFish adapter with RED/GREEN tests: fixed HTTPS endpoint, env-only secret, protocol negotiation, exact schema pins, only search/fetch_content task allowlist, argument validation, bounded timeouts, no retries, and redacted traces. Do not expose other 39 native tools."
+      "provider_connectivity": "verified",
+      "read_only_provider_actions": "search_and_fetch_content_verified",
+      "adapter_status": "implemented",
+      "test_status": "14_direct_assertions_passed; pytest_runner_and_compile_gate_unverified",
+      "temporary_test_project_deleted": true,
+      "primary_notebook": "DHI ORBIT exact-head verifier",
+      "primary_notebook_id": "3639f9a98ce5435fa4cd0168eaaca3a1",
+      "primary_machine_status": "stopped",
+      "original_regression_block_untouched": true,
+      "no_secret_values_emitted": true,
+      "no_provider_write_or_paid_action": true,
+      "next_gate": "Verify the committed adapter with a reliable pytest runner; then run the focused existing agent/environment regression set and full suite. Do not authorize model inference/training until benchmark validation and dataset gates pass."
     },
     "credential_presence_verification": {
       "provider": "TinyFish",
@@ -304,6 +309,112 @@
         "api_key_emitted": false
       },
       "interpretation": "The DHI verifier authenticated and executed both registered read-only TinyFish tools successfully. Search and fetch are documented as free by the official provider examples. This proves the runtime credential and provider contract smoke, not a model-facing gateway or any ORBIT model capability."
+    },
+    "adapter_implementation": {
+      "status": "committed_unvalidated_full_suite",
+      "files": [
+        {
+          "path": "DHI_v1/environment/tinyfish_client.py",
+          "blob_sha": "72ea721c9ac9cd812973b9b80ffaeb3d2a375b43"
+        },
+        {
+          "path": "DHI_v1/environment/dhi_env.py",
+          "blob_sha": "a38315f5e258d34df79e42d6090a4e43873af1fd"
+        },
+        {
+          "path": "DHI_v1/environment/agent_runner.py",
+          "blob_sha": "2353df185edacb00e7d0c4a355fa8e6e6fe35acc"
+        },
+        {
+          "path": "DHI_v1/environment/tests/test_tinyfish_client.py",
+          "blob_sha": "0e2680899bd0b220e462834af2461cc986adc136"
+        },
+        {
+          "path": "DHI_v1/benchmark/runner.py",
+          "blob_sha": "564094109141a3c7869eefd034b68974142f908"
+        },
+        {
+          "path": "DHI_v1/benchmark/run_model_pilot.py",
+          "blob_sha": "67afd527ae04ea96d0e1a85247d6117d11d908e4"
+        }
+      ],
+      "implementation_commit_chain": [
+        "23aa7f964b1da038a60dc9d611e82fdfc3df4986",
+        "c1743d635dfcb0ac3739c3fc020ef433524c1be8",
+        "663fc8d1dfa9ef4c6b9f040a432c3015474e7617",
+        "d47d2d1e02f83ac2be00b78c45a80730ed35e90f",
+        "b9ee75193429d5d0bf5562700e9a13e42a6bb541",
+        "97e40863e0f7c393c2b50ea9186edf23847e77a8"
+      ],
+      "transport": "documented TinyFish Search and Fetch REST APIs",
+      "search_endpoint": "https://api.search.tinyfish.ai",
+      "fetch_endpoint": "https://api.fetch.tinyfish.ai",
+      "authentication": "TINYFISH_API_KEY from runtime environment; X-API-Key request header",
+      "exposed_tool_ids": [
+        "tinyfish.search",
+        "tinyfish.fetch_content"
+      ],
+      "other_native_tinyfish_tools_exposed": 0,
+      "safeguards": [
+        "fixed HTTPS provider endpoints",
+        "environment-only API key",
+        "strict argument allowlists and type/range checks",
+        "HTTP(S)-only public fetch URL validation",
+        "private, loopback, link-local, reserved and credential-bearing URL rejection",
+        "one-to-ten URL fetch bound",
+        "bounded request timeout",
+        "no automatic retries",
+        "provider errors omit response body and credential",
+        "explicit task allowlist required before visibility or execution",
+        "only read-only Search and Fetch operations"
+      ],
+      "remaining_gaps": [
+        "pytest collection/runner has not completed on Deepnote",
+        "full regression suite not rerun on this adapter commit",
+        "complete py_compile/compileall verification not completed",
+        "adapter output trace redaction and schema drift tests need an independently functioning test runner"
+      ]
+    },
+    "test_verification": {
+      "direct_assertion_run": {
+        "run_id": "76e3e48b-2a71-424a-a59d-b651ca42a21b",
+        "notebook_id": "3639f9a98ce5435fa4cd0168eaaca3a1",
+        "notebook_name": "DHI ORBIT exact-head verifier",
+        "status": "success",
+        "invocation_count": 14,
+        "passed": 14,
+        "failed": 0,
+        "method": "Imported the committed test module and called each focused test function directly, including all six parameter cases; mocked HTTP boundaries; no real provider requests in unit tests.",
+        "output": "DIRECT_TEST_FUNCTIONS_PASSED=14",
+        "pytest_collection_used": false
+      },
+      "pytest_attempts": [
+        {
+          "run_id": "fed1e171-9ce0-4b72-b771-c260cbc5c2e5",
+          "project_id": "6415944e-8d6c-432c-a7cf-3bbaa997799c",
+          "timeout_seconds": 40,
+          "status": "timeout_before_collection"
+        },
+        {
+          "run_id": "07559432-6472-492f-a965-b7a68f70e6a0",
+          "project_id": "ec72a45e-7ed0-43d5-94b7-3d6401978170",
+          "timeout_seconds": 60,
+          "status": "timeout_before_collection",
+          "temporary_project_deleted": true
+        }
+      ],
+      "syntax_check": {
+        "run_id": "d2b4d227-9f9d-4d20-a293-0c560e266e41",
+        "status": "interrupted",
+        "details": "py_compile was interrupted while writing the first bytecode file in the Deepnote project; no compile success is claimed."
+      },
+      "dependency_setup": {
+        "requirements_file": "DHI_v1/environment/requirements-dev.txt",
+        "pytest_version": "9.2.0",
+        "jsonschema_version": "4.23.0",
+        "install_status": "success"
+      },
+      "interpretation": "Fourteen direct committed test assertions passed. Pytest discovery timed out before collection, and the compile check was interrupted during bytecode output. Treat the adapter as directly tested but not yet full-suite/syntax-gate verified."
     }
   },
   "results": {
@@ -359,7 +470,7 @@
       "https://github.com/modelcontextprotocol/modelcontextprotocol/blob/main/docs/specification/2026-07-28/basic/transports/streamable-http.mdx"
     ]
   },
-  "next_gate": "Implement the isolated TinyFish provider adapter with test-first contract coverage. Pin provider protocol and search/fetch_content schema fingerprints; reject all other native tools; enforce task-level allowlists, safe argument validation, env-only auth, redaction, timeout and no retry. Then prove fail-closed behavior and independent readback before attaching to the model runner.",
+  "next_gate": "Run the committed TinyFish adapter test suite and existing environment/runner regression suite in a reliable test environment that does not hang during pytest collection. Confirm syntax/compile, fix any failures, then add DHI trajectory-trace evidence for pre-action prediction, actual search/fetch result, tool-call count, redaction and verified closure. Keep per-task TinyFish allowlists explicit. Do not expose any other native TinyFish tools.",
   "code_equivalence_check": {
     "tested_commit": "cba8421d4f4c6c4f929d5f4c3196eb83f98f7351",
     "current_branch_ref": "orbit/plugin-benchmark-fixture",
