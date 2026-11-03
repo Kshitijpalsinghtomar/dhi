@@ -890,3 +890,20 @@ The earlier entry recorded the combined regression as running. This is the termi
 - Exact output and command timings are archived at [ORBIT-VERIFY-003/results/verification-report.json](../experiments/ORBIT-VERIFY-003/results/verification-report.json).
 
 The tested code commit remains `421955df46975d8b20fba63f8922949a49b4551c`; intervening branch commits are documentation-only. This pass confirms benchmark/environment code health. It does not validate the 30 authored task instances, establish model capability, approve training, or open model execution.
+
+
+## 2026-11-03 — Plugin benchmark grader and model-runner integration gate
+
+### Grader work
+
+ORBIT-GRADER-FIX-001 added deterministic support for discovery recovery and repository branch-state prediction. The runner tool schema now allows structured branch-state predictions, the local environment preserves those predictions in the pre-action event and refuses to label them matched based only on file-workspace evidence. The grader compares the pre-action forecast with independently fetched before/after branch inventories.
+
+Focused verification passed: **46 tests**, manifest validator, and benchmark compilation. Full regression on the current branch head `92bec2c3485220eec6c80a7fe8ae41865a4ef54e` is running as Deepnote run `43e0726e-e16d-428c-b2dd-f18332e2f882`. Do not claim full-suite success until its terminal output is inspected.
+
+### Model execution gap discovered
+
+Code inspection confirmed `DHI_v1/environment/agent_runner.py` does not yet execute the remote GitHub/TinyFish/Firecrawl tools defined in the plugin-native task register. It builds tool schemas from the local DHI environment catalogue and exposes Adaption catalogue search only as a discovery-only meta-tool. The connected plugin actions used for reference evidence are therefore not proof that the candidate model can invoke those tools.
+
+### Decision
+
+Prioritize a policy-enforcing remote plugin gateway and normalized trace adapter before expanding the benchmark panel or attempting model-facing plugin tasks. The gateway must bind exact registered tool contracts, permissions, approvals and cost boundaries; record pre-action prediction, invocation, raw response, independent state readback and closure; and preserve checkpoint/resume events. No model execution, training, or Stage A validation status promotion is authorized by this decision.
