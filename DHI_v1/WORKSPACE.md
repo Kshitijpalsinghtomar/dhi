@@ -2,7 +2,7 @@
 
 **Last updated:** 2026-11-03  
 **Repository:** https://github.com/Kshitijpalsinghtomar/dhi  
-**Branch:** `main` (plugin-native task authoring is on `orbit/plugin-benchmark-fixture`; not yet merged)  
+**Active research branch:** `orbit/plugin-benchmark-fixture` (default `main` remains unchanged; branch is intentionally unmerged)  
 **Live-state rule:** This file is the first read at every session. It supersedes older chat summaries and dated handover snapshots when describing current status.
 
 ## 1. Identity
@@ -105,38 +105,44 @@ Experiment records:
 
 VERIFY-001 is blocked on Deepnote's parallel-project quota. Initial run `93645a78-7cd2-4c64-9c84-353fbd31e15c` verified the exact checkout and passed compileall; pytest did not collect tests because pytest was missing. The retry cell (`f0d38652cb8c490595ca474cc5ae2317`) is ready but both detached and live run creation were rejected before execution by the same quota. Machine inspection found one project currently running in the workspace; no project was stopped. Experiment record: `DHI_v1/experiments/VERIFY-001/`.
 
-## 9. Next authorized action
+## 9. Research methodology now active
+
+- [ORBIT Research Method](docs/13_ORBIT_RESEARCH_METHOD.md) adapts controlled experiments from Karpathy autoresearch and the broader planning/evaluation/regression/adversarial-review workflow from uditgoenka/autoresearch.
+- [Experiment record template](experiments/EXPERIMENT_RECORD_TEMPLATE.md) defines the minimum frozen protocol, manifest and run ledger for each research unit.
+- This method is now the required operating protocol for benchmark authoring and model research. It does not authorize model inference, training, provider-credit spend, merge or deployment.
+
+## 10. Next authorized action
 
 **Expand and validate the plugin-native Stage A panel. Do not return to a local-harness-only design.**
 
 Completed in the current authoring branch:
 - [Task-record JSON Schema](benchmark/task_manifest.schema.json) defines all task-record fields and split requirements.
-- [Task register](benchmark/task_manifest.json) now contains **22 Stage A task instances** and 20 task-family records, distributed across all ten strata. Stage A target is 120; Stage B remains unmaterialized and sealed.
+- [Task register](benchmark/task_manifest.json) now contains **30 Stage A task instances** and 30 task-family records, distributed across all ten strata. Stage A target is 120; Stage B remains unmaterialized and sealed.
 - [Plugin-native execution profile](benchmark/PLUGIN_NATIVE_EXECUTION_PROFILE.md) distinguishes connected plugin execution from local file-workspace capabilities and records write/cost boundaries.
 - [Plugin tool registry snapshot](benchmark/fixtures/plugin_ecology/plugin_tool_registry.json) pins 15 exact tool contracts for GitHub, TinyFish, Firecrawl, Deepnote, Consensus, Scite, and Wolfram.
 - [Execution evidence](benchmark/fixtures/plugin_ecology/plugin_execution_evidence.json) records live plugin access checks, source snapshots, branch mutations/readbacks, the real 404 recovery, and explicit limitations.
 - The Northstar synthetic fixture, Node.js current-source snapshot, Firecrawl discovery snapshot, and checkpoint/resume sandbox are committed in the authoring branch.
 
 Current status:
-- 22/120 Stage A task instances exist: S01, S04, S05, S06, S09 and S10 have two each; S02 and S08 have three each; S03 has three; S07 has one.
+- 30/120 Stage A task instances exist: S01=2, S02=3, S03=4, S04=3, S05=4, S06=4, S07=2, S08=3, S09=3, S10=2.
 - 0/120 Stage B tasks exist; Stage B remains sealed.
 - S01, S02, S03, S04, S05, S06, S08 and S10 have bounded plugin-native task routes.
 - S07 is partial: the GitHub checkpoint was re-read and the resumed report was verified, but model-run interruption/recovery traces remain to be validated.
 - S09 is partial: GitHub write/readback/diff works, but the runner still needs a structured pre-action prediction trace.
-- Every one of the 22 tasks has `validation.status=ready_for_validation`; none is labelled validated.
+- Every one of the 30 tasks has `validation.status=ready_for_validation`; none is labelled validated.
 - No DHI model inference, benchmark score, training data, or training run has been produced.
 
 Next:
 1. Add 11 further distinct task instances per stratum to complete the 120-task Stage A screen. Vary underlying task families, plugin combinations, schemas, dependencies and side-effect policies; do not create paraphrases to fill counts.
 2. Implement the plugin action-trace adapter for pre-action effect predictions and cross-session checkpoint/recovery events. Close the remaining S07/S09 trace gaps.
 3. Add a cross-record panel validator and regression tests for task-ID uniqueness, counts, family/split hashes, fixture/tool hashes, postcondition presence, and Stage B sealing.
-4. Independently review all 20 seed task prompts and graders. Run deterministic reference checks, then model pilots only after the matched inference access and benchmark-freeze gates pass.
+4. Independently review all 30 seed task prompts and graders. Run deterministic reference checks, then model pilots only after the matched inference access and benchmark-freeze gates pass.
 5. Build Stage B from 120 structurally distinct holdout tasks only after Stage A and the candidate/interface decision are fixed. Keep Stage B prompts and fixtures sealed.
 6. Keep model execution disabled until the Stage A task panel is complete, independently reviewed and frozen; preserve the Qwen3.6/GPT-OSS matched-comparison requirement.
 
 No DHI candidate model was run. Firecrawl capability discovery cost zero; the discovered package-record execution (one credit) and security/research provider executions (five credits each) were not called. TinyFish Go recovery included a schema-validation rejection followed by a 404 and a successful official-source re-fetch. Consensus search was unavailable because the provider's monthly free quota was exhausted. No Adaption generation/training action was called.
 
-## 10. Latest committed work
+## 11. Latest committed work
 
 | Commit | Change |
 |---|---|
@@ -171,20 +177,22 @@ No DHI candidate model was run. Firecrawl capability discovery cost zero; the di
 | `ORBIT-TASKS-001` | Authored ten Stage A plugin-native tasks, one per stratum; manifest passed schema validation |
 | `ORBIT-TASKS-002` | Expanded the plugin-native Stage A register to 20 independent task families; schema and cross-record checks passed |
 | `ORBIT-TASKS-003` | Added Go release verification and TinyFish schema/404 recovery; Stage A now has 22 independent task families |
+| `ORBIT-TASKS-004` | Expanded Stage A to 30 task instances; S07 checkpoint/resume, additional schema, effect and multi-source cases added |
+| `ORBIT-METHOD-001` | Reviewed Karpathy and uditgoenka autoresearch; committed ORBIT's adapted evidence-first method and experiment template |
 | `ORBIT-REFERENCE-001` | Verified multi-file GitHub workflow and a persistent checkpoint/resume workflow with readback and single-path diffs |
 | `ORBIT-REFERENCE-002` | Verified two-source Node/Python release report, Firecrawl fallback recovery, and branch-effect prediction reference |
 | `VERIFY-001 run 93645a78` | Exact checkout verified; compileall passed; pytest blocked by missing package before collection |
 | `VERIFY-001` retry | Blocked before execution by Deepnote quota in detached and live modes; retry cell is ready |
 | `VERIFY-001` | Initial compileall passed; pytest blocked by missing dependency; retry blocked by Deepnote quota |
 
-The current version of this file is the active checkpoint. Its own commit SHA is the newest `main` commit when this file is fetched; always inspect the branch head rather than hardcoding a self-referential SHA here.
+This file is the live checkpoint on the active research branch. Always fetch the branch head and this file before continuing; do not infer active branch state from main or chat.
 
-## 11. Session continuation checklist
+## 12. Session continuation checklist
 
 A new agent must:
-1. Read this file.
-2. Fetch the latest `main` head and inspect changes since the last checkpoint.
-3. Read [the Git-first workflow](docs/12_GIT_FIRST_WORKFLOW.md).
+1. Read this file from the active research branch.
+2. Fetch the latest active-branch head and inspect changes since the last checkpoint; compare with main when needed.
+3. Read [the Git-first workflow](docs/12_GIT_FIRST_WORKFLOW.md) and [the ORBIT research method](docs/13_ORBIT_RESEARCH_METHOD.md).
 4. Read the controlling plan and the exact protocol for the next task.
 5. Verify the latest run/experiment from its raw artifact reference—not from a chat message.
 6. Continue only the single next authorized action above.
