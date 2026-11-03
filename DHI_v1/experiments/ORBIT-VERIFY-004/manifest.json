@@ -1,7 +1,7 @@
 {
   "experiment_id": "ORBIT-VERIFY-004",
   "date": "2026-11-03",
-  "status": "running",
+  "status": "passed",
   "code_under_test": "5b144c531e8a548787918f0fcdf9e681f05d96e8",
   "branch": "orbit/plugin-benchmark-fixture",
   "hypothesis": "The TinyFish adapter and its runner integration do not regress the pre-existing benchmark or environment suite.",
@@ -37,7 +37,9 @@
   "environment": {
     "deepnote_project_id": "6415944e-8d6c-432c-a7cf-3bbaa997799c",
     "deepnote_notebook_id": "3639f9a98ce5435fa4cd0168eaaca3a1",
-    "source_identity_method": "bounded byte-for-byte Deepnote/GitHub file comparison"
+    "source_identity_method": "bounded byte-for-byte Deepnote/GitHub file comparison",
+    "python": "3.13.18",
+    "platform": "Linux-6.18.57-talos-x86_64-with-glibc2.36"
   },
   "run_attempts": [
     {
@@ -47,14 +49,22 @@
       "pytest": "not_collected_missing_pytest",
       "compileall": "passed",
       "import_smoke": "passed",
-      "note": "No test cases executed; no code failure established."
+      "note": "No test cases executed; not a code failure."
     },
     {
       "run_id": "96ac3bf5-9a06-4a9f-9e80-3bc29c541f38",
-      "status": "running",
-      "dependency_bootstrap": "install repository-declared requirements only"
+      "status": "success",
+      "manifest_validator": "passed",
+      "pytest": "158_passed_0_failed",
+      "pytest_elapsed_seconds": 458.367,
+      "pytest_reported_duration_seconds": 336.03,
+      "compileall": "passed",
+      "import_smoke": "passed",
+      "dependency_install": "pytest 9.2.0 installed from requirements-dev.txt; jsonschema 4.23.0 already satisfied"
     }
   ],
-  "decision": "pending",
-  "evidence_boundary": "Harness validation only; not model capability or launch evidence."
+  "raw_result_path": "DHI_v1/experiments/ORBIT-VERIFY-004/results/verification-report.json",
+  "run": "96ac3bf5-9a06-4a9f-9e80-3bc29c541f38",
+  "decision": "pass_engineering_regression_only",
+  "evidence_boundary": "The pinned adapter code passes the combined benchmark/environment regression. This does not establish plugin-manifest runner integration or model capability, benchmark task validation, base-model winner, training readiness or launch readiness."
 }
