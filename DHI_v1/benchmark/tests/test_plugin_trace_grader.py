@@ -279,7 +279,20 @@ class PluginTraceGraderTests(unittest.TestCase):
 
     def test_source_fact_passes_when_source_request_and_response_support_it(self) -> None:
         trace = make_trace()
-        trace["events"][3]["arguments"] = {"url": "https://go.dev/doc/devel/release"}
+        trace["events"][2]["tool_id"] = "mcp__TinyFish__fetch_content"
+        trace["events"][3]["tool_id"] = "mcp__TinyFish__fetch_content"
+        trace["events"][2]["arguments"] = {"urls": ["https://go.dev/doc/devel/release"], "format": "markdown"}
+        trace["events"][3]["arguments"] = {"urls": ["https://go.dev/doc/devel/release"], "format": "markdown"}
+        trace["events"][2]["observed_state_before"] = {"README.md": "b" * 64}
+        trace["events"][3]["observed_state_before"] = {"README.md": "b" * 64}
+        trace["events"][3]["observed_state_after"] = {"README.md": "b" * 64}
+        trace["events"][3]["actual_effects"] = {
+            "added_paths": [],
+            "modified_paths": [],
+            "deleted_paths": [],
+            "changed_paths": [],
+            "unchanged_paths": ["README.md"],
+        }
         trace["events"][3]["actual_tool_result"]["result"] = {"content": "Go 1.27.3 released on 2026-10-19"}
         condition = {"type": "source_fact", "source": "https://go.dev/doc/devel/release", "expected": "Go 1.27.3 released on 2026-10-19"}
         self.assertEqual(grade_task(make_task(condition), trace)["status"], "pass")
