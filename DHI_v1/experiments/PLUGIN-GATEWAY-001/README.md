@@ -19,7 +19,7 @@ The providers publish remote Streamable HTTP MCP servers, but the surfaces and a
 - **TinyFish:** the official hosted MCP URL is `https://agent.tinyfish.ai/mcp`. The official package documents a local Streamable HTTP proxy, with `TINYFISH_API_KEY` read from its environment and forwarded upstream as `X-API-Key`. Its documented `search` and `fetch_content` actions are free; browser automation is charged per step. These names align with the two TinyFish IDs in the pinned registry, but exact schema equivalence and live auth are not verified from the DHI runtime.
 - **Firecrawl:** the current official MCP server offers generic web scrape/search/parse tools. Its documented hosted search-only endpoint exposes six read-only search/research tools. Neither documentation surface establishes that the pinned Alexandria-specific `firecrawl_find_tools` contract is available through that server. The same-named generic `firecrawl_scrape` is not accepted as equivalent to the excluded, paid Alexandria provider-execution contract. Do not substitute it or call a paid provider.
 
-The isolated Deepnote verifier project reported no attached project integrations. This confirms that no provider integration is attached there; it does **not** prove that every possible process environment variable is absent. No secret values were requested, read, or logged in this audit.
+The isolated Deepnote verifier project has no attached project integrations. A separate presence-only probe then checked 12 conventional TinyFish, GitHub and Firecrawl credential variable names in the DHI verifier runtime: all 12 were absent. The probe checked only booleans; it never read, printed, hashed or persisted secret values. Its run succeeded, sent zero remote requests, and the temporary notebook block was deleted immediately afterward; the machine was stopped. The result is scoped to those 12 names and does not rule out a differently named credential or an external OAuth flow.
 
 ## Registered action boundary
 
@@ -63,7 +63,7 @@ The current MCP Streamable HTTP specification uses one HTTP POST per JSON-RPC re
 
 ## Next falsifiable step
 
-Configure one provider's credential through a supported secret store, then run a read-only protocol smoke from the DHI runtime:
+Provision TinyFish authentication as a Deepnote project secret named `TINYFISH_API_KEY` (or configure an explicitly supported OAuth connection) without placing the credential in chat, source control, notebook content or output. The presence-only probe found no conventional provider credential in this runtime. After secure provisioning, run a read-only protocol smoke from the DHI runtime:
 
 1. initialize the server using a standard MCP client;
 2. list tools and compare provider-native names/schemas with this registry;
@@ -87,4 +87,4 @@ Start with **TinyFish search/fetch** because both registered actions are read-on
 
 **Decision:** `blocked` (before implementation).
 
-The transport is feasible in principle, but provider-native tool mapping and DHI runtime credential access have not been verified. The next step is a TinyFish read-only runtime smoke, not speculative adapter code or wider task authoring.
+The transport is feasible in principle, but provider-native tool mapping and DHI runtime credential access have not been verified. The credential presence probe found none of the 12 standard variable names in the DHI verifier runtime. The next step is secure provisioning of `TINYFISH_API_KEY` as a project secret, followed by a TinyFish read-only runtime smoke—not speculative adapter code or wider task authoring.
