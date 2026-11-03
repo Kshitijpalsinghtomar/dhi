@@ -177,6 +177,7 @@ class PluginTraceGraderTests(unittest.TestCase):
         self.assertEqual(report["status"], "pass")
         trace = make_trace()
         trace["usage"]["provider_credits_spent"] = 1
+        trace["events"][3]["actual_tool_result"]["provider_cost"] = 1
         self.assertEqual(grade_task(make_task(condition), trace)["status"], "fail")
 
     def test_branch_diff_only_rejects_unexpected_changed_paths(self) -> None:
