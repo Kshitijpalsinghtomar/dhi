@@ -344,3 +344,14 @@ Do not repeat ORBIT-VERIFY-004 without a code change. The next engineering work 
 6. validate the existing 30 tasks through the actual runner before expanding Stage A.
 
 No inference or training is authorized by this successful regression. OpenRouter remains at zero credits and the DHI verifier still lacks a project-scoped `DHI_MODEL_API_KEY` secret and a PrimeIntellect provider pin in the OpenAI-compatible request body. See [INFER-003](experiments/INFER-003/README.md).
+
+
+## 16. Provider slug resolved for matched inference — 2026-11-03
+
+A live OpenRouter provider catalogue confirms the exact slug for display provider `PrimeIntellect` is `primeintellect`. The matched-run provider pin is therefore fixed as:
+
+```json
+{"provider":{"only":["primeintellect"],"allow_fallbacks":false}}
+```
+
+Use `tool_choice=auto` for both Qwen3.6-35B-A3B and GPT-OSS-20B. This resolves the provider-name ambiguity only; no client code has been changed and no inference call was made. The remaining blockers are implementation/tests for the provider-routing request field, project-scoped `DHI_MODEL_API_KEY`, funding/cost cap, and the plugin-native execution/benchmark gates. See [INFER-003](experiments/INFER-003/README.md).
