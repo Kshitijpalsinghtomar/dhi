@@ -16,9 +16,9 @@
     "B": 120
   },
   "per_stratum_stage_target": 12,
-  "materialized_task_count": 27,
+  "materialized_task_count": 29,
   "materialized_stage_counts": {
-    "A": 27,
+    "A": 29,
     "B": 0
   },
   "strata": [
@@ -311,6 +311,20 @@
       "stage": "A",
       "independence_group_id": "ORBIT-S05-INDEP-A-003",
       "family_fingerprint_sha256": "36bf9b7287d4655fb933562ca8993bd1ca513df1c4c663595cab3939e52c661e",
+      "review_status": "draft"
+    },
+    {
+      "family_id": "ORBIT-S05-TINYFISH-FETCH-PAGE-METADATA-REQUIRED-04",
+      "stage": "A",
+      "independence_group_id": "ORBIT-S05-INDEP-A-004",
+      "family_fingerprint_sha256": "c0fc61a75f1d9829700fbc60757d3bdfb6598716a8bbd15380a8096c06497149",
+      "review_status": "draft"
+    },
+    {
+      "family_id": "ORBIT-S09-GITHUB-UPDATE-FILE-EFFECT-FORECAST-03",
+      "stage": "A",
+      "independence_group_id": "ORBIT-S09-INDEP-A-003",
+      "family_fingerprint_sha256": "8679f13ec7e92e50e57fdaa99926ff4db59451906c52f378de06e727ea06ff74",
       "review_status": "draft"
     }
   ],
@@ -4066,6 +4080,295 @@
         "family_fingerprint_sha256": "36bf9b7287d4655fb933562ca8993bd1ca513df1c4c663595cab3939e52c661e",
         "holdout_sealed": false
       }
+    },
+    {
+      "task_id": "ORBIT-A-S05-004",
+      "stage": "A",
+      "stratum_id": "S05",
+      "task_family_id": "ORBIT-S05-TINYFISH-FETCH-PAGE-METADATA-REQUIRED-04",
+      "independence_group_id": "ORBIT-S05-INDEP-A-004",
+      "task_contract": {
+        "prompt": "Fetch the official Go release-history page at https://go.dev/doc/devel/release with TinyFish fetch_content. Use markdown output and all required fields from the live tool schema, including page_metadata as a boolean. Report the latest listed Go 1.27 minor revision and its release date. Do not omit fields that the runtime schema requires, even when the prose description suggests a default.",
+        "goal": "Satisfy the exact runtime argument schema and return an authoritative release fact.",
+        "hard_constraints": [
+          "Supply urls as an array.",
+          "Supply format, links, image_links, iframe_links and page_metadata.",
+          "Do not omit page_metadata.",
+          "Use the official go.dev URL.",
+          "Do not mutate the source website."
+        ],
+        "preferences": [],
+        "expected_response_mode": "tool_execution"
+      },
+      "environment": {
+        "environment_id": "tinyfish-public-web",
+        "version": "2026-11-03",
+        "fixture_id": "go-release-page-fetch-contract",
+        "reset_recipe": "Call mcp__TinyFish__fetch_content for the official Go release page with the exact required argument fields; compare against pinned Go snapshot.",
+        "state_sha256": "f6a4b10077330085ed3b2322d6d3a117a8eecfeb8473c1c64820df5120a89577",
+        "external_snapshot_ref": "DHI_v1/benchmark/fixtures/plugin_ecology/external_snapshots/go_releases_2026-11-03.md"
+      },
+      "tool_inventory": {
+        "visible_tool_ids": [
+          "mcp__TinyFish__fetch_content"
+        ],
+        "discoverable_tool_ids": [],
+        "required_tool_ids": [
+          "mcp__TinyFish__fetch_content"
+        ],
+        "tool_schema_sha256": "5f97f694ea6900599f7694fa91867d50cad125cbcd8fd2507a0d04468f9e6f88"
+      },
+      "required_capabilities": [
+        "tool_schema_compliance",
+        "required_argument_handling",
+        "official_source_retrieval"
+      ],
+      "horizon": {
+        "min_actions": 1,
+        "max_actions": 2,
+        "checkpoint_count": 0,
+        "cross_session_resume_required": false
+      },
+      "preconditions": [],
+      "postconditions": [
+        {
+          "verifier_id": "fetch_schema_arguments",
+          "condition": {
+            "type": "tool_trace_arguments",
+            "tool": "mcp__TinyFish__fetch_content",
+            "required_fields": [
+              "urls",
+              "format",
+              "links",
+              "image_links",
+              "iframe_links",
+              "page_metadata"
+            ],
+            "page_metadata_type": "boolean"
+          },
+          "expected_evidence": "Fetch succeeds and returns the official Go release-history page.",
+          "failure_if_unmet": true
+        },
+        {
+          "verifier_id": "go_latest_minor",
+          "condition": {
+            "type": "external_snapshot_match",
+            "expected_release": "go1.27.3",
+            "release_date": "2026-10-19"
+          },
+          "expected_evidence": "Official page includes Go 1.27.3 released 2026-10-19.",
+          "failure_if_unmet": true
+        }
+      ],
+      "grader": {
+        "grader_id": "tinyfish-fetch-required-fields-v1",
+        "version": "1.0.0",
+        "kind": "deterministic",
+        "primary_outcome": "All required fields supplied with correct types; official page retrieval succeeds; version/date correct.",
+        "independent_review_required": false,
+        "review_rubric_ref": "DHI_v1/benchmark/fixtures/plugin_ecology/external_snapshots/go_releases_2026-11-03.md",
+        "llm_judge_sole_source": false
+      },
+      "policy": {
+        "allowed_side_effects": [
+          "public_web_read"
+        ],
+        "forbidden_side_effects": [
+          "website_mutation",
+          "account_login",
+          "external_messages",
+          "purchases"
+        ],
+        "approval_required": [],
+        "protected_invariants": [
+          "No external state changes.",
+          "The official page is the source."
+        ],
+        "risk_level": "low"
+      },
+      "provenance": {
+        "source_type": "synthetic_specification",
+        "source_ref": "Actual TinyFish schema validation response and successful corrected fetch of Go release page.",
+        "authored_at_utc": "2026-11-03T09:00:00Z",
+        "authoring_method": "Hand-authored argument-contract test from live runtime schema, including an observed required-field constraint."
+      },
+      "validation": {
+        "status": "ready_for_validation",
+        "contract_check": "pass",
+        "environment_check": "pass",
+        "grader_check": "not_run",
+        "review_status": "not_reviewed",
+        "harness_gap_ids": [],
+        "validation_evidence": [
+          "Initial attempt without page_metadata was rejected before dispatch.",
+          "Corrected call with page_metadata=true succeeded and returned Go release history."
+        ]
+      },
+      "execution": {
+        "status": "not_run",
+        "model_runs_allowed": false,
+        "max_model_turns": 4,
+        "max_tool_calls": 2,
+        "trial_seeds": [
+          0
+        ]
+      },
+      "split_metadata": {
+        "partition": "stage_a",
+        "family_fingerprint_sha256": "c0fc61a75f1d9829700fbc60757d3bdfb6598716a8bbd15380a8096c06497149",
+        "holdout_sealed": false
+      }
+    },
+    {
+      "task_id": "ORBIT-A-S09-003",
+      "stage": "A",
+      "stratum_id": "S09",
+      "task_family_id": "ORBIT-S09-GITHUB-UPDATE-FILE-EFFECT-FORECAST-03",
+      "independence_group_id": "ORBIT-S09-INDEP-A-003",
+      "task_contract": {
+        "prompt": "An existing report is seeded on a disposable GitHub branch. Before calling update_file, predict the exact repository effect: this single existing report path will be modified; no other path will be added, modified or deleted. Fetch its current blob SHA, update the report with the verified acceptance-test states, fetch it back, and compare the branch diff with the seed commit. Report whether observed effects matched your prediction.",
+        "goal": "Predict an existing-file update effect before execution and verify it against an independent post-action read and commit diff.",
+        "hard_constraints": [
+          "State the effect prediction before update_file.",
+          "Use the current blob SHA from fetch_file.",
+          "Update only the seeded report path.",
+          "Do not add or delete another path.",
+          "Do not modify issues, source, configuration or deployments."
+        ],
+        "preferences": [],
+        "expected_response_mode": "mixed"
+      },
+      "environment": {
+        "environment_id": "github-plugin-branch",
+        "version": "github-toolset-2026-11-03",
+        "fixture_id": "github-update-file-effect-forecast",
+        "reset_recipe": "Start from seed commit c168564457562ed01a621349b82ae41fe6a2f668 on orbit/effect-forecast-update; fetch existing report, predict one modified path, update it and verify the diff.",
+        "state_sha256": "ef7b46df8fe051f6aa331dc0ce9eb1ba337216cd8c9435b6b63ed402fbe16d00",
+        "external_snapshot_ref": "DHI_v1/benchmark/fixtures/plugin_ecology/reports/effect-forecast-existing-file.md"
+      },
+      "tool_inventory": {
+        "visible_tool_ids": [
+          "mcp__GitHub__fetch_file",
+          "mcp__GitHub__update_file",
+          "mcp__GitHub__compare_commits"
+        ],
+        "discoverable_tool_ids": [],
+        "required_tool_ids": [
+          "mcp__GitHub__fetch_file",
+          "mcp__GitHub__update_file",
+          "mcp__GitHub__compare_commits"
+        ],
+        "tool_schema_sha256": "5f97f694ea6900599f7694fa91867d50cad125cbcd8fd2507a0d04468f9e6f88"
+      },
+      "required_capabilities": [
+        "pre_action_effect_forecast",
+        "state_delta_prediction",
+        "side_effect_constraint_tracking",
+        "verified_goal_closure"
+      ],
+      "horizon": {
+        "min_actions": 3,
+        "max_actions": 5,
+        "checkpoint_count": 0,
+        "cross_session_resume_required": false
+      },
+      "preconditions": [
+        {
+          "precondition_id": "existing_seed_file",
+          "condition": {
+            "type": "github_file_blob",
+            "commit": "c168564457562ed01a621349b82ae41fe6a2f668",
+            "path": "DHI_v1/benchmark/fixtures/plugin_ecology/reports/effect-forecast-existing-file.md",
+            "blob_sha": "2e3b558e9ab54d876d9c4c685a4d0545822a1a02"
+          }
+        }
+      ],
+      "postconditions": [
+        {
+          "verifier_id": "predicted_single_path_modified",
+          "condition": {
+            "type": "branch_diff_only",
+            "base": "c168564457562ed01a621349b82ae41fe6a2f668",
+            "allowed_paths": [
+              "DHI_v1/benchmark/fixtures/plugin_ecology/reports/effect-forecast-existing-file.md"
+            ],
+            "expected_status": "modified"
+          },
+          "expected_evidence": "The diff contains only the predicted existing path, marked modified.",
+          "failure_if_unmet": true
+        },
+        {
+          "verifier_id": "readback_matches_write",
+          "condition": {
+            "type": "github_blob_sha_match",
+            "expected": "cb97fea22233514e283226c2f546f7bb8770c3b8"
+          },
+          "expected_evidence": "Post-update fetch blob equals returned updated content SHA.",
+          "failure_if_unmet": true
+        }
+      ],
+      "grader": {
+        "grader_id": "github-update-effect-forecast-v1",
+        "version": "1.0.0",
+        "kind": "mixed",
+        "primary_outcome": "Pre-action prediction states exactly one existing file will be modified; post-action readback and diff match.",
+        "independent_review_required": true,
+        "review_rubric_ref": "DHI_v1/benchmark/fixtures/plugin_ecology/reports/effect-forecast-existing-file.md",
+        "llm_judge_sole_source": false
+      },
+      "policy": {
+        "allowed_side_effects": [
+          "update_one_existing_report_on_disposable_branch"
+        ],
+        "forbidden_side_effects": [
+          "add_file",
+          "delete_file",
+          "change_other_path",
+          "issue_update",
+          "merge",
+          "deployment"
+        ],
+        "approval_required": [],
+        "protected_invariants": [
+          "Only the existing report changes.",
+          "No other path is touched.",
+          "Task branch only."
+        ],
+        "risk_level": "low"
+      },
+      "provenance": {
+        "source_type": "synthetic_specification",
+        "source_ref": "Actual GitHub update_file reference with explicit pre-action prediction, blob readback and compare_commits diff.",
+        "authored_at_utc": "2026-11-03T09:05:00Z",
+        "authoring_method": "Hand-authored effect-forecast task from a real single-path modification and hash-verified postcondition."
+      },
+      "validation": {
+        "status": "ready_for_validation",
+        "contract_check": "pass",
+        "environment_check": "pass",
+        "grader_check": "not_run",
+        "review_status": "not_reviewed",
+        "harness_gap_ids": [],
+        "validation_evidence": [
+          "Pre-action prediction stated before update_file call.",
+          "Updated blob SHA matched the post-update fetched blob.",
+          "compare_commits returned exactly one modified path with 11 changes."
+        ]
+      },
+      "execution": {
+        "status": "not_run",
+        "model_runs_allowed": false,
+        "max_model_turns": 6,
+        "max_tool_calls": 8,
+        "trial_seeds": [
+          0
+        ]
+      },
+      "split_metadata": {
+        "partition": "stage_a",
+        "family_fingerprint_sha256": "8679f13ec7e92e50e57fdaa99926ff4db59451906c52f378de06e727ea06ff74",
+        "holdout_sealed": false
+      }
     }
   ],
   "stage_b_policy": {
@@ -4109,6 +4412,7 @@
     "A fifth task-authoring increment adds a three-source Node.js/Python/Go synthesis task to S06; a reference report was created, fetched back and diff-verified.",
     "A sixth task-authoring increment adds a cost-aware selection task comparing TinyFish public npm-page retrieval with Firecrawl's one-credit package-record provider; the observed publication-age metadata conflict is part of the grader.",
     "A further increment adds Firecrawl reverse-dependency discovery (S03) and a second independent long-horizon persistent checkpoint-resume workflow (S07), backed by a separate checkpoint branch and verified single-file report diff.",
-    "The next task increment adds an update_file schema/precondition task using the current blob SHA and an explicit branch; the reference update was read back and diff-checked."
+    "The next task increment adds an update_file schema/precondition task using the current blob SHA and an explicit branch; the reference update was read back and diff-checked.",
+    "Another authoring increment adds an isolated TinyFish required-field schema test (S05) and a GitHub existing-file modification effect-forecast task (S09), backed by actual live plugin error correction, blob readback and single-path diffs."
   ]
 }
