@@ -104,8 +104,17 @@
   ],
   "runtime_observation": {
     "deepnote_project_id": "6415944e-8d6c-432c-a7cf-3bbaa997799c",
-    "integrations_attached": [],
-    "interpretation": "No provider integration is attached to the inspected verifier project, and the presence-only probe found none of the 12 checked conventional TinyFish/GitHub/Firecrawl credential variables. No secret values were read or emitted.",
+    "integrations_attached": [
+      {
+        "id": "cf58b868-fdea-46d7-a821-512aa413e007",
+        "name": "TINYFISH",
+        "type": "env",
+        "attached_to_project_id": "6415944e-8d6c-432c-a7cf-3bbaa997799c",
+        "attached": true,
+        "credential_values_inspected": false
+      }
+    ],
+    "interpretation": "The TINYFISH workspace env integration is now attached to the DHI verifier project. Credential presence and TinyFish authentication remain unverified because no presence-only cell completed. No secret values were inspected and no provider request was sent.",
     "remote_mcp_requests_sent": 0,
     "credential_probe": {
       "run_id": "712a9c26-d126-4cc0-bfdb-a564dd29e3d1",
@@ -177,6 +186,72 @@
         "remote_requests_sent": 0,
         "interpretation": "The retry was rejected by the Deepnote parallel-project quota before any notebook code ran. The user's secret configuration remains unverified."
       }
+    },
+    "integration_configuration_check": {
+      "checked_on": "2026-11-03",
+      "workspace_integration_found": true,
+      "integration_name": "TINYFISH",
+      "integration_type": "env",
+      "integration_id": "cf58b868-fdea-46d7-a821-512aa413e007",
+      "was_attached_to_verifier_before_check": false,
+      "attached_to_verifier_during_check": true,
+      "verifier_project_id": "6415944e-8d6c-432c-a7cf-3bbaa997799c",
+      "verification_scope": "attachment metadata only; no integration credential/config values inspected"
+    },
+    "latest_recheck": {
+      "checked_on": "2026-11-03",
+      "status": "blocked_before_presence_check_completed",
+      "secret_name": "TINYFISH_API_KEY",
+      "presence_probe_code_created": true,
+      "presence_probe_execution_result": "not_executed",
+      "attempts": [
+        {
+          "run_id": "34ec5435-ed95-4057-bb34-9cbf489a482d",
+          "project_id": "6415944e-8d6c-432c-a7cf-3bbaa997799c",
+          "mode": "detached_read_only",
+          "status": "error_before_probe_block",
+          "error": "ModuleNotFoundError: No module named 'pytest'",
+          "failed_block_id": "43e281b25689485a9ff1c31e7cbfcbdc",
+          "interpretation": "The existing regression cell ran first and failed; the credential-presence cell remained unexecuted."
+        },
+        {
+          "mode": "live_selected_block",
+          "project_id": "6415944e-8d6c-432c-a7cf-3bbaa997799c",
+          "status": "blocked_before_execution",
+          "error": "Your plan quota for parallel running projects has been exceeded. Please stop one of your running projects.",
+          "selected_probe_block_id": "e4f6f2f9768448b381a492d746804d87"
+        },
+        {
+          "mode": "temporary_isolated_project_detached_read_only",
+          "project_id": "c3448dcc-7a07-4ade-8354-bd5b0f987b9e",
+          "notebook_id": "bc8acd88e6b3444da10165169f218d77",
+          "status": "blocked_before_execution",
+          "error": "Your plan quota for parallel running projects has been exceeded. Please stop one of your running projects.",
+          "temporary_project_deleted": true
+        }
+      ],
+      "workspace_capacity_snapshot": {
+        "project_count": 10,
+        "running_project_machines": 1,
+        "verifier_machine_status": "stopped",
+        "other_running_project_left_untouched": true,
+        "no_other_project_stopped": true
+      },
+      "temporary_probe_blocks_deleted": [
+        "e4f6f2f9768448b381a492d746804d87",
+        "753af6d3621540a69480d83f0ed4e7bf"
+      ],
+      "temporary_project_deleted": true,
+      "original_regression_block_id": "43e281b25689485a9ff1c31e7cbfcbdc",
+      "original_regression_block_content_unchanged": true,
+      "final_verifier_notebook_blocks": [
+        "43e281b25689485a9ff1c31e7cbfcbdc"
+      ],
+      "secret_values_read": false,
+      "secret_values_emitted": false,
+      "remote_mcp_requests_sent": 0,
+      "runtime_verified": false,
+      "interpretation": "The workspace TINYFISH env integration was found and attached to the intended DHI verifier project. Credential presence was not measured because the detached run failed on the earlier pytest cell and subsequent isolated/live attempts hit the parallel-project quota. Do not infer that the key is absent or present."
     }
   },
   "results": {
@@ -211,7 +286,7 @@
       "https://github.com/modelcontextprotocol/modelcontextprotocol/blob/main/docs/specification/2026-07-28/basic/transports/streamable-http.mdx"
     ]
   },
-  "next_gate": "Free a Deepnote parallel-run slot, then run a presence-only TINYFISH_API_KEY check. If present, perform read-only MCP initialize/tools/list and bounded search/fetch with independent readback. Do not stop other projects through this agent.",
+  "next_gate": "With the TINYFISH env integration attached to the verifier, obtain one Deepnote parallel-project run slot without stopping another project through the agent. Execute only the isolated presence-only check. If present, perform TinyFish read-only MCP initialize/tools/list and bounded search/fetch with independent readback.",
   "code_equivalence_check": {
     "tested_commit": "cba8421d4f4c6c4f929d5f4c3196eb83f98f7351",
     "current_branch_ref": "orbit/plugin-benchmark-fixture",
