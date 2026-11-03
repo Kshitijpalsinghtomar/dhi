@@ -166,5 +166,25 @@ class TaskManifestValidatorTests(unittest.TestCase):
         self.assertTrue(any(error.startswith("[schema]") for error in errors))
 
 
+    def test_plugin_trace_schema_and_grader_are_pinned_and_hashed(self) -> None:
+        integrity = self.manifest["integrity"]
+        self.assertEqual(integrity["trace_schema_path"], "DHI_v1/benchmark/plugin_trace.schema.json")
+        self.assertEqual(integrity["trace_grader_path"], "DHI_v1/benchmark/plugin_trace.py")
+        self.assertRegex(integrity["trace_schema_sha256"], r"^[a-f0-9]{64}$")
+        self.assertRegex(integrity["trace_grader_sha256"], r"^[a-f0-9]{64}$")
+
+    def test_plugin_trace_schema_hash_drift_is_rejected(self) -> None:
+        changed = copy.deepcopy(self.manifest)
+        changed["integrity"]["trace_schema_sha256"] = "0" * 64
+        errors = self.errors(changed)
+        self.assertTrue(any(error.startswith("[trace-contract]") for error in errors))
+
+    def test_missing_plugin_trace_grader_path_is_rejected(self) -> None:
+        changed = copy.deepcopy(self.manifest)
+        changed["integrity"]["trace_grader_path"] = "DHI_v1/benchmark/not-a-grader.py"
+        errors = self.errors(changed)
+        self.assertTrue(any(error.startswith("[trace-contract]") for error in errors))
+
+
 if __name__ == "__main__":
     unittest.main()
