@@ -637,3 +637,61 @@ The first task-record schema review found two panel-integrity requirements that 
 - Grader metadata must explicitly state `llm_judge_sole_source=false`.
 
 This is schema hardening only. No task instances were added and no benchmark execution was started.
+
+## 2026-11-03 — Begin plugin-native ORBIT benchmark authoring
+
+### User direction
+The benchmark must use the connected plugin tools. The local deterministic file-workspace harness is retained for the cases it covers, but it is no longer treated as the ceiling of the benchmark environment.
+
+### Execution surfaces inspected
+Pinned the actual connected tool descriptions and input contracts for 15 selected actions across GitHub, TinyFish, Firecrawl, Deepnote, Consensus, Scite and Wolfram in:
+- `DHI_v1/benchmark/fixtures/plugin_ecology/plugin_tool_registry.json`
+
+The task profile records strict boundaries:
+- GitHub writes only to dedicated benchmark branches; no issue, source, configuration, deployment, deletion or merge actions are used.
+- TinyFish is used for public current-source verification.
+- Firecrawl `firecrawl_find_tools` is used for free capability discovery. The discovered `packages/package` action costs one credit and was not executed.
+- Deepnote remains blocked by the previously recorded workspace project concurrency quota; no project was stopped or restarted.
+- Consensus search returned its monthly free usage cap (100% used; reset 2026-12-01); no retry was attempted.
+- Adaption dataset/training actions were not invoked.
+
+### Actual plugin-backed reference work
+1. Created a synthetic Northstar Workbench fixture on `orbit/plugin-benchmark-fixture`, with project policy, release notes, component map, work-item CSV, acceptance-test CSV and an untrusted imported issue body.
+2. Fetched seven source files through GitHub and verified their returned blob identifiers.
+3. Used TinyFish search and fetch on the official Node.js release page. The 2026-11-03 snapshot records v27 Alpha and v26/v24/v22 LTS; the production-use guidance excludes Alpha.
+4. Used free Firecrawl tool discovery to locate `package-registry-metadata-download-stats/packages/package`, its required `registry` and `name` inputs, and its one-credit execution cost.
+5. Created a release-readiness report on the dedicated branch, fetched it back, and verified all required sections and evidence.
+6. Created a separate resume sandbox from the fixture base, wrote a persistent checkpoint, resumed from that checkpoint in later tool calls, re-read all seven source files, created the final review, and fetched it back. The diff from checkpoint to final commit contains only the report path.
+7. Reproduced a real GitHub 404 for the incorrect `data/work-items.csv` path, inspected the directory, discovered `data/work_items.csv`, then fetched the correct file and matched its pinned blob.
+
+### Task authoring
+Added 10 Stage A task records, one per stratum:
+- S01 no-tool arithmetic restraint;
+- S02 time-sensitive official-source verification;
+- S03 free tool/capability discovery with a cost boundary;
+- S04 read-versus-write tool selection;
+- S05 exact GitHub tool argument/path contract;
+- S06 dependent multi-file release-readiness workflow;
+- S07 persistent checkpoint/resume workflow;
+- S08 404 error recovery and replanning;
+- S09 pre-action effect prediction and verified write closure;
+- S10 untrusted issue-content handling and permission restraint.
+
+The manifest now records 10/120 Stage A task instances and 0/120 Stage B task instances. Ten family fingerprints are recorded; Stage B remains sealed. All tasks are `ready_for_validation`, not `validated`; model execution is disabled in every record.
+
+### Current limitations
+- S07 has a working persistent GitHub checkpoint and a verified scripted resume reference, but a DHI model-run interruption trace remains pending.
+- S09 has working write/readback/diff operations, but the plugin runtime must capture the model's pre-action expected effects before the mutation; it remains partial.
+- The ten initial task graders have not yet undergone independent review or model-run validation.
+- Consensus search is quota-blocked for this month; Firecrawl paid capability execution has not been authorized; Deepnote project quota remains blocked.
+
+### Artifacts
+- `DHI_v1/benchmark/PLUGIN_NATIVE_EXECUTION_PROFILE.md`
+- `DHI_v1/benchmark/task_manifest.json` — 10 Stage A tasks, 0 Stage B tasks
+- `DHI_v1/benchmark/fixtures/plugin_ecology/plugin_tool_registry.json`
+- `DHI_v1/benchmark/fixtures/plugin_ecology/plugin_execution_evidence.json`
+- `DHI_v1/benchmark/fixtures/plugin_ecology/` — sources, external snapshots, checkpoint and verified reports
+
+### Decision
+Continue authoring and validating the plugin-native Stage A panel. Do not fabricate tool outcomes or claim model capability from these scripted reference actions. Keep Stage B sealed, and do not start candidate model comparisons until the panel and matched inference path are ready.
+
