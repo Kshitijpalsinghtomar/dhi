@@ -1,6 +1,6 @@
 # ORBIT-GRADER-FIX-001 — deterministic discovery recovery and branch-state scoring
 
-**Status:** protocol committed; RED test execution pending  
+**Status:** focused gate passed; full regression running  
 **Branch:** `orbit/plugin-benchmark-fixture`  
 **Baseline code:** `49e2ee031b18280206d8d4cc1f33c0e9c272e55b`
 
