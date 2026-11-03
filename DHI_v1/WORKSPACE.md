@@ -30,15 +30,15 @@ codename: ORBIT
 phase: plugin_native_stage_a_seed_authored
 status: in_progress
 status_reason: >
-  The plugin-native task route is now active. Twenty-two Stage A task records across all ten
+  The plugin-native task route is now active. Thirty Stage A task records across all ten
   strata are authored against actual connected GitHub, TinyFish and Firecrawl
-  tools, with exact tool-contract and fixture snapshots. Seven strata have a
+  tools, with exact tool-contract and fixture snapshots. Eight strata have a
   bounded supported task route; S07 and S09 remain partial pending model-run
   checkpoint traces and pre-action prediction capture. No DHI model has been run. Comparable base-model inference
   access and verified trajectories remain incomplete.
 training_status: not_authorized
-benchmark_status: stage_a_authoring_22_of_120; stage_b_sealed_unmaterialized
-last_verified_repository_head_before_this_workspace_checkpoint: d30a30cec1c39e53c5bbff2b1c3d01adccca4572
+benchmark_status: stage_a_authoring_30_of_120; stage_b_sealed_unmaterialized
+last_verified_repository_head_before_this_workspace_checkpoint: 3d57cc876dcd3f1f82c9d3ff884665de52c7f290
 ```
 </details>
 
@@ -51,9 +51,9 @@ last_verified_repository_head_before_this_workspace_checkpoint: d30a30cec1c39e53
 - Adaption Responses API adapter and hosted-model catalogue reader.
 - Read-only Adaption connector-catalogue discovery.
 - Twelve hand-authored diagnostic seeds: eight common executable cases, one Adaption-specific discovery case, and three unsupported future-runtime cases.
-- Plugin-native task profile with 15 exact connected tool contracts pinned in `benchmark/fixtures/plugin_ecology/plugin_tool_registry.json`.
+- Plugin-native task profile with 16 exact connected tool contracts pinned in `benchmark/fixtures/plugin_ecology/plugin_tool_registry.json`.
 - Synthetic Northstar plugin ecology fixture with source data, untrusted issue content, external snapshots, checkpoint and report artifacts.
-- Twenty Stage A task instances across all ten strata recorded in `benchmark/task_manifest.json`.
+- Thirty Stage A task instances across all ten strata recorded in `benchmark/task_manifest.json`.
 - Observable grader for tool use, no-tool restraint, recovery, state changes, protected paths, and verified closure.
 - Model-facing entrypoints:
   - `python -m DHI_v1.benchmark.run_model_pilot`
@@ -71,9 +71,10 @@ last_verified_repository_head_before_this_workspace_checkpoint: d30a30cec1c39e53
 | Untouched candidate model screening | Not run | No model winner |
 | DHI-v1 executed model trajectories | None recorded | No trajectory SFT source yet |
 | DHI-v1 training | Not authorized / not run | Data and benchmark gates remain closed |
-| Plugin-native Stage A authoring | 22 tasks materialized; 22 ready for validation | Actual GitHub/TinyFish/Firecrawl tool contracts and pinned evidence; no model runs |
+| Plugin-native Stage A authoring | 30 tasks materialized; 30 ready for validation | Actual GitHub/TinyFish/Firecrawl tool contracts and pinned evidence; no model runs |
 | Plugin reference workflows | Release report and checkpoint-resume report completed | Scripted reference evidence only; not DHI model capability results |
 | Plugin-native task grading | Not run | Grader contracts are authored; independent and model-facing validation still pending |
+| Manifest integrity | Static structural check passed 30/30 records | Python validator and pytest regression suite are committed but not yet executed |
 
 ## 6. Data status and hard stops
 
@@ -103,7 +104,9 @@ Experiment records:
 
 ## 8. Active verification
 
-VERIFY-001 is blocked on Deepnote's parallel-project quota. Initial run `93645a78-7cd2-4c64-9c84-353fbd31e15c` verified the exact checkout and passed compileall; pytest did not collect tests because pytest was missing. The retry cell (`f0d38652cb8c490595ca474cc5ae2317`) is ready but both detached and live run creation were rejected before execution by the same quota. Machine inspection found one project currently running in the workspace; no project was stopped. Experiment record: `DHI_v1/experiments/VERIFY-001/`.
+VERIFY-001 remains blocked on Deepnote's parallel-project quota. Initial run `93645a78-7cd2-4c64-9c84-353fbd31e15c` verified the exact checkout and passed compileall; pytest did not collect tests because pytest was missing. The retry cell (`f0d38652cb8c490595ca474cc5ae2317`) is ready but both detached and live run creation were rejected before execution by the same quota. No project was stopped. Experiment record: `DHI_v1/experiments/VERIFY-001/`.
+
+The plugin-native validator CI attempt `41594301494` (head `3d57cc876dcd3f1f82c9d3ff884665de52c7f290`) ended with `failure` before a runner was assigned: the job API reported `runner_id=0`, `steps=[]`, and the log artifact was unavailable. No pytest, compileall or validator command ran in that job. Do not treat that workflow conclusion as a code-test failure or a passing result.
 
 ## 9. Research methodology now active
 
@@ -133,12 +136,12 @@ Current status:
 - No DHI model inference, benchmark score, training data, or training run has been produced.
 
 Next:
-1. Add 11 further distinct task instances per stratum to complete the 120-task Stage A screen. Vary underlying task families, plugin combinations, schemas, dependencies and side-effect policies; do not create paraphrases to fill counts.
-2. Implement the plugin action-trace adapter for pre-action effect predictions and cross-session checkpoint/recovery events. Close the remaining S07/S09 trace gaps.
-3. Add a cross-record panel validator and regression tests for task-ID uniqueness, counts, family/split hashes, fixture/tool hashes, postcondition presence, and Stage B sealing.
-4. Independently review all 30 seed task prompts and graders. Run deterministic reference checks, then model pilots only after the matched inference access and benchmark-freeze gates pass.
-5. Build Stage B from 120 structurally distinct holdout tasks only after Stage A and the candidate/interface decision are fixed. Keep Stage B prompts and fixtures sealed.
-6. Keep model execution disabled until the Stage A task panel is complete, independently reviewed and frozen; preserve the Qwen3.6/GPT-OSS matched-comparison requirement.
+1. Execute `python -m DHI_v1.benchmark.validate_task_manifest` and the focused/full pytest suites on a working Python runner. The validator and 14 regression tests are committed; CI has not yet executed them because no runner was provisioned.
+2. Continue materializing the remaining 90 Stage A tasks with genuinely distinct families, environment evidence, executable postconditions and independently reviewable graders. Remaining quotas: S01=10, S02=9, S03=8, S04=9, S05=8, S06=8, S07=10, S08=9, S09=9, S10=10.
+3. Implement the plugin action-trace adapter for pre-action effect predictions and cross-session checkpoint/recovery events. Close the remaining S07/S09 model-run trace gaps.
+4. Independently review all 30 current task prompts and graders. Keep `ready_for_validation` until the task is exercised through the frozen task runner or an independent deterministic reference check.
+5. Build Stage B from 120 structurally distinct holdout tasks only after Stage A and the candidate/interface decision are fixed. Do not put sealed Stage B task bodies in this public repository; keep them outside the shared manifest until an explicit release decision.
+6. Keep model execution disabled until Stage A is complete, independently reviewed and frozen; preserve the Qwen3.6/GPT-OSS matched-comparison requirement.
 
 No DHI candidate model was run. Firecrawl capability discovery cost zero; the discovered package-record execution (one credit) and security/research provider executions (five credits each) were not called. TinyFish Go recovery included a schema-validation rejection followed by a 404 and a successful official-source re-fetch. Consensus search was unavailable because the provider's monthly free quota was exhausted. No Adaption generation/training action was called.
 
@@ -176,8 +179,11 @@ No DHI candidate model was run. Firecrawl capability discovery cost zero; the di
 | `PLUGIN-REGISTRY-001` | Pinned 15 actual connected plugin tool contracts and created the Northstar synthetic plugin fixture |
 | `ORBIT-TASKS-001` | Authored ten Stage A plugin-native tasks, one per stratum; manifest passed schema validation |
 | `ORBIT-TASKS-002` | Expanded the plugin-native Stage A register to 20 independent task families; schema and cross-record checks passed |
-| `ORBIT-TASKS-003` | Added Go release verification and TinyFish schema/404 recovery; Stage A now has 22 independent task families |
+| `ORBIT-TASKS-003` | Added Go release verification and TinyFish schema/404 recovery; Stage A reached 22 task families |
 | `ORBIT-TASKS-004` | Expanded Stage A to 30 task instances; S07 checkpoint/resume, additional schema, effect and multi-source cases added |
+| `ORBIT-REGISTRY-001` | Corrected missing `mcp__GitHub__update_file` contract and recomputed the 16-tool registry SHA-256 |
+| `ORBIT-MANIFEST-VALIDATOR-001` | Added cross-record validator and 14 regression tests; required task-instance/family fingerprints |
+| `ORBIT-INTEGRITY-001` | Independent static inspection confirmed 30/30 hashes, registered tools, and complete evidence references; Python tests remain unexecuted |
 | `ORBIT-METHOD-001` | Reviewed Karpathy and uditgoenka autoresearch; committed ORBIT's adapted evidence-first method and experiment template |
 | `ORBIT-REFERENCE-001` | Verified multi-file GitHub workflow and a persistent checkpoint/resume workflow with readback and single-path diffs |
 | `ORBIT-REFERENCE-002` | Verified two-source Node/Python release report, Firecrawl fallback recovery, and branch-effect prediction reference |
@@ -192,8 +198,8 @@ This file is the live checkpoint on the active research branch. Always fetch the
 A new agent must:
 1. Read this file from the active research branch.
 2. Fetch the latest active-branch head and inspect changes since the last checkpoint; compare with main when needed.
-3. Read [the Git-first workflow](docs/12_GIT_FIRST_WORKFLOW.md) and [the ORBIT research method](docs/13_ORBIT_RESEARCH_METHOD.md).
-4. Read the controlling plan and the exact protocol for the next task.
+3. Read [the Git-first workflow](docs/12_GIT_FIRST_WORKFLOW.md), [the ORBIT research method](docs/13_ORBIT_RESEARCH_METHOD.md), and the manifest validation report.
+4. Read the controlling plan and the exact protocol for the next task, including [the panel integrity checkpoint](benchmark/PANEL_INTEGRITY_VALIDATION_2026-11-03.md).
 5. Verify the latest run/experiment from its raw artifact reference—not from a chat message.
 6. Continue only the single next authorized action above.
 7. Commit every meaningful checkpoint, including failures and blockers, then update this workspace before switching tasks.
