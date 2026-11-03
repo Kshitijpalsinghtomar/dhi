@@ -1,5 +1,6 @@
 import json
 import urllib.error
+import urllib.request
 from unittest.mock import patch
 from urllib.parse import parse_qs, urlsplit
 
@@ -73,6 +74,27 @@ def test_search_uses_fixed_rest_endpoint_and_env_key_header():
     assert captured["timeout"] > 0
     assert result["results"][0]["url"] == "https://docs.python.org/"
 
+
+
+def test_api_key_is_not_forwarded_by_default_redirect_handler():
+    client = TinyFishReadOnlyClient(api_key="secret-redirect-test")
+    captured = {}
+
+    def fake_urlopen(request, timeout):
+        captured["request"] = request
+        return FakeHTTPResponse({"query": "redirect safety", "results": [], "total_results": 0, "page": 0})
+
+    with patch("urllib.request.urlopen", side_effect=fake_urlopen):
+        client.search({"query": "redirect safety"})
+
+    request = captured["request"]
+    assert header_map(request)["x-api-key"] == "secret-redirect-test"
+    redirected = urllib.request.HTTPRedirectHandler().redirect_request(
+        request, None, 302, "Found", {"Location": "https://attacker.example/collect"},
+        "https://attacker.example/collect",
+    )
+    assert redirected is not None
+    assert "x-api-key" not in header_map(redirected)
 
 def test_fetch_content_uses_fixed_rest_endpoint_and_json_body():
     client = TinyFishReadOnlyClient(api_key="secret-fetch-key")
