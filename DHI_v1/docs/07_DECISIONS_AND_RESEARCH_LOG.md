@@ -811,3 +811,50 @@ GitHub Actions run `41594301494` for the branch ended in failure before a runner
 
 ### Current decision
 Keep the manifest at `status=authoring`; do not mark any task validated or freeze the panel. Next, execute the validator/tests on a working Python runner, continue the 90 remaining Stage A tasks with distinct families, and preserve Stage B outside this shared public repository until the confirmation release gate is authorized.
+
+
+## 2026-11-03 — Verify ORBIT manifest integrity and plugin trace grader
+
+### Result
+
+At code commit `421955df46975d8b20fba63f8922949a49b4551c`, an isolated Deepnote runner completed all checks:
+- Cross-record manifest validator: `valid=true`, 30 tasks, Stage A=30, Stage B=0, zero errors.
+- Focused tests: **44 passed, 0 failed** (20 manifest-validator tests and 24 plugin trace-grader tests).
+- `compileall -q DHI_v1/benchmark`: exit code 0.
+
+Runner: Python 3.13.18. Deepnote run: `52254373-656f-4d0c-841d-c3a2c621d7cc`. Machine-readable record: [ORBIT-VERIFY-002](../experiments/ORBIT-VERIFY-002/).
+
+### Scope boundary
+
+This verifies manifest, hash, evidence-reference and deterministic trace-grader integrity. It does not mean any of the 30 tasks has been model-executed, independently validated, or frozen. The 30 task records remain `ready_for_validation`; Stage A is 30/120 and Stage B is sealed at 0/120.
+
+## 2026-11-03 — Separate OpenRouter inference availability from Adaption training access
+
+### Decision and evidence
+
+The connected OpenRouter catalogue exposes both selected untouched-base candidates:
+- `qwen/qwen3.6-35b-a3b` — PrimeIntellect fp8 endpoint, tool calling supported.
+- `openai/gpt-oss-20b` — PrimeIntellect fp4 endpoint, tool calling supported.
+
+Both advertise `tool_choice=auto`. The PrimeIntellect route is the common named-provider route; the GPT-OSS endpoint does not advertise `tool_choice=required`, so the initial matched protocol must use only shared supported modes. The live OpenRouter credit audit returned **$0 total credits**. A price-free endpoint query returned no free endpoint for either exact model. No inference call was made.
+
+Adaption's training registry separately lists Qwen3.6, GPT-OSS-20B and Gemma 4 31B as trainable models. Registry/training support is not hosted inference access. See [INFER-002](../experiments/INFER-002/).
+
+### Consequence
+
+A matched base-model smoke is now technically routable but financially blocked on OpenRouter. Do not silently switch providers, compare unmatched quantizations, or use a single-candidate run as a model-selection result. No DHI model capability result is claimed.
+
+## 2026-11-03 — Hold DHI training pending dataset lineage audit
+
+### Evidence
+
+- Adaption's Qwen3.6-35B-A3B recommender requires at least 10,000 effective training rows and returned a LoRA configuration for dataset `843888da-28e2-420e-909e-88b203d16404`.
+- That dataset metadata declares 10,000 rows and prompt/completion columns `rephrased_prompt` / `enhanced_completion`. Its evaluation record, however, names the separate 300-row dataset `c1f4df14-b12c-430c-91ad-e10b559d1cee` as both input path and config source, and records a 100-row sample. The A grade cannot be attributed to the 10K export without reconciliation.
+- The 300-row ORBIT pilot has null prompt/completion mapping and only partial previous row review; the 120-row task-spec dataset scored Grade C / 6.6 with completion quality at the 2.2nd percentile.
+- Historical Qwen3.5-4B DPO run `5f16632f-f4d4-49da-a5ce-5faf66a47d80` reached best_win_rate 0.4609 against a 0.99 target; it is not release evidence.
+
+### Decision
+
+No training, augmentation, or data-generation job is authorized from this audit. Retrieve the actual private 10K export, inspect row semantics and duplicates, reconcile evaluation lineage, produce a clean train/validation split, and obtain cost information before any paid run. Keep intent-arbitration instruction data separate from ORBIT task contracts and real tool-execution trajectories.
+
+Machine-readable record: [TRAINING-ACCESS-002](../experiments/TRAINING-ACCESS-002/).
