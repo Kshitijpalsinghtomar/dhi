@@ -160,9 +160,10 @@ def test_runner_exposes_structured_repository_branch_forecast_schema(tmp_path):
     assert set(repository_state["required"]) == {
         "added_branches", "modified_branches", "deleted_branches", "unchanged_branches"
     }
-    branch_ref = repository_state["$defs"]["branch_ref"]
+    branch_ref = repository_state["properties"]["added_branches"]["items"]
     assert branch_ref["required"] == ["name", "head_sha"]
     assert branch_ref["properties"]["head_sha"]["pattern"] == "^[a-f0-9]{40}$"
+    assert branch_ref["additionalProperties"] is False
 
 
 def test_runner_passes_repository_branch_forecast_into_pre_action_trace(tmp_path):
