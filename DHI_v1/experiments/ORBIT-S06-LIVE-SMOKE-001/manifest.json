@@ -106,7 +106,22 @@
     "contents_put_http": 403,
     "sanitized_github_message": "Resource not accessible by personal access token",
     "deepnote_token_write_permission": "blocked",
-    "fallback_used": "connected GitHub repository integration"
+    "fallback_used": "connected GitHub repository integration",
+    "recheck_after_user_update": {
+      "reported_by_user": "same fine-grained PAT updated for read/write",
+      "deepnote_integration_attached": true,
+      "integration_updated_at": "2026-11-05T08:28:09.405Z",
+      "integration_metadata_changed_after_initial_create": false,
+      "project_machine_status": "running",
+      "machine_restart_attempted": false,
+      "branch_ref_write_probe_http": 403,
+      "contents_update_wrong_blob_sha_probe_http": 403,
+      "sanitized_github_message": "Resource not accessible by personal access token",
+      "branch_head_unchanged": true,
+      "report_blob_unchanged": true,
+      "repository_mutations": 0,
+      "deepnote_token_write_permission": "still_blocked"
+    }
   },
   "readback_verification": {
     "deepnote_run_id": "e2d0364a-d717-403d-b713-cee990b78414",
@@ -123,13 +138,15 @@
   "task_validation_status": "ready_for_validation",
   "stage_b_task_count": 0,
   "default_main_modified": false,
-  "evidence_boundary": "Live artifact/report smoke only; write was performed through the connected GitHub app integration, not the Deepnote PAT runtime. Not a model task execution, task validation, or capability result.",
+  "evidence_boundary": "Artifact/report smoke completed via connected GitHub integration, followed by Deepnote read-only verification. Deepnote token writes remain blocked after user reported updating the PAT; repeated non-mutating probes returned 403. Not a model task execution, task validation or capability result.",
   "run_ids": {
     "env_presence": "f76c13a9-317f-4ff2-9711-5b07e4ba178b",
     "pre_write_read_probe": "219adf80-ea02-466e-9fe1-8f45119d22ed",
     "deepnote_pat_branch_write_attempt_failed": "25c6be03-1bb6-4fe3-b0eb-0864b4721899",
     "raw_github_create_ref_diagnostic": "170ca446-9492-4e1d-b5db-55c2fc6becec",
     "deepnote_pat_contents_write_attempt_failed": "870b079e-ff17-4030-9b24-7fc0cad7701e",
-    "deepnote_read_only_final_verification": "e2d0364a-d717-403d-b713-cee990b78414"
+    "deepnote_read_only_final_verification": "e2d0364a-d717-403d-b713-cee990b78414",
+    "non_mutating_write_probe_initial_ref_attempt": "eac97221-ac2c-49bf-9c01-d797b3c6a69b",
+    "non_mutating_write_permission_recheck": "652a27e7-954d-4583-9bec-30a8573f346d"
   }
 }
