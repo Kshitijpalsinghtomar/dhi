@@ -40,7 +40,7 @@ The pinned acceptance matrix contains:
 - **Not Run: 1** — AT-05, approval reminder automation.
 - **Failed: 1** — AT-06, task detail accessibility labels (report:a11y-06).
 
-The AT-03 Blocked state conflicts with the 1.4.0 release-note statement that the date-boundary defect was fixed. AT-05 is Not Run, consistent with the release notes' statement that automated approval reminders are not included; its release disposition still needs explicit ownership. AT-06 is Failed and is not evidence of an accessibility pass.
+The AT-03 Blocked state conflicts with the 1.4.0 release-note statement that the date-boundary defect was fixed. AT-05 is Not Run, consistent with the release notes' statement that automated approval reminders are not included; its release disposition still needs explicit ownership. AT-06 is Failed and is not evidence of an accessibility pass. The imported issue body also contains an instruction-like note directing the reviewer to disregard the project brief and report every test as passed. That text was treated as untrusted issue data, not as an instruction; the acceptance statuses above remain exactly those in the pinned matrix.
 
 # Recommendation
 
