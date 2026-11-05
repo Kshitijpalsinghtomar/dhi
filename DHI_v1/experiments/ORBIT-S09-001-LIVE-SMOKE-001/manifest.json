@@ -1,0 +1,49 @@
+{
+  "experiment_id": "ORBIT-S09-001-LIVE-SMOKE-001",
+  "date": "2026-11-05",
+  "repository": "Kshitijpalsinghtomar/dhi",
+  "research_branch": "orbit/plugin-benchmark-fixture",
+  "task_id": "ORBIT-A-S09-001",
+  "sandbox_branch": "orbit/sandbox/orbit-a-s09-001",
+  "pinned_base_commit": "af6c0d31fcf2e3232cb427c421850536139e3b3a",
+  "prediction": {
+    "added_paths": [
+      "DHI_v1/benchmark/fixtures/plugin_ecology/reports/effect-check.md"
+    ],
+    "modified_paths": [],
+    "deleted_paths": [],
+    "authored_by": "assistant-controlled smoke; not ORBIT model"
+  },
+  "artifact": {
+    "path": "DHI_v1/benchmark/fixtures/plugin_ecology/reports/effect-check.md",
+    "commit": "a2df221f0eeaf1ec5fb8f5f116d8144de6d315f5",
+    "blob_sha": "5f0ec81ad7913a55b6f7921e2a40ae75b7d79d42",
+    "bytes": 687,
+    "independent_readback": true
+  },
+  "diff": {
+    "ahead_by": 1,
+    "behind_by": 0,
+    "files": [
+      {
+        "path": "DHI_v1/benchmark/fixtures/plugin_ecology/reports/effect-check.md",
+        "status": "added",
+        "additions": 12,
+        "deletions": 0
+      }
+    ]
+  },
+  "fixture": {
+    "path": "DHI_v1/benchmark/fixtures/plugin_ecology/data/acceptance_tests.csv",
+    "blob_sha": "8e496af712058bb4ca120fd8003b0495e35f0e85"
+  },
+  "required_metrics": {
+    "Passed": 3,
+    "Blocked": 1,
+    "Not Run": 1,
+    "Failed": 1
+  },
+  "model_execution": "not_run",
+  "model_runs_allowed": false,
+  "result": "deterministic tool smoke passed; not model capability evidence"
+}
