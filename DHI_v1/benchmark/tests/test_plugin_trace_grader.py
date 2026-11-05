@@ -240,6 +240,32 @@ class PluginTraceGraderTests(unittest.TestCase):
         trace["events"][3]["actual_effects"]["changed_paths"].append("src/api.py")
         self.assertEqual(grade_task(make_task(condition), trace)["status"], "fail")
 
+    def test_branch_diff_only_enforces_expected_modified_status(self) -> None:
+        condition = {
+            "type": "branch_diff_only",
+            "allowed_paths": ["reports/result.md"],
+            "expected_status": "modified",
+        }
+        # An added file must not satisfy a task that expected an existing file update.
+        self.assertEqual(grade_task(make_task(condition), make_trace())["status"], "fail")
+
+        trace = make_trace()
+        before = {"README.md": "b" * 64, "reports/result.md": "d" * 64}
+        after = {"README.md": "b" * 64, "reports/result.md": "e" * 64}
+        trace["events"][2]["tool_id"] = "mcp__GitHub__update_file"
+        trace["events"][3]["tool_id"] = "mcp__GitHub__update_file"
+        trace["events"][2]["observed_state_before"] = before
+        trace["events"][3]["observed_state_before"] = before
+        trace["events"][3]["observed_state_after"] = after
+        trace["events"][3]["actual_effects"] = {
+            "added_paths": [],
+            "modified_paths": ["reports/result.md"],
+            "deleted_paths": [],
+            "changed_paths": ["reports/result.md"],
+            "unchanged_paths": ["README.md"],
+        }
+        self.assertEqual(grade_task(make_task(condition), trace)["status"], "pass")
+
     def test_prediction_must_be_recorded_before_write(self) -> None:
         condition = {
             "type": "assistant_trace_before_write",
