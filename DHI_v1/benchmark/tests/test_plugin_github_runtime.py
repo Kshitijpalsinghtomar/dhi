@@ -267,7 +267,6 @@ def test_runtime_bound_runner_passes_branch_precondition_before_model_call():
         _task_record(),
         runtime,
         model,
-        observe_state=lambda: {},
     )
 
     assert model.calls == 1
