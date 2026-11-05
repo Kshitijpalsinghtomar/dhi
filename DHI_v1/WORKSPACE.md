@@ -27,24 +27,24 @@ This is a research target, not a result or novelty claim. A prompt, RAG store, f
 ```yaml
 programme: DHI-v1
 codename: ORBIT
-phase: trusted_github_plugin_runtime_offline_verified_live_provider_blocked
+phase: s06_artifact_smoke_complete_deepnote_pat_write_blocked
 status: blocked
 status_reason: >
-  ORBIT-VERIFY-012 passed the exact branch-head offline engineering regression
-  at 7f244bf76ccbccec5477b0055d23da5a5931e27a: manifest validation passed for
-  30 Stage A tasks and zero Stage B tasks; the combined benchmark/environment
-  suite passed 224 tests; compileall, entrypoint imports and the 30-plan loader
-  passed; zero model runs were enabled. ORBIT-VERIFY-011 and ORBIT-VERIFY-012
-  are recorded under experiments/. The task-scoped GitHub runtime now binds
-  branch-head preconditions, compare-based state snapshots, repository/branch/
-  path write guards and independent artifact readback to one configured client.
-  These results use offline tests and fake GitHub HTTP only. Live GitHub
-  execution remains blocked because the Deepnote project has no project-scoped
-  GITHUB_TOKEN, write-enable flag or repository allowlist. All 30 Stage A tasks
-  remain ready_for_validation; Stage B remains sealed with zero tasks; all
-  model_runs_allowed flags remain false. S07 and S09 remain partial. No ORBIT
-  inference, model-generated trajectory, capability score or training run
-  exists. Model access and benchmark task-validation gates remain open.
+  ORBIT-VERIFY-012 passed the exact-head offline engineering regression:
+  224 benchmark/environment tests, compileall, imports, manifest validation
+  for 30 Stage A tasks, and 30-plan loader; zero model runs were enabled.
+  ORBIT-S06-LIVE-SMOKE-001 provisioned the S06 sandbox branch at its pinned
+  base, verified seven fixture blobs, and created/read back the sole approved
+  report. Deepnote token reads passed, but both POST /git/refs and PUT
+  /contents were rejected by GitHub with HTTP 403: Resource not accessible
+  by personal access token. The branch and report were therefore provisioned
+  through the connected GitHub repository integration. The live Deepnote
+  token-backed write path remains blocked. All 30 Stage A tasks remain
+  ready_for_validation; Stage B remains sealed with zero tasks; all model
+  execution flags remain false. S07 and S09 remain partial. No ORBIT inference,
+  model-generated trajectory, capability score or training run exists. This
+  report smoke is infrastructure/reference evidence, not task validation or
+  a model capability result.
 training_status: not_authorized
 benchmark_status: stage_a_authoring_30_of_120; stage_b_sealed_unmaterialized
 last_verified_code_commit: 7f244bf76ccbccec5477b0055d23da5a5931e27a
@@ -95,6 +95,7 @@ last_verified_test_commit: 7f244bf76ccbccec5477b0055d23da5a5931e27a
 | ORBIT-VERIFY-010 | **Passed — latest exact code head** | Code `e045e43d41a5cd125f81dbfdac105937f3a161af`; Deepnote run `3d2f4a00-32e6-422c-b14e-50b158a89e31`; manifest validator, **207 benchmark/environment tests**, compileall, imports and 30-plan loader all passed; 0 model runs enabled. See `experiments/ORBIT-VERIFY-010/`. |
 | ORBIT-VERIFY-011 | Passed | Code `cbcccd15be56df159351ac88b4580f07f98e9312`; Deepnote run `0987fae8-a416-4fb5-96d7-522d36b17202`; **209 benchmark/environment tests** passed; fail-closed preconditions and readback-linked artifacts verified offline. See `experiments/ORBIT-VERIFY-011/`. |
 | ORBIT-VERIFY-012 | **Passed — latest exact code head** | Code `7f244bf76ccbccec5477b0055d23da5a5931e27a`; Deepnote run `3f2f3b31-86db-46f3-a731-f9f4c502435d`; manifest validator, **224 benchmark/environment tests**, compileall, imports and 30-plan loader all passed; 0 model runs enabled. Task-scoped GitHub runtime verified via fake HTTP only. See `experiments/ORBIT-VERIFY-012/`. |
+| ORBIT-S06-LIVE-SMOKE-001 | Artifact/report smoke passed via connected GitHub integration; Deepnote PAT write blocked | Seven pinned fixture blobs verified; report independently read back; compare shows exactly one allowed added file. Deepnote token reads passed, but branch-create and contents-write requests returned HTTP 403. Not a token-backed write pass, model execution, task validation or capability result. See `experiments/ORBIT-S06-LIVE-SMOKE-001/`. |
 
 ## 6. Data status and hard stops
 
@@ -710,3 +711,26 @@ All 30 Stage A tasks remain `ready_for_validation`; Stage B is sealed and empty;
 - Independently review/validate all 30 Stage A tasks before any model-run permission is considered. Stage B stays sealed. No inference or training is authorized.
 
 See `experiments/ORBIT-VERIFY-012/` for the experiment README, manifest and raw verifier output.
+
+
+## 28. ORBIT-S06-LIVE-SMOKE-001 — artifact verified; Deepnote write credential blocked — 5 November 2026
+
+- Task: `ORBIT-A-S06-001`; sandbox branch: `orbit/sandbox/orbit-a-s06-001`.
+- Pinned base: `af6c0d31fcf2e3232cb427c421850536139e3b3a`.
+- Report commit: `3b9b8be6a4c5d2ad22306e67288e7ba1dc975d0f`.
+- Only the manifest-approved path was added: `DHI_v1/benchmark/fixtures/plugin_ecology/reports/release-readiness.md`.
+- Report blob SHA: `cca5127e66bc698f5c9cdfd8135a33ab45c8d985`; exact readback passed.
+- Seven pinned source fixture blobs were verified. Deepnote read-only verification run: `e2d0364a-d717-403d-b713-cee990b78414`.
+- Base-to-head compare: ahead=1, behind=0; exactly one added file; 51 insertions and zero deletions.
+- Derived data: 8 not Done / 35 estimated hours; 4 Open / 19 hours; acceptance 3 Passed, 1 Blocked, 1 Not Run and 1 Failed.
+- The report identifies the AT-03 release-note/acceptance conflict, AT-06 failure, AT-05 Not Run state and dependency roots NS-101/NS-105.
+
+### Write credential boundary
+
+The project integration is attached and the three environment settings are present. The Deepnote token can read the repository and pinned commit (HTTP 200), but GitHub rejects both its `POST /git/refs` branch-creation request and its `PUT /contents/{path}` report-write request with HTTP 403, `Resource not accessible by personal access token`.
+
+The connected GitHub repository integration provisioned the branch and created the report. Deepnote then independently verified the report and diff in read-only mode. This completes the artifact/report smoke only; it does **not** prove token-backed Deepnote writes, a model-driven task run, independent task validation or ORBIT capability.
+
+Next: confirm the fine-grained token has Contents read/write access for only the `dhi` repository and any required approval, update the Deepnote `GITHUB_TOKEN` secret, and rerun a narrow write preflight against this existing branch. Do not create another branch or rewrite the report.
+
+All 30 Stage A tasks remain `ready_for_validation`; S06 `model_runs_allowed=false`; Stage B stays sealed and empty. No model calls, training, issue/source/configuration/deployment changes occurred. Default `main` remains untouched.
