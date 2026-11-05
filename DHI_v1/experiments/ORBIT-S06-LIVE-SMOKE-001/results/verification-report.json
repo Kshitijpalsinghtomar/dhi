@@ -55,6 +55,17 @@
       "duplicate_ref_write_http": 403,
       "accepted_permissions_header": "contents=write; contents=write,workflows=write",
       "no_repository_mutation": true
+    },
+    "post_user_update_contents_write_preflight": {
+      "run_id": "3c722666-6e68-46c6-ae57-ccf76b256dbd",
+      "verifier_block_id": "e4c9f16ba86540d992e67c1392b5304e",
+      "deliberate_stale_sha_put_http": 409,
+      "github_response": "does not match 0000000000000000000000000000000000000000",
+      "effective_contents_write_permission": "confirmed",
+      "branch_head_unchanged": true,
+      "report_blob_unchanged": true,
+      "repository_mutations": 0,
+      "token_value_exposed": false
     }
   },
   "actions": {
@@ -71,5 +82,7 @@
   "manifest_model_runs_allowed": false,
   "all_artifact_assertions_passed": true,
   "deepnote_token_write_path_passed": false,
-  "end_to_end_token_backed_runtime_smoke_passed": false
+  "end_to_end_token_backed_runtime_smoke_passed": false,
+  "contents_write_permission_preflight_passed": true,
+  "permission_probe_interpretation": "The Deepnote token now passes Contents-write authorization. The deliberately invalid SHA causes HTTP 409 before any file update; no valid token-backed write was performed."
 }
