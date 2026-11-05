@@ -354,3 +354,72 @@ def test_runtime_rejects_pinned_file_blob_hash_mismatch():
                 "blob_sha": "0" * 40,
             }},
         )
+
+
+
+def _plan_for(task_id: str):
+    return replace(
+        load_plugin_task(MANIFEST, REGISTRY, task_id),
+        model_runs_allowed=True,
+    )
+
+
+def test_runtime_derives_resume_branch_and_base_from_s07_checkpoint_contract():
+    plan = _plan_for("ORBIT-A-S07-001")
+    client = FakeGitHubClient()
+    runtime = build_github_plugin_runtime(plan, client, repository_full_name=REPOSITORY)
+
+    assert runtime.expected_branch == "orbit/plugin-resume-sandbox"
+    assert runtime.expected_base_commit == "04d0e12f48067b3b3a3de3ffe10944b7ef594984"
+
+    checkpoint_path = "DHI_v1/benchmark/fixtures/plugin_ecology/checkpoints/resume-task-A.md"
+    checkpoint_text = (
+        "# ORBIT resume sandbox — checkpoint A\n"
+        "Fixture base: 04d0e12f48067b3b3a3de3ffe10944b7ef594984\n"
+    )
+    client.files[checkpoint_path] = checkpoint_text
+    condition = {
+        "condition": {
+            "type": "github_file_blob",
+            "path": checkpoint_path,
+            "blob_sha": _blob_sha(checkpoint_text),
+        }
+    }
+    observed = runtime.precondition_observer({"task_id": "ORBIT-A-S07-001"}, condition)
+    assert observed == {
+        "path": checkpoint_path,
+        "commit": "04d0e12f48067b3b3a3de3ffe10944b7ef594984",
+        "blob_sha": _blob_sha(checkpoint_text),
+    }
+
+
+def test_runtime_scopes_branch_creation_to_s09_registered_target_and_base():
+    plan = _plan_for("ORBIT-A-S09-002")
+    client = FakeGitHubClient()
+    runtime = build_github_plugin_runtime(plan, client, repository_full_name=REPOSITORY)
+    assert runtime.expected_base_commit == "af6c0d31fcf2e3232cb427c421850536139e3b3a"
+    assert runtime.allowed_paths == frozenset()
+
+    name = runtime.prepared.tool_name_by_id["mcp__GitHub__create_branch"]
+    runtime.prepared.dispatch(name, {
+        "repository_full_name": REPOSITORY,
+        "branch_name": "orbit/effect-forecast-check",
+        "sha": "af6c0d31fcf2e3232cb427c421850536139e3b3a",
+    })
+    assert client.created_branches == [{
+        "repository_full_name": REPOSITORY,
+        "branch_name": "orbit/effect-forecast-check",
+        "sha": "af6c0d31fcf2e3232cb427c421850536139e3b3a",
+    }]
+    with pytest.raises(Exception, match="write guard denied"):
+        runtime.prepared.dispatch(name, {
+            "repository_full_name": REPOSITORY,
+            "branch_name": "orbit/unapproved",
+            "sha": "af6c0d31fcf2e3232cb427c421850536139e3b3a",
+        })
+
+
+def test_s09_branch_runtime_does_not_use_file_compare_state_observer():
+    plan = _plan_for("ORBIT-A-S09-002")
+    runtime = build_github_plugin_runtime(plan, FakeGitHubClient(), repository_full_name=REPOSITORY)
+    assert runtime.state_observer() == {}
