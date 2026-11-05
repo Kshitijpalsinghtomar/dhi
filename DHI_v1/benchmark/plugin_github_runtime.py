@@ -7,6 +7,7 @@ have writes enabled and the repository must be in its write allowlist.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 from dataclasses import dataclass
@@ -37,6 +38,7 @@ class PreparedGitHubTaskRuntime:
     expected_base_commit: str
     allowed_paths: frozenset[str]
     precondition_observer: Callable[[Mapping[str, Any], Mapping[str, Any]], Mapping[str, Any]]
+    state_observer: Callable[[], Mapping[str, str]]
     artifact_reader: Callable[[str, str, str], Mapping[str, Any]]
 
 
@@ -95,7 +97,6 @@ def run_github_plugin_task(
     runtime: PreparedGitHubTaskRuntime,
     model_client: Any,
     *,
-    observe_state: Callable[[], Mapping[str, str]] | None = None,
     trajectory_id: str | None = None,
     model_id: str | None = None,
     evidence_class: str = "scripted-reference",
@@ -121,7 +122,7 @@ def run_github_plugin_task(
         task_record,
         runtime.prepared,
         model_client,
-        observe_state=observe_state,
+        observe_state=runtime.state_observer,
         precondition_observer=runtime.precondition_observer,
         artifact_reader=runtime.artifact_reader,
         trajectory_id=trajectory_id,
@@ -159,8 +160,12 @@ def build_github_plugin_runtime(
     allowed_repositories = getattr(client, "allowed_repositories", frozenset())
     if repository_full_name not in allowed_repositories:
         raise GitHubTaskRuntimeError("repository is outside the GitHub client write allowlist")
-    if not callable(getattr(client, "fetch", None)) or not callable(getattr(client, "fetch_file", None)):
-        raise GitHubTaskRuntimeError("GitHub client lacks fetch and fetch_file read capabilities")
+    if (
+        not callable(getattr(client, "fetch", None))
+        or not callable(getattr(client, "fetch_file", None))
+        or not callable(getattr(client, "compare_commits", None))
+    ):
+        raise GitHubTaskRuntimeError("GitHub client lacks fetch, fetch_file and compare_commits read capabilities")
     if not callable(getattr(client, "tool_handlers", None)):
         raise GitHubTaskRuntimeError("GitHub client lacks the canonical tool handler map")
 
@@ -243,6 +248,74 @@ def build_github_plugin_runtime(
             raise GitHubTaskRuntimeError("GitHub branch ref did not contain a valid head SHA")
         return {"branch_name": expected_branch, "head_sha": head_sha}
 
+    def state_observer() -> Mapping[str, str]:
+        """Return the independently observed base-to-branch file-diff snapshot."""
+        response = client.compare_commits({
+            "repo_full_name": repository_full_name,
+            "base": expected_base_commit,
+            "head": expected_branch,
+        })
+        if not isinstance(response, Mapping):
+            raise GitHubTaskRuntimeError("GitHub compare returned an invalid result")
+        if (
+            response.get("repository_full_name") != repository_full_name
+            or response.get("base") != expected_base_commit
+            or response.get("head") != expected_branch
+        ):
+            raise GitHubTaskRuntimeError("GitHub compare response does not match the pinned task repository/branch")
+        files = response.get("files")
+        if not isinstance(files, list):
+            raise GitHubTaskRuntimeError("GitHub compare response has no file list")
+
+        state: dict[str, str] = {}
+        allowed_statuses = {"added", "removed", "modified", "renamed", "copied", "changed"}
+        for item in files:
+            if not isinstance(item, Mapping):
+                raise GitHubTaskRuntimeError("GitHub compare returned a malformed file record")
+            path = item.get("filename")
+            status = item.get("status")
+            blob_sha = item.get("sha")
+            if (
+                not isinstance(path, str)
+                or not path
+                or path.startswith("/")
+                or "\\" in path
+                or any(part in {"", ".", ".."} for part in path.split("/"))
+                or status not in allowed_statuses
+            ):
+                raise GitHubTaskRuntimeError("GitHub compare returned an invalid path or status")
+            if blob_sha is not None and (
+                not isinstance(blob_sha, str) or not re.fullmatch(r"[a-f0-9]{40}", blob_sha)
+            ):
+                raise GitHubTaskRuntimeError(f"GitHub compare returned an invalid blob SHA for {path!r}")
+
+            fingerprint = hashlib.sha256(json.dumps(
+                {"status": status, "blob_sha": blob_sha},
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode("utf-8")).hexdigest()
+            if path in state:
+                raise GitHubTaskRuntimeError(f"GitHub compare returned duplicate path {path!r}")
+            state[path] = fingerprint
+
+            previous = item.get("previous_filename")
+            if previous is not None:
+                if (
+                    not isinstance(previous, str)
+                    or not previous
+                    or previous.startswith("/")
+                    or "\\" in previous
+                    or any(part in {"", ".", ".."} for part in previous.split("/"))
+                    or previous in state
+                ):
+                    raise GitHubTaskRuntimeError("GitHub compare returned an invalid previous_filename")
+                state[previous] = hashlib.sha256(json.dumps(
+                    {"status": "renamed_from", "blob_sha": blob_sha},
+                    sort_keys=True,
+                    separators=(",", ":"),
+                ).encode("utf-8")).hexdigest()
+        return dict(sorted(state.items()))
+
     def artifact_reader(repo: str, path: str, ref: str) -> Mapping[str, Any]:
         if repo != repository_full_name or path not in allowed_paths or ref != expected_branch:
             raise GitHubTaskRuntimeError("artifact readback request is outside the task-scoped sandbox")
@@ -267,5 +340,6 @@ def build_github_plugin_runtime(
         expected_base_commit=expected_base_commit,
         allowed_paths=allowed_paths,
         precondition_observer=precondition_observer,
+        state_observer=state_observer,
         artifact_reader=artifact_reader,
     )
