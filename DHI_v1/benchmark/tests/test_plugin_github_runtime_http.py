@@ -144,7 +144,9 @@ def test_real_github_adapter_is_bound_to_one_task_branch_for_observe_write_readb
     assert artifact["sha"] == _blob_sha(REPORT)
     assert artifact["display_url"].startswith(f"https://github.com/{REPOSITORY}/blob/{BRANCH}/")
 
-    assert [call["method"] for call in http.calls] == ["GET", "PUT", "GET"]
+    assert [call["method"] for call in http.calls] == ["GET", "GET", "PUT", "GET", "GET"]
+    assert "/compare/" in http.calls[1]["url"]
+    assert "/compare/" in http.calls[3]["url"]
     assert all(call["authorization"] == "Bearer fake-test-token" for call in http.calls)
     assert all(call["timeout"] == 20.0 for call in http.calls)
 
