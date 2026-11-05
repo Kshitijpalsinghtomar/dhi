@@ -108,8 +108,8 @@ def run_github_plugin_task(
 
     This is deliberately a thin binding layer: the canonical plugin runner still
     performs model-call limits, tool validation, trace generation and grading.
-    The wrapper only binds the exact prepared tools and the precondition/readback
-    observers constructed for the same task-scoped GitHub sandbox.
+    The wrapper only binds the exact prepared tools and the precondition, state
+    snapshot and readback observers constructed for the same task-scoped sandbox.
     """
     if not isinstance(runtime, PreparedGitHubTaskRuntime):
         raise GitHubTaskRuntimeError("runtime must be a PreparedGitHubTaskRuntime")
@@ -281,6 +281,7 @@ def build_github_plugin_runtime(
                 or path.startswith("/")
                 or "\\" in path
                 or any(part in {"", ".", ".."} for part in path.split("/"))
+                or not isinstance(status, str)
                 or status not in allowed_statuses
             ):
                 raise GitHubTaskRuntimeError("GitHub compare returned an invalid path or status")
