@@ -108,6 +108,50 @@ def make_trace(events: list[dict] | None = None, *, artifacts: list[dict] | None
     }
 
 
+
+def trace_with_readback_artifact(artifact: dict) -> dict:
+    """Attach a synthetic but internally consistent provider readback to the fixture trace."""
+    content = artifact.get("content", "")
+    data = content.encode("utf-8")
+    blob_sha = hashlib.sha1(b"blob " + str(len(data)).encode("ascii") + b"\0" + data).hexdigest()
+    repository = "Kshitijpalsinghtomar/dhi"
+    ref = "orbit/sandbox/test-artifact"
+    source_ref = f"https://github.com/{repository}/blob/{ref}/{artifact['path']}"
+    trace = make_trace()
+    for index in (2, 3):
+        trace["events"][index]["arguments"].update({
+            "repository_full_name": repository,
+            "branch": ref,
+        })
+    artifact.update({
+        "blob_sha": blob_sha,
+        "status": "read",
+        "source_event_index": 5,
+        "source_ref": source_ref,
+    })
+    trace["final_artifacts"] = [artifact]
+    trace["events"].insert(4, {
+        "event_id": "artifact-readback",
+        "event_index": 5,
+        "event_type": "artifact_readback",
+        "timestamp_utc": "2026-11-03T00:00:03.500Z",
+        "task_id": trace["task_id"],
+        "artifact_readback": {
+            "path": artifact["path"],
+            "repository_full_name": repository,
+            "ref": ref,
+            "status": "verified",
+            "source_action_id": "act-1",
+            "sha256": sha(content),
+            "blob_sha": blob_sha,
+            "source_ref": source_ref,
+        },
+    })
+    for index, event in enumerate(trace["events"], 1):
+        event["event_index"] = index
+    return trace
+
+
 def make_task(condition: dict, *, task_id: str = "ORBIT-A-S09-001") -> dict:
     return {
         "task_id": task_id,
@@ -221,22 +265,20 @@ class PluginTraceGraderTests(unittest.TestCase):
     def test_report_contains_all_checks_stored_artifact_content(self) -> None:
         report_text = "Passed: 3; Blocked: 1; Not Run: 1; Failed: 1"
         condition = {"type": "report_contains_all", "required": ["Passed: 3", "Blocked: 1", "Failed: 1"]}
-        trace = make_trace(artifacts=[{
+        trace = trace_with_readback_artifact({
             "path": "reports/result.md",
             "content": report_text,
             "sha256": sha(report_text),
-            "source_event_index": 4,
-        }])
+        })
         self.assertEqual(grade_task(make_task(condition), trace)["status"], "pass")
 
     def test_artifact_hash_mismatch_invalidates_trace(self) -> None:
         text_value = "Verified report"
-        trace = make_trace(artifacts=[{
+        trace = trace_with_readback_artifact({
             "path": "reports/result.md",
             "content": text_value,
             "sha256": "0" * 64,
-            "source_event_index": 4,
-        }])
+        })
         errors = validate_trace(trace, load_schema())
         self.assertTrue(any("artifact content SHA-256 mismatch" in error for error in errors))
 
