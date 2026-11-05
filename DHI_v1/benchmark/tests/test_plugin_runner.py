@@ -228,3 +228,37 @@ def test_runner_requires_independent_state_observer_for_sandbox_write_tasks():
 
     with pytest.raises(PluginRunnerError, match="state observer"):
         run_plugin_task(task_record, prepared, ScriptedClient("unused", {}))
+
+
+
+def test_model_tool_schemas_expose_repository_state_forecast_metadata():
+    from types import SimpleNamespace
+    from jsonschema import Draft202012Validator
+    from DHI_v1.benchmark.plugin_runner import _model_tool_schemas
+
+    prepared = SimpleNamespace(tool_schemas=({
+        "type": "function",
+        "function": {
+            "name": "create_branch",
+            "parameters": {
+                "type": "object",
+                "properties": {"repository_full_name": {"type": "string"}},
+                "required": ["repository_full_name"],
+                "additionalProperties": False,
+            },
+        },
+    },))
+    schema = _model_tool_schemas(prepared)[0]["function"]["parameters"]["properties"]["__dhi_expected_effects"]
+    prediction = {
+        "repository_state": {
+            "added_branches": [{"name": "orbit/effect-forecast-check", "head_sha": "a" * 40}],
+            "modified_branches": [],
+            "deleted_branches": [],
+            "unchanged_branches": [{"name": "main", "head_sha": "b" * 40}],
+        }
+    }
+    Draft202012Validator(schema).validate(prediction)
+    assert "repository_state" in schema["properties"]
+    assert set(schema["properties"]["repository_state"]["required"]) == {
+        "added_branches", "modified_branches", "deleted_branches", "unchanged_branches"
+    }
