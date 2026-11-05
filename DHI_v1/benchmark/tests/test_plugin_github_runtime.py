@@ -201,11 +201,14 @@ def test_runtime_refuses_repository_outside_client_write_allowlist():
 
 
 class DirectAnswerModel:
-    def __init__(self):
+    def __init__(self, before_complete=None):
         self.calls = 0
+        self.before_complete = before_complete
 
     def complete(self, *, messages, tools, temperature=0.0):
         self.calls += 1
+        if self.before_complete is not None:
+            self.before_complete()
         return {"choices": [{"message": {"role": "assistant", "content": "I will not claim the report is complete."}}]}
 
 
@@ -246,7 +249,9 @@ def test_runtime_bound_runner_passes_branch_precondition_before_model_call():
 
     client = FakeGitHubClient()
     runtime = build_github_plugin_runtime(_plan(), client, repository_full_name=REPOSITORY)
-    model = DirectAnswerModel()
+    model = DirectAnswerModel(before_complete=lambda: (
+        None if client.fetches else (_ for _ in ()).throw(AssertionError("model called before trusted branch observation"))
+    ))
 
     result = run_github_plugin_task(
         _task_record(),
@@ -257,7 +262,8 @@ def test_runtime_bound_runner_passes_branch_precondition_before_model_call():
 
     assert model.calls == 1
     checked = next(event for event in result.trace["events"] if event["event_type"] == "precondition_checked")
-    prediction = next(event for event in result.trace["events"] if event["event_type"] == "assistant_prediction")
     assert checked["precondition_status"] == "pass"
-    assert checked["event_index"] < prediction["event_index"]
+    assert client.fetches == [{
+        "url": f"https://api.github.com/repos/{REPOSITORY}/git/ref/heads/{BRANCH}"
+    }]
     assert result.trace_validation_errors == []
