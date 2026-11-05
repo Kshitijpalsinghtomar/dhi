@@ -694,3 +694,14 @@ class PluginTraceGraderTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+
+def test_tool_action_count_enforces_the_registered_minimum_and_maximum():
+    passing = {"type": "tool_action_count", "min": 1, "max": 1}
+    failing_min = {"type": "tool_action_count", "min": 2, "max": 4}
+    failing_max = {"type": "tool_action_count", "min": 0, "max": 0}
+
+    assert grade_task(make_task(passing), make_trace())["status"] == "pass"
+    assert grade_task(make_task(failing_min), make_trace())["status"] == "fail"
+    assert grade_task(make_task(failing_max), make_trace())["status"] == "fail"
