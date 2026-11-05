@@ -198,3 +198,66 @@ def test_runtime_refuses_repository_outside_client_write_allowlist():
 
     with pytest.raises(GitHubTaskRuntimeError, match="allowlist"):
         build_github_plugin_runtime(_plan(), client, repository_full_name=REPOSITORY)
+
+
+class DirectAnswerModel:
+    def __init__(self):
+        self.calls = 0
+
+    def complete(self, *, messages, tools, temperature=0.0):
+        self.calls += 1
+        return {"choices": [{"message": {"role": "assistant", "content": "I will not claim the report is complete."}}]}
+
+
+def _task_record():
+    manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    record = next(task for task in manifest["tasks"] if task["task_id"] == TASK_ID)
+    # In-memory test authorization only. The committed source manifest stays false.
+    record["execution"]["model_runs_allowed"] = True
+    return record
+
+
+def test_runtime_bound_runner_checks_real_branch_precondition_before_model_call():
+    from DHI_v1.benchmark.plugin_github_runtime import run_github_plugin_task
+
+    client = FakeGitHubClient()
+    client.branch_sha = "d" * 40
+    runtime = build_github_plugin_runtime(_plan(), client, repository_full_name=REPOSITORY)
+    model = DirectAnswerModel()
+
+    result = run_github_plugin_task(
+        _task_record(),
+        runtime,
+        model,
+        observe_state=lambda: {},
+    )
+
+    assert model.calls == 0
+    assert result.stopped_reason == "precondition_blocked"
+    assert result.trace["closure"]["status"] == "blocked"
+    checked = [event for event in result.trace["events"] if event["event_type"] == "precondition_checked"]
+    assert len(checked) == 1
+    assert checked[0]["precondition_status"] == "fail"
+    assert result.trace_validation_errors == []
+
+
+def test_runtime_bound_runner_passes_branch_precondition_before_model_call():
+    from DHI_v1.benchmark.plugin_github_runtime import run_github_plugin_task
+
+    client = FakeGitHubClient()
+    runtime = build_github_plugin_runtime(_plan(), client, repository_full_name=REPOSITORY)
+    model = DirectAnswerModel()
+
+    result = run_github_plugin_task(
+        _task_record(),
+        runtime,
+        model,
+        observe_state=lambda: {},
+    )
+
+    assert model.calls == 1
+    checked = next(event for event in result.trace["events"] if event["event_type"] == "precondition_checked")
+    prediction = next(event for event in result.trace["events"] if event["event_type"] == "assistant_prediction")
+    assert checked["precondition_status"] == "pass"
+    assert checked["event_index"] < prediction["event_index"]
+    assert result.trace_validation_errors == []
