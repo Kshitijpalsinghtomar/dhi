@@ -55,7 +55,11 @@ class FakeGitHubClient:
         return {
             FETCH_FILE_TOOL_ID: self.fetch_file,
             CREATE_FILE_TOOL_ID: self.create_file,
+            "mcp__GitHub__compare_commits": self.compare_commits,
         }
+
+    def compare_commits(self, arguments):
+        return {"files": []}
 
     def fetch(self, arguments):
         self.fetches.append(dict(arguments))
@@ -86,6 +90,13 @@ class FakeGitHubClient:
         self.created.append(dict(arguments))
         self.files[arguments["path"]] = arguments["content"]
         return {"commit_sha": "c" * 40}
+
+
+def test_runtime_refuses_model_execution_when_manifest_flag_is_false():
+    plan = load_plugin_task(MANIFEST, REGISTRY, TASK_ID)
+    client = FakeGitHubClient()
+    with pytest.raises(GitHubTaskRuntimeError, match="model_runs_allowed=false"):
+        build_github_plugin_runtime(plan, client, repository_full_name=REPOSITORY)
 
 
 def test_runtime_binds_precondition_readback_and_write_to_one_pinned_sandbox_branch():
