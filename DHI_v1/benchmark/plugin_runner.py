@@ -120,7 +120,7 @@ def _prediction_comparison(
     comparable = [
         key for key in (
             "added_paths", "modified_paths", "deleted_paths",
-            "changed_paths", "unchanged_paths", "repository_state",
+            "changed_paths", "unchanged_paths",
         )
         if key in expected
     ]
@@ -186,7 +186,9 @@ def _model_tool_schemas(prepared: PreparedPluginExecution) -> list[dict[str, Any
             "type": "object",
             "description": (
                 "Optional structured prediction of state effects before the tool executes. "
-                "Use changed_paths, unchanged_paths, added_paths, modified_paths or deleted_paths."
+                "For file effects use changed_paths, unchanged_paths, added_paths, modified_paths or deleted_paths. "
+                "For branch creation use repository_state with added_branches, modified_branches, "
+                "deleted_branches and unchanged_branches; each entry contains name and head_sha."
             ),
             "properties": {
                 key: {"type": "array", "items": {"type": "string"}}
@@ -194,6 +196,33 @@ def _model_tool_schemas(prepared: PreparedPluginExecution) -> list[dict[str, Any
                     "added_paths", "modified_paths", "deleted_paths",
                     "changed_paths", "unchanged_paths",
                 )
+            } | {
+                "repository_state": {
+                    "type": "object",
+                    "properties": {
+                        key: {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {"type": "string", "minLength": 1},
+                                    "head_sha": {"type": "string", "pattern": "^[a-f0-9]{40}$"},
+                                },
+                                "required": ["name", "head_sha"],
+                                "additionalProperties": False,
+                            },
+                        }
+                        for key in (
+                            "added_branches", "modified_branches",
+                            "deleted_branches", "unchanged_branches",
+                        )
+                    },
+                    "required": [
+                        "added_branches", "modified_branches",
+                        "deleted_branches", "unchanged_branches",
+                    ],
+                    "additionalProperties": False,
+                },
             },
             "additionalProperties": False,
         }
