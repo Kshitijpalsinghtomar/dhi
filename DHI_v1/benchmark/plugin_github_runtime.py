@@ -311,7 +311,7 @@ def build_github_plugin_runtime(
 
         if condition_type == "github_file_blob":
             path = condition.get("path")
-            commit = condition.get("commit")
+            commit = condition.get("commit") or expected_base_commit
             expected_blob = condition.get("blob_sha")
             if (
                 not isinstance(path, str)
