@@ -39,6 +39,7 @@ IMPLEMENTED_CONDITIONS = {
     "branch_diff_only",
     "branch_diff_no_changes",
     "assistant_trace_before_write",
+    "tool_action_count",
     "report_contains_all",
     "report_contains_discrepancy",
     "github_file_exists",
@@ -522,6 +523,29 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
         if trace.get("final_answer") == condition.get("value"):
             return _result("pass", "final answer exactly matches the expected text")
         return _result("fail", "final answer does not exactly match", trace.get("final_answer"))
+
+    if kind == "tool_action_count":
+        minimum = condition.get("min")
+        maximum = condition.get("max")
+        if (
+            not isinstance(minimum, int)
+            or isinstance(minimum, bool)
+            or not isinstance(maximum, int)
+            or isinstance(maximum, bool)
+            or minimum < 0
+            or maximum < minimum
+        ):
+            return _result("unscorable", "tool_action_count requires non-negative integer min/max with min <= max")
+        action_count = sum(
+            1 for event in trace.get("events", [])
+            if isinstance(event, dict) and event.get("event_type") == "action_started"
+        )
+        passed = minimum <= action_count <= maximum
+        return _result(
+            "pass" if passed else "fail",
+            "tool action count is within the registered horizon" if passed else "tool action count is outside the registered horizon",
+            {"observed": action_count, "min": minimum, "max": maximum},
+        )
 
     if kind == "tool_trace":
         used = {action.get("tool_id") for action in actions}
