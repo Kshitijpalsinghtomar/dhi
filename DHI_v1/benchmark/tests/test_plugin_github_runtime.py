@@ -15,6 +15,7 @@ from DHI_v1.benchmark.plugin_github_runtime import (
 from DHI_v1.environment.github_client import (
     CREATE_FILE_TOOL_ID,
     FETCH_FILE_TOOL_ID,
+    UPDATE_FILE_TOOL_ID,
 )
 
 
@@ -51,6 +52,7 @@ class FakeGitHubClient:
         self.fetches = []
         self.file_reads = []
         self.created_branches = []
+        self.updated_files = []
         self.branches = [
             {"name": "main", "head_sha": "1" * 40},
             {"name": "orbit/plugin-benchmark-fixture", "head_sha": "2" * 40},
@@ -64,6 +66,7 @@ class FakeGitHubClient:
             "mcp__GitHub__compare_commits": self.compare_commits,
             "mcp__GitHub__fetch": self.fetch,
             "mcp__GitHub__create_branch": self.create_branch,
+            UPDATE_FILE_TOOL_ID: self.update_file,
         }
 
     def compare_commits(self, arguments):
@@ -116,6 +119,11 @@ class FakeGitHubClient:
             "head_sha": arguments["sha"],
         })
         return {"branch": arguments["branch_name"]}
+
+    def update_file(self, arguments):
+        self.updated_files.append(dict(arguments))
+        self.files[arguments["path"]] = arguments["content"]
+        return {"commit_sha": "d" * 40, "content_sha": _blob_sha(arguments["content"])}
 
     def create_file(self, arguments):
         self.created.append(dict(arguments))
@@ -443,3 +451,59 @@ def test_s09_branch_runtime_does_not_use_file_compare_state_observer():
     plan = _plan_for("ORBIT-A-S09-002")
     runtime = build_github_plugin_runtime(plan, FakeGitHubClient(), repository_full_name=REPOSITORY)
     assert runtime.state_observer() == {}
+
+
+
+def test_runtime_binds_s09_001_report_creation_to_task_scoped_branch_and_path():
+    plan = _plan_for("ORBIT-A-S09-001")
+    runtime = build_github_plugin_runtime(plan, FakeGitHubClient(), repository_full_name=REPOSITORY)
+    expected_path = "DHI_v1/benchmark/fixtures/plugin_ecology/reports/effect-check.md"
+    assert runtime.expected_base_commit == BASE_COMMIT
+    assert runtime.expected_branch == "orbit/sandbox/orbit-a-s09-001"
+    assert runtime.allowed_paths == frozenset({expected_path})
+
+
+def test_runtime_binds_s09_003_update_to_seeded_blob_and_task_scoped_branch():
+    plan = _plan_for("ORBIT-A-S09-003")
+    client = FakeGitHubClient()
+    path = "DHI_v1/benchmark/fixtures/plugin_ecology/reports/effect-forecast-existing-file.md"
+    seed = (
+        "# Existing benchmark report\n\n"
+        "Status: draft\n\n"
+        "This file exists before the effect-forecast action. The task is to replace its complete contents "
+        "with a verified statement that exactly three acceptance tests passed and the remaining states "
+        "are blocked, not run, and failed.\n"
+    )
+    client.files[path] = seed
+    runtime = build_github_plugin_runtime(plan, client, repository_full_name=REPOSITORY)
+    assert runtime.expected_base_commit == "c168564457562ed01a621349b82ae41fe6a2f668"
+    assert runtime.expected_branch == "orbit/sandbox/orbit-a-s09-003"
+    assert runtime.allowed_paths == frozenset({path})
+
+    observed = runtime.precondition_observer({"task_id": "ORBIT-A-S09-003"}, plan.preconditions[0])
+    assert observed == {
+        "path": path,
+        "commit": "c168564457562ed01a621349b82ae41fe6a2f668",
+        "blob_sha": "2e3b558e9ab54d876d9c4c685a4d0545822a1a02",
+    }
+
+    name = runtime.prepared.tool_name_by_id[UPDATE_FILE_TOOL_ID]
+    runtime.prepared.dispatch(name, {
+        "repository_full_name": REPOSITORY,
+        "path": path,
+        "content": "Updated report",
+        "sha": "2e3b558e9ab54d876d9c4c685a4d0545822a1a02",
+        "message": "update report",
+        "branch": runtime.expected_branch,
+    })
+    assert client.updated_files[0]["path"] == path
+    assert client.updated_files[0]["branch"] == runtime.expected_branch
+    with pytest.raises(Exception, match="write guard denied"):
+        runtime.prepared.dispatch(name, {
+            "repository_full_name": REPOSITORY,
+            "path": "README.md",
+            "content": "forbidden",
+            "sha": "2e3b558e9ab54d876d9c4c685a4d0545822a1a02",
+            "message": "update",
+            "branch": runtime.expected_branch,
+        })
