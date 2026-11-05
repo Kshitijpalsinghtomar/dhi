@@ -324,7 +324,9 @@
             "action_executed",
             "checkpoint_saved",
             "checkpoint_resumed",
-            "task_closed"
+            "task_closed",
+            "precondition_checked",
+            "artifact_readback"
           ]
         },
         "timestamp_utc": {
@@ -444,6 +446,29 @@
             "paid_external",
             "unknown"
           ]
+        },
+        "precondition_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "precondition_condition": {
+          "type": "object"
+        },
+        "precondition_observation": {
+          "type": "object"
+        },
+        "precondition_status": {
+          "enum": [
+            "pass",
+            "fail",
+            "unavailable"
+          ]
+        },
+        "precondition_reason": {
+          "type": "string"
+        },
+        "artifact_readback": {
+          "$ref": "#/$defs/artifactReadback"
         }
       },
       "allOf": [
@@ -667,6 +692,57 @@
           "items": {
             "$ref": "#/$defs/branchRef"
           }
+        }
+      }
+    },
+    "artifactReadback": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "repository_full_name",
+        "ref",
+        "status",
+        "source_action_id"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "repository_full_name": {
+          "type": "string",
+          "minLength": 3
+        },
+        "ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "enum": [
+            "verified",
+            "unavailable",
+            "error"
+          ]
+        },
+        "source_action_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "blob_sha": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        },
+        "source_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "error": {
+          "type": "string",
+          "minLength": 1
         }
       }
     }
