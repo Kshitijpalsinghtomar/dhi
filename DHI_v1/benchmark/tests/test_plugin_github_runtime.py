@@ -82,15 +82,18 @@ class FakeGitHubClient:
 
     def fetch(self, arguments):
         self.fetches.append(dict(arguments))
-        assert arguments["url"] == (
-            f"https://api.github.com/repos/{REPOSITORY}/git/ref/heads/{EXPECTED_BRANCH}"
-        )
+        url = arguments.get("url", "")
+        if "/git/ref/heads/" in url:
+            return {
+                "content": json.dumps({
+                    "ref": self.returned_ref,
+                    "object": {"sha": self.branch_sha},
+                }),
+                "url": url,
+            }
         return {
-            "content": json.dumps({
-                "ref": self.returned_ref,
-                "object": {"sha": self.branch_sha},
-            }),
-            "url": arguments["url"],
+            "content": json.dumps({"repository_state": {"branches": list(self.branches)}}),
+            "url": url,
         }
 
     def fetch_file(self, arguments):
@@ -105,12 +108,6 @@ class FakeGitHubClient:
             ),
         }
 
-    def fetch(self, arguments):
-        self.fetches.append(dict(arguments))
-        return {
-            "content": json.dumps({"repository_state": {"branches": list(self.branches)}}),
-            "url": arguments.get("url", ""),
-        }
 
     def create_branch(self, arguments):
         self.created_branches.append(dict(arguments))
