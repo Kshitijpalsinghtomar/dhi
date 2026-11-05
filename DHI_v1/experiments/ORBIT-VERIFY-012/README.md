@@ -60,3 +60,14 @@ This is offline engineering/harness verification only:
 ## Next authorized work unit
 
 Provision credentials and a disposable sandbox branch only after the separate access and isolation gate is approved. Then perform a controlled S06 provider smoke test with a live precondition read, one approved report write, independent readback and branch diff. Do not enable general model runs; keep all 30 manifest flags false until task-level validation and model-access gates are separately closed.
+
+
+## Post-verification live-runtime preflight — 5 November 2026
+
+This check was performed after the exact-head test run; it does not alter the code-under-test revision.
+
+- Deepnote project integrations currently include only environment integrations named `TINYFISH` and `ADAPTION`. No GitHub environment integration is attached.
+- The earlier presence-only check reported `GITHUB_TOKEN=false`, `DHI_GITHUB_WRITES_ENABLED=false`, and `GITHUB_ALLOWED_REPOSITORIES=false`.
+- GitHub returned HTTP 404 when checking `refs/heads/orbit/sandbox/orbit-a-s06-001`; the dedicated S06 sandbox branch is not currently present.
+
+Therefore the runtime is verified offline, but cannot yet perform a live S06 smoke. Before that, attach a GitHub environment integration to this Deepnote project with the three required variables, then provision the dedicated branch at the exact manifest-pinned base commit. Do not place the token in a notebook, source file, Git commit or chat message.
