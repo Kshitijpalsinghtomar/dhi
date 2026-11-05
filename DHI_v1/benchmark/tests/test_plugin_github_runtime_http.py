@@ -76,6 +76,13 @@ class FakeGitHubHTTP:
                 "object": {"sha": self.branch_sha},
             })
 
+        if method == "GET" and parsed.path.startswith(f"{prefix}/compare/"):
+            files = [
+                {"filename": path, "status": "added", "sha": _blob_sha(content)}
+                for path, content in sorted(self.files.items())
+            ]
+            return FakeResponse(url, {"files": files})
+
         if method == "PUT" and parsed.path == file_path:
             body = json.loads(request.data.decode("utf-8"))
             assert body["branch"] == BRANCH
@@ -117,6 +124,7 @@ def test_real_github_adapter_is_bound_to_one_task_branch_for_observe_write_readb
         {"condition": {"type": "branch_head_equals", "commit": BASE_COMMIT}},
     )
     assert observation == {"branch_name": BRANCH, "head_sha": BASE_COMMIT}
+    assert runtime.state_observer() == {}
 
     function_name = runtime.prepared.tool_name_by_id["mcp__GitHub__create_file"]
     result = runtime.prepared.dispatch(function_name, {
@@ -127,6 +135,9 @@ def test_real_github_adapter_is_bound_to_one_task_branch_for_observe_write_readb
         "branch": BRANCH,
     })
     assert result == {"commit_sha": "c" * 40}
+    state = runtime.state_observer()
+    assert set(state) == {REPORT_PATH}
+    assert len(state[REPORT_PATH]) == 64
 
     artifact = runtime.artifact_reader(REPOSITORY, REPORT_PATH, BRANCH)
     assert artifact["content"] == REPORT
