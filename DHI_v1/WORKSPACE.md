@@ -679,6 +679,9 @@ See `experiments/ORBIT-VERIFY-011/` for the experiment README, manifest and raw 
 
 ## 27. ORBIT-VERIFY-012 passed — trusted task-scoped GitHub runtime — 5 November 2026
 
+**Historical status snapshot:** the integration/branch bullets in this section describe the state immediately after ORBIT-VERIFY-012 and before the follow-up configuration and S06 smoke. They are superseded by the current status block above and Section 28 below.
+
+
 **Code under test:** `7f244bf76ccbccec5477b0055d23da5a5931e27a` on `orbit/plugin-benchmark-fixture`.
 
 **Deepnote evidence**
