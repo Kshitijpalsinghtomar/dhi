@@ -36,14 +36,16 @@ class TaskManifestValidatorTests(unittest.TestCase):
             repo_root=repo_root,
         )
 
-    def test_current_authoring_manifest_passes_all_integrity_checks(self) -> None:
+    def test_current_manifest_passes_all_integrity_checks(self) -> None:
         errors = self.errors()
         self.assertEqual(errors, [], "\\n".join(errors))
 
     def test_partial_authoring_counts_are_allowed_before_freeze(self) -> None:
-        self.assertEqual(self.manifest["status"], "authoring")
-        self.assertLess(self.manifest["materialized_task_count"], 240)
-        self.assertNotIn("[frozen]", "\\n".join(self.errors()))
+        authoring = copy.deepcopy(self.manifest)
+        authoring["status"] = "authoring"
+        authoring["frozen"] = False
+        self.assertLess(authoring["materialized_task_count"], 240)
+        self.assertNotIn("[frozen]", "\\n".join(self.errors(authoring)))
 
     def test_materialized_task_count_must_match_actual_records(self) -> None:
         changed = copy.deepcopy(self.manifest)
