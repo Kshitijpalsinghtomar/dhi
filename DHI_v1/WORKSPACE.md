@@ -737,3 +737,10 @@ The connected GitHub repository integration provisioned the branch and created t
 Next: confirm the fine-grained token has Contents read/write access for only the `dhi` repository and any required approval, update the Deepnote `GITHUB_TOKEN` secret, and rerun a narrow write preflight against this existing branch. Do not create another branch or rewrite the report.
 
 All 30 Stage A tasks remain `ready_for_validation`; S06 `model_runs_allowed=false`; Stage B stays sealed and empty. No model calls, training, issue/source/configuration/deployment changes occurred. Default `main` remains untouched.
+
+
+### 2026-11-05 follow-up after PAT permission update
+
+The user reported changing the same fine-grained PAT to read/write. Deepnote rechecked the exact same project integration. Repository and report reads still work, but the non-mutating create-ref probe on the already-existing S06 ref and the intentional wrong-blob-SHA contents update probe both returned HTTP 403, `Resource not accessible by personal access token`. The branch head and report blob remained unchanged; no mutation occurred. Deepnote run: `652a27e7-954d-4583-9bec-30a8573f346d`.
+
+The project integration metadata still exposes its original creation timestamp; the project machine remains running. No restart was attempted because the observed failure is an authorization response, not an environment-presence failure. Recheck that the active fine-grained token is granted Contents: Read and write for `Kshitijpalsinghtomar/dhi`, that any pending owner approval is granted, and that the Deepnote integration contains the current token value if it was regenerated. Do not expose token text. Token-backed runtime writes remain blocked; all benchmark/model gates remain unchanged.
