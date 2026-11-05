@@ -2,7 +2,7 @@
 
 **Date:** 2026-11-05  
 **Task:** ORBIT-A-S06-001  
-**Status:** Artifact smoke complete through the connected GitHub integration; Deepnote PAT write path remains blocked.
+**Status:** S06 artifact smoke complete; Deepnote token `Contents: write` permission preflight now passes (no repository mutation performed by the preflight).
 
 ## Result
 
@@ -62,7 +62,7 @@ The same Deepnote integration was rechecked after the user reported changing the
 The integration metadata still reports the original creation timestamp, and the project machine was running. No machine restart was attempted. The current evidence therefore does not support claiming that the running Deepnote runtime has a write-capable token. Most likely the PAT permission change was not applied to the exact active token, is still pending owner approval, or the changed token value has not been updated in the Deepnote integration. Recheck the active fine-grained PAT, its selected repository, Contents read/write permission and approval status; then update the Deepnote secret if a new token value was generated. Do not send the token in chat.
 
 
-## Final permission diagnostic — 2026-11-05
+## Final permission diagnostic before the latest PAT refresh — 2026-11-05
 
 Deepnote run `907a8bfa-6aa9-4468-b726-55de63229c29` confirmed:
 - GitHub token authenticates successfully to `GET /user`.
@@ -73,3 +73,21 @@ Deepnote run `907a8bfa-6aa9-4468-b726-55de63229c29` confirmed:
 - No repository mutation occurred; the branch/report remain unchanged.
 
 The remaining problem is not an invalid token or wrong GitHub account. The exact token supplied to Deepnote still does not have effective `Contents: Read and write` permission for this repository, or that permission is awaiting approval. Check the active token's repository selection, Contents permission and approval state. If GitHub generated a replacement token string, update the Deepnote integration with that new value.
+
+
+## Contents-write permission verified after PAT update — 2026-11-05
+
+The user reported updating the GitHub token permission. The Deepnote integration metadata subsequently advanced, and a new live-kernel probe was run against the exact same project integration.
+
+- Deepnote run: `3c722666-6e68-46c6-ae57-ccf76b256dbd`; new verifier block: `e4c9f16ba86540d992e67c1392b5304e`.
+- The token was present, the write-enable flag was true, and the repository allowlist exactly matched `Kshitijpalsinghtomar/dhi`.
+- The existing S06 branch head and report blob were read and matched their pinned expected values.
+- The verifier submitted the existing report with an intentionally impossible all-zero blob SHA. GitHub returned **HTTP 409** with the expected stale-SHA conflict (`does not match 000...000`). This confirms the token passed GitHub's Contents-write authorization check and reached the file concurrency check.
+- The branch head and report blob were fetched again and remained unchanged. The check made **zero repository mutations** and did not expose the token.
+- The credential permission preflight is now **PASS**. The branch and report themselves were originally provisioned via the connected GitHub repository integration; this preflight did not perform a valid content write and is not an end-to-end model task run.
+
+The original 403 diagnostics above are retained as history. They are superseded by this successful post-update check.
+
+## DHI gates remain closed
+
+S06 remains `ready_for_validation`; this credential check does not validate a model trajectory or establish ORBIT capability. All 30 Stage A tasks remain `ready_for_validation`, Stage B remains sealed/empty, all `model_runs_allowed` flags remain false, and no inference or training run occurred.
