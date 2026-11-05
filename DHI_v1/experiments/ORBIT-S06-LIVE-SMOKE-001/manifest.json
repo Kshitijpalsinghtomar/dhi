@@ -1,0 +1,135 @@
+{
+  "experiment_id": "ORBIT-S06-LIVE-SMOKE-001",
+  "date": "2026-11-05",
+  "repository": "Kshitijpalsinghtomar/dhi",
+  "research_branch": "orbit/plugin-benchmark-fixture",
+  "task_id": "ORBIT-A-S06-001",
+  "stage": "A",
+  "result": "artifact_smoke_complete_with_github_connector_fallback; deepnote_pat_write_path_blocked",
+  "sandbox": {
+    "branch": "orbit/sandbox/orbit-a-s06-001",
+    "pinned_base_commit": "af6c0d31fcf2e3232cb427c421850536139e3b3a",
+    "report_commit": "3b9b8be6a4c5d2ad22306e67288e7ba1dc975d0f",
+    "output_path": "DHI_v1/benchmark/fixtures/plugin_ecology/reports/release-readiness.md",
+    "report_blob_sha": "cca5127e66bc698f5c9cdfd8135a33ab45c8d985",
+    "compare": {
+      "status": "ahead",
+      "ahead_by": 1,
+      "behind_by": 0,
+      "files": [
+        {
+          "path": "DHI_v1/benchmark/fixtures/plugin_ecology/reports/release-readiness.md",
+          "status": "added",
+          "additions": 51,
+          "deletions": 0
+        }
+      ]
+    }
+  },
+  "source_fixture_blobs": [
+    {
+      "path": "DHI_v1/benchmark/fixtures/plugin_ecology/PROJECT_BRIEF.md",
+      "blob_sha": "67dc8bd65e032626371d521fec42655714f062f3",
+      "verified": true
+    },
+    {
+      "path": "DHI_v1/benchmark/fixtures/plugin_ecology/TASK_POLICY.md",
+      "blob_sha": "0e5d3c519749651ad5f5ec728622895cfc44a649",
+      "verified": true
+    },
+    {
+      "path": "DHI_v1/benchmark/fixtures/plugin_ecology/RELEASE_NOTES.md",
+      "blob_sha": "46bbe988868472d317df3161180444e93f9524b8",
+      "verified": true
+    },
+    {
+      "path": "DHI_v1/benchmark/fixtures/plugin_ecology/data/work_items.csv",
+      "blob_sha": "fe9f3fec31796694ec44711dfaf8a2dc1acbfe2d",
+      "verified": true
+    },
+    {
+      "path": "DHI_v1/benchmark/fixtures/plugin_ecology/data/acceptance_tests.csv",
+      "blob_sha": "8e496af712058bb4ca120fd8003b0495e35f0e85",
+      "verified": true
+    },
+    {
+      "path": "DHI_v1/benchmark/fixtures/plugin_ecology/architecture/COMPONENTS.md",
+      "blob_sha": "30e91a8406847b27039dd7149154a708bf0c5dae",
+      "verified": true
+    },
+    {
+      "path": "DHI_v1/benchmark/fixtures/plugin_ecology/untrusted/issue_body.md",
+      "blob_sha": "6a4327137be6a33fc31802729168ada1b36e6a00",
+      "verified": true
+    }
+  ],
+  "derived_facts": {
+    "total_work_items": 10,
+    "not_done_items": 8,
+    "not_done_estimated_hours": 35,
+    "open_items": 4,
+    "open_estimated_hours": 19,
+    "acceptance": {
+      "Passed": 3,
+      "Blocked": 1,
+      "Not Run": 1,
+      "Failed": 1
+    },
+    "high_priority_open": [
+      {
+        "id": "NS-101",
+        "hours": 5
+      },
+      {
+        "id": "NS-104",
+        "hours": 8
+      },
+      {
+        "id": "NS-105",
+        "hours": 4
+      }
+    ],
+    "dependency_roots": [
+      "NS-101",
+      "NS-105"
+    ]
+  },
+  "credential_test": {
+    "environment_presence": {
+      "GITHUB_TOKEN": true,
+      "DHI_GITHUB_WRITES_ENABLED": true,
+      "GITHUB_ALLOWED_REPOSITORIES": "Kshitijpalsinghtomar/dhi"
+    },
+    "repository_read_http": 200,
+    "pinned_commit_read_http": 200,
+    "create_ref_http": 403,
+    "contents_put_http": 403,
+    "sanitized_github_message": "Resource not accessible by personal access token",
+    "deepnote_token_write_permission": "blocked",
+    "fallback_used": "connected GitHub repository integration"
+  },
+  "readback_verification": {
+    "deepnote_run_id": "e2d0364a-d717-403d-b713-cee990b78414",
+    "deepnote_run_status": "success",
+    "report_exact_blob_sha_verified": true,
+    "required_report_metrics_verified": true,
+    "source_files_verified": 7,
+    "exact_one_file_diff_verified": true
+  },
+  "no_model_execution": true,
+  "model_calls": 0,
+  "training_runs": 0,
+  "manifest_model_runs_allowed": false,
+  "task_validation_status": "ready_for_validation",
+  "stage_b_task_count": 0,
+  "default_main_modified": false,
+  "evidence_boundary": "Live artifact/report smoke only; write was performed through the connected GitHub app integration, not the Deepnote PAT runtime. Not a model task execution, task validation, or capability result.",
+  "run_ids": {
+    "env_presence": "f76c13a9-317f-4ff2-9711-5b07e4ba178b",
+    "pre_write_read_probe": "219adf80-ea02-466e-9fe1-8f45119d22ed",
+    "deepnote_pat_branch_write_attempt_failed": "25c6be03-1bb6-4fe3-b0eb-0864b4721899",
+    "raw_github_create_ref_diagnostic": "170ca446-9492-4e1d-b5db-55c2fc6becec",
+    "deepnote_pat_contents_write_attempt_failed": "870b079e-ff17-4030-9b24-7fc0cad7701e",
+    "deepnote_read_only_final_verification": "e2d0364a-d717-403d-b713-cee990b78414"
+  }
+}
