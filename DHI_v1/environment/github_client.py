@@ -546,7 +546,7 @@ class GitHubReadWriteClient:
                 continue
             compact_files.append({
                 key: item[key] for key in (
-                    "filename", "status", "additions", "deletions", "changes", "previous_filename"
+                    "filename", "status", "sha", "additions", "deletions", "changes", "previous_filename"
                 ) if key in item
             })
         result = {
