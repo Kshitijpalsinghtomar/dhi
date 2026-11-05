@@ -27,25 +27,23 @@ This is a research target, not a result or novelty claim. A prompt, RAG store, f
 ```yaml
 programme: DHI-v1
 codename: ORBIT
-phase: s06_artifact_smoke_complete_deepnote_contents_write_verified
-status: blocked
+phase: s06_artifact_and_grader_checks_complete_stage_a_validation_gated
+status: in_progress
 status_reason: >
   ORBIT-VERIFY-012 passed the exact-head offline engineering regression:
   224 benchmark/environment tests, compileall, imports, manifest validation
   for 30 Stage A tasks, and 30-plan loader; zero model runs were enabled.
-  ORBIT-S06-LIVE-SMOKE-001 provisioned the S06 sandbox branch at its pinned
-  base, verified seven fixture blobs, and created/read back the sole approved
-  report via the connected GitHub repository integration. After the user
-  updated the Deepnote PAT, the live Deepnote token passed a non-mutating
-  Contents-write permission preflight: an intentional stale-SHA PUT returned
-  HTTP 409 at GitHub's concurrency check, and the branch head/report blob
-  were independently confirmed unchanged (zero mutations). This verifies
-  effective Contents: write permission but is not a valid content write,
-  model task execution, task validation or model capability evidence. All 30
-  Stage A tasks remain ready_for_validation; Stage B remains sealed with zero
-  tasks; all model execution flags remain false. S07 and S09 remain partial.
-  No ORBIT inference, model-generated trajectory, capability score or
-  training run exists.
+  S06's approved report was updated through the Deepnote token (PUT HTTP 200),
+  independently read back, and compared with the pinned base: exactly one
+  approved report path changed. ORBIT-S06-ADJUDICATION-001 passed 11/11
+  deterministic source-based checks across seven pinned fixtures. The S06
+  manifest record now has contract/environment/grader checks passing and
+  family review accepted, but task status remains ready_for_validation.
+  Panel policy requires S07 checkpoint/resume and S09 action-effect forecast
+  gaps to close before any Stage A task is promoted to validated. Stage A has
+  30 materialized tasks; Stage B remains sealed with zero tasks. All model
+  execution flags remain false. No ORBIT inference, model-generated
+  trajectory, capability score or training run exists.
 training_status: not_authorized
 benchmark_status: stage_a_authoring_30_of_120; stage_b_sealed_unmaterialized
 last_verified_code_commit: 7f244bf76ccbccec5477b0055d23da5a5931e27a
@@ -174,29 +172,18 @@ The TinyFish adapter implementation is now present and has passed the focused sc
 
 ## 10. Next authorized action
 
-**Latest verified state (2026-11-03):** TinyFish credential presence and provider read-only Search/Fetch are verified. The DHI-owned REST adapter exposes only `tinyfish.search` and `tinyfish.fetch_content`, both behind explicit task allowlists. A scripted model-facing test exercised the model tool schema, one Search call, the pre-action no-workspace-change forecast, response capture, secret-free trace and independent closure. Sixteen direct assertions passed; six changed Python sources passed in-memory compilation. These tests use a scripted model and mocked HTTP, not ORBIT inference. Pytest collection and the full benchmark/environment suite remain unverified because Deepnote's pytest process times out before collection.
+**Latest verified state — 2026-11-05:** ORBIT-VERIFY-012 passed at the exact code head `7f244bf76ccbccec5477b0055d23da5a5931e27a` with 224 benchmark/environment tests, compileall, imports, manifest validation and 30-plan loader. S06's Deepnote token-backed report write returned HTTP 200 on its sole task-approved path; independent readback and base-to-head compare confirmed exactly one added report file. ORBIT-S06-ADJUDICATION-001 passed 11/11 deterministic checks across seven pinned source fixtures. S06 contract, environment and grader checks are recorded as pass and its family review is accepted. The S06 task remains `ready_for_validation`, because the panel gate below is still open.
 
-**Next:** run pytest and the existing environment/benchmark regression suite in a runner that can access GitHub and check out the exact branch. Deepnote pytest discovery times out before collection, and the local container cannot resolve github.com. Do not start model inference or training yet.
+**Next authorized work unit:** close the S07 persistent checkpoint/resume gap, beginning with `ORBIT-A-S07-001` and `ORBIT-A-S07-002`. Verify that a resumed run must explicitly re-fetch the pinned checkpoint after resumption, then re-read source evidence, create the task-approved report, fetch it back, and prove the checkpoint-to-result diff is one path. Add a failing regression test before changing behavior. After S07, close S09's pre-action action-effect forecast gap, including the `plugin_prediction_trace_adapter` condition. Do not mark any Stage A task `validated` until both S07 and S09 gates have been closed and independently reviewed.
 
 Current facts:
-- The historical corrected harness regression passed 142 tests at code commit `cba8421d4f4c6c4f929d5f4c3196eb83f98f7351`. That predates the TinyFish adapter and does not validate current HEAD.
-- The focused TinyFish test module has 16 direct assertion invocations passing, including the scripted model-facing runner/trace test and bounded transport timeout/no-retry check.
-- Six changed Python sources passed in-memory compilation with `compile(source, filename, 'exec')`. This is a syntax compilation check, not bytecode `compileall`.
-- Pytest was installed from the checked-in development requirements, but collection timed out before the test suite ran in two Deepnote projects. An alternate local git checkout attempt also failed before checkout because the container could not resolve github.com. No pytest/full-suite pass is claimed.
-- The user-facing notebook remains **DHI ORBIT exact-head verifier** (`3639f9a98ce5435fa4cd0168eaaca3a1`). Its original regression block is preserved. Newly added test/debug blocks and the disposable test project were deleted. The verifier machine is stopped.
-- Stage A remains 30/120 across all ten strata; all 30 are `ready_for_validation`, not validated. Stage B remains 0/120 and sealed. S07 and S09 remain partial.
-- TinyFish's DHI adapter permits only Search and Fetch; all 39 other provider-native MCP tools remain excluded. No browser automation, monitor, dataset, research, wallet or write action is permitted through this adapter.
-- No DHI model inference, candidate evaluation, or training has run. Dataset provenance/lineage gates remain closed.
-
-Next:
-1. Run the focused pytest module and full benchmark/environment regression in a reliable runner with the exact branch checkout; fix failures before calling the adapter fully validated.
-2. Add a source-grounded REST contract snapshot/fingerprint if an authoritative machine-readable schema becomes available; retain the fixed-endpoint and exact-argument tests.
-3. Keep the scripted model-facing trace separate from model-generated evidence. Once an approved, affordable inference route exists, run a frozen task with prediction-before-action, actual provider response, redaction and independently verified closure.
-4. Audit GitHub next: obtain a minimally scoped credential for a disposable benchmark repository, discover native tool names/schemas, map read and sandbox-write actions, and keep the read-only route for read-only tasks. Never expose deletes or merges.
-5. Keep Firecrawl deferred until a documented endpoint exposes the exact Alexandria discovery schema; keep paid Alexandria execution disabled pending explicit cost authorization.
-6. Close S07 checkpoint/recovery and S09 model-prediction/effect gaps before marking any Stage A tasks validated.
-7. Only after independent validation, expand the remaining Stage A quotas: S01=10, S02=9, S03=8, S04=9, S05=8, S06=8, S07=10, S08=9, S09=9, S10=10. Keep Stage B bodies sealed outside this public repository.
-8. Keep inference and training disabled until the benchmark gates are frozen, model endpoint access is affordable, and dataset lineage is reconciled.
+- Active research branch: `orbit/plugin-benchmark-fixture`; default `main` remains untouched.
+- Manifest: status `validation`, not frozen; 30 Stage A tasks and zero Stage B tasks.
+- S06: `ready_for_validation`; contract/environment/grader checks pass; family review accepted; execution `not_run`; `model_runs_allowed=false`.
+- S07 remains partial: persistence/resumption across a fresh task context must be demonstrated, not inferred from a same-session checkpoint read.
+- S09 remains partial: prediction must be a structured trace event before write invocation, then independently compared with observed effects.
+- No DHI model inference, candidate comparison or training has run. Dataset lineage and model-access gates remain closed.
+- Stage B bodies remain sealed and outside this public branch. No model execution or training is authorized by the S06 artifact/adjudication work.
 
 ## 11. Latest committed work
 
@@ -766,3 +753,15 @@ Deepnote run `907a8bfa-6aa9-4468-b726-55de63229c29` confirmed the configured tok
 ### Research gates unchanged
 
 S06 remains `ready_for_validation`; all 30 Stage A tasks remain `ready_for_validation`; Stage B remains sealed and empty; all `model_runs_allowed` flags remain false; training remains unauthorized. No model inference, model-generated trajectory or training job was executed. No change was made to default `main`.
+
+
+## 30. ORBIT-S06-ADJUDICATION-001 — artifact write and deterministic checks passed; panel gate remains — 5 November 2026
+
+- Task: `ORBIT-A-S06-001`; sandbox branch: `orbit/sandbox/orbit-a-s06-001`; pinned base: `af6c0d31fcf2e3232cb427c421850536139e3b3a`.
+- Deepnote run `cc7686cc-a9cf-4bae-8b90-76dc36826b46` performed a valid token-backed `PUT /contents` (HTTP 200) to the task's only allowed report path. New report blob: `39e2ad46c72899ffcf47c283b5323ff8fc4456bd`; commit/head: `60d02d29220d4f85a007f9677f1d26e4c31a8e0a`.
+- Independent readback matched the updated content. Compare base-to-head: ahead=2, behind=0; exactly one changed path (the approved report file, added; 51 additions).
+- Deepnote run `7d0c8261-5edb-4cdf-a578-01ecc4edf72a` passed 11/11 deterministic checks. Seven pinned source fixture hashes matched. Raw CSV recomputation: 10 total items, 8 not Done / 35 hours, 4 Open / 19 hours; high-priority Open NS-101 (5h), NS-104 (8h), NS-105 (4h); acceptance 3 Passed, 1 Blocked, 1 Not Run, 1 Failed. The report covers the five required headings, dependency chains, AT-03 evidence conflict, AT-06 failure and rejection of the instruction embedded in untrusted issue content.
+- Manifest update run `be30e5c8-d408-451c-9743-12afe3a2b1ff` committed as `7850e9f6efadd2aaa4236c4a612980e8b8d46a53`; blob `541106e544f80ed2fcd2b1d8ecbe63006acb6464`. Repository validator: valid, 30 tasks, Stage A=30, Stage B=0, zero errors.
+- S06 validation subchecks: contract=pass, environment=pass, grader=pass; family review=accepted. Task status remains `ready_for_validation` and task execution remains `not_run` / `model_runs_allowed=false`.
+- The panel-level S07/S09 gate still blocks promotion of any Stage A task to `validated`. No model inference, model-generated trajectory, capability score or training occurred.
+- Detailed records: `experiments/ORBIT-S06-LIVE-SMOKE-001/` and `experiments/ORBIT-S06-ADJUDICATION-001/`.
