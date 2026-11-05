@@ -35,6 +35,8 @@ class PluginChatClient(Protocol):
 
 
 StateObserver = Callable[[], Mapping[str, str]]
+PreconditionObserver = Callable[[Mapping[str, Any], Mapping[str, Any]], Mapping[str, Any]]
+ArtifactReader = Callable[[str, str, str], Mapping[str, Any]]
 
 
 @dataclass
@@ -225,6 +227,177 @@ def _event(
     return payload
 
 
+
+def _precondition_outcome(
+    task_record: Mapping[str, Any],
+    precondition: Mapping[str, Any],
+    observer: PreconditionObserver | None,
+) -> tuple[str, dict[str, Any], str]:
+    """Evaluate one manifest precondition using a trusted runtime observer."""
+    condition = precondition.get("condition")
+    if not isinstance(condition, Mapping):
+        return "unavailable", {}, "precondition has no structured condition"
+    if observer is None:
+        return "unavailable", {}, "trusted precondition observer is not configured"
+    try:
+        raw = observer(copy.deepcopy(task_record), _json_copy(dict(precondition)))
+    except Exception as exc:
+        return "unavailable", {}, f"precondition observation failed: {type(exc).__name__}"
+    if not isinstance(raw, Mapping):
+        return "unavailable", {}, "precondition observer returned a non-object result"
+
+    observed = {
+        "branch_name": raw.get("branch_name"),
+        "head_sha": raw.get("head_sha"),
+    }
+    if condition.get("type") != "branch_head_equals":
+        return "unavailable", observed, "unsupported precondition type"
+    expected = condition.get("commit")
+    branch_name = observed.get("branch_name")
+    head_sha = observed.get("head_sha")
+    if (
+        not isinstance(expected, str)
+        or not re.fullmatch(r"[a-f0-9]{40}", expected)
+        or not isinstance(branch_name, str)
+        or not branch_name.strip()
+        or not isinstance(head_sha, str)
+        or not re.fullmatch(r"[a-f0-9]{40}", head_sha)
+    ):
+        return "unavailable", observed, "branch-head observation is incomplete or malformed"
+    if head_sha != expected:
+        return "fail", observed, "observed branch head does not equal the manifest-pinned commit"
+    return "pass", observed, "observed branch head equals the manifest-pinned commit"
+
+
+def _declared_artifact_paths(task_record: Mapping[str, Any]) -> set[str]:
+    """Return only output paths explicitly named by deterministic task postconditions."""
+    paths: set[str] = set()
+    postconditions = task_record.get("postconditions", [])
+    if not isinstance(postconditions, list):
+        return paths
+    for postcondition in postconditions:
+        if not isinstance(postcondition, Mapping):
+            continue
+        condition = postcondition.get("condition")
+        if not isinstance(condition, Mapping):
+            continue
+        kind = condition.get("type")
+        if kind in {"github_file_exists", "github_file_contains"}:
+            path = condition.get("path")
+            if isinstance(path, str) and path:
+                paths.add(path)
+        elif kind == "branch_diff_only":
+            allowed = condition.get("allowed_paths", [])
+            if isinstance(allowed, list):
+                paths.update(path for path in allowed if isinstance(path, str) and path)
+    return paths
+
+
+def _git_blob_sha(content: str) -> str:
+    """Compute Git's blob object SHA-1, independent of the returned API metadata."""
+    data = content.encode("utf-8")
+    payload = b"blob " + str(len(data)).encode("ascii") + b"\\0" + data
+    return hashlib.sha1(payload).hexdigest()
+
+
+def _record_final_artifacts(
+    task_record: Mapping[str, Any],
+    events: list[dict[str, Any]],
+    final_artifacts: list[dict[str, Any]],
+    reader: ArtifactReader | None,
+) -> None:
+    """Read back only successful, task-declared writes and bind them to trace evidence."""
+    declared_paths = _declared_artifact_paths(task_record)
+    if not declared_paths:
+        return
+
+    starts_by_path: dict[str, dict[str, Any]] = {}
+    completions = {
+        event.get("action_id"): event
+        for event in events
+        if isinstance(event, dict) and event.get("event_type") == "action_executed"
+    }
+    for event in events:
+        if not isinstance(event, dict) or event.get("event_type") != "action_started":
+            continue
+        tool_suffix = str(event.get("tool_id", "")).split("__")[-1]
+        if tool_suffix not in {"create_file", "update_file"}:
+            continue
+        arguments = event.get("arguments")
+        path = arguments.get("path") if isinstance(arguments, dict) else None
+        if isinstance(path, str) and path in declared_paths:
+            starts_by_path[path] = event
+
+    for path, started in sorted(starts_by_path.items()):
+        action_id = started.get("action_id")
+        completed = completions.get(action_id)
+        actual = completed.get("actual_tool_result") if isinstance(completed, dict) else None
+        succeeded = isinstance(actual, Mapping) and actual.get("ok") is True
+        if not succeeded:
+            continue
+
+        arguments = started.get("arguments", {})
+        repository = arguments.get("repository_full_name")
+        ref = arguments.get("branch")
+        evidence: dict[str, Any] = {
+            "path": path,
+            "repository_full_name": repository if isinstance(repository, str) else "",
+            "ref": ref if isinstance(ref, str) else "",
+            "status": "unavailable",
+            "source_action_id": str(action_id or ""),
+        }
+
+        if reader is None:
+            evidence["error"] = "artifact_reader_not_configured"
+        elif not isinstance(repository, str) or not repository or not isinstance(ref, str) or not ref:
+            evidence["status"] = "error"
+            evidence["error"] = "write action did not identify an explicit repository and branch"
+        else:
+            try:
+                response = reader(repository, path, ref)
+                if not isinstance(response, Mapping):
+                    raise ValueError("artifact reader returned a non-object")
+                content = response.get("content")
+                blob_sha = response.get("sha", response.get("blob_sha"))
+                source_ref = response.get("display_url", response.get("source_ref"))
+                if not isinstance(content, str):
+                    raise ValueError("artifact readback has no UTF-8 content")
+                if not isinstance(blob_sha, str) or not re.fullmatch(r"[a-f0-9]{40}", blob_sha):
+                    raise ValueError("artifact readback has no valid Git blob SHA")
+                if _git_blob_sha(content) != blob_sha:
+                    raise ValueError("artifact content does not match the independently returned Git blob SHA")
+                if not isinstance(source_ref, str) or not source_ref.startswith("https://github.com/"):
+                    raise ValueError("artifact readback has no canonical GitHub source URL")
+
+                content_sha256 = hashlib.sha256(content.encode("utf-8")).hexdigest()
+                evidence.update({
+                    "status": "verified",
+                    "sha256": content_sha256,
+                    "blob_sha": blob_sha,
+                    "source_ref": source_ref,
+                })
+            except Exception as exc:
+                evidence["status"] = "error"
+                evidence["error"] = f"artifact readback failed: {type(exc).__name__}"
+
+        readback_event = _event(
+            events,
+            task_id=str(task_record.get("task_id", "")),
+            event_type="artifact_readback",
+            artifact_readback=evidence,
+        )
+        if evidence.get("status") == "verified":
+            final_artifacts.append({
+                "path": path,
+                "content": content,
+                "sha256": evidence["sha256"],
+                "blob_sha": evidence["blob_sha"],
+                "status": "read",
+                "source_event_index": readback_event["event_index"],
+                "source_ref": evidence["source_ref"],
+            })
+
+
 def _safe_handler_error(exc: Exception) -> str:
     if isinstance(exc, PluginToolPermissionError):
         # This exception is generated locally by the dispatch boundary.
@@ -284,6 +457,8 @@ def run_plugin_task(
     client: PluginChatClient,
     *,
     observe_state: StateObserver | None = None,
+    precondition_observer: PreconditionObserver | None = None,
+    artifact_reader: ArtifactReader | None = None,
     trajectory_id: str | None = None,
     model_id: str | None = None,
     executor: str = "DHI-plugin-runner",
@@ -420,6 +595,12 @@ def run_plugin_task(
             "closed_at_utc": recorded_at,
         },
     }
+    schema_path = Path(__file__).with_name("plugin_trace.schema.json")
+    try:
+        trace_schema = json.loads(schema_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise PluginRunnerError(f"cannot load plugin trace schema: {exc}") from exc
+
     events: list[dict[str, Any]] = trace["events"]
     _event(
         events,
@@ -428,6 +609,59 @@ def run_plugin_task(
         source_ref=f"manifest-sha256:{plan.task_manifest_sha256}",
         visible_tool_ids=list(plan.visible_tool_ids),
     )
+
+    precondition_failures: list[str] = []
+    for item in plan.preconditions:
+        if not isinstance(item, Mapping):
+            precondition_id = "unknown"
+            condition: dict[str, Any] = {}
+            status, observed, reason = "unavailable", {}, "precondition record is malformed"
+        else:
+            precondition_id = item.get("precondition_id")
+            if not isinstance(precondition_id, str) or not precondition_id:
+                precondition_id = "unknown"
+            raw_condition = item.get("condition")
+            condition = _json_copy(dict(raw_condition)) if isinstance(raw_condition, Mapping) else {}
+            status, observed, reason = _precondition_outcome(task_record, item, precondition_observer)
+        _event(
+            events,
+            task_id=task_id,
+            event_type="precondition_checked",
+            precondition_id=precondition_id,
+            precondition_condition=condition,
+            precondition_observation=observed,
+            precondition_status=status,
+            precondition_reason=reason,
+        )
+        if status != "pass":
+            precondition_failures.append(f"{precondition_id}: {reason}")
+
+    if precondition_failures:
+        closed_at = _utc_now()
+        trace["final_answer"] = None
+        trace["usage"] = {
+            "tool_calls": 0,
+            "provider_credits_spent": 0.0,
+            "input_tokens": 0,
+            "output_tokens": 0,
+        }
+        final_state = _observe(observe_state)
+        trace["closure"] = _make_closure(
+            "blocked", grade={"results": []}, final_state=final_state, closed_at=closed_at
+        )
+        _event(events, task_id=task_id, event_type="task_closed", closure_status="blocked")
+        validation_errors = validate_trace(trace, trace_schema)
+        grade = grade_task(dict(task_record), trace, schema=trace_schema)
+        return PluginRunResult(
+            trace=trace,
+            grade=grade,
+            trace_validation_errors=validation_errors,
+            final_answer=None,
+            model_turn_count=0,
+            tool_call_count=0,
+            stopped_reason="precondition_blocked",
+            error="; ".join(precondition_failures)[:1000],
+        )
 
     final_answer: str | None = None
     stopped_reason = "max_model_turns"
@@ -601,6 +835,7 @@ def run_plugin_task(
             break
 
     trace["final_answer"] = final_answer
+    _record_final_artifacts(task_record, events, trace["final_artifacts"], artifact_reader)
     trace["usage"] = {
         "tool_calls": calls_used,
         "provider_credits_spent": provider_credits,
@@ -608,12 +843,6 @@ def run_plugin_task(
         "output_tokens": output_tokens,
     }
     final_state = _observe(observe_state)
-    schema_path = Path(__file__).with_name("plugin_trace.schema.json")
-    try:
-        trace_schema = json.loads(schema_path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as exc:
-        raise PluginRunnerError(f"cannot load plugin trace schema: {exc}") from exc
-
     # First grade a detached preview with a provisional closure. The persisted
     # trajectory itself is append-only: its single task_closed event is appended
     # only after the provisional grade determines the final closure status.
