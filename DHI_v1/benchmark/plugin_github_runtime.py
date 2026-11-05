@@ -45,10 +45,19 @@ class PreparedGitHubTaskRuntime:
 def _sandbox_branch(plan: PluginTaskPlan) -> str:
     """Use a fresh, task-scoped output branch; reset_recipe branches are source fixtures."""
     task_id = plan.task_id
-    if not isinstance(task_id, str) or not re.fullmatch(r"ORBIT-A-S\\d{2}-\\d{3}", task_id):
+    parts = task_id.split("-") if isinstance(task_id, str) else []
+    if not (
+        len(parts) == 4
+        and parts[0] == "ORBIT"
+        and parts[1] == "A"
+        and len(parts[2]) == 3
+        and parts[2].startswith("S")
+        and parts[2][1:].isdigit()
+        and len(parts[3]) == 3
+        and parts[3].isdigit()
+    ):
         raise GitHubTaskRuntimeError("task ID is not a supported ORBIT Stage A task")
     return f"orbit/sandbox/{task_id.lower()}"
-
 
 def _pinned_base_commit(plan: PluginTaskPlan) -> str:
     found: set[str] = set()
