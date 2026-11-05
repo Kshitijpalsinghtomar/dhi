@@ -59,7 +59,18 @@ class FakeGitHubClient:
         }
 
     def compare_commits(self, arguments):
-        return {"files": []}
+        assert arguments["repo_full_name"] == REPOSITORY
+        assert arguments["base"] == BASE_COMMIT
+        assert arguments["head"] == EXPECTED_BRANCH
+        return {
+            "repository_full_name": REPOSITORY,
+            "base": BASE_COMMIT,
+            "head": EXPECTED_BRANCH,
+            "files": [
+                {"filename": path, "status": "added", "sha": _blob_sha(content)}
+                for path, content in sorted(self.files.items())
+            ],
+        }
 
     def fetch(self, arguments):
         self.fetches.append(dict(arguments))
@@ -267,3 +278,22 @@ def test_runtime_bound_runner_passes_branch_precondition_before_model_call():
         "url": f"https://api.github.com/repos/{REPOSITORY}/git/ref/heads/{EXPECTED_BRANCH}"
     }]
     assert result.trace_validation_errors == []
+
+
+def test_runtime_owns_independent_full_branch_diff_state_observer():
+    client = FakeGitHubClient()
+    runtime = build_github_plugin_runtime(_plan(), client, repository_full_name=REPOSITORY)
+
+    assert runtime.state_observer() == {}
+    client.files[REPORT_PATH] = REPORT
+    state = runtime.state_observer()
+
+    assert set(state) == {REPORT_PATH}
+    assert len(state[REPORT_PATH]) == 64
+    assert state[REPORT_PATH] == hashlib.sha256(
+        json.dumps(
+            {"blob_sha": _blob_sha(REPORT), "status": "added"},
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
+    ).hexdigest()
