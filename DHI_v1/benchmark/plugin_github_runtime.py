@@ -89,6 +89,49 @@ def _catalogue_schemas(tool_ids: tuple[str, ...]) -> dict[str, dict[str, Any]]:
     return {tool_id: json.loads(json.dumps(catalogue[tool_id])) for tool_id in tool_ids}
 
 
+
+def run_github_plugin_task(
+    task_record: Mapping[str, Any],
+    runtime: PreparedGitHubTaskRuntime,
+    model_client: Any,
+    *,
+    observe_state: Callable[[], Mapping[str, str]] | None = None,
+    trajectory_id: str | None = None,
+    model_id: str | None = None,
+    evidence_class: str = "scripted-reference",
+    max_model_turns: int | None = None,
+    max_tool_calls: int | None = None,
+    temperature: float = 0.0,
+):
+    """Run through the trusted runtime so callers cannot omit its safety callbacks.
+
+    This is deliberately a thin binding layer: the canonical plugin runner still
+    performs model-call limits, tool validation, trace generation and grading.
+    The wrapper only binds the exact prepared tools and the precondition/readback
+    observers constructed for the same task-scoped GitHub sandbox.
+    """
+    if not isinstance(runtime, PreparedGitHubTaskRuntime):
+        raise GitHubTaskRuntimeError("runtime must be a PreparedGitHubTaskRuntime")
+    if not isinstance(task_record, Mapping) or task_record.get("task_id") != runtime.prepared.task.task_id:
+        raise GitHubTaskRuntimeError("task record does not match the prepared GitHub runtime")
+
+    from .plugin_runner import run_plugin_task
+
+    return run_plugin_task(
+        task_record,
+        runtime.prepared,
+        model_client,
+        observe_state=observe_state,
+        precondition_observer=runtime.precondition_observer,
+        artifact_reader=runtime.artifact_reader,
+        trajectory_id=trajectory_id,
+        model_id=model_id,
+        evidence_class=evidence_class,
+        max_model_turns=max_model_turns,
+        max_tool_calls=max_tool_calls,
+        temperature=temperature,
+    )
+
 def build_github_plugin_runtime(
     plan: PluginTaskPlan,
     client: Any,
