@@ -5,7 +5,7 @@
   "research_branch": "orbit/plugin-benchmark-fixture",
   "task_id": "ORBIT-A-S06-001",
   "stage": "A",
-  "result": "artifact_smoke_complete_with_github_connector_fallback; deepnote_pat_write_path_blocked",
+  "result": "artifact_smoke_complete; deepnote_contents_write_permission_preflight_passed; no_live_model_execution",
   "sandbox": {
     "branch": "orbit/sandbox/orbit-a-s06-001",
     "pinned_base_commit": "af6c0d31fcf2e3232cb427c421850536139e3b3a",
@@ -105,7 +105,7 @@
     "create_ref_http": 403,
     "contents_put_http": 403,
     "sanitized_github_message": "Resource not accessible by personal access token",
-    "deepnote_token_write_permission": "blocked",
+    "deepnote_token_write_permission": "contents_write_preflight_passed",
     "fallback_used": "connected GitHub repository integration",
     "recheck_after_user_update": {
       "reported_by_user": "same fine-grained PAT updated for read/write",
@@ -133,6 +133,23 @@
       "github_error": "Resource not accessible by personal access token",
       "repository_mutations": 0,
       "token_value_exposed": false
+    },
+    "post_user_update_contents_write_preflight": {
+      "run_id": "3c722666-6e68-46c6-ae57-ccf76b256dbd",
+      "verifier_block_id": "e4c9f16ba86540d992e67c1392b5304e",
+      "token_present": true,
+      "write_flag_true": true,
+      "repository_allowlist_match": true,
+      "branch_head_before_and_after": "3b9b8be6a4c5d2ad22306e67288e7ba1dc975d0f",
+      "report_blob_before_and_after": "cca5127e66bc698f5c9cdfd8135a33ab45c8d985",
+      "deliberate_stale_sha_put_http": 409,
+      "github_response": "DHI_v1/benchmark/fixtures/plugin_ecology/reports/release-readiness.md does not match 0000000000000000000000000000000000000000",
+      "effective_contents_write_permission": "confirmed",
+      "branch_head_unchanged": true,
+      "report_blob_unchanged": true,
+      "repository_mutations": 0,
+      "token_value_exposed": false,
+      "interpretation": "Authorization passed and GitHub rejected the deliberately stale SHA at the concurrency check. This is a permission preflight only, not a valid content write or model task execution."
     }
   },
   "readback_verification": {
@@ -150,7 +167,7 @@
   "task_validation_status": "ready_for_validation",
   "stage_b_task_count": 0,
   "default_main_modified": false,
-  "evidence_boundary": "Artifact/report smoke completed via connected GitHub integration, followed by Deepnote read-only verification. Deepnote token writes remain blocked after user reported updating the PAT; repeated non-mutating probes returned 403. Not a model task execution, task validation or capability result.",
+  "evidence_boundary": "S06 report artifact was provisioned via the connected GitHub integration and independently read back. After the user updated the PAT, Deepnote's token passed a non-mutating Contents-write permission preflight (intentional stale-SHA PUT returned HTTP 409; branch and report remained unchanged). No valid token-backed content write, model task execution, task validation or ORBIT capability result is claimed.",
   "run_ids": {
     "env_presence": "f76c13a9-317f-4ff2-9711-5b07e4ba178b",
     "pre_write_read_probe": "219adf80-ea02-466e-9fe1-8f45119d22ed",
@@ -160,6 +177,8 @@
     "deepnote_read_only_final_verification": "e2d0364a-d717-403d-b713-cee990b78414",
     "non_mutating_write_probe_initial_ref_attempt": "eac97221-ac2c-49bf-9c01-d797b3c6a69b",
     "non_mutating_write_permission_recheck": "652a27e7-954d-4583-9bec-30a8573f346d",
-    "final_permission_diagnostic": "907a8bfa-6aa9-4468-b726-55de63229c29"
+    "final_permission_diagnostic": "907a8bfa-6aa9-4468-b726-55de63229c29",
+    "deepnote_contents_write_permission_preflight": "3c722666-6e68-46c6-ae57-ccf76b256dbd",
+    "deepnote_contents_write_permission_preflight_block": "e4c9f16ba86540d992e67c1392b5304e"
   }
 }
