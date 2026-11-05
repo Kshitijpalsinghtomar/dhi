@@ -42,25 +42,53 @@ class PreparedGitHubTaskRuntime:
     artifact_reader: Callable[[str, str, str], Mapping[str, Any]]
 
 
-def _sandbox_branch(task_id: str) -> str:
+def _sandbox_branch(plan: PluginTaskPlan) -> str:
+    task_id = plan.task_id
     if not isinstance(task_id, str) or not re.fullmatch(r"ORBIT-A-S\d{2}-\d{3}", task_id):
         raise GitHubTaskRuntimeError("task ID is not a supported ORBIT Stage A task")
+    environment = plan.environment if isinstance(plan.environment, Mapping) else {}
+    recipe = environment.get("reset_recipe")
+    if isinstance(recipe, str):
+        match = re.search(r"\b(?:branch|on)\s+(orbit/[A-Za-z0-9._/-]+)", recipe)
+        if match:
+            candidate = match.group(1).rstrip(".,;:)")
+            if (
+                not candidate.startswith("/")
+                and "\\" not in candidate
+                and all(part not in {"", ".", ".."} for part in candidate.split("/"))
+            ):
+                return candidate
     return f"orbit/sandbox/{task_id.lower()}"
 
 
 def _pinned_base_commit(plan: PluginTaskPlan) -> str:
-    found: list[str] = []
+    found: set[str] = set()
     for item in plan.preconditions:
         condition = item.get("condition") if isinstance(item, Mapping) else None
-        if isinstance(condition, Mapping) and condition.get("type") == "branch_head_equals":
+        if not isinstance(condition, Mapping):
+            continue
+        if condition.get("type") in {"branch_head_equals", "github_file_blob"}:
             commit = condition.get("commit")
             if isinstance(commit, str) and re.fullmatch(r"[a-f0-9]{40}", commit):
-                found.append(commit)
-            else:
-                raise GitHubTaskRuntimeError("branch_head_equals precondition has an invalid commit")
+                found.add(commit)
+    for item in plan.postconditions:
+        condition = item.get("condition") if isinstance(item, Mapping) else None
+        if not isinstance(condition, Mapping) or condition.get("type") != "branch_state_delta":
+            continue
+        expected = condition.get("after_expected")
+        commit = expected.get("base") if isinstance(expected, Mapping) else None
+        if isinstance(commit, str) and re.fullmatch(r"[a-f0-9]{40}", commit):
+            found.add(commit)
+    environment = plan.environment if isinstance(plan.environment, Mapping) else {}
+    recipe = environment.get("reset_recipe")
+    if isinstance(recipe, str):
+        for match in re.finditer(r"\b(?:commit|base)\s+([a-f0-9]{40})\b", recipe):
+            found.add(match.group(1))
     if len(found) != 1:
-        raise GitHubTaskRuntimeError("task must declare exactly one pinned branch_head_equals precondition")
-    return found[0]
+        raise GitHubTaskRuntimeError(
+            f"task must resolve to exactly one pinned base commit; found {len(found)}"
+        )
+    return next(iter(found))
 
 
 def _allowed_output_paths(plan: PluginTaskPlan) -> frozenset[str]:
@@ -78,8 +106,14 @@ def _allowed_output_paths(plan: PluginTaskPlan) -> frozenset[str]:
             allowed = condition.get("allowed_paths")
             if isinstance(allowed, list):
                 paths.update(path for path in allowed if isinstance(path, str) and path)
-    if not paths:
-        raise GitHubTaskRuntimeError("task has no deterministic file-output allowlist")
+    has_branch_state_delta = any(
+        isinstance(item, Mapping)
+        and isinstance(item.get("condition"), Mapping)
+        and item["condition"].get("type") == "branch_state_delta"
+        for item in plan.postconditions
+    )
+    if not paths and not has_branch_state_delta:
+        raise GitHubTaskRuntimeError("task has no deterministic file-output allowlist or branch-state contract")
     return frozenset(paths)
 
 
@@ -169,7 +203,7 @@ def build_github_plugin_runtime(
     if not callable(getattr(client, "tool_handlers", None)):
         raise GitHubTaskRuntimeError("GitHub client lacks the canonical tool handler map")
 
-    expected_branch = _sandbox_branch(plan.task_id)
+    expected_branch = _sandbox_branch(plan)
     expected_base_commit = _pinned_base_commit(plan)
     allowed_paths = _allowed_output_paths(plan)
 
@@ -198,9 +232,36 @@ def build_github_plugin_runtime(
                     and args.get("path") in allowed_paths
                 )
             write_guards[tool_id] = guard
+        elif tool_id.endswith("__create_branch"):
+            branch_targets = []
+            for postcondition in plan.postconditions:
+                condition = postcondition.get("condition") if isinstance(postcondition, Mapping) else None
+                if not isinstance(condition, Mapping) or condition.get("type") != "branch_state_delta":
+                    continue
+                expected = condition.get("after_expected")
+                if isinstance(expected, Mapping):
+                    branch_targets.append((expected.get("new_branch"), expected.get("base")))
+            if (
+                len(branch_targets) != 1
+                or not isinstance(branch_targets[0][0], str)
+                or not re.fullmatch(r"orbit/[A-Za-z0-9._/-]+", branch_targets[0][0])
+                or not isinstance(branch_targets[0][1], str)
+                or not re.fullmatch(r"[a-f0-9]{40}", branch_targets[0][1])
+            ):
+                raise GitHubTaskRuntimeError("create_branch requires exactly one pinned branch-state target")
+            target_branch, target_base = branch_targets[0]
+            def guard(task: PluginTaskPlan, args: dict[str, Any]) -> bool:
+                return (
+                    task.task_id == plan.task_id
+                    and args.get("repository_full_name") == repository_full_name
+                    and args.get("branch_name") == target_branch
+                    and args.get("sha") == target_base
+                    and not args.get("base_ref")
+                )
+            write_guards[tool_id] = guard
         else:
             raise GitHubTaskRuntimeError(
-                f"task sandbox-write tool has no task-scoped branch guard: {tool_id}"
+                f"task sandbox-write tool has no task-scoped write guard: {tool_id}"
             )
 
     try:
@@ -288,8 +349,17 @@ def build_github_plugin_runtime(
 
         raise GitHubTaskRuntimeError(f"unsupported trusted GitHub precondition type: {condition_type!r}")
 
+    is_branch_state_task = any(
+        isinstance(item, Mapping)
+        and isinstance(item.get("condition"), Mapping)
+        and item["condition"].get("type") == "branch_state_delta"
+        for item in plan.postconditions
+    )
+
     def state_observer() -> Mapping[str, str]:
-        """Return the independently observed base-to-branch file-diff snapshot."""
+        """Return the independently observed file diff, or empty map for branch-list tasks."""
+        if is_branch_state_task:
+            return {}
         response = client.compare_commits({
             "repo_full_name": repository_full_name,
             "base": expected_base_commit,
