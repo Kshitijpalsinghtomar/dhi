@@ -264,6 +264,6 @@ def test_runtime_bound_runner_passes_branch_precondition_before_model_call():
     checked = next(event for event in result.trace["events"] if event["event_type"] == "precondition_checked")
     assert checked["precondition_status"] == "pass"
     assert client.fetches == [{
-        "url": f"https://api.github.com/repos/{REPOSITORY}/git/ref/heads/{BRANCH}"
+        "url": f"https://api.github.com/repos/{REPOSITORY}/git/ref/heads/{EXPECTED_BRANCH}"
     }]
     assert result.trace_validation_errors == []
