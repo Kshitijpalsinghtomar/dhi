@@ -316,14 +316,18 @@ def _precondition_outcome(
         )
         if (
             not valid_path
-            or not isinstance(expected_commit, str)
-            or not re.fullmatch(r"[a-f0-9]{40}", expected_commit)
+            or (expected_commit is not None and (
+                not isinstance(expected_commit, str)
+                or not re.fullmatch(r"[a-f0-9]{40}", expected_commit)
+            ))
+            or not isinstance(blob_sha, str)
+            or not re.fullmatch(r"[a-f0-9]{40}", blob_sha)
+            or (expected_commit is not None and commit != expected_commit)
+            or not isinstance(commit, str)
+            or not re.fullmatch(r"[a-f0-9]{40}", commit)
             or not isinstance(expected_blob, str)
             or not re.fullmatch(r"[a-f0-9]{40}", expected_blob)
             or path != expected_path
-            or commit != expected_commit
-            or not isinstance(blob_sha, str)
-            or not re.fullmatch(r"[a-f0-9]{40}", blob_sha)
         ):
             return "unavailable", observed, "pinned GitHub file-blob observation is incomplete or malformed"
         if blob_sha != expected_blob:
