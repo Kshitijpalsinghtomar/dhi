@@ -66,6 +66,12 @@ def _sha256_text(value: str) -> str:
     return hashlib.sha256(value.encode("utf-8")).hexdigest()
 
 
+
+def _git_blob_sha(value: str) -> str:
+    data = value.encode("utf-8")
+    return hashlib.sha1(b"blob " + str(len(data)).encode("ascii") + b"\0" + data).hexdigest()
+
+
 def _canonical_json(value: Any) -> str:
     return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"), allow_nan=False)
 
@@ -153,6 +159,99 @@ def validate_trace(
             continue
         if _sha256_text(artifact["content"]) != artifact.get("sha256"):
             errors.append(f"artifact content SHA-256 mismatch: {artifact.get('path')!r}")
+
+    readback_events = {
+        event.get("event_index"): event
+        for event in events
+        if isinstance(event, dict) and event.get("event_type") == "artifact_readback"
+    }
+    artifacts_by_source: dict[int, list[dict[str, Any]]] = {}
+    for artifact in trace.get("final_artifacts", []) if isinstance(trace.get("final_artifacts"), list) else []:
+        if not isinstance(artifact, dict):
+            continue
+        source_index = artifact.get("source_event_index")
+        if not isinstance(source_index, int) or isinstance(source_index, bool):
+            errors.append(f"artifact {artifact.get('path')!r} has no valid readback source_event_index")
+            continue
+        artifacts_by_source.setdefault(source_index, []).append(artifact)
+        event = readback_events.get(source_index)
+        if event is None:
+            errors.append(f"artifact {artifact.get('path')!r} is not backed by an artifact_readback event")
+            continue
+        evidence = event.get("artifact_readback")
+        if not isinstance(evidence, dict) or evidence.get("status") != "verified":
+            errors.append(f"artifact {artifact.get('path')!r} is not backed by a verified readback")
+            continue
+        for field in ("path", "sha256", "blob_sha", "source_ref"):
+            if artifact.get(field) != evidence.get(field):
+                errors.append(f"artifact {artifact.get('path')!r} {field} differs from readback evidence")
+        content = artifact.get("content")
+        if not isinstance(content, str):
+            errors.append(f"artifact {artifact.get('path')!r} has no independently read-back content")
+            continue
+        if _sha256_text(content) != artifact.get("sha256"):
+            errors.append(f"artifact content SHA-256 mismatch: {artifact.get('path')!r}")
+        if _git_blob_sha(content) != artifact.get("blob_sha"):
+            errors.append(f"artifact Git blob SHA mismatch: {artifact.get('path')!r}")
+        if artifact.get("status") != "read":
+            errors.append(f"artifact {artifact.get('path')!r} is not marked as independently read")
+
+        source_action_id = evidence.get("source_action_id")
+        source_actions = [
+            candidate for candidate in events
+            if isinstance(candidate, dict)
+            and candidate.get("event_type") == "action_executed"
+            and candidate.get("action_id") == source_action_id
+        ]
+        if len(source_actions) != 1:
+            errors.append(f"artifact {artifact.get('path')!r} has no unique successful source write")
+            continue
+        source_action = source_actions[0]
+        actual = source_action.get("actual_tool_result")
+        arguments = source_action.get("arguments")
+        if (
+            not isinstance(actual, dict)
+            or actual.get("ok") is not True
+            or not isinstance(arguments, dict)
+            or str(source_action.get("tool_id", "")).split("__")[-1] not in {"create_file", "update_file"}
+        ):
+            errors.append(f"artifact {artifact.get('path')!r} is not backed by a successful file write")
+            continue
+        if (
+            arguments.get("path") != evidence.get("path")
+            or arguments.get("repository_full_name") != evidence.get("repository_full_name")
+            or arguments.get("branch") != evidence.get("ref")
+            or event.get("event_index", 0) <= source_action.get("event_index", 0)
+        ):
+            errors.append(f"artifact {artifact.get('path')!r} readback does not match its source write")
+    for source_index, event in readback_events.items():
+        evidence = event.get("artifact_readback")
+        if not isinstance(evidence, dict):
+            continue
+        linked = artifacts_by_source.get(source_index, [])
+        if evidence.get("status") == "verified" and len(linked) != 1:
+            errors.append(f"verified artifact readback at event_index={source_index} must link to exactly one final artifact")
+        if evidence.get("status") != "verified" and linked:
+            errors.append(f"unverified artifact readback at event_index={source_index} cannot back a final artifact")
+
+    precondition_events = [
+        event for event in events
+        if isinstance(event, dict) and event.get("event_type") == "precondition_checked"
+    ]
+    model_events = [
+        event for event in events
+        if isinstance(event, dict) and event.get("event_type") in {"assistant_prediction", "action_started"}
+    ]
+    if precondition_events and model_events:
+        first_model_index = min(event.get("event_index", 10**9) for event in model_events)
+        if any(event.get("event_index", 0) >= first_model_index for event in precondition_events):
+            errors.append("all manifest preconditions must be checked before any model prediction or tool action")
+    if any(event.get("precondition_status") in {"fail", "unavailable"} for event in precondition_events):
+        if model_events:
+            errors.append("model prediction or tool action occurred despite a failed/unavailable precondition")
+        closure = trace.get("closure")
+        if not isinstance(closure, dict) or closure.get("status") != "blocked":
+            errors.append("failed/unavailable preconditions must close the task as blocked")
 
     # Independently recompute workspace/repository state deltas from the before/after
     # snapshots. A model-authored actual_effects summary is not accepted by itself.
