@@ -48,3 +48,15 @@ The token needs confirmed Contents: read and write access for the selected `dhi`
 - The S06 manifest validation state remains `ready_for_validation`; this infrastructure/report smoke is not independent task validation or a model capability result.
 - Stage A remains 30 tasks, all ready for validation; Stage B remains sealed and empty.
 - Default `main` was not changed or merged.
+
+
+## Credential recheck after user update — 2026-11-05
+
+The same Deepnote integration was rechecked after the user reported changing the GitHub token to read/write. The integration remains attached to the DHI project and the three environment settings are present, but GitHub still returned HTTP 403 for both non-mutating permission probes:
+
+- POST the already-existing S06 ref at its current head: HTTP 403, `Resource not accessible by personal access token`.
+- PUT the existing report path with an intentionally incorrect blob SHA: HTTP 403, same message. The request was rejected before any content change.
+- After both probes, the branch head and report blob SHA were unchanged.
+- Deepnote run: `652a27e7-954d-4583-9bec-30a8573f346d`; zero repository mutations.
+
+The integration metadata still reports the original creation timestamp, and the project machine was running. No machine restart was attempted. The current evidence therefore does not support claiming that the running Deepnote runtime has a write-capable token. Most likely the PAT permission change was not applied to the exact active token, is still pending owner approval, or the changed token value has not been updated in the Deepnote integration. Recheck the active fine-grained PAT, its selected repository, Contents read/write permission and approval status; then update the Deepnote secret if a new token value was generated. Do not send the token in chat.
