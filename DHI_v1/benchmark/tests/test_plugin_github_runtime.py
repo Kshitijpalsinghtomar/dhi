@@ -295,3 +295,17 @@ def test_runtime_owns_independent_full_branch_diff_state_observer():
             separators=(",", ":"),
         ).encode("utf-8")
     ).hexdigest()
+
+
+def test_runtime_diff_observer_rejects_malformed_provider_status_metadata():
+    client = FakeGitHubClient()
+    runtime = build_github_plugin_runtime(_plan(), client, repository_full_name=REPOSITORY)
+    client.compare_commits = lambda arguments: {
+        "repository_full_name": REPOSITORY,
+        "base": BASE_COMMIT,
+        "head": EXPECTED_BRANCH,
+        "files": [{"filename": REPORT_PATH, "status": [], "sha": _blob_sha(REPORT)}],
+    }
+
+    with pytest.raises(GitHubTaskRuntimeError, match="invalid path or status"):
+        runtime.state_observer()
