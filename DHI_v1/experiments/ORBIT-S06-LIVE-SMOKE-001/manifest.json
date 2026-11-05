@@ -121,6 +121,18 @@
       "report_blob_unchanged": true,
       "repository_mutations": 0,
       "deepnote_token_write_permission": "still_blocked"
+    },
+    "final_permission_diagnostic": {
+      "run_id": "907a8bfa-6aa9-4468-b726-55de63229c29",
+      "token_valid_user_endpoint": true,
+      "authenticated_user_matches_repository_owner": true,
+      "sandbox_branch_read": true,
+      "duplicate_ref_write_probe_http": 403,
+      "github_accepted_permissions_header": "contents=write; contents=write,workflows=write",
+      "effective_contents_write_permission": "not_granted",
+      "github_error": "Resource not accessible by personal access token",
+      "repository_mutations": 0,
+      "token_value_exposed": false
     }
   },
   "readback_verification": {
@@ -147,6 +159,7 @@
     "deepnote_pat_contents_write_attempt_failed": "870b079e-ff17-4030-9b24-7fc0cad7701e",
     "deepnote_read_only_final_verification": "e2d0364a-d717-403d-b713-cee990b78414",
     "non_mutating_write_probe_initial_ref_attempt": "eac97221-ac2c-49bf-9c01-d797b3c6a69b",
-    "non_mutating_write_permission_recheck": "652a27e7-954d-4583-9bec-30a8573f346d"
+    "non_mutating_write_permission_recheck": "652a27e7-954d-4583-9bec-30a8573f346d",
+    "final_permission_diagnostic": "907a8bfa-6aa9-4468-b726-55de63229c29"
   }
 }
