@@ -222,31 +222,71 @@ def build_github_plugin_runtime(
         if not isinstance(task_record, Mapping) or task_record.get("task_id") != plan.task_id:
             raise GitHubTaskRuntimeError("precondition task does not match the prepared task")
         condition = precondition.get("condition") if isinstance(precondition, Mapping) else None
-        if (
-            not isinstance(condition, Mapping)
-            or condition.get("type") != "branch_head_equals"
-            or condition.get("commit") != expected_base_commit
-        ):
-            raise GitHubTaskRuntimeError("precondition does not match the task's pinned base commit")
-        url = (
-            f"https://api.github.com/repos/{repository_full_name}/git/ref/heads/"
-            f"{quote(expected_branch, safe='/')}"
-        )
-        response = client.fetch({"url": url})
-        content = response.get("content") if isinstance(response, Mapping) else None
-        if not isinstance(content, str):
-            raise GitHubTaskRuntimeError("GitHub branch observer returned no response content")
-        try:
-            payload = json.loads(content)
-        except json.JSONDecodeError as exc:
-            raise GitHubTaskRuntimeError("GitHub branch observer returned malformed JSON") from exc
-        if not isinstance(payload, Mapping) or payload.get("ref") != expected_ref:
-            raise GitHubTaskRuntimeError("GitHub branch ref did not match the task-scoped sandbox branch")
-        obj = payload.get("object")
-        head_sha = obj.get("sha") if isinstance(obj, Mapping) else None
-        if not isinstance(head_sha, str) or not re.fullmatch(r"[a-f0-9]{40}", head_sha):
-            raise GitHubTaskRuntimeError("GitHub branch ref did not contain a valid head SHA")
-        return {"branch_name": expected_branch, "head_sha": head_sha}
+        if not isinstance(condition, Mapping):
+            raise GitHubTaskRuntimeError("precondition has no structured condition")
+        condition_type = condition.get("type")
+        if condition_type == "branch_head_equals":
+            if condition.get("commit") != expected_base_commit:
+                raise GitHubTaskRuntimeError("branch precondition does not match the task's pinned base commit")
+            url = (
+                f"https://api.github.com/repos/{repository_full_name}/git/ref/heads/"
+                f"{quote(expected_branch, safe='/')}"
+            )
+            response = client.fetch({"url": url})
+            content = response.get("content") if isinstance(response, Mapping) else None
+            if not isinstance(content, str):
+                raise GitHubTaskRuntimeError("GitHub branch observer returned no response content")
+            try:
+                payload = json.loads(content)
+            except json.JSONDecodeError as exc:
+                raise GitHubTaskRuntimeError("GitHub branch observer returned malformed JSON") from exc
+            if not isinstance(payload, Mapping) or payload.get("ref") != expected_ref:
+                raise GitHubTaskRuntimeError("GitHub branch ref did not match the task-scoped sandbox branch")
+            obj = payload.get("object")
+            head_sha = obj.get("sha") if isinstance(obj, Mapping) else None
+            if not isinstance(head_sha, str) or not re.fullmatch(r"[a-f0-9]{40}", head_sha):
+                raise GitHubTaskRuntimeError("GitHub branch ref did not contain a valid head SHA")
+            return {"branch_name": expected_branch, "head_sha": head_sha}
+
+        if condition_type == "github_file_blob":
+            path = condition.get("path")
+            commit = condition.get("commit")
+            expected_blob = condition.get("blob_sha")
+            if (
+                not isinstance(path, str)
+                or not path
+                or path.startswith("/")
+                or "\\" in path
+                or any(part in {"", ".", ".."} for part in path.split("/"))
+                or not isinstance(commit, str)
+                or not re.fullmatch(r"[a-f0-9]{40}", commit)
+                or commit != expected_base_commit
+                or not isinstance(expected_blob, str)
+                or not re.fullmatch(r"[a-f0-9]{40}", expected_blob)
+            ):
+                raise GitHubTaskRuntimeError("pinned GitHub file-blob precondition is malformed or outside the task base")
+            response = client.fetch_file({
+                "repository_full_name": repository_full_name,
+                "path": path,
+                "ref": commit,
+            })
+            content = response.get("content") if isinstance(response, Mapping) else None
+            blob_sha = response.get("sha") if isinstance(response, Mapping) else None
+            if (
+                not isinstance(content, str)
+                or not isinstance(blob_sha, str)
+                or not re.fullmatch(r"[a-f0-9]{40}", blob_sha)
+                or hashlib.sha1(
+                    b"blob " + str(len(content.encode("utf-8"))).encode("ascii")
+                    + b"\\0" + content.encode("utf-8")
+                ).hexdigest() != blob_sha
+            ):
+                raise GitHubTaskRuntimeError("GitHub checkpoint readback failed its content/blob integrity check")
+            if blob_sha != expected_blob:
+                raise GitHubTaskRuntimeError("GitHub checkpoint blob SHA does not match the manifest-pinned blob SHA")
+            return {"path": path, "commit": commit, "blob_sha": blob_sha}
+
+        raise GitHubTaskRuntimeError(f"unsupported trusted GitHub precondition type: {condition_type!r}")
 
     def state_observer() -> Mapping[str, str]:
         """Return the independently observed base-to-branch file-diff snapshot."""
