@@ -522,7 +522,7 @@ def run_plugin_task(
     if not isinstance(temperature, (int, float)) or isinstance(temperature, bool) or not 0 <= temperature <= 2:
         raise PluginRunnerError("temperature must be between 0 and 2")
 
-    initial_state = _observe(observe_state)
+    initial_state: dict[str, str] = {}
     environment = plan.environment
     environment_state_sha = environment.get("state_sha256")
     if not isinstance(environment_state_sha, str) or not re.fullmatch(r"[a-f0-9]{64}", environment_state_sha):
@@ -611,6 +611,7 @@ def run_plugin_task(
     )
 
     precondition_failures: list[str] = []
+    precondition_results: list[tuple[str, dict[str, Any], dict[str, Any], str, str]] = []
     for item in plan.preconditions:
         if not isinstance(item, Mapping):
             precondition_id = "unknown"
@@ -623,6 +624,11 @@ def run_plugin_task(
             raw_condition = item.get("condition")
             condition = _json_copy(dict(raw_condition)) if isinstance(raw_condition, Mapping) else {}
             status, observed, reason = _precondition_outcome(task_record, item, precondition_observer)
+        precondition_results.append((precondition_id, condition, observed, status, reason))
+        if status != "pass":
+            precondition_failures.append(f"{precondition_id}: {reason}")
+
+    for precondition_id, condition, observed, status, reason in precondition_results:
         _event(
             events,
             task_id=task_id,
@@ -633,8 +639,6 @@ def run_plugin_task(
             precondition_status=status,
             precondition_reason=reason,
         )
-        if status != "pass":
-            precondition_failures.append(f"{precondition_id}: {reason}")
 
     if precondition_failures:
         closed_at = _utc_now()
@@ -645,7 +649,8 @@ def run_plugin_task(
             "input_tokens": 0,
             "output_tokens": 0,
         }
-        final_state = _observe(observe_state)
+        # Do not query repository state after a failed/unavailable precondition.
+        final_state: dict[str, str] = {}
         trace["closure"] = _make_closure(
             "blocked", grade={"results": []}, final_state=final_state, closed_at=closed_at
         )
@@ -662,6 +667,11 @@ def run_plugin_task(
             stopped_reason="precondition_blocked",
             error="; ".join(precondition_failures)[:1000],
         )
+
+    # Capture the baseline only after the task's branch preconditions have passed.
+    initial_state = _observe(observe_state)
+    trace["closure"]["final_state_sha256"] = _sha256_json(initial_state)
+    final_state = initial_state
 
     final_answer: str | None = None
     stopped_reason = "max_model_turns"
