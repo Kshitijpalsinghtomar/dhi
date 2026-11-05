@@ -309,3 +309,48 @@ def test_runtime_diff_observer_rejects_malformed_provider_status_metadata():
 
     with pytest.raises(GitHubTaskRuntimeError, match="invalid path or status"):
         runtime.state_observer()
+
+
+def test_runtime_verifies_pinned_github_file_blob_precondition_at_exact_commit():
+    client = FakeGitHubClient()
+    runtime = build_github_plugin_runtime(_plan(), client, repository_full_name=REPOSITORY)
+    checkpoint_path = "DHI_v1/benchmark/fixtures/plugin_ecology/checkpoints/resume-task-A.md"
+    client.files[checkpoint_path] = REPORT
+    condition = {
+        "condition": {
+            "type": "github_file_blob",
+            "path": checkpoint_path,
+            "commit": BASE_COMMIT,
+            "blob_sha": _blob_sha(REPORT),
+        }
+    }
+
+    observed = runtime.precondition_observer({"task_id": TASK_ID}, condition)
+
+    assert observed == {
+        "path": checkpoint_path,
+        "commit": BASE_COMMIT,
+        "blob_sha": _blob_sha(REPORT),
+    }
+    assert client.file_reads == [{
+        "repository_full_name": REPOSITORY,
+        "path": checkpoint_path,
+        "ref": BASE_COMMIT,
+    }]
+
+
+def test_runtime_rejects_pinned_file_blob_hash_mismatch():
+    client = FakeGitHubClient()
+    runtime = build_github_plugin_runtime(_plan(), client, repository_full_name=REPOSITORY)
+    checkpoint_path = "DHI_v1/benchmark/fixtures/plugin_ecology/checkpoints/resume-task-A.md"
+    client.files[checkpoint_path] = REPORT
+    with pytest.raises(GitHubTaskRuntimeError, match="blob SHA"):
+        runtime.precondition_observer(
+            {"task_id": TASK_ID},
+            {"condition": {
+                "type": "github_file_blob",
+                "path": checkpoint_path,
+                "commit": BASE_COMMIT,
+                "blob_sha": "0" * 40,
+            }},
+        )
