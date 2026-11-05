@@ -389,7 +389,7 @@ def test_runtime_derives_resume_branch_and_base_from_s07_checkpoint_contract():
     client = FakeGitHubClient()
     runtime = build_github_plugin_runtime(plan, client, repository_full_name=REPOSITORY)
 
-    assert runtime.expected_branch == "orbit/plugin-resume-sandbox"
+    assert runtime.expected_branch == "orbit/sandbox/orbit-a-s07-001"
     assert runtime.expected_base_commit == "04d0e12f48067b3b3a3de3ffe10944b7ef594984"
 
     checkpoint_path = "DHI_v1/benchmark/fixtures/plugin_ecology/checkpoints/resume-task-A.md"
