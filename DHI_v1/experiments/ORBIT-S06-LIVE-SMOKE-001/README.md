@@ -60,3 +60,16 @@ The same Deepnote integration was rechecked after the user reported changing the
 - Deepnote run: `652a27e7-954d-4583-9bec-30a8573f346d`; zero repository mutations.
 
 The integration metadata still reports the original creation timestamp, and the project machine was running. No machine restart was attempted. The current evidence therefore does not support claiming that the running Deepnote runtime has a write-capable token. Most likely the PAT permission change was not applied to the exact active token, is still pending owner approval, or the changed token value has not been updated in the Deepnote integration. Recheck the active fine-grained PAT, its selected repository, Contents read/write permission and approval status; then update the Deepnote secret if a new token value was generated. Do not send the token in chat.
+
+
+## Final permission diagnostic — 2026-11-05
+
+Deepnote run `907a8bfa-6aa9-4468-b726-55de63229c29` confirmed:
+- GitHub token authenticates successfully to `GET /user`.
+- Authenticated account matches the repository owner.
+- Existing S06 sandbox branch is readable at report commit `3b9b8be6a4c5d2ad22306e67288e7ba1dc975d0f`.
+- Duplicate-ref write probe still returns HTTP 403, `Resource not accessible by personal access token`.
+- GitHub response header `X-Accepted-GitHub-Permissions` explicitly advertises `contents=write` as the required permission.
+- No repository mutation occurred; the branch/report remain unchanged.
+
+The remaining problem is not an invalid token or wrong GitHub account. The exact token supplied to Deepnote still does not have effective `Contents: Read and write` permission for this repository, or that permission is awaiting approval. Check the active token's repository selection, Contents permission and approval state. If GitHub generated a replacement token string, update the Deepnote integration with that new value.
