@@ -66,6 +66,12 @@
       "report_blob_unchanged": true,
       "repository_mutations": 0,
       "token_value_exposed": false
+    },
+    "deepnote_contents_write_permission_preflight": {
+      "run_id": "3c722666-6e68-46c6-ae57-ccf76b256dbd",
+      "deliberate_stale_sha_put_http": 409,
+      "effective_contents_write_permission": "confirmed",
+      "repository_mutations": 0
     }
   },
   "actions": {
@@ -81,8 +87,42 @@
   "issue_source_configuration_deployment_mutations": 0,
   "manifest_model_runs_allowed": false,
   "all_artifact_assertions_passed": true,
-  "deepnote_token_write_path_passed": false,
+  "deepnote_token_write_path_passed": true,
   "end_to_end_token_backed_runtime_smoke_passed": false,
   "contents_write_permission_preflight_passed": true,
-  "permission_probe_interpretation": "The Deepnote token now passes Contents-write authorization. The deliberately invalid SHA causes HTTP 409 before any file update; no valid token-backed write was performed."
+  "permission_probe_interpretation": "The Deepnote token now passes Contents-write authorization. The deliberately invalid SHA causes HTTP 409 before any file update; no valid token-backed write was performed.",
+  "token_write": {
+    "run_id": "cc7686cc-a9cf-4bae-8b90-76dc36826b46",
+    "http_status": 200,
+    "previous_blob_sha": "cca5127e66bc698f5c9cdfd8135a33ab45c8d985",
+    "new_blob_sha": "39e2ad46c72899ffcf47c283b5323ff8fc4456bd",
+    "commit_sha": "60d02d29220d4f85a007f9677f1d26e4c31a8e0a",
+    "independent_readback_exact": true,
+    "only_approved_path_changed": true,
+    "compare_ahead_by": 2,
+    "compare_behind_by": 0,
+    "changed_path_count": 1
+  },
+  "adjudication": {
+    "run_id": "7d0c8261-5edb-4cdf-a578-01ecc4edf72a",
+    "status": "passed",
+    "checks_passed": 11,
+    "checks_total": 11,
+    "pinned_source_files_verified": 7,
+    "report_blob_sha": "39e2ad46c72899ffcf47c283b5323ff8fc4456bd",
+    "model_execution": "not_run",
+    "training": "not_authorized"
+  },
+  "manifest_record": {
+    "run_id": "be30e5c8-d408-451c-9743-12afe3a2b1ff",
+    "commit_sha": "7850e9f6efadd2aaa4236c4a612980e8b8d46a53",
+    "blob_sha": "541106e544f80ed2fcd2b1d8ecbe63006acb6464",
+    "validator_valid": true,
+    "task_status": "ready_for_validation",
+    "contract_check": "pass",
+    "environment_check": "pass",
+    "grader_check": "pass",
+    "family_review_status": "accepted",
+    "model_runs_allowed": false
+  }
 }
