@@ -27,7 +27,7 @@ This is a research target, not a result or novelty claim. A prompt, RAG store, f
 ```yaml
 programme: DHI-v1
 codename: ORBIT
-phase: s06_artifact_smoke_complete_deepnote_pat_write_blocked
+phase: s06_artifact_smoke_complete_deepnote_contents_write_verified
 status: blocked
 status_reason: >
   ORBIT-VERIFY-012 passed the exact-head offline engineering regression:
@@ -35,16 +35,17 @@ status_reason: >
   for 30 Stage A tasks, and 30-plan loader; zero model runs were enabled.
   ORBIT-S06-LIVE-SMOKE-001 provisioned the S06 sandbox branch at its pinned
   base, verified seven fixture blobs, and created/read back the sole approved
-  report. Deepnote token reads passed, but both POST /git/refs and PUT
-  /contents were rejected by GitHub with HTTP 403: Resource not accessible
-  by personal access token. The branch and report were therefore provisioned
-  through the connected GitHub repository integration. The live Deepnote
-  token-backed write path remains blocked. All 30 Stage A tasks remain
-  ready_for_validation; Stage B remains sealed with zero tasks; all model
-  execution flags remain false. S07 and S09 remain partial. No ORBIT inference,
-  model-generated trajectory, capability score or training run exists. This
-  report smoke is infrastructure/reference evidence, not task validation or
-  a model capability result.
+  report via the connected GitHub repository integration. After the user
+  updated the Deepnote PAT, the live Deepnote token passed a non-mutating
+  Contents-write permission preflight: an intentional stale-SHA PUT returned
+  HTTP 409 at GitHub's concurrency check, and the branch head/report blob
+  were independently confirmed unchanged (zero mutations). This verifies
+  effective Contents: write permission but is not a valid content write,
+  model task execution, task validation or model capability evidence. All 30
+  Stage A tasks remain ready_for_validation; Stage B remains sealed with zero
+  tasks; all model execution flags remain false. S07 and S09 remain partial.
+  No ORBIT inference, model-generated trajectory, capability score or
+  training run exists.
 training_status: not_authorized
 benchmark_status: stage_a_authoring_30_of_120; stage_b_sealed_unmaterialized
 last_verified_code_commit: 7f244bf76ccbccec5477b0055d23da5a5931e27a
@@ -749,3 +750,19 @@ The project integration metadata still exposes its original creation timestamp; 
 ### Final permission diagnostic — 5 November 2026
 
 Deepnote run `907a8bfa-6aa9-4468-b726-55de63229c29` confirmed the configured token is valid (`GET /user` returned 200), authenticates as the repository owner, and reads the current S06 branch. However, a duplicate-ref write probe still returns HTTP 403, `Resource not accessible by personal access token`. GitHub's `X-Accepted-GitHub-Permissions` response header explicitly requires `contents=write`. No repository mutation occurred. The effective Contents write grant is still missing or pending approval for the token Deepnote is using. The next action is to inspect the active fine-grained PAT's exact repository selection, Contents permission and approval status; replace the Deepnote secret only if GitHub generated a new token value. Do not grant Actions/Workflows or broader permissions; the reported requirement is `contents=write`.
+
+
+## 29. ORBIT-S06-LIVE-SMOKE-001 — Deepnote Contents-write permission verified — 5 November 2026
+
+- The user reported updating the GitHub PAT permission. The Deepnote integration metadata changed after the prior blocked check; the next probe ran in the live notebook kernel using the configured `GITHUB_TOKEN`.
+- Deepnote project: `6415944e-8d6c-432c-a7cf-3bbaa997799c`; notebook: `3639f9a98ce5435fa4cd0168eaaca3a1`.
+- Run: `3c722666-6e68-46c6-ae57-ccf76b256dbd`; verifier block: `e4c9f16ba86540d992e67c1392b5304e`.
+- Token presence, write-enable flag and exact repository allowlist all passed.
+- The existing S06 branch and report were read first and matched the pinned head/blob values. The verifier then submitted the existing report with a deliberately impossible all-zero blob SHA. GitHub returned HTTP 409 with the expected stale-SHA mismatch, proving the token passed the Contents-write authorization check and reached the update concurrency check.
+- The branch head and report blob were read again and remained unchanged. Repository mutations: **0**. Token value exposed: **false**.
+- **Credential result:** Deepnote `Contents: write` permission preflight passed. The preflight did not perform a valid content write; the branch and report remain originally provisioned by the connected GitHub repository integration. Do not describe this as a completed token-backed artifact write or end-to-end model task run.
+- Historical HTTP 403 diagnostics are retained in Section 28 and the experiment ledger; they are superseded by this successful post-update permission check.
+
+### Research gates unchanged
+
+S06 remains `ready_for_validation`; all 30 Stage A tasks remain `ready_for_validation`; Stage B remains sealed and empty; all `model_runs_allowed` flags remain false; training remains unauthorized. No model inference, model-generated trajectory or training job was executed. No change was made to default `main`.
