@@ -46,6 +46,15 @@
       "report_blob_unchanged": true,
       "repository_mutations": 0,
       "token_value_exposed": false
+    },
+    "final_permission_diagnostic": {
+      "run_id": "907a8bfa-6aa9-4468-b726-55de63229c29",
+      "user_endpoint_http": 200,
+      "authenticated_user_matches_repository_owner": true,
+      "branch_read_http": 200,
+      "duplicate_ref_write_http": 403,
+      "accepted_permissions_header": "contents=write; contents=write,workflows=write",
+      "no_repository_mutation": true
     }
   },
   "actions": {
