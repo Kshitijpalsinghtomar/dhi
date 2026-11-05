@@ -27,27 +27,28 @@ This is a research target, not a result or novelty claim. A prompt, RAG store, f
 ```yaml
 programme: DHI-v1
 codename: ORBIT
-phase: plugin_harness_verified_provider_execution_blocked
+phase: trusted_github_plugin_runtime_offline_verified_live_provider_blocked
 status: blocked
 status_reason: >
-  ORBIT-VERIFY-010 passed the exact branch-head engineering regression at
-  e045e43d41a5cd125f81dbfdac105937f3a161af: manifest validation passed,
-  207 benchmark/environment tests passed, compileall and import smoke passed,
-  and all 30 plugin task plans loaded with zero model runs enabled. The result
-  is recorded in experiments/ORBIT-VERIFY-010/. This verifies offline harness
-  code only. Live GitHub execution remains blocked because the Deepnote project
-  previously reported no project-scoped GITHUB_TOKEN, write flag, or repository
-  allowlist. The plugin runner still lacks fail-closed manifest precondition
-  evaluation before the first model call (including S06 branch-head checks)
-  and independently grounded final-artifact readback into trace.final_artifacts.
-  All 30 Stage A tasks remain ready_for_validation; Stage B remains sealed with
-  zero tasks; all model_runs_allowed flags remain false. S07 and S09 are partial.
-  No ORBIT inference, model-generated trajectory, capability score, or training
-  run exists. OpenRouter balance was previously observed as $0.
+  ORBIT-VERIFY-012 passed the exact branch-head offline engineering regression
+  at 7f244bf76ccbccec5477b0055d23da5a5931e27a: manifest validation passed for
+  30 Stage A tasks and zero Stage B tasks; the combined benchmark/environment
+  suite passed 224 tests; compileall, entrypoint imports and the 30-plan loader
+  passed; zero model runs were enabled. ORBIT-VERIFY-011 and ORBIT-VERIFY-012
+  are recorded under experiments/. The task-scoped GitHub runtime now binds
+  branch-head preconditions, compare-based state snapshots, repository/branch/
+  path write guards and independent artifact readback to one configured client.
+  These results use offline tests and fake GitHub HTTP only. Live GitHub
+  execution remains blocked because the Deepnote project has no project-scoped
+  GITHUB_TOKEN, write-enable flag or repository allowlist. All 30 Stage A tasks
+  remain ready_for_validation; Stage B remains sealed with zero tasks; all
+  model_runs_allowed flags remain false. S07 and S09 remain partial. No ORBIT
+  inference, model-generated trajectory, capability score or training run
+  exists. Model access and benchmark task-validation gates remain open.
 training_status: not_authorized
 benchmark_status: stage_a_authoring_30_of_120; stage_b_sealed_unmaterialized
-last_verified_code_commit: e045e43d41a5cd125f81dbfdac105937f3a161af
-last_verified_test_commit: e045e43d41a5cd125f81dbfdac105937f3a161af
+last_verified_code_commit: 7f244bf76ccbccec5477b0055d23da5a5931e27a
+last_verified_test_commit: 7f244bf76ccbccec5477b0055d23da5a5931e27a
 ```
 </details>
 
@@ -58,7 +59,7 @@ last_verified_test_commit: e045e43d41a5cd125f81dbfdac105937f3a161af
 - Deterministic file-workspace environment and pinned SHA-256 fixture.
 - Bounded model-to-tool runner with per-turn tool-schema refresh.
 - TinyFish Search/Fetch REST adapter with env-only credentials, strict argument validation, public URL protections, explicit task allowlists and trace-safe errors.
-- Credential-gated GitHub REST adapter for the six registered read/write capabilities; fake-HTTP and task-bundle tests are committed. Cross-host redirects are rejected before following them so bearer credentials cannot be forwarded. Exact-head ORBIT-VERIFY-010 passed all offline tests; live handlers remain absent until a project-scoped `GITHUB_TOKEN` and explicit write configuration are attached.
+- Credential-gated GitHub REST adapter for the six registered read/write capabilities; fake-HTTP and task-bundle tests cover credential redaction, redirect rejection and handler policy. The task-scoped GitHub runtime now binds the manifest-pinned branch precondition, compare-based branch state observer, repository/branch/path write guard and independent artifact readback to the same client. ORBIT-VERIFY-012 passed the full exact-head offline regression (224 tests); live handlers remain unavailable until project-scoped `GITHUB_TOKEN`, explicit write configuration and repository allowlist are attached.
 - Adaption Responses API adapter and hosted-model catalogue reader.
 - Read-only Adaption connector-catalogue discovery.
 - Twelve hand-authored diagnostic seeds: eight common executable cases, one Adaption-specific discovery case, and three unsupported future-runtime cases.
@@ -92,6 +93,8 @@ last_verified_test_commit: e045e43d41a5cd125f81dbfdac105937f3a161af
 | Combined benchmark + environment regression | Historical pass before TinyFish adapter changes | Deepnote run 34ca752c-e864-4a3d-9388-957d2c3e1859: 142 passed, 0 failed at code commit cba8421d4f4c6c4f929d5f4c3196eb83f98f7351. Superseded for the plugin-native branch by ORBIT-VERIFY-010 below. |
 | ORBIT-VERIFY-009 | Passed | GitHub adapter security regression: 203 tests passed; exact code `cca077e…`; no live GitHub request. See `experiments/ORBIT-VERIFY-009/`. |
 | ORBIT-VERIFY-010 | **Passed — latest exact code head** | Code `e045e43d41a5cd125f81dbfdac105937f3a161af`; Deepnote run `3d2f4a00-32e6-422c-b14e-50b158a89e31`; manifest validator, **207 benchmark/environment tests**, compileall, imports and 30-plan loader all passed; 0 model runs enabled. See `experiments/ORBIT-VERIFY-010/`. |
+| ORBIT-VERIFY-011 | Passed | Code `cbcccd15be56df159351ac88b4580f07f98e9312`; Deepnote run `0987fae8-a416-4fb5-96d7-522d36b17202`; **209 benchmark/environment tests** passed; fail-closed preconditions and readback-linked artifacts verified offline. See `experiments/ORBIT-VERIFY-011/`. |
+| ORBIT-VERIFY-012 | **Passed — latest exact code head** | Code `7f244bf76ccbccec5477b0055d23da5a5931e27a`; Deepnote run `3f2f3b31-86db-46f3-a731-f9f4c502435d`; manifest validator, **224 benchmark/environment tests**, compileall, imports and 30-plan loader all passed; 0 model runs enabled. Task-scoped GitHub runtime verified via fake HTTP only. See `experiments/ORBIT-VERIFY-012/`. |
 
 ## 6. Data status and hard stops
 
@@ -657,3 +660,51 @@ All `model_runs_allowed` flags stay false. No DHI inference or training is autho
 ### Next authorized work unit
 
 Implement a fail-closed precondition evaluator with explicit runtime state observers (starting with `branch_head_equals`) and an artifact collector that uses independent provider readback. Add red tests for satisfied, mismatched and unavailable preconditions; missing, mismatched and unverified artifacts; and task/path constraints. Then rerun ORBIT-VERIFY exact-head regression. Keep the benchmark flags false.
+
+
+## 26. ORBIT-VERIFY-011 passed — preconditions and artifact readback — 5 November 2026
+
+**Code under test:** `cbcccd15be56df159351ac88b4580f07f98e9312` on `orbit/plugin-benchmark-fixture`.
+
+- Deepnote project `6415944e-8d6c-432c-a7cf-3bbaa997799c`; notebook `3639f9a98ce5435fa4cd0168eaaca3a1`; full run `0987fae8-a416-4fb5-96d7-522d36b17202`.
+- Manifest validator passed: 30 tasks; Stage A=30; Stage B=0.
+- Full benchmark/environment pytest: **209 passed, 0 failed**.
+- Compileall, entrypoint imports and 30-plan plugin loader passed; zero model runs enabled.
+- Implemented fail-closed manifest preconditions before model calls, independently read-back final artifacts, Git blob/content SHA verification, and trace-level linkage from a final artifact to its verified readback event and successful earlier write.
+- Evidence is offline/scripted only. No live GitHub, TinyFish, hosted model or training API was called.
+- All 30 tasks remain `ready_for_validation`; Stage B remains sealed; training is not authorized.
+
+See `experiments/ORBIT-VERIFY-011/` for the experiment README, manifest and raw verifier output.
+
+## 27. ORBIT-VERIFY-012 passed — trusted task-scoped GitHub runtime — 5 November 2026
+
+**Code under test:** `7f244bf76ccbccec5477b0055d23da5a5931e27a` on `orbit/plugin-benchmark-fixture`.
+
+**Deepnote evidence**
+- Project `6415944e-8d6c-432c-a7cf-3bbaa997799c`; notebook `3639f9a98ce5435fa4cd0168eaaca3a1`.
+- Full run `3f2f3b31-86db-46f3-a731-f9f4c502435d`; verifier block `d76385ef1ba24707ae3f97b7bef2987e`.
+- Manifest validator: valid; 30 tasks; Stage A=30; Stage B=0; no errors.
+- Full benchmark/environment pytest: **224 passed, 0 failed** in 421.51 seconds.
+- Compileall: passed; entrypoint imports: passed; plugin manifest loader: 30 plans resolved, zero model runs enabled.
+- Focused trusted-runtime/runner regression: 45 passed.
+- Python 3.13.18; Linux; full verifier finished at `2026-11-05T07:48:16Z`.
+
+### Runtime invariants now verified offline
+
+1. The runner checks the manifest-pinned branch-head precondition before repository state observation or model execution. Failed/unavailable preconditions close blocked with no model call.
+2. State snapshots are captured through the trusted GitHub compare client from the pinned base SHA to the task's dedicated sandbox branch. Provider-reported status/blob metadata is fingerprinted per changed path.
+3. Writes are guarded by exact task ID, repository, branch and postcondition-derived allowed paths.
+4. Final artifacts are independently read back from the same repository/branch/path and content is checked against the Git blob SHA before entering `trace.final_artifacts`.
+5. The GitHub task wrapper supplies the trusted precondition, state and readback callbacks; callers cannot substitute an empty state observer.
+
+**Evidence boundary:** these are offline engineering tests and fake GitHub HTTP tests. No live GitHub request or write, TinyFish request, hosted-model inference, training job or dataset-generation job occurred. This does not establish ORBIT model capability or validate the 30 benchmark tasks through model execution.
+
+All 30 Stage A tasks remain `ready_for_validation`; Stage B is sealed and empty; all `model_runs_allowed` flags remain false; training remains unauthorized.
+
+### Remaining blockers and next action
+
+- The Deepnote project still lacks project-scoped `GITHUB_TOKEN`, `DHI_GITHUB_WRITES_ENABLED` and `GITHUB_ALLOWED_REPOSITORIES`; do not attempt live provider execution before access and isolation are explicitly approved.
+- Provision the task-scoped S06 sandbox branch at its exact manifest-pinned base commit, then run one controlled live smoke path: verify branch head, read source fixtures, write only the approved report path, independently read it back, and verify the branch diff.
+- Independently review/validate all 30 Stage A tasks before any model-run permission is considered. Stage B stays sealed. No inference or training is authorized.
+
+See `experiments/ORBIT-VERIFY-012/` for the experiment README, manifest and raw verifier output.
