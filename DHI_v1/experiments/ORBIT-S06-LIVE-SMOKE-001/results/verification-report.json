@@ -1,0 +1,56 @@
+{
+  "experiment_id": "ORBIT-S06-LIVE-SMOKE-001",
+  "started_at_utc": "2026-11-05T08:38:28.751Z",
+  "report_commit": "3b9b8be6a4c5d2ad22306e67288e7ba1dc975d0f",
+  "completed_at_utc": "2026-11-05T08:43:31.068Z",
+  "branch": "orbit/sandbox/orbit-a-s06-001",
+  "base_commit": "af6c0d31fcf2e3232cb427c421850536139e3b3a",
+  "output_path": "DHI_v1/benchmark/fixtures/plugin_ecology/reports/release-readiness.md",
+  "report_blob_sha": "cca5127e66bc698f5c9cdfd8135a33ab45c8d985",
+  "branch_diff": {
+    "status": "ahead",
+    "ahead_by": 1,
+    "behind_by": 0,
+    "files": [
+      {
+        "filename": "DHI_v1/benchmark/fixtures/plugin_ecology/reports/release-readiness.md",
+        "status": "added",
+        "additions": 51,
+        "deletions": 0
+      }
+    ]
+  },
+  "source_files_verified": 7,
+  "required_metrics": {
+    "not_done": 8,
+    "not_done_hours": 35,
+    "open": 4,
+    "open_hours": 19,
+    "passed": 3,
+    "blocked": 1,
+    "not_run": 1,
+    "failed": 1
+  },
+  "token_preflight": {
+    "repo_get": 200,
+    "pinned_commit_get": 200,
+    "create_ref_post": 403,
+    "contents_put": 403,
+    "error": "Resource not accessible by personal access token"
+  },
+  "actions": {
+    "sandbox_branch_provisioned_by": "connected GitHub repository integration",
+    "report_created_by": "connected GitHub repository integration",
+    "readback_and_diff_verified_by": [
+      "connected GitHub repository integration",
+      "Deepnote GITHUB_TOKEN read-only client"
+    ]
+  },
+  "model_calls": 0,
+  "training_calls": 0,
+  "issue_source_configuration_deployment_mutations": 0,
+  "manifest_model_runs_allowed": false,
+  "all_artifact_assertions_passed": true,
+  "deepnote_token_write_path_passed": false,
+  "end_to_end_token_backed_runtime_smoke_passed": false
+}
