@@ -278,7 +278,7 @@ def build_github_plugin_runtime(
                 or not re.fullmatch(r"[a-f0-9]{40}", blob_sha)
                 or hashlib.sha1(
                     b"blob " + str(len(content.encode("utf-8"))).encode("ascii")
-                    + b"\\0" + content.encode("utf-8")
+                    + b"\0" + content.encode("utf-8")
                 ).hexdigest() != blob_sha
             ):
                 raise GitHubTaskRuntimeError("GitHub checkpoint readback failed its content/blob integrity check")
