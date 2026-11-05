@@ -296,7 +296,7 @@ def _declared_artifact_paths(task_record: Mapping[str, Any]) -> set[str]:
 def _git_blob_sha(content: str) -> str:
     """Compute Git's blob object SHA-1, independent of the returned API metadata."""
     data = content.encode("utf-8")
-    payload = b"blob " + str(len(data)).encode("ascii") + b"\\0" + data
+    payload = b"blob " + str(len(data)).encode("ascii") + b"\0" + data
     return hashlib.sha1(payload).hexdigest()
 
 
