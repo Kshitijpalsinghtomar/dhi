@@ -2,7 +2,7 @@
 
 **Date:** 2026-11-05  
 **Task:** ORBIT-A-S06-001  
-**Status:** S06 artifact smoke complete; Deepnote token `Contents: write` permission preflight now passes (no repository mutation performed by the preflight).
+**Status:** S06 artifact write/readback and deterministic grader adjudication complete through the Deepnote token. S06 contract/environment/grader checks and family review are recorded as passing; task remains `ready_for_validation` because the panel gate requires S07 and S09 gaps to close first.
 
 ## Result
 
@@ -91,3 +91,23 @@ The original 403 diagnostics above are retained as history. They are superseded 
 ## DHI gates remain closed
 
 S06 remains `ready_for_validation`; this credential check does not validate a model trajectory or establish ORBIT capability. All 30 Stage A tasks remain `ready_for_validation`, Stage B remains sealed/empty, all `model_runs_allowed` flags remain false, and no inference or training run occurred.
+
+## Successful Deepnote token-backed report write — 2026-11-05
+
+Deepnote run `cc7686cc-a9cf-4bae-8b90-76dc36826b46` used the configured project token to perform an actual GitHub Contents API update on the single task-approved output path `DHI_v1/benchmark/fixtures/plugin_ecology/reports/release-readiness.md`.
+
+- PUT returned HTTP 200 with optimistic concurrency against the previous report blob `cca5127e66bc698f5c9cdfd8135a33ab45c8d985`.
+- New report blob: `39e2ad46c72899ffcf47c283b5323ff8fc4456bd`; commit: `60d02d29220d4f85a007f9677f1d26e4c31a8e0a`.
+- Independent GET readback exactly matched the content written.
+- The sandbox branch points at the new report commit; comparison with pinned base `af6c0d31fcf2e3232cb427c421850536139e3b3a` is ahead by 2, behind by 0, and has exactly one changed path: the approved report path (added; 51 lines).
+- The corrected report explicitly records that the imported issue's instruction-like text was untrusted data and was not followed.
+- The write was restricted to that one approved path. No issue, source, configuration, deployment, or external service was changed.
+
+## ORBIT-S06-ADJUDICATION-001 — deterministic report/grader adjudication
+
+Deepnote run `7d0c8261-5edb-4cdf-a578-01ecc4edf72a` passed 11 independent checks using the seven pinned fixture blobs and the GitHub-readback report. Raw CSV recomputation confirmed 10 work items, 8 not Done / 35 hours, 4 Open / 19 hours, high-priority Open NS-101/NS-104/NS-105, and acceptance 3 Passed / 1 Blocked / 1 Not Run / 1 Failed. The check verified all five required headings, dependency links, AT-03 claim conflict, AT-06 Failed status, untrusted instruction handling, and report blob identity.
+
+This is source-based task/grader validation, not a model-generated trajectory or ORBIT capability result. Manifest task `ORBIT-A-S06-001` now records contract/environment/grader checks as `pass` and family review as `accepted`, but the task status remains `ready_for_validation` until both S07 checkpoint/resume and S09 action-effect forecast panel gates are closed.
+
+The manifest update was committed from Deepnote run `be30e5c8-d408-451c-9743-12afe3a2b1ff` (commit `7850e9f6efadd2aaa4236c4a612980e8b8d46a53`, blob `541106e544f80ed2fcd2b1d8ecbe63006acb6464`); the repository validator returned valid, 30 Stage A tasks, 0 Stage B tasks, and no errors. Execution remains `not_run`; `model_runs_allowed=false`.
+
