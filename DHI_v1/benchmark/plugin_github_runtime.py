@@ -43,21 +43,10 @@ class PreparedGitHubTaskRuntime:
 
 
 def _sandbox_branch(plan: PluginTaskPlan) -> str:
+    """Use a fresh, task-scoped output branch; reset_recipe branches are source fixtures."""
     task_id = plan.task_id
-    if not isinstance(task_id, str) or not re.fullmatch(r"ORBIT-A-S\d{2}-\d{3}", task_id):
+    if not isinstance(task_id, str) or not re.fullmatch(r"ORBIT-A-S\\d{2}-\\d{3}", task_id):
         raise GitHubTaskRuntimeError("task ID is not a supported ORBIT Stage A task")
-    environment = plan.environment if isinstance(plan.environment, Mapping) else {}
-    recipe = environment.get("reset_recipe")
-    if isinstance(recipe, str):
-        match = re.search(r"\b(?:branch|on)\s+(orbit/[A-Za-z0-9._/-]+)", recipe)
-        if match:
-            candidate = match.group(1).rstrip(".,;:)")
-            if (
-                not candidate.startswith("/")
-                and "\\" not in candidate
-                and all(part not in {"", ".", ".."} for part in candidate.split("/"))
-            ):
-                return candidate
     return f"orbit/sandbox/{task_id.lower()}"
 
 
