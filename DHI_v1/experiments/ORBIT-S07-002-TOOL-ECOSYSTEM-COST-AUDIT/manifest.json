@@ -1,0 +1,53 @@
+{
+  "experiment_id": "ORBIT-S07-002-TOOL-ECOSYSTEM-COST-AUDIT",
+  "task_id": "ORBIT-A-S07-002",
+  "repository": "Kshitijpalsinghtomar/dhi",
+  "research_branch": "orbit/plugin-benchmark-fixture",
+  "checkpoint_commit": "8c6295255c88b0baea04529a475af8f85a946cd6",
+  "sandbox_branch": "orbit/sandbox/orbit-a-s07-002",
+  "checkpoint_blob": "be8dd3e8cc57cdbe881103702e7ba7815400d3c8",
+  "source_blobs": [
+    {
+      "file": "plugin_tool_registry.json",
+      "blob_sha": "e8588706d563b9e2a6aac735e38970418f881fd0"
+    },
+    {
+      "file": "firecrawl_package_metadata_2026-11-03.md",
+      "blob_sha": "734866fbaa2e2e4540614f172ca8357d76080583"
+    },
+    {
+      "file": "firecrawl_security_provider_discovery_2026-11-03.md",
+      "blob_sha": "db9dc0f5aec6674bb46444fbe8d2792190793f1d"
+    },
+    {
+      "file": "firecrawl_research_provider_discovery_2026-11-03.md",
+      "blob_sha": "bfa60592c007eb625cd39c8c915782661b937315"
+    },
+    {
+      "file": "firecrawl_package_recovery_2026-11-03.md",
+      "blob_sha": "e89d055dd56a8009960c0c06ea316961a733fdd9"
+    }
+  ],
+  "report": {
+    "path": "DHI_v1/benchmark/fixtures/plugin_ecology/reports/tool-ecosystem-cost-audit.md",
+    "blob_sha": "5f7cf1d297cf355cd4f10bb1e5c01255aff78242",
+    "commit": "a9c95537f42c992ba0ec5f9321c6b37304ca5910"
+  },
+  "diff": {
+    "ahead_by": 1,
+    "behind_by": 0,
+    "files": [
+      {
+        "path": "DHI_v1/benchmark/fixtures/plugin_ecology/reports/tool-ecosystem-cost-audit.md",
+        "status": "added",
+        "additions": 74,
+        "deletions": 0
+      }
+    ]
+  },
+  "paid_provider_executions": 0,
+  "credits_spent": 0,
+  "model_execution": "not_run",
+  "model_runs_allowed": false,
+  "evidence_boundary": "Manual source-grounded audit; not an ORBIT model trajectory."
+}

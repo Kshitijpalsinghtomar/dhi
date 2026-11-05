@@ -1,0 +1,11 @@
+work_item_id,team,priority,estimate_hours,status,blocked_by
+NS-101,Platform,High,5,Open,
+NS-102,Data,Medium,3,In Progress,NS-101
+NS-103,Platform,Low,2,Done,
+NS-104,Research,High,8,Open,NS-102
+NS-105,Data,High,4,Open,
+NS-106,Research,Medium,6,In Progress,NS-105
+NS-107,Platform,Medium,1,Done,
+NS-108,Data,Low,2,Open,
+NS-109,Research,High,3,Blocked,NS-105
+NS-110,Platform,Medium,4,In Review,

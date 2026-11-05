@@ -1,0 +1,7 @@
+test_id,area,status,evidence_ref
+AT-01,Two-person production approval,Passed,report:approval-flow-01
+AT-02,Dependency graph export,Passed,report:dependency-export-02
+AT-03,Weekly workload date boundary,Blocked,issue:NS-211
+AT-04,CSV export duplicate rows,Passed,report:csv-dedupe-04
+AT-05,Approval reminder automation,Not Run,
+AT-06,Task detail accessibility labels,Failed,report:a11y-06

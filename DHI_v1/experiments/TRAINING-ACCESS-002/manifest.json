@@ -1,0 +1,170 @@
+{
+  "experiment_id": "TRAINING-ACCESS-002",
+  "date": "2026-11-03",
+  "status": "hold_data_lineage_and_cost",
+  "evidence_class": "read_only_adaption_dataset_model_registry_and_recommender_audit",
+  "training_registry": {
+    "qwen3_6_35b_a3b": {
+      "available": true,
+      "methods": [
+        "sft",
+        "dpo"
+      ],
+      "training_types": [
+        "lora"
+      ],
+      "minimum_effective_rows": 10000
+    },
+    "gpt_oss_20b": {
+      "available": true,
+      "methods": [
+        "sft",
+        "dpo"
+      ],
+      "training_types": [
+        "lora"
+      ]
+    },
+    "gemma_4_31b_it": {
+      "available": true,
+      "methods": [
+        "sft",
+        "dpo"
+      ],
+      "training_types": [
+        "lora",
+        "full"
+      ]
+    }
+  },
+  "datasets": [
+    {
+      "dataset_id": "169af31f-06e0-4a48-84ab-b84c9f9ce924",
+      "name": "ORBIT Collaboration Behaviour — Instruction Pilot 300",
+      "rows": 300,
+      "prompt_column": null,
+      "completion_column": null,
+      "evaluation": {
+        "grade": "A",
+        "score": 9.4,
+        "sample_rows": 100,
+        "message_quality_average": 8.96,
+        "message_quality_percentile": 28.9,
+        "completion_quality_average": 9.79,
+        "completion_quality_percentile": 37
+      },
+      "decision": "quarantined",
+      "reason": "Invent-sourced; previous partial audit found only 98 complete visible pairs among the first 100 slots. Null prompt/completion mapping. Quality score is not tool capability evidence."
+    },
+    {
+      "dataset_id": "be05757d-2f24-45d4-8768-659268d9d18e",
+      "name": "DHI-v1 Rubric-Guided Agentic Task Specifications — Pilot 120",
+      "rows": 120,
+      "prompt_column": null,
+      "completion_column": null,
+      "evaluation": {
+        "grade": "C",
+        "score": 6.6,
+        "sample_rows": 100,
+        "message_quality_average": 8.18,
+        "message_quality_percentile": 28.9,
+        "completion_quality_average": 5.03,
+        "completion_quality_percentile": 2.2
+      },
+      "decision": "quarantined",
+      "reason": "Invent completion is a task-contract specification, not a natural answer or observed tool-execution trajectory; completion quality is poor."
+    },
+    {
+      "dataset_id": "c1f4df14-b12c-430c-91ad-e10b559d1cee",
+      "name": "DHI Intent Arbitration — Instruction Pilot",
+      "rows": 300,
+      "prompt_column": null,
+      "completion_column": null,
+      "evaluation": {
+        "grade": "A",
+        "score": 9,
+        "sample_rows": 100,
+        "message_quality_average": 8.5,
+        "message_quality_percentile": 28.9,
+        "completion_quality_average": 9.46,
+        "completion_quality_percentile": 37
+      },
+      "decision": "not_training_ready",
+      "reason": "Too small for Qwen3.6; no explicit selected prompt/completion columns in metadata. Text-quality evaluation is not agentic capability."
+    },
+    {
+      "dataset_id": "843888da-28e2-420e-909e-88b203d16404",
+      "name": "DHI Intent Arbitration — Instruction Pilot (augmented) (augmented)",
+      "rows": 10000,
+      "prompt_column": "rephrased_prompt",
+      "completion_column": "enhanced_completion",
+      "exports": {
+        "huggingface": "https://huggingface.co/datasets/kshitijpalsinghtomar/dhi-intent-arbitration-instruction-pilot-augmented-augmented",
+        "visibility": "private"
+      },
+      "evaluation": {
+        "status": "succeeded",
+        "claimed_grade": "A",
+        "claimed_score": 9,
+        "reported_sample_rows": 100,
+        "reported_input_path": "s3://proteus-prod-datasets/output/invent-c1f4df14-b12c-430c-91ad-e10b559d1cee.lance",
+        "reported_config_source": "s3://proteus-prod-datasets/output/invent-c1f4df14-b12c-430c-91ad-e10b559d1cee.lance"
+      },
+      "decision": "hold_evaluation_lineage",
+      "reason": "10K dataset evaluation points to the separate 300-row c1f4 dataset and a 100-row sample. Do not assign its A grade to the 10K export."
+    }
+  ],
+  "recommended_configuration_only": {
+    "dataset_id": "843888da-28e2-420e-909e-88b203d16404",
+    "model": "Qwen/Qwen3.6-35B-A3B",
+    "result": "recommender returned LoRA configuration; no job created",
+    "hyperparameters": {
+      "n_epochs": 1,
+      "batch_size": "max",
+      "learning_rate": 0.0001,
+      "lora_r": 8,
+      "lora_alpha": 8,
+      "lora_dropout": 0,
+      "lora_trainable_modules": "q_proj,v_proj",
+      "lr_scheduler_type": "cosine",
+      "min_lr_ratio": 0.1,
+      "scheduler_num_cycles": 0.5,
+      "warmup_ratio": 0.1,
+      "max_grad_norm": 2,
+      "weight_decay": 0,
+      "train_on_inputs": false,
+      "training_type": "lora"
+    },
+    "interpretation": "This resolves a suggested config only. It does not validate data or provide a training cost."
+  },
+  "historical_run_evidence": {
+    "experiment_id": "5f16632f-f4d4-49da-a5ce-5faf66a47d80",
+    "model": "Qwen/Qwen3.5-4B",
+    "dataset_id": "ac5e71eb-05aa-4445-a661-172e3e7efac2",
+    "status": "succeeded",
+    "method": "alignment",
+    "iterations_completed": 5,
+    "target_win_rate": 0.99,
+    "best_win_rate": 0.4609,
+    "decision": "not_release_evidence"
+  },
+  "credit_and_cost": {
+    "training_run_launched": false,
+    "dataset_job_launched": false,
+    "known_cost_quote_usd": null,
+    "reason": "No cost quote returned; no training or data generation action invoked."
+  },
+  "decisions": [
+    "Do not train on these datasets until raw rows, column semantics, duplicate/lineage checks, and review pass.",
+    "Do not treat Adaption text-quality grades as agent capability evidence.",
+    "10K rows is a minimum-size condition, not a quality certificate.",
+    "The Qwen3.6 recommender config is not training authorization."
+  ],
+  "next_actions": [
+    "Retrieve and inspect the private 10K export: schema, prompt/completion semantics, duplicates, lineage, language and domain coverage.",
+    "Reconcile the 10K evaluation config_source/input_path against the correct dataset ID.",
+    "Prepare a clean train/validation split only after row review.",
+    "Obtain cost and compute details before any paid run.",
+    "Keep ORBIT task contracts and actual tool traces separate from intent-arbitration data."
+  ]
+}

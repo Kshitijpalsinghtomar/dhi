@@ -16,6 +16,8 @@ from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
 from typing import Any, Callable, Iterable
 
+from .tinyfish_client import TINYFISH_TOOL_CATALOGUE
+
 TRACE_SCHEMA_VERSION = "dhi.trajectory.v1"
 DEFAULT_MAX_FILE_BYTES = 10_000_000
 DEFAULT_IGNORED_DIRS = {".git", ".venv", "venv", "node_modules", "__pycache__", ".pytest_cache", "dist", "build"}
@@ -169,6 +171,8 @@ DEFAULT_TOOL_CATALOGUE: list[dict[str, Any]] = [
     },
 ]
 
+DEFAULT_TOOL_CATALOGUE.extend(TINYFISH_TOOL_CATALOGUE)
+
 
 class DHIEnvironment:
     """A deterministic workspace tool environment with JSONL trajectory logging."""
@@ -250,9 +254,21 @@ class DHIEnvironment:
             visible.add("catalog.adaption_search")
         available = [
             item for item in self.catalogue
-            if item["tool_id"] != "catalog.adaption_search" or "catalog.adaption_search" in self.tool_handlers
+            if (item["tool_id"] != "catalog.adaption_search" or "catalog.adaption_search" in self.tool_handlers)
+            and (not item.get("requires_handler") or item["tool_id"] in self.tool_handlers)
         ]
-        tools = available if not visible_only else [x for x in available if x["tool_id"] in visible]
+        tools = available if not visible_only else [
+            item for item in available
+            if item["tool_id"] in visible
+            and (
+                not item.get("requires_explicit_task_allowlist")
+                or (
+                    self._active_task is not None
+                    and self._active_task.allowed_tool_ids is not None
+                    and item["tool_id"] in self._active_task.allowed_tool_ids
+                )
+            )
+        ]
         return [dict(item) for item in tools]
 
     def discover_tools(self, query: str, *, limit: int = 10) -> list[dict[str, Any]]:
@@ -272,6 +288,13 @@ class DHIEnvironment:
         visible_ids = {x["tool_id"] for x in self.list_tools(visible_only=True)}
         for item in self.catalogue:
             if item["tool_id"] == "catalog.adaption_search" and "catalog.adaption_search" not in self.tool_handlers:
+                continue
+            if item.get("requires_handler") and item["tool_id"] not in self.tool_handlers:
+                continue
+            if item.get("requires_explicit_task_allowlist") and (
+                self._active_task.allowed_tool_ids is None
+                or item["tool_id"] not in self._active_task.allowed_tool_ids
+            ):
                 continue
             searchable = " ".join([
                 item.get("tool_id", ""), item.get("name", ""),
@@ -391,6 +414,27 @@ class DHIEnvironment:
                     or any(not isinstance(path, str) for path in expected_effects[key])
                 ):
                     raise ValueError(f"expected_effects.{key} must be an array of strings")
+            repository_state = expected_effects.get("repository_state")
+            if repository_state is not None:
+                if not isinstance(repository_state, dict):
+                    raise ValueError("expected_effects.repository_state must be an object")
+                branch_fields = ("added_branches", "modified_branches", "deleted_branches", "unchanged_branches")
+                if set(repository_state) != set(branch_fields):
+                    raise ValueError("expected_effects.repository_state must define all four branch-effect arrays")
+                for field in branch_fields:
+                    branches = repository_state[field]
+                    if not isinstance(branches, list):
+                        raise ValueError(f"expected_effects.repository_state.{field} must be an array")
+                    seen_names = set()
+                    for branch in branches:
+                        if not isinstance(branch, dict) or set(branch) != {"name", "head_sha"}:
+                            raise ValueError(f"expected_effects.repository_state.{field} entries must contain name and head_sha")
+                        name, head_sha = branch["name"], branch["head_sha"]
+                        if not isinstance(name, str) or not name or name in seen_names:
+                            raise ValueError(f"expected_effects.repository_state.{field} contains an invalid or duplicate branch name")
+                        if not isinstance(head_sha, str) or not re.fullmatch(r"[a-f0-9]{40}", head_sha):
+                            raise ValueError(f"expected_effects.repository_state.{field} contains an invalid head SHA")
+                        seen_names.add(name)
         started = datetime.now(timezone.utc)
         next_step = self._sequence + 1
         self._record({
@@ -410,6 +454,15 @@ class DHIEnvironment:
         allowlist_passed = True
         fault_injection: dict[str, Any] | None = None
         try:
+            metadata = self._tool_meta(tool_id)
+            if metadata.get("requires_explicit_task_allowlist") and (
+                self._active_task.allowed_tool_ids is None
+                or tool_id not in self._active_task.allowed_tool_ids
+            ):
+                allowlist_passed = False
+                raise DHIEnvironmentError(
+                    f"tool {tool_id!r} requires an explicit task allowlist entry"
+                )
             if (tool_id not in {"catalog.search", "catalog.adaption_search"}
                     and self._active_task.allowed_tool_ids is not None
                     and tool_id not in self._active_task.allowed_tool_ids):
@@ -705,6 +758,12 @@ class DHIEnvironment:
         if expected is None:
             return {"status": "not_provided", "precision": None, "recall": None, "f1": None,
                     "unchanged_path_violations": []}
+        if isinstance(expected.get("repository_state"), dict):
+            return {
+                "status": "requires_external_state_verifier",
+                "reason": "repository branch predictions are preserved in the trace and must be compared with independently fetched provider state",
+                "repository_state_prediction": expected["repository_state"],
+            }
         predicted = set(expected.get("changed_paths", []))
         predicted_unchanged = set(expected.get("unchanged_paths", []))
         observed = set(actual["changed_paths"])

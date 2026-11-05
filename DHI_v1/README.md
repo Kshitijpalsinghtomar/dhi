@@ -7,7 +7,9 @@
 
 1. [Live workspace](WORKSPACE.md) — current state, blocker, evidence, and the next authorized action.
 2. [Git-first research workflow](docs/12_GIT_FIRST_WORKFLOW.md) — checkpoint and commit requirements.
-3. [Dated handover snapshot](docs/11_AGENT_HANDOVER_2026-11-02.md) — background snapshot only; the live workspace takes precedence.
+3. [ORBIT Research Method](docs/13_ORBIT_RESEARCH_METHOD.md) — adapted controlled-experiment, evaluation, adversarial-review and research lifecycle protocol.
+4. [Experiment record template](experiments/EXPERIMENT_RECORD_TEMPLATE.md) — required per-run artifacts.
+5. [Dated handover snapshot](docs/11_AGENT_HANDOVER_2026-11-02.md) — background snapshot only; the live workspace takes precedence.
 
 All DHI-v1 progress must be recorded in Git as work happens. Chat is not the state store.
 

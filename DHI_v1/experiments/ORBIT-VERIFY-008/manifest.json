@@ -1,0 +1,88 @@
+{
+  "experiment_id": "ORBIT-VERIFY-008",
+  "date": "2026-11-03",
+  "status": "passed",
+  "code_under_test": "fec93ba59842d866149c7d03383b1833745077d2",
+  "branch": "orbit/plugin-benchmark-fixture",
+  "question": "Can a scripted provider-agnostic model-facing plugin runner dispatch through the permission boundary and emit an independently gradeable ORBIT trace?",
+  "hypothesis": "A bounded scripted model/tool loop can preserve canonical schemas, strip only DHI forecast metadata, call only the guarded dispatcher, produce a schema-valid append-only trace, and be independently graded.",
+  "intervention": "Add DHI_v1/benchmark/plugin_runner.py and four focused tests. No live model or provider integration.",
+  "source_identity": {
+    "exact_match_files": [
+      "DHI_v1/benchmark/plugin_runner.py",
+      "DHI_v1/benchmark/tests/test_plugin_runner.py",
+      "DHI_v1/benchmark/plugin_execution.py",
+      "DHI_v1/benchmark/plugin_task_loader.py",
+      "DHI_v1/benchmark/plugin_trace.py",
+      "DHI_v1/benchmark/plugin_trace.schema.json",
+      "DHI_v1/environment/tinyfish_client.py",
+      "DHI_v1/environment/tests/test_tinyfish_client.py"
+    ],
+    "task_manifest_blob_sha256": "f1a73f4cc377f0ea72a37f7d2f9a3e7476ffe033",
+    "manifest_unchanged_from_verify_007": true
+  },
+  "focused_runs": {
+    "red": "b167fe4f-ba9b-45ef-8eab-0688a9ef2243",
+    "sync_miss_not_code_result": "a439c972-b974-402c-872f-962742d7d3ce",
+    "focused_green": "e67a4325-ce87-45c1-8946-7bed750173d1"
+  },
+  "commands": [
+    "python -m DHI_v1.benchmark.validate_task_manifest --json",
+    "python -m pytest -q DHI_v1/benchmark/tests DHI_v1/environment/tests",
+    "python -m compileall -q DHI_v1/benchmark DHI_v1/environment",
+    "entrypoint import smoke",
+    "resolve all 30 task plans and assert model_runs_allowed is false"
+  ],
+  "guardrails": [
+    "No live model inference.",
+    "No TinyFish Search/Fetch HTTP requests.",
+    "No GitHub or Firecrawl provider requests.",
+    "No training jobs or paid provider operations.",
+    "Do not modify the source manifest execution flags.",
+    "Only local scripted model-client and fake read-only handlers in focused tests."
+  ],
+  "full_run": "570dd432-474f-4520-8f17-700d480358bb",
+  "decision": "pass_scripted_plugin_runner_trace_and_grading_engineering_gate_only",
+  "evidence_boundary": "The scripted client + fake read-only handler path dispatches through the canonical permission gate, emits a schema-valid append-only trace, and receives an independent deterministic grade. No hosted model, provider, or training call was made. This is not real model capability or end-to-end benchmark task validation.",
+  "result": {
+    "manifest_validator": {
+      "passed": true,
+      "valid": true,
+      "task_count": 30,
+      "stage_counts": {
+        "A": 30,
+        "B": 0
+      },
+      "errors": [],
+      "elapsed_seconds": 31.196
+    },
+    "full_pytest": {
+      "passed": 182,
+      "failed": 0,
+      "elapsed_seconds": 434.443,
+      "reported_duration_seconds": 388.18
+    },
+    "compileall": {
+      "passed": true,
+      "returncode": 0,
+      "elapsed_seconds": 70.609
+    },
+    "entrypoint_import_smoke": {
+      "passed": true,
+      "returncode": 0,
+      "elapsed_seconds": 14.202
+    },
+    "plugin_manifest_loader_smoke": {
+      "passed": true,
+      "task_plans": 30,
+      "model_runs_enabled": 0,
+      "elapsed_seconds": 2.436
+    },
+    "python": "3.13.18",
+    "platform": "Linux-6.18.57-talos-x86_64-with-glibc2.36",
+    "external_model_calls": 0,
+    "external_provider_calls": 0,
+    "training_jobs": 0
+  },
+  "raw_result_path": "DHI_v1/experiments/ORBIT-VERIFY-008/results/verification-report.json"
+}

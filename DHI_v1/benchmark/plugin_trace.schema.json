@@ -1,0 +1,748 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Kshitijpalsinghtomar/dhi/blob/main/DHI_v1/benchmark/plugin_trace.schema.json",
+  "title": "DHI-v1 ORBIT Plugin Execution Trace Bundle",
+  "description": "Append-only plugin-native trajectory record. Raw tool responses, independent state deltas, and provenance are retained separately from model-authored explanations.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "trace_schema_version",
+    "trajectory_id",
+    "task_id",
+    "task_instance_sha256",
+    "environment",
+    "tool_schema_sha256",
+    "provenance",
+    "events",
+    "final_answer",
+    "final_artifacts",
+    "usage",
+    "closure"
+  ],
+  "properties": {
+    "trace_schema_version": {
+      "const": "orbit.plugin-trace.v1"
+    },
+    "trajectory_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "task_id": {
+      "type": "string",
+      "pattern": "^ORBIT-(A|B)-(S(0[1-9]|10))-[0-9]{3}$"
+    },
+    "task_instance_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "task_manifest_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "environment_id",
+        "version",
+        "state_sha256"
+      ],
+      "properties": {
+        "environment_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "state_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "fixture_ref": {
+          "type": "string"
+        }
+      }
+    },
+    "tool_schema_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "evidence_class",
+        "executor",
+        "recorded_at_utc"
+      ],
+      "properties": {
+        "evidence_class": {
+          "enum": [
+            "scripted-reference",
+            "model-generated",
+            "environment-verified",
+            "independently-reviewed",
+            "exploratory",
+            "inconclusive",
+            "rejected"
+          ]
+        },
+        "executor": {
+          "type": "string",
+          "minLength": 1
+        },
+        "model_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "model_revision": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "adapter_version": {
+          "type": "string"
+        },
+        "recorded_at_utc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "raw_trace_ref": {
+          "type": "string"
+        },
+        "reviewer_id": {
+          "type": "string"
+        }
+      }
+    },
+    "events": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "$ref": "#/$defs/event"
+      }
+    },
+    "final_answer": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "final_artifacts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/artifact"
+      }
+    },
+    "usage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "tool_calls",
+        "provider_credits_spent"
+      ],
+      "properties": {
+        "tool_calls": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "provider_credits_spent": {
+          "type": "number",
+          "minimum": 0
+        },
+        "input_tokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "output_tokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "wall_time_ms": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "closure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "verified_postconditions",
+        "failed_postconditions"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "success",
+            "partial",
+            "failure",
+            "infeasible",
+            "blocked",
+            "interrupted",
+            "unscorable"
+          ]
+        },
+        "verified_postconditions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "failed_postconditions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "final_state_sha256": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/sha256"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "closed_at_utc": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "pathMap": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/sha256"
+      }
+    },
+    "pathArray": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "effects": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "added_paths": {
+          "$ref": "#/$defs/pathArray"
+        },
+        "modified_paths": {
+          "$ref": "#/$defs/pathArray"
+        },
+        "deleted_paths": {
+          "$ref": "#/$defs/pathArray"
+        },
+        "changed_paths": {
+          "$ref": "#/$defs/pathArray"
+        },
+        "unchanged_paths": {
+          "$ref": "#/$defs/pathArray"
+        },
+        "repository_state": {
+          "$ref": "#/$defs/repositoryState"
+        }
+      }
+    },
+    "toolResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ok",
+        "result",
+        "error"
+      ],
+      "properties": {
+        "ok": {
+          "type": "boolean"
+        },
+        "status_code": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 100,
+          "maximum": 599
+        },
+        "result": {},
+        "error": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "raw_response_ref": {
+          "type": "string"
+        },
+        "provider_cost": {
+          "type": "number",
+          "minimum": 0
+        },
+        "capability_id": {
+          "type": "string"
+        }
+      }
+    },
+    "event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "event_id",
+        "event_index",
+        "event_type",
+        "timestamp_utc",
+        "task_id"
+      ],
+      "properties": {
+        "event_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "event_index": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "event_type": {
+          "enum": [
+            "task_started",
+            "assistant_prediction",
+            "tool_discovery",
+            "action_started",
+            "action_executed",
+            "checkpoint_saved",
+            "checkpoint_resumed",
+            "task_closed",
+            "precondition_checked",
+            "artifact_readback"
+          ]
+        },
+        "timestamp_utc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "task_id": {
+          "type": "string",
+          "pattern": "^ORBIT-(A|B)-(S(0[1-9]|10))-[0-9]{3}$"
+        },
+        "action_id": {
+          "type": "string"
+        },
+        "tool_id": {
+          "type": "string"
+        },
+        "capability_id": {
+          "type": "string"
+        },
+        "query": {
+          "type": "string"
+        },
+        "visible_tool_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "discovered_tool_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "discovery_results": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "arguments": {
+          "type": "object"
+        },
+        "expected_effects": {
+          "$ref": "#/$defs/effects"
+        },
+        "observed_state_before": {
+          "$ref": "#/$defs/pathMap"
+        },
+        "observed_state_after": {
+          "$ref": "#/$defs/pathMap"
+        },
+        "actual_tool_result": {
+          "$ref": "#/$defs/toolResult"
+        },
+        "actual_effects": {
+          "$ref": "#/$defs/effects"
+        },
+        "prediction_comparison": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status"
+          ],
+          "properties": {
+            "status": {
+              "enum": [
+                "correct",
+                "partial",
+                "incorrect",
+                "unscorable"
+              ]
+            },
+            "matched_fields": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "missed_fields": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "details": {
+              "type": "string"
+            }
+          }
+        },
+        "checkpoint_ref": {
+          "type": "string"
+        },
+        "checkpoint_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "source_ref": {
+          "type": "string"
+        },
+        "closure_status": {
+          "enum": [
+            "success",
+            "partial",
+            "failure",
+            "infeasible",
+            "blocked",
+            "interrupted",
+            "unscorable"
+          ]
+        },
+        "side_effect_class": {
+          "enum": [
+            "read_only",
+            "sandbox_write",
+            "external_write",
+            "destructive",
+            "paid_external",
+            "unknown"
+          ]
+        },
+        "precondition_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "precondition_condition": {
+          "type": "object"
+        },
+        "precondition_observation": {
+          "type": "object"
+        },
+        "precondition_status": {
+          "enum": [
+            "pass",
+            "fail",
+            "unavailable"
+          ]
+        },
+        "precondition_reason": {
+          "type": "string"
+        },
+        "artifact_readback": {
+          "$ref": "#/$defs/artifactReadback"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "event_type": {
+                "const": "task_started"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "source_ref"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "event_type": {
+                "const": "assistant_prediction"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "expected_effects"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "event_type": {
+                "const": "tool_discovery"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "query",
+              "visible_tool_ids",
+              "discovered_tool_ids",
+              "discovery_results"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "event_type": {
+                "const": "action_started"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "action_id",
+              "tool_id",
+              "arguments",
+              "observed_state_before"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "event_type": {
+                "const": "action_executed"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "action_id",
+              "tool_id",
+              "arguments",
+              "actual_tool_result",
+              "actual_effects",
+              "observed_state_before",
+              "observed_state_after"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "event_type": {
+                "const": "checkpoint_saved"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "checkpoint_ref",
+              "checkpoint_sha256"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "event_type": {
+                "const": "checkpoint_resumed"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "checkpoint_ref",
+              "checkpoint_sha256",
+              "source_ref"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "event_type": {
+                "const": "task_closed"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "closure_status"
+            ]
+          }
+        }
+      ]
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256",
+        "source_event_index"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "content": {
+          "type": "string"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "blob_sha": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        },
+        "status": {
+          "enum": [
+            "added",
+            "modified",
+            "unchanged",
+            "read"
+          ]
+        },
+        "source_event_index": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "source_ref": {
+          "type": "string"
+        }
+      }
+    },
+    "branchRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "head_sha"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "head_sha": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        }
+      }
+    },
+    "repositoryState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "added_branches",
+        "modified_branches",
+        "deleted_branches",
+        "unchanged_branches"
+      ],
+      "properties": {
+        "added_branches": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/branchRef"
+          }
+        },
+        "modified_branches": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/branchRef"
+          }
+        },
+        "deleted_branches": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/branchRef"
+          }
+        },
+        "unchanged_branches": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/branchRef"
+          }
+        }
+      }
+    },
+    "artifactReadback": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "repository_full_name",
+        "ref",
+        "status",
+        "source_action_id"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "repository_full_name": {
+          "type": "string"
+        },
+        "ref": {
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "verified",
+            "unavailable",
+            "error"
+          ]
+        },
+        "source_action_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "blob_sha": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        },
+        "source_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "error": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "captured_before_action": "mcp__GitHub__create_branch",
+  "captured_on": "2026-11-03",
+  "branches": [
+    {
+      "name": "main",
+      "sha": "60bf0783a5ddac7a6727747fcad0dc3be0615ecc"
+    },
+    {
+      "name": "orbit/plugin-benchmark-fixture",
+      "sha": "9de77775ed1fb4d2d450df9b58d105f850bed3c2"
+    },
+    {
+      "name": "orbit/plugin-resume-sandbox",
+      "sha": "d3f7ca37a8623ef6e5f5b3ed4e60f88a2a8efb1c"
+    }
+  ],
+  "expected_new_branch": "orbit/effect-forecast-check",
+  "expected_new_branch_base": "af6c0d31fcf2e3232cb427c421850536139e3b3a"
+}
