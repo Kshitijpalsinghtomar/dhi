@@ -221,3 +221,127 @@ def test_successful_write_is_only_a_final_artifact_after_independent_readback():
     assert source_event["artifact_readback"]["status"] == "verified"
     assert result.trace_validation_errors == []
     assert validate_trace(result.trace, SCHEMA) == []
+
+
+
+class FetchThenAnswerClient:
+    def __init__(self, tool_name: str, arguments: dict) -> None:
+        self.tool_name = tool_name
+        self.arguments = arguments
+        self.calls = 0
+
+    def complete(self, *, messages, tools, temperature=0.0):
+        self.calls += 1
+        if self.calls == 1:
+            return {"choices": [{"message": {
+                "role": "assistant",
+                "tool_calls": [{
+                    "id": "resume-checkpoint",
+                    "type": "function",
+                    "function": {"name": self.tool_name, "arguments": json.dumps(self.arguments)},
+                }],
+            }}]}
+        return {"choices": [{"message": {"role": "assistant", "content": "Checkpoint rehydrated."}}]}
+
+
+def _with_file_blob_precondition(plan, path: str, content: str, commit: str):
+    condition = {
+        "type": "github_file_blob",
+        "path": path,
+        "commit": commit,
+        "blob_sha": _git_blob_sha(content),
+    }
+    preconditions = ({"precondition_id": "resume_checkpoint_exists", "condition": condition},)
+    return replace(plan, preconditions=preconditions), condition
+
+
+def test_github_file_blob_precondition_passes_only_for_exact_pinned_blob():
+    task_record, plan = _task_and_plan()
+    checkpoint_path = "DHI_v1/benchmark/fixtures/plugin_ecology/checkpoints/resume-task-A.md"
+    commit = "a" * 40
+    plan, condition = _with_file_blob_precondition(plan, checkpoint_path, REPORT, commit)
+    prepared = _prepared(plan, {"README.md": "a" * 64})
+    client = DirectAnswerClient()
+
+    result = run_plugin_task(
+        task_record,
+        prepared,
+        client,
+        observe_state=lambda: {"README.md": "a" * 64},
+        precondition_observer=lambda task, item: {
+            "path": condition["path"],
+            "commit": condition["commit"],
+            "blob_sha": condition["blob_sha"],
+        },
+    )
+
+    assert client.calls == 1
+    checked = next(event for event in result.trace["events"] if event["event_type"] == "precondition_checked")
+    assert checked["precondition_status"] == "pass"
+    assert checked["precondition_observation"]["path"] == checkpoint_path
+    assert result.trace_validation_errors == []
+
+
+def test_github_file_blob_precondition_mismatch_blocks_before_model_call():
+    task_record, plan = _task_and_plan()
+    checkpoint_path = "DHI_v1/benchmark/fixtures/plugin_ecology/checkpoints/resume-task-A.md"
+    commit = "a" * 40
+    plan, condition = _with_file_blob_precondition(plan, checkpoint_path, REPORT, commit)
+    prepared = _prepared(plan, {"README.md": "a" * 64})
+    client = DirectAnswerClient()
+
+    result = run_plugin_task(
+        task_record,
+        prepared,
+        client,
+        observe_state=lambda: {"README.md": "a" * 64},
+        precondition_observer=lambda task, item: {
+            "path": condition["path"],
+            "commit": condition["commit"],
+            "blob_sha": "0" * 40,
+        },
+    )
+
+    assert client.calls == 0
+    assert result.stopped_reason == "precondition_blocked"
+    checked = next(event for event in result.trace["events"] if event["event_type"] == "precondition_checked")
+    assert checked["precondition_status"] == "fail"
+    assert "blob" in checked["precondition_reason"].lower()
+    assert result.trace_validation_errors == []
+
+
+def test_runner_records_checkpoint_resumed_only_after_verified_pinned_file_read():
+    task_record, plan = _task_and_plan()
+    checkpoint_path = "DHI_v1/benchmark/fixtures/plugin_ecology/checkpoints/resume-task-A.md"
+    commit = "a" * 40
+    plan, condition = _with_file_blob_precondition(plan, checkpoint_path, REPORT, commit)
+    state = {"README.md": "a" * 64}
+    prepared = _prepared(plan, state)
+    client = FetchThenAnswerClient(
+        prepared.tool_name_by_id[FETCH_FILE],
+        {
+            "repository_full_name": "Kshitijpalsinghtomar/dhi",
+            "path": checkpoint_path,
+            "ref": commit,
+        },
+    )
+
+    result = run_plugin_task(
+        task_record,
+        prepared,
+        client,
+        observe_state=lambda: dict(state),
+        precondition_observer=lambda task, item: {
+            "path": condition["path"],
+            "commit": condition["commit"],
+            "blob_sha": condition["blob_sha"],
+        },
+    )
+
+    resumed = [event for event in result.trace["events"] if event["event_type"] == "checkpoint_resumed"]
+    assert len(resumed) == 1
+    assert resumed[0]["checkpoint_ref"] == checkpoint_path
+    assert resumed[0]["checkpoint_sha256"] == hashlib.sha256(REPORT.encode("utf-8")).hexdigest()
+    assert resumed[0]["source_ref"].startswith("https://github.com/")
+    assert result.trace_validation_errors == []
+    assert validate_trace(result.trace, SCHEMA) == []
