@@ -249,24 +249,59 @@ def _precondition_outcome(
     observed = {
         "branch_name": raw.get("branch_name"),
         "head_sha": raw.get("head_sha"),
+        "path": raw.get("path"),
+        "commit": raw.get("commit"),
+        "blob_sha": raw.get("blob_sha"),
     }
-    if condition.get("type") != "branch_head_equals":
-        return "unavailable", observed, "unsupported precondition type"
-    expected = condition.get("commit")
-    branch_name = observed.get("branch_name")
-    head_sha = observed.get("head_sha")
-    if (
-        not isinstance(expected, str)
-        or not re.fullmatch(r"[a-f0-9]{40}", expected)
-        or not isinstance(branch_name, str)
-        or not branch_name.strip()
-        or not isinstance(head_sha, str)
-        or not re.fullmatch(r"[a-f0-9]{40}", head_sha)
-    ):
-        return "unavailable", observed, "branch-head observation is incomplete or malformed"
-    if head_sha != expected:
-        return "fail", observed, "observed branch head does not equal the manifest-pinned commit"
-    return "pass", observed, "observed branch head equals the manifest-pinned commit"
+    condition_type = condition.get("type")
+    if condition_type == "branch_head_equals":
+        expected = condition.get("commit")
+        branch_name = observed.get("branch_name")
+        head_sha = observed.get("head_sha")
+        if (
+            not isinstance(expected, str)
+            or not re.fullmatch(r"[a-f0-9]{40}", expected)
+            or not isinstance(branch_name, str)
+            or not branch_name.strip()
+            or not isinstance(head_sha, str)
+            or not re.fullmatch(r"[a-f0-9]{40}", head_sha)
+        ):
+            return "unavailable", observed, "branch-head observation is incomplete or malformed"
+        if head_sha != expected:
+            return "fail", observed, "observed branch head does not equal the manifest-pinned commit"
+        return "pass", observed, "observed branch head equals the manifest-pinned commit"
+
+    if condition_type == "github_file_blob":
+        expected_path = condition.get("path")
+        expected_commit = condition.get("commit")
+        expected_blob = condition.get("blob_sha")
+        path = observed.get("path")
+        commit = observed.get("commit")
+        blob_sha = observed.get("blob_sha")
+        valid_path = (
+            isinstance(expected_path, str)
+            and bool(expected_path)
+            and not expected_path.startswith("/")
+            and "\\" not in expected_path
+            and all(part not in {"", ".", ".."} for part in expected_path.split("/"))
+        )
+        if (
+            not valid_path
+            or not isinstance(expected_commit, str)
+            or not re.fullmatch(r"[a-f0-9]{40}", expected_commit)
+            or not isinstance(expected_blob, str)
+            or not re.fullmatch(r"[a-f0-9]{40}", expected_blob)
+            or path != expected_path
+            or commit != expected_commit
+            or not isinstance(blob_sha, str)
+            or not re.fullmatch(r"[a-f0-9]{40}", blob_sha)
+        ):
+            return "unavailable", observed, "pinned GitHub file-blob observation is incomplete or malformed"
+        if blob_sha != expected_blob:
+            return "fail", observed, "observed GitHub file blob SHA does not match the manifest-pinned blob"
+        return "pass", observed, "observed GitHub file blob matches the manifest-pinned blob at the exact commit"
+
+    return "unavailable", observed, "unsupported precondition type"
 
 
 def _declared_artifact_paths(task_record: Mapping[str, Any]) -> set[str]:
@@ -673,6 +708,7 @@ def run_plugin_task(
     trace["closure"]["final_state_sha256"] = _sha256_json(initial_state)
     final_state = initial_state
 
+    resumed_checkpoint_paths: set[str] = set()
     final_answer: str | None = None
     stopped_reason = "max_model_turns"
     error_text: str | None = None
@@ -826,6 +862,49 @@ def run_plugin_task(
                     "read_only", "sandbox_write", "external_write", "destructive", "paid_external", "unknown"
                 } else "unknown",
             )
+            # Record checkpoint rehydration only after a real, successful
+            # GitHub fetch_file action returns the manifest-pinned blob bytes.
+            if ok and tool_id.split("__")[-1] == "fetch_file" and isinstance(raw_result, Mapping):
+                read_path = arguments.get("path") if isinstance(arguments, Mapping) else None
+                if isinstance(read_path, str) and read_path not in resumed_checkpoint_paths:
+                    for checkpoint_precondition in plan.preconditions:
+                        checkpoint_condition = (
+                            checkpoint_precondition.get("condition")
+                            if isinstance(checkpoint_precondition, Mapping)
+                            else None
+                        )
+                        if (
+                            not isinstance(checkpoint_condition, Mapping)
+                            or checkpoint_condition.get("type") != "github_file_blob"
+                            or checkpoint_condition.get("path") != read_path
+                        ):
+                            continue
+                        checkpoint_content = raw_result.get("content")
+                        checkpoint_blob = raw_result.get("sha")
+                        checkpoint_source = raw_result.get("display_url")
+                        expected_checkpoint_blob = checkpoint_condition.get("blob_sha")
+                        if (
+                            isinstance(checkpoint_content, str)
+                            and isinstance(checkpoint_blob, str)
+                            and re.fullmatch(r"[a-f0-9]{40}", checkpoint_blob)
+                            and checkpoint_blob == expected_checkpoint_blob
+                            and _git_blob_sha(checkpoint_content) == checkpoint_blob
+                            and isinstance(checkpoint_source, str)
+                            and checkpoint_source.startswith("https://github.com/")
+                        ):
+                            _event(
+                                events,
+                                task_id=task_id,
+                                event_type="checkpoint_resumed",
+                                checkpoint_ref=read_path,
+                                checkpoint_sha256=hashlib.sha256(
+                                    checkpoint_content.encode("utf-8")
+                                ).hexdigest(),
+                                source_ref=checkpoint_source,
+                            )
+                            resumed_checkpoint_paths.add(read_path)
+                        break
+
             final_state = after
             messages.append({
                 "role": "tool",
