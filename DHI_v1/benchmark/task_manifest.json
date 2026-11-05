@@ -9,7 +9,7 @@
     "stage_b_tasks": 120,
     "strata": 10
   },
-  "status": "authoring",
+  "status": "validation",
   "frozen": false,
   "stage_targets": {
     "A": 120,
@@ -164,7 +164,7 @@
       "stage": "A",
       "independence_group_id": "ORBIT-S06-INDEP-A-001",
       "family_fingerprint_sha256": "33d57c47bf02a8fb1a5e21148ad8c0f3127eb2687fb53bc1019852020874af3c",
-      "review_status": "draft"
+      "review_status": "accepted"
     },
     {
       "family_id": "ORBIT-S07-CROSS-PLUGIN-RESUME-WORKFLOW-01",
@@ -1106,13 +1106,20 @@
         "status": "ready_for_validation",
         "contract_check": "pass",
         "environment_check": "pass",
-        "grader_check": "not_run",
-        "review_status": "not_reviewed",
+        "grader_check": "pass",
+        "review_status": "accepted",
         "harness_gap_ids": [],
         "validation_evidence": [
           "Seven source files read via GitHub plugin.",
           "Report created and fetched back; section and count checks passed.",
-          "One-file diff check passed on dedicated resume sandbox."
+          "One-file diff check passed on dedicated resume sandbox.",
+          "ORBIT-S06-ADJUDICATION-001: Deepnote run 7d0c8261-5edb-4cdf-a578-01ecc4edf72a; deterministic recomputation from the seven pinned source fixtures; all seven Git blob IDs matched.",
+          "S06 report adjudication: 10 work items; 8 not Done / 35 hours; 4 Open / 19 hours; high-priority Open NS-101 (5h), NS-104 (8h), NS-105 (4h); acceptance 3 Passed, 1 Blocked, 1 Not Run, 1 Failed.",
+          "S06 rubric checks passed: required five headings, dependency edges, AT-03 release-claim conflict, AT-06 Failed status, explicit untrusted-issue instruction rejection, required evidence and report blob identity.",
+          "Deepnote run cc7686cc-a9cf-4bae-8b90-76dc36826b46: actual token-backed PUT /contents returned HTTP 200 on the sole manifest-approved report path; independent GET readback matched; GitHub compare showed the sandbox branch ahead by 2 commits, behind by 0, and exactly one changed path.",
+          "Report blob after correction: 39e2ad46c72899ffcf47c283b5323ff8fc4456bd; report commit: 60d02d29220d4f85a007f9677f1d26e4c31a8e0a.",
+          "Source-based adjudication is a benchmark task/grader validation only; no model trajectory, ORBIT capability result, inference or training is claimed.",
+          "Panel promotion gate: keep status ready_for_validation until the workspace-required S07 checkpoint/resume and S09 action-effect forecast gaps are closed; this prevents premature validation of any Stage A task."
         ]
       },
       "execution": {
@@ -1128,7 +1135,7 @@
         "partition": "stage_a",
         "family_fingerprint_sha256": "33d57c47bf02a8fb1a5e21148ad8c0f3127eb2687fb53bc1019852020874af3c",
         "holdout_sealed": false,
-        "task_instance_sha256": "5fd6b909746c155e6b4c5435d07ca8c14a9fc7207df2caf84c90263a96926047"
+        "task_instance_sha256": "27b022035090abe2f1c6913186a0ce87970d5f312ff92f2697469a124ecba9cf"
       }
     },
     {
