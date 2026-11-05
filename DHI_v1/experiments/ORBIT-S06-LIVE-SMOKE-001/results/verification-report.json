@@ -36,7 +36,17 @@
     "pinned_commit_get": 200,
     "create_ref_post": 403,
     "contents_put": 403,
-    "error": "Resource not accessible by personal access token"
+    "error": "Resource not accessible by personal access token",
+    "recheck_after_user_update": {
+      "run_id": "652a27e7-954d-4583-9bec-30a8573f346d",
+      "branch_ref_write_probe_http": 403,
+      "contents_update_wrong_sha_probe_http": 403,
+      "github_message": "Resource not accessible by personal access token",
+      "branch_head_unchanged": true,
+      "report_blob_unchanged": true,
+      "repository_mutations": 0,
+      "token_value_exposed": false
+    }
   },
   "actions": {
     "sandbox_branch_provisioned_by": "connected GitHub repository integration",
