@@ -1,6 +1,6 @@
 # DHI-v1 Live Workspace
 
-**Last updated:** 2026-11-03  
+**Last updated:** 2026-11-05  
 **Repository:** https://github.com/Kshitijpalsinghtomar/dhi  
 **Active research branch:** `orbit/plugin-benchmark-fixture` (default `main` remains unchanged; branch is intentionally unmerged)  
 **Live-state rule:** This file is the first read at every session. It supersedes older chat summaries and dated handover snapshots when describing current status.
@@ -27,29 +27,27 @@ This is a research target, not a result or novelty claim. A prompt, RAG store, f
 ```yaml
 programme: DHI-v1
 codename: ORBIT
-phase: github_adapter_offline_validation
-status: in_progress
+phase: plugin_harness_verified_provider_execution_blocked
+status: blocked
 status_reason: >
-  ORBIT-VERIFY-008 passed the full exact-revision engineering regression:
-  182 benchmark/environment tests passed at code commit
-  fec93ba59842d866149c7d03383b1833745077d2. A credential-gated GitHub REST
-  adapter for six canonical capabilities is now committed. Offline HTTP tests
-  and manifest-bundle tests have been added. Review found that urllib's default
-  redirect handler can forward Authorization headers; the adapter now installs
-  a redirect-rejecting handler on both authenticated API and public GitHub
-  fetch paths. The task-bundle fixtures now restrict handlers to each plan's
-  visible tool IDs and close over IDs correctly. Focused pytest validation is
-  pending in the exact Deepnote verifier after bootstrapping its missing dev
-  dependencies. Deepnote has no GITHUB_TOKEN, write flag or repository
-  allowlist; no live GitHub request or write was made. All 30 Stage A tasks
-  remain ready_for_validation, and all model_runs_allowed flags remain false.
-  S07 and S09 remain partial. No ORBIT inference, model-generated trajectory,
-  trained capability result, or DHI-v1 checkpoint exists. OpenRouter balance
-  is currently $0.
+  ORBIT-VERIFY-010 passed the exact branch-head engineering regression at
+  e045e43d41a5cd125f81dbfdac105937f3a161af: manifest validation passed,
+  207 benchmark/environment tests passed, compileall and import smoke passed,
+  and all 30 plugin task plans loaded with zero model runs enabled. The result
+  is recorded in experiments/ORBIT-VERIFY-010/. This verifies offline harness
+  code only. Live GitHub execution remains blocked because the Deepnote project
+  previously reported no project-scoped GITHUB_TOKEN, write flag, or repository
+  allowlist. The plugin runner still lacks fail-closed manifest precondition
+  evaluation before the first model call (including S06 branch-head checks)
+  and independently grounded final-artifact readback into trace.final_artifacts.
+  All 30 Stage A tasks remain ready_for_validation; Stage B remains sealed with
+  zero tasks; all model_runs_allowed flags remain false. S07 and S09 are partial.
+  No ORBIT inference, model-generated trajectory, capability score, or training
+  run exists. OpenRouter balance was previously observed as $0.
 training_status: not_authorized
 benchmark_status: stage_a_authoring_30_of_120; stage_b_sealed_unmaterialized
-last_verified_code_commit: fec93ba59842d866149c7d03383b1833745077d2
-last_verified_test_commit: fec93ba59842d866149c7d03383b1833745077d2
+last_verified_code_commit: e045e43d41a5cd125f81dbfdac105937f3a161af
+last_verified_test_commit: e045e43d41a5cd125f81dbfdac105937f3a161af
 ```
 </details>
 
@@ -60,7 +58,7 @@ last_verified_test_commit: fec93ba59842d866149c7d03383b1833745077d2
 - Deterministic file-workspace environment and pinned SHA-256 fixture.
 - Bounded model-to-tool runner with per-turn tool-schema refresh.
 - TinyFish Search/Fetch REST adapter with env-only credentials, strict argument validation, public URL protections, explicit task allowlists and trace-safe errors.
-- Credential-gated GitHub REST adapter draft for the six registered read/write capabilities; fake-HTTP and task-bundle tests are committed. Cross-host redirects are now rejected before following them so bearer credentials cannot be forwarded. Offline pytest validation remains pending; live handlers remain absent until a project-scoped `GITHUB_TOKEN` is attached.
+- Credential-gated GitHub REST adapter for the six registered read/write capabilities; fake-HTTP and task-bundle tests are committed. Cross-host redirects are rejected before following them so bearer credentials cannot be forwarded. Exact-head ORBIT-VERIFY-010 passed all offline tests; live handlers remain absent until a project-scoped `GITHUB_TOKEN` and explicit write configuration are attached.
 - Adaption Responses API adapter and hosted-model catalogue reader.
 - Read-only Adaption connector-catalogue discovery.
 - Twelve hand-authored diagnostic seeds: eight common executable cases, one Adaption-specific discovery case, and three unsupported future-runtime cases.
@@ -91,7 +89,9 @@ last_verified_test_commit: fec93ba59842d866149c7d03383b1833745077d2
 | TinyFish adapter focused verification | 16 direct assertions passed; six changed Python files compiled in memory | Deepnote run c2d0bac2-7679-4e33-8462-a820d02be2b3. Scripted model-facing integration with mocked HTTP; Fetch hidden unless allowlisted; trace retained result/forecast/closure and omitted key. Pytest/full suite still unverified |
 | Historical manifest and trace-grader verification | Passed before TinyFish adapter changes, at code commit cba8421d4f4c6c4f929d5f4c3196eb83f98f7351 | Validator: 30/30 valid, Stage A=30, Stage B=0; full benchmark/environment suite: 142 passed, 0 failed; compileall/import smoke passed. Does not validate later TinyFish adapter changes |
 | Full benchmark regression | Passed | Deepnote run 7da82150-e44d-415d-ac00-206b112cf811: 82 benchmark tests passed; manifest validator and benchmark compileall passed at code commit 421955df46975d8b20fba63f8922949a49b4551c. Environment tests were not included |
-| Combined benchmark + environment regression | Historical pass before TinyFish adapter changes | Deepnote run 34ca752c-e864-4a3d-9388-957d2c3e1859: 142 passed, 0 failed at code commit cba8421d4f4c6c4f929d5f4c3196eb83f98f7351. Adapter code and tests were added afterward; rerun the full suite before declaring current HEAD green |
+| Combined benchmark + environment regression | Historical pass before TinyFish adapter changes | Deepnote run 34ca752c-e864-4a3d-9388-957d2c3e1859: 142 passed, 0 failed at code commit cba8421d4f4c6c4f929d5f4c3196eb83f98f7351. Superseded for the plugin-native branch by ORBIT-VERIFY-010 below. |
+| ORBIT-VERIFY-009 | Passed | GitHub adapter security regression: 203 tests passed; exact code `cca077e…`; no live GitHub request. See `experiments/ORBIT-VERIFY-009/`. |
+| ORBIT-VERIFY-010 | **Passed — latest exact code head** | Code `e045e43d41a5cd125f81dbfdac105937f3a161af`; Deepnote run `3d2f4a00-32e6-422c-b14e-50b158a89e31`; manifest validator, **207 benchmark/environment tests**, compileall, imports and 30-plan loader all passed; 0 model runs enabled. See `experiments/ORBIT-VERIFY-010/`. |
 
 ## 6. Data status and hard stops
 
@@ -625,3 +625,35 @@ The generic runner still does not enforce manifest preconditions such as S06's r
 ### Secret request boundary
 
 Do not add a GitHub credential until the offline security and focused pytest gates pass. When requested, start with a fine-grained, read-only token scoped to the one required repository. Keep write handlers disabled; request a separate write-capable scope only after disposable-branch isolation and task-specific precondition checks are verified.
+
+
+## 25. ORBIT-VERIFY-010 passed — latest exact-head offline regression — 5 November 2026
+
+**Code under test:** `e045e43d41a5cd125f81dbfdac105937f3a161af` on `orbit/plugin-benchmark-fixture`.
+
+**Deepnote evidence**
+- Project: `6415944e-8d6c-432c-a7cf-3bbaa997799c`.
+- Notebook: `3639f9a98ce5435fa4cd0168eaaca3a1`.
+- Run: `3d2f4a00-32e6-422c-b14e-50b158a89e31`.
+- Full pytest: **207 passed, 0 failed** across `DHI_v1/benchmark/tests` and `DHI_v1/environment/tests`.
+- Manifest validator: valid, 30 tasks, Stage A=30, Stage B=0, no errors.
+- `compileall`: passed.
+- Entrypoint imports: passed.
+- Plugin task loader: all 30 plans resolved; model runs enabled: 0.
+- Python 3.13.18; Linux x86_64.
+- Raw command output, timings and exit codes: `experiments/ORBIT-VERIFY-010/results/verification-report.json`.
+
+**Evidence boundary:** this is offline engineering verification only. It did not call GitHub, TinyFish, a hosted model, or a training API. It does not validate any of the 30 benchmark tasks through model execution and does not establish DHI capability or training readiness.
+
+### Remaining benchmark gaps (not closed by the 207-test pass)
+
+1. **Preconditions before model invocation:** `run_plugin_task` must evaluate task-manifest preconditions against a trusted runtime observer before the first model request. S06-001 specifically requires the sandbox branch head to equal its pinned base commit. A model must not be asked to proceed when that check fails or cannot be observed.
+2. **Artifact evidence:** `trace.final_artifacts` must be populated only from independently fetched/read-back artifact metadata and content hashes. It must not be inferred from the final answer, a model-authored path, or a provider write response alone.
+3. **Live provider readiness:** the GitHub client is offline-tested, but the Deepnote project previously reported no `GITHUB_TOKEN`, write-enable flag or allowed-repository list. No live GitHub call was made.
+4. **Task validation:** all 30 remain `ready_for_validation`, not `validated`; independent grader review and per-task evidence checks remain outstanding. Stage B remains sealed and empty.
+
+All `model_runs_allowed` flags stay false. No DHI inference or training is authorized.
+
+### Next authorized work unit
+
+Implement a fail-closed precondition evaluator with explicit runtime state observers (starting with `branch_head_equals`) and an artifact collector that uses independent provider readback. Add red tests for satisfied, mismatched and unavailable preconditions; missing, mismatched and unverified artifacts; and task/path constraints. Then rerun ORBIT-VERIFY exact-head regression. Keep the benchmark flags false.
