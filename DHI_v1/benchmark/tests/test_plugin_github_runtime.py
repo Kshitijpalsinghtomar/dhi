@@ -50,12 +50,20 @@ class FakeGitHubClient:
         self.created = []
         self.fetches = []
         self.file_reads = []
+        self.created_branches = []
+        self.branches = [
+            {"name": "main", "head_sha": "1" * 40},
+            {"name": "orbit/plugin-benchmark-fixture", "head_sha": "2" * 40},
+            {"name": "orbit/plugin-resume-sandbox", "head_sha": "3" * 40},
+        ]
 
     def tool_handlers(self):
         return {
             FETCH_FILE_TOOL_ID: self.fetch_file,
             CREATE_FILE_TOOL_ID: self.create_file,
             "mcp__GitHub__compare_commits": self.compare_commits,
+            "mcp__GitHub__fetch": self.fetch,
+            "mcp__GitHub__create_branch": self.create_branch,
         }
 
     def compare_commits(self, arguments):
@@ -96,6 +104,21 @@ class FakeGitHubClient:
                 f"{arguments['ref']}/{arguments['path']}"
             ),
         }
+
+    def fetch(self, arguments):
+        self.fetches.append(dict(arguments))
+        return {
+            "content": json.dumps({"repository_state": {"branches": list(self.branches)}}),
+            "url": arguments.get("url", ""),
+        }
+
+    def create_branch(self, arguments):
+        self.created_branches.append(dict(arguments))
+        self.branches.append({
+            "name": arguments["branch_name"],
+            "head_sha": arguments["sha"],
+        })
+        return {"branch": arguments["branch_name"]}
 
     def create_file(self, arguments):
         self.created.append(dict(arguments))
