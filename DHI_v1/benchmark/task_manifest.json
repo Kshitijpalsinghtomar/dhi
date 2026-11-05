@@ -4670,8 +4670,8 @@
     ],
     "trace_schema_path": "DHI_v1/benchmark/plugin_trace.schema.json",
     "trace_grader_path": "DHI_v1/benchmark/plugin_trace.py",
-    "trace_schema_sha256": "f83b490bb4bd26b8f9c8daa68f6bf500134bd938adb9668be64606c7bd371b22",
-    "trace_grader_sha256": "d5f82d00bf81bdb9ad1900e052407552e8bf8bcfc236b336fa946bf54b8032cc"
+    "trace_schema_sha256": "a5ea42279bccff7fa5f5fb192ce78bba1c485c6f06f6b1cf03e60271fb8eb45c",
+    "trace_grader_sha256": "56ee215bb884aa2962cbebc4bbffd4d07523700b88dbf56792973c9667281871"
   },
   "existing_development_pilot": {
     "path": "DHI_v1/benchmark/pilot_cases.json",
