@@ -703,8 +703,10 @@ All 30 Stage A tasks remain `ready_for_validation`; Stage B is sealed and empty;
 
 ### Remaining blockers and next action
 
-- The Deepnote project still lacks project-scoped `GITHUB_TOKEN`, `DHI_GITHUB_WRITES_ENABLED` and `GITHUB_ALLOWED_REPOSITORIES`; do not attempt live provider execution before access and isolation are explicitly approved.
-- Provision the task-scoped S06 sandbox branch at its exact manifest-pinned base commit, then run one controlled live smoke path: verify branch head, read source fixtures, write only the approved report path, independently read it back, and verify the branch diff.
+- The Deepnote project currently has environment integrations `TINYFISH` and `ADAPTION` only. No GitHub environment integration is attached. The presence-only check reported `GITHUB_TOKEN=false`, `DHI_GITHUB_WRITES_ENABLED=false`, and `GITHUB_ALLOWED_REPOSITORIES=false`.
+- A GitHub ref lookup returned HTTP 404 for `refs/heads/orbit/sandbox/orbit-a-s06-001`; the dedicated S06 sandbox branch is not present.
+- Attach a project-scoped GitHub environment integration with the three required variables; never put the token in a notebook, source file, Git commit or chat message.
+- After access and isolation are explicitly approved, provision the task-scoped S06 sandbox branch at its exact manifest-pinned base commit, then run one controlled live smoke path: verify branch head, read source fixtures, write only the approved report path, independently read it back, and verify the branch diff.
 - Independently review/validate all 30 Stage A tasks before any model-run permission is considered. Stage B stays sealed. No inference or training is authorized.
 
 See `experiments/ORBIT-VERIFY-012/` for the experiment README, manifest and raw verifier output.
