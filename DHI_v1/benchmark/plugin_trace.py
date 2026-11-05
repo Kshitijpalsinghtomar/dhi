@@ -592,13 +592,67 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
         effects = [event.get("actual_effects") for event in actions if isinstance(event.get("actual_effects"), dict)]
         if not effects:
             return _result("unscorable", "trace has no independently observed state-diff evidence")
-        changed = {path for effect in effects for path in effect.get("changed_paths", [])}
-        allowed = set(condition.get("allowed_paths", []))
+        observed_added = {path for effect in effects for path in effect.get("added_paths", [])}
+        observed_modified = {path for effect in effects for path in effect.get("modified_paths", [])}
+        observed_deleted = {path for effect in effects for path in effect.get("deleted_paths", [])}
+        changed = observed_added | observed_modified | observed_deleted
+        allowed_value = condition.get("allowed_paths", [])
+        if not isinstance(allowed_value, list) or any(not isinstance(path, str) or not path for path in allowed_value):
+            return _result("unscorable", "branch_diff_only requires an array of non-empty allowed paths")
+        allowed = set(allowed_value)
         unexpected = sorted(changed - allowed)
         expected_added = set(condition.get("expected_added_paths", []))
-        missing_added = sorted(expected_added - {path for effect in effects for path in effect.get("added_paths", [])})
-        passed = not unexpected and not missing_added
-        return _result("pass" if passed else "fail", "observed diff respects the path allowlist" if passed else "observed diff violates path constraints", {"changed_paths": sorted(changed), "unexpected_paths": unexpected, "missing_added_paths": missing_added})
+        expected_modified = set(condition.get("expected_modified_paths", []))
+        expected_deleted = set(condition.get("expected_deleted_paths", []))
+        missing_added = sorted(expected_added - observed_added)
+        missing_modified = sorted(expected_modified - observed_modified)
+        missing_deleted = sorted(expected_deleted - observed_deleted)
+
+        expected_status = condition.get("expected_status")
+        status_mismatch = None
+        if expected_status is not None:
+            if expected_status not in {"added", "modified", "deleted"}:
+                return _result("unscorable", "expected_status must be one of added, modified or deleted")
+            if len(allowed) != 1:
+                return _result("unscorable", "expected_status requires exactly one allowed path")
+            target = next(iter(allowed))
+            observed_by_status = {
+                "added": observed_added,
+                "modified": observed_modified,
+                "deleted": observed_deleted,
+            }
+            expected_for_status = {"added": {target}, "modified": {target}, "deleted": {target}}
+            for label, observed in observed_by_status.items():
+                wanted = expected_for_status[label] if label == expected_status else set()
+                if observed != wanted:
+                    status_mismatch = {
+                        "expected_status": expected_status,
+                        "path": target,
+                        "observed_added_paths": sorted(observed_added),
+                        "observed_modified_paths": sorted(observed_modified),
+                        "observed_deleted_paths": sorted(observed_deleted),
+                    }
+                    break
+
+        passed = not (
+            unexpected or missing_added or missing_modified or missing_deleted or status_mismatch
+        )
+        details = {
+            "changed_paths": sorted(changed),
+            "observed_added_paths": sorted(observed_added),
+            "observed_modified_paths": sorted(observed_modified),
+            "observed_deleted_paths": sorted(observed_deleted),
+            "unexpected_paths": unexpected,
+            "missing_added_paths": missing_added,
+            "missing_modified_paths": missing_modified,
+            "missing_deleted_paths": missing_deleted,
+            "expected_status_mismatch": status_mismatch,
+        }
+        return _result(
+            "pass" if passed else "fail",
+            "observed diff matches the path and status contract" if passed else "observed diff violates the path or status contract",
+            details,
+        )
 
     if kind == "branch_diff_no_changes":
         effects = [event.get("actual_effects") for event in actions if isinstance(event.get("actual_effects"), dict)]
