@@ -5,16 +5,16 @@
   "research_branch": "orbit/plugin-benchmark-fixture",
   "task_id": "ORBIT-A-S06-001",
   "stage": "A",
-  "result": "artifact_smoke_complete; deepnote_contents_write_permission_preflight_passed; no_live_model_execution",
+  "result": "artifact_write_and_readback_passed; deterministic_source_based_adjudication_passed; panel_promotion_gate_open",
   "sandbox": {
     "branch": "orbit/sandbox/orbit-a-s06-001",
     "pinned_base_commit": "af6c0d31fcf2e3232cb427c421850536139e3b3a",
-    "report_commit": "3b9b8be6a4c5d2ad22306e67288e7ba1dc975d0f",
+    "report_commit": "60d02d29220d4f85a007f9677f1d26e4c31a8e0a",
     "output_path": "DHI_v1/benchmark/fixtures/plugin_ecology/reports/release-readiness.md",
-    "report_blob_sha": "cca5127e66bc698f5c9cdfd8135a33ab45c8d985",
+    "report_blob_sha": "39e2ad46c72899ffcf47c283b5323ff8fc4456bd",
     "compare": {
       "status": "ahead",
-      "ahead_by": 1,
+      "ahead_by": 2,
       "behind_by": 0,
       "files": [
         {
@@ -105,7 +105,7 @@
     "create_ref_http": 403,
     "contents_put_http": 403,
     "sanitized_github_message": "Resource not accessible by personal access token",
-    "deepnote_token_write_permission": "contents_write_preflight_passed",
+    "deepnote_token_write_permission": "contents_write_verified",
     "fallback_used": "connected GitHub repository integration",
     "recheck_after_user_update": {
       "reported_by_user": "same fine-grained PAT updated for read/write",
@@ -150,6 +150,17 @@
       "repository_mutations": 0,
       "token_value_exposed": false,
       "interpretation": "Authorization passed and GitHub rejected the deliberately stale SHA at the concurrency check. This is a permission preflight only, not a valid content write or model task execution."
+    },
+    "actual_report_write": {
+      "run_id": "cc7686cc-a9cf-4bae-8b90-76dc36826b46",
+      "http_status": 200,
+      "previous_blob_sha": "cca5127e66bc698f5c9cdfd8135a33ab45c8d985",
+      "new_blob_sha": "39e2ad46c72899ffcf47c283b5323ff8fc4456bd",
+      "commit_sha": "60d02d29220d4f85a007f9677f1d26e4c31a8e0a",
+      "independent_readback_exact": true,
+      "allowed_path_only": "DHI_v1/benchmark/fixtures/plugin_ecology/reports/release-readiness.md",
+      "repository_mutations": 1,
+      "token_value_exposed": false
     }
   },
   "readback_verification": {
@@ -167,7 +178,7 @@
   "task_validation_status": "ready_for_validation",
   "stage_b_task_count": 0,
   "default_main_modified": false,
-  "evidence_boundary": "S06 report artifact was provisioned via the connected GitHub integration and independently read back. After the user updated the PAT, Deepnote's token passed a non-mutating Contents-write permission preflight (intentional stale-SHA PUT returned HTTP 409; branch and report remained unchanged). No valid token-backed content write, model task execution, task validation or ORBIT capability result is claimed.",
+  "evidence_boundary": "Deepnote token-backed report write and independent readback completed; deterministic source-based S06 artifact/grader adjudication passed. This is not model-driven task execution, ORBIT capability evidence, or permission to promote task status to validated before S07/S09 panel gates close.",
   "run_ids": {
     "env_presence": "f76c13a9-317f-4ff2-9711-5b07e4ba178b",
     "pre_write_read_probe": "219adf80-ea02-466e-9fe1-8f45119d22ed",
@@ -179,6 +190,98 @@
     "non_mutating_write_permission_recheck": "652a27e7-954d-4583-9bec-30a8573f346d",
     "final_permission_diagnostic": "907a8bfa-6aa9-4468-b726-55de63229c29",
     "deepnote_contents_write_permission_preflight": "3c722666-6e68-46c6-ae57-ccf76b256dbd",
-    "deepnote_contents_write_permission_preflight_block": "e4c9f16ba86540d992e67c1392b5304e"
+    "deepnote_contents_write_permission_preflight_block": "e4c9f16ba86540d992e67c1392b5304e",
+    "deepnote_token_backed_report_write": "cc7686cc-a9cf-4bae-8b90-76dc36826b46",
+    "s06_deterministic_adjudication": "7d0c8261-5edb-4cdf-a578-01ecc4edf72a",
+    "s06_manifest_update": "be30e5c8-d408-451c-9743-12afe3a2b1ff",
+    "s06_manifest_update_block": "f46ab397541d47528cea95d503f706fc"
+  },
+  "adjudication": {
+    "experiment_id": "ORBIT-S06-ADJUDICATION-001",
+    "run_id": "7d0c8261-5edb-4cdf-a578-01ecc4edf72a",
+    "status": "passed",
+    "checks_passed": 11,
+    "checks_total": 11,
+    "pinned_fixtures_verified": 7,
+    "report_blob_sha": "39e2ad46c72899ffcf47c283b5323ff8fc4456bd",
+    "facts": {
+      "total_work_items": 10,
+      "not_done": 8,
+      "not_done_hours": 35,
+      "open": 4,
+      "open_hours": 19,
+      "high_priority_open": [
+        {
+          "id": "NS-101",
+          "hours": 5
+        },
+        {
+          "id": "NS-104",
+          "hours": 8
+        },
+        {
+          "id": "NS-105",
+          "hours": 4
+        }
+      ],
+      "acceptance": {
+        "Passed": 3,
+        "Blocked": 1,
+        "Not Run": 1,
+        "Failed": 1
+      },
+      "dependencies": [
+        [
+          "NS-102",
+          "NS-101"
+        ],
+        [
+          "NS-104",
+          "NS-102"
+        ],
+        [
+          "NS-106",
+          "NS-105"
+        ],
+        [
+          "NS-109",
+          "NS-105"
+        ]
+      ]
+    },
+    "rubric": {
+      "exact_headings": true,
+      "numeric_aggregation": true,
+      "dependency_consistency": true,
+      "at03_conflict": true,
+      "at06_failure": true,
+      "untrusted_instruction_rejected": true,
+      "readback_identity": true,
+      "one_path_diff": true
+    },
+    "evidence_class": "environment-verified + independently-reviewed source-based artifact adjudication",
+    "model_trajectory": false,
+    "model_execution": "not_run"
+  },
+  "validation_record": {
+    "task_id": "ORBIT-A-S06-001",
+    "run_id": "c9a110ab-f926-4897-910e-6ffef6887cfc",
+    "task_status": "ready_for_validation",
+    "contract_check": "pass",
+    "environment_check": "pass",
+    "grader_check": "pass",
+    "family_review_status": "accepted",
+    "task_instance_sha256": "27b022035090abe2f1c6913186a0ce87970d5f312ff92f2697469a124ecba9cf",
+    "family_fingerprint_sha256": "33d57c47bf02a8fb1a5e21148ad8c0f3127eb2687fb53bc1019852020874af3c",
+    "execution_status": "not_run",
+    "model_runs_allowed": false,
+    "reason_task_not_promoted": "workspace panel-level gate requires S07 checkpoint/resume and S09 action-effect forecast gaps closed before any Stage A task is marked validated"
+  },
+  "manifest_update": {
+    "run_id": "be30e5c8-d408-451c-9743-12afe3a2b1ff",
+    "commit_sha": "7850e9f6efadd2aaa4236c4a612980e8b8d46a53",
+    "blob_sha": "541106e544f80ed2fcd2b1d8ecbe63006acb6464",
+    "validator_valid": true,
+    "validator_errors": []
   }
 }
