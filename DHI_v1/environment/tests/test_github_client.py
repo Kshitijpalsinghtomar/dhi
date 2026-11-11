@@ -427,3 +427,42 @@ def test_response_size_limit_is_enforced_before_json_decode():
             client.fetch_file({"repository_full_name": REPO, "path": "README.md"})
 
     assert len(opener.requests) == 1
+
+
+
+def test_fetch_branches_returns_normalized_repository_state_and_keeps_raw_response():
+    payload = [
+        {"name": "main", "commit": {"sha": BASE_SHA}},
+        {"name": "orbit/plugin-benchmark-fixture", "commit": {"sha": COMMIT_SHA}},
+    ]
+    client = GitHubReadWriteClient(api_key=TOKEN)
+    opener = ScriptedOpener([FakeHTTPResponse(payload)])
+
+    with _patch_opener(opener):
+        result = client.fetch({"url": f"https://api.github.com/repos/{REPO}/branches"})
+
+    request = opener.requests[0]
+    parsed = urlsplit(request.full_url)
+    assert parsed.path == f"/repos/{REPO}/branches"
+    assert parse_qs(parsed.query) == {"per_page": ["100"]}
+    assert json.loads(result["content"]) == payload
+    assert result["repository_state"] == {
+        "branches": [
+            {"name": "main", "head_sha": BASE_SHA},
+            {"name": "orbit/plugin-benchmark-fixture", "head_sha": COMMIT_SHA},
+        ]
+    }
+    assert TOKEN not in json.dumps(result)
+
+
+def test_fetch_branches_rejects_malformed_branch_head_records():
+    payload = [
+        {"name": "main", "commit": {"sha": "not-a-commit-sha"}},
+    ]
+    client = GitHubReadWriteClient(api_key=TOKEN)
+    opener = ScriptedOpener([FakeHTTPResponse(payload)])
+
+    with _patch_opener(opener):
+        with pytest.raises(GitHubClientError, match="branch listing contains an invalid branch record"):
+            client.fetch({"url": f"https://api.github.com/repos/{REPO}/branches"})
+    assert len(opener.requests) == 1
