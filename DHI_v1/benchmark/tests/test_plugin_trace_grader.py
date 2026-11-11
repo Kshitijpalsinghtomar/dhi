@@ -183,7 +183,7 @@ def make_checkpoint_rehydration_trace(*, checkpoint_after_write: bool = False, f
     report_path = "reports/tool-ecosystem-cost-audit.md"
     trace = make_trace()
     task_id = "ORBIT-A-S07-002"
-    task_started, read_prediction, read_start, read_done, assistant_message, task_closed = trace["events"]
+    task_started, read_prediction, read_start, read_done, task_closed = trace["events"]
     read_action_id = "checkpoint-read"
     read_arguments = {"repository_full_name": repository, "path": path, "ref": commit}
 
@@ -265,13 +265,13 @@ def make_checkpoint_rehydration_trace(*, checkpoint_after_write: bool = False, f
         events = [
             task_started, read_prediction, read_start, read_done,
             write_prediction, write_start, write_done,
-            checkpoint_event, assistant_message, task_closed,
+            checkpoint_event, task_closed,
         ]
     else:
         events = [
             task_started, read_prediction, read_start, read_done,
             checkpoint_event, write_prediction, write_start, write_done,
-            assistant_message, task_closed,
+            task_closed,
         ]
     for index, event in enumerate(events, 1):
         event["event_index"] = index
