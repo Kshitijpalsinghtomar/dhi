@@ -1,3 +1,4 @@
+import copy
 import hashlib
 import json
 import tempfile
@@ -24,7 +25,7 @@ def make_task(**overrides):
 
 
 def make_catalogue():
-    catalogue = [dict(item) for item in DEFAULT_TOOL_CATALOGUE]
+    catalogue = copy.deepcopy(DEFAULT_TOOL_CATALOGUE)
     catalogue.extend([
         {
             "tool_id": "external.read",
