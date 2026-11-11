@@ -47,6 +47,7 @@ IMPLEMENTED_CONDITIONS = {
     "github_blob_sha_match",
     "ordered_tool_trace",
     "tool_trace_contains",
+    "checkpoint_rehydrated",
     "source_read_list",
     "exact_status_counts",
     "table_values",
@@ -815,6 +816,104 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
                 cursor += 1
         passed = cursor == len(expected_steps)
         return _result("pass" if passed else "fail", "required recovery sequence observed" if passed else "required recovery sequence incomplete", {"matched": matched, "expected": expected_steps})
+
+    if kind == "checkpoint_rehydrated":
+        target_path = condition.get("path")
+        repository = condition.get("repository_full_name")
+        expected_commit = condition.get("commit")
+        expected_blob_sha = condition.get("blob_sha")
+        if (
+            not isinstance(target_path, str)
+            or not target_path
+            or not isinstance(repository, str)
+            or repository.count("/") != 1
+            or not isinstance(expected_commit, str)
+            or not re.fullmatch(r"[a-f0-9]{40}", expected_commit)
+            or not isinstance(expected_blob_sha, str)
+            or not re.fullmatch(r"[a-f0-9]{40}", expected_blob_sha)
+        ):
+            return _result(
+                "unscorable",
+                "checkpoint_rehydrated requires repository, path, pinned commit, and Git blob SHA",
+            )
+
+        write_events = _write_actions(trace)
+        first_write_index = min(
+            (
+                event.get("event_index")
+                for event in write_events
+                if isinstance(event.get("event_index"), int)
+            ),
+            default=None,
+        )
+        expected_source = (
+            f"https://github.com/{repository}/blob/{expected_commit}/{target_path}"
+        )
+        for checkpoint_event in _events_of_type(trace, "checkpoint_resumed"):
+            action_id = checkpoint_event.get("action_id")
+            fetch_action = next(
+                (
+                    action
+                    for action in actions
+                    if action.get("action_id") == action_id
+                    and str(action.get("tool_id", "")).endswith("fetch_file")
+                ),
+                None,
+            )
+            if fetch_action is None:
+                continue
+            actual_tool_result = fetch_action.get("actual_tool_result")
+            result = (
+                actual_tool_result.get("result")
+                if isinstance(actual_tool_result, dict)
+                else None
+            )
+            arguments = fetch_action.get("arguments")
+            content = result.get("content") if isinstance(result, dict) else None
+            result_blob_sha = result.get("sha") if isinstance(result, dict) else None
+            source_ref = result.get("display_url") if isinstance(result, dict) else None
+            action_index = fetch_action.get("event_index")
+            checkpoint_index = checkpoint_event.get("event_index")
+            if (
+                isinstance(actual_tool_result, dict)
+                and actual_tool_result.get("ok") is True
+                and isinstance(arguments, dict)
+                and arguments.get("repository_full_name") == repository
+                and arguments.get("path") == target_path
+                and arguments.get("ref") == expected_commit
+                and isinstance(content, str)
+                and result_blob_sha == expected_blob_sha
+                and _git_blob_sha(content) == expected_blob_sha
+                and checkpoint_event.get("checkpoint_ref") == target_path
+                and checkpoint_event.get("checkpoint_commit") == expected_commit
+                and checkpoint_event.get("checkpoint_blob_sha") == expected_blob_sha
+                and checkpoint_event.get("checkpoint_sha256") == _sha256_text(content)
+                and checkpoint_event.get("source_ref") == expected_source
+                and source_ref == expected_source
+                and isinstance(action_index, int)
+                and isinstance(checkpoint_index, int)
+                and action_index < checkpoint_index
+                and (
+                    first_write_index is None
+                    or checkpoint_index < first_write_index
+                )
+            ):
+                return _result(
+                    "pass",
+                    "the exact pinned checkpoint blob was successfully re-fetched and verified before the first write",
+                    {
+                        "path": target_path,
+                        "repository_full_name": repository,
+                        "commit": expected_commit,
+                        "blob_sha": expected_blob_sha,
+                        "action_id": action_id,
+                        "source_ref": source_ref,
+                    },
+                )
+        return _result(
+            "fail",
+            "no successful fetch_file action rehydrated the exact pinned checkpoint before the first write",
+        )
 
     if kind == "tool_trace_contains":
         target = condition.get("path")
