@@ -1099,3 +1099,40 @@ Decision: accept the focused adapter/runner contract as a limited pass. Do not c
 After focused TinyFish adapter assertions and in-memory compilation passed, an alternate local runner was attempted to execute the full pytest/environment/benchmark suite from the exact active branch. The command `git ls-remote https://github.com/Kshitijpalsinghtomar/dhi.git refs/heads/orbit/plugin-benchmark-fixture` failed before checkout with `Could not resolve host: github.com`. No local checkout was created and no tests ran in that container.
 
 Decision: keep the full pytest/regression gate open. This is a runner network/DNS limitation, not evidence of a code failure or a test pass. The next full-suite run requires an environment with GitHub network access and an exact checkout of orbit/plugin-benchmark-fixture.
+
+## 2026-11-11 — Reset DHI-v1 research direction around joint task/ecosystem belief
+
+### Decision
+Stop treating benchmark expansion and connector/runtime hardening as the primary workstream. The active research question is whether a learned agent can maintain and update a **joint belief over task/world state and dynamic tool-ecosystem state**, reason about multi-tool capability coverage and feasibility, predict effects on both state spaces, recover from tool/schema/permission drift, and independently verify goal closure.
+
+### Why this is a reset rather than a novelty claim
+Recent prior art closes off several broad claims:
+- AutoTool (ICML 2026) already trains dynamic multi-step tool selection and reports generalization to unseen tools.
+- ToolDriftBench / ToolDriftGuard (IEEE SmartIoT 2026) already formalizes schema, semantic, and capability drift in MCP catalogues and evaluates index recovery.
+- ANTE (2026 preprint) already trains pre-action belief prediction verified by real execution in coding agents.
+- Qwen-AgentWorld (2026) already trains language world models for next-state/environment simulation across agentic domains.
+- Agent Planning Benchmark (2026) already measures long-horizon planning, broken/extraneous tools, and unsolvable tasks.
+
+The tentative DHI gap is the *joint interaction* of task-world belief, tool-ecosystem belief, capability composition/feasibility, permission/schema drift, action effects, replanning, and verified closure over long horizons. This is a hypothesis requiring a broader primary-literature review and controlled comparison. No novelty or superiority claim is accepted by this decision.
+
+### Experiment design direction
+Compare, on the same base model and identical task/tool/permission/environment conditions:
+1. Native tool policy without an explicit joint belief (B0).
+2. Current-catalogue retrieval followed by planning (B1).
+3. Retrieval/planning plus a separate action-effect predictor (B2).
+4. DHI joint task/world + tool-ecosystem belief and joint effect prediction (candidate).
+
+The experiment must independently vary availability, schema, capability, permission and world-state drift; include feasible, recoverable, permission-blocked and truly infeasible tasks; and hold out tool names, schemas and capability combinations. Measure verified closure, calibrated feasibility/abstention, drift recovery, held-out transfer, invalid/unauthorized calls, forecast correctness, redundant actions, latency and cost. Safety and false closure remain hard failures.
+
+### Operational consequence
+The active execution pointer is [14_RESEARCH_DIRECTION_RESET_2026-11-11.md](14_RESEARCH_DIRECTION_RESET_2026-11-11.md), and the workspace entrypoint was updated on this date. Older next-action lists in this append-only log are historical and are superseded by the reset until a later dated decision changes direction.
+
+No model inference or training was authorized. The OpenRouter balance was zero on 2026-11-11, the Deepnote verifier project had no model-provider integration, all task-manifest model-run flags remain false, and the existing datasets remain ineligible/quarantined. The permitted immediate work is no-cost research and a minimal deterministic mechanism test; model experiments require explicit user authorization and a funded/approved route.
+
+### Primary references
+- AutoTool, ICML 2026, PMLR 306: https://proceedings.mlr.press/v306/zou26p.html
+- ToolDriftBench / ToolDriftGuard, IEEE SmartIoT 2026: https://ieeexplore.ieee.org/abstract/document/11677805
+- ANTE, arXiv:2610.15368: https://arxiv.org/abs/2610.15368
+- Qwen-AgentWorld, arXiv:2606.24597: https://arxiv.org/abs/2606.24597
+- Agent Planning Benchmark, arXiv:2606.04874: https://arxiv.org/abs/2606.04874
+
