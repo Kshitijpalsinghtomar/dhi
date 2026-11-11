@@ -123,9 +123,9 @@ Use paired task variants, disjoint train/validation/test tool families, multiple
 ## 6. Implementation/evidence status
 
 - `DHI_v1/research/joint_state.py`: typed joint observation/diff and separate forecast scoring.
-- `DHI_v1/research/dhi_environment_observer.py`: read-only adapter for real DHI environment snapshots.
+- `DHI_v1/research/dhi_environment_observer.py`: read-only adapter for real DHI environment snapshots. Catalogue `tags` are retrieval keywords and remain separate from explicit `capabilities`; `permission_scope` is a required scope and is not copied into granted `permissions`. Unknown grants remain unknown.
 - The observer mechanism tests cover task/world changes, tool discovery/availability, schema drift, configured-handler disconnection, task allowlist denials, and snapshot-policy scope.
-- The committed research package passed 21/21 focused tests and `compileall` in Deepnote run `7776f5c1-35d0-4c27-bc27-cf89f0b1b215` on 2026-11-11, before the subsequent permission/capability semantics refinement. The latter code changes require a new exact-head run before being marked verified.
+- The committed research package, including the observer semantic refinement, passed **22/22 focused tests** and `compileall` in exact-file Deepnote run `ca0c1e0e-bace-4927-ae65-5d83528eb59a` on 2026-11-11. The run executed the files fetched from the active branch; code blobs included joint-state `7f874ada919bb07c7946a08d8be683d1c3824f7b`, observer `2872b2718ee1d911575d3d0fbc6c30e1b70aaa2e`, and observer tests `65bb44df34a77297fe841468d342420bbca44dd1`. The code is deterministic measurement infrastructure, not model inference.
 - These are **deterministic mechanism tests only**. They do not show that a model predicts lifecycle effects, selects the right lifecycle action, generalizes to held-out tools, or closes goals.
 - No model inference, model-generated trajectory, adjudicated training dataset, capability score, or DHI training checkpoint exists. All model-run flags remain false. Do not switch providers/candidates or start inference/training without explicit user authorization and an approved resource route.
 
