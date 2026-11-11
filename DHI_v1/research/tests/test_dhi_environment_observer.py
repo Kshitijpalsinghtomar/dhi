@@ -26,6 +26,7 @@ def make_task(**overrides):
 
 def make_catalogue():
     catalogue = copy.deepcopy(DEFAULT_TOOL_CATALOGUE)
+    next(item for item in catalogue if item["tool_id"] == "fs.read_file")["capabilities"] = ["read_file"]
     catalogue.extend([
         {
             "tool_id": "external.read",
@@ -113,7 +114,11 @@ class DHIEnvironmentObserverTests(unittest.TestCase):
         self.assertEqual(tools["restricted.write"].availability, "unavailable")
         self.assertEqual(tools["restricted.write"].permission_state, "unknown")
         self.assertEqual(tools["external.read"].permission_state, "unknown")
-        self.assertEqual(tools["external.read"].permissions, ("external_read",))
+        self.assertEqual(tools["external.read"].capabilities, None)
+        self.assertEqual(tools["external.read"].permissions, None)
+        self.assertEqual(tools["external.read"].required_permission_scopes, ("external_read",))
+        self.assertEqual(tools["fs.read_file"].capabilities, ("read_file",))
+        self.assertEqual(tools["fs.read_file"].required_permission_scopes, ("workspace_read",))
 
         read_metadata = next(item for item in env.catalogue if item["tool_id"] == "fs.read_file")
         expected_schema_hash = hashlib.sha256(
