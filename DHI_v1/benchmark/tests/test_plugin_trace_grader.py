@@ -165,6 +165,96 @@ def make_task(condition: dict, *, task_id: str = "ORBIT-A-S09-001") -> dict:
     }
 
 
+
+
+
+def make_checkpoint_rehydration_trace(*, checkpoint_after_write: bool = False, fetch_ok: bool = True):
+    repository = "Kshitijpalsinghtomar/dhi"
+    path = "DHI_v1/benchmark/fixtures/plugin_ecology/checkpoints/tool-ecosystem-audit-A.md"
+    commit = "8c6295255c88b0baea04529a475af8f85a946cd6"
+    content = "Pinned checkpoint content for the S07 resume test.\n"
+    data = content.encode("utf-8")
+    blob_sha = hashlib.sha1(b"blob " + str(len(data)).encode("ascii") + b"\\0" + data).hexdigest()
+    source_ref = f"https://github.com/{repository}/blob/{commit}/{path}"
+    read_action_id = "checkpoint-read"
+    events = [
+        {
+            "event_id": "start", "event_index": 1, "event_type": "task_started",
+            "timestamp_utc": "2026-11-03T00:00:00Z", "task_id": "ORBIT-A-S07-002",
+        },
+        {
+            "event_id": "read-start", "event_index": 2, "event_type": "action_started",
+            "timestamp_utc": "2026-11-03T00:00:01Z", "task_id": "ORBIT-A-S07-002",
+            "action_id": read_action_id, "tool_id": "mcp__GitHub__fetch_file",
+            "arguments": {"repository_full_name": repository, "path": path, "ref": commit},
+            "observed_state_before": {},
+        },
+        {
+            "event_id": "read-done", "event_index": 3, "event_type": "action_executed",
+            "timestamp_utc": "2026-11-03T00:00:02Z", "task_id": "ORBIT-A-S07-002",
+            "action_id": read_action_id, "tool_id": "mcp__GitHub__fetch_file",
+            "arguments": {"repository_full_name": repository, "path": path, "ref": commit},
+            "actual_tool_result": {
+                "ok": fetch_ok,
+                "result": {"content": content, "sha": blob_sha, "display_url": source_ref} if fetch_ok else None,
+                "error": None if fetch_ok else "provider read failed",
+            },
+            "observed_state_before": {}, "observed_state_after": {},
+            "actual_effects": {
+                "added_paths": [], "modified_paths": [], "deleted_paths": [],
+                "changed_paths": [], "unchanged_paths": [],
+            },
+        },
+        {
+            "event_id": "checkpoint", "event_index": 4, "event_type": "checkpoint_resumed",
+            "timestamp_utc": "2026-11-03T00:00:03Z", "task_id": "ORBIT-A-S07-002",
+            "action_id": read_action_id, "checkpoint_ref": path,
+            "checkpoint_commit": commit, "checkpoint_blob_sha": blob_sha,
+            "checkpoint_sha256": sha(content), "source_ref": source_ref,
+        },
+        {
+            "event_id": "write-start", "event_index": 5, "event_type": "action_started",
+            "timestamp_utc": "2026-11-03T00:00:04Z", "task_id": "ORBIT-A-S07-002",
+            "action_id": "report-write", "tool_id": "mcp__GitHub__create_file",
+            "arguments": {"repository_full_name": repository, "path": "reports/tool-ecosystem-cost-audit.md"},
+            "observed_state_before": {},
+        },
+        {
+            "event_id": "write-done", "event_index": 6, "event_type": "action_executed",
+            "timestamp_utc": "2026-11-03T00:00:05Z", "task_id": "ORBIT-A-S07-002",
+            "action_id": "report-write", "tool_id": "mcp__GitHub__create_file",
+            "arguments": {"repository_full_name": repository, "path": "reports/tool-ecosystem-cost-audit.md"},
+            "actual_tool_result": {"ok": True, "result": {"commit_sha": "d" * 40}, "error": None},
+            "observed_state_before": {}, "observed_state_after": {},
+            "actual_effects": {
+                "added_paths": ["reports/tool-ecosystem-cost-audit.md"],
+                "modified_paths": [], "deleted_paths": [],
+                "changed_paths": ["reports/tool-ecosystem-cost-audit.md"], "unchanged_paths": [],
+            },
+        },
+        {
+            "event_id": "close", "event_index": 7, "event_type": "task_closed",
+            "timestamp_utc": "2026-11-03T00:00:06Z", "task_id": "ORBIT-A-S07-002",
+            "closure_status": "success",
+        },
+    ]
+    if checkpoint_after_write:
+        checkpoint = events.pop(3)
+        events.insert(6, checkpoint)
+    for index, event in enumerate(events, 1):
+        event["event_index"] = index
+    trace = make_trace(events)
+    trace["task_id"] = "ORBIT-A-S07-002"
+    condition = {
+        "type": "checkpoint_rehydrated",
+        "path": path,
+        "repository_full_name": repository,
+        "commit": commit,
+        "blob_sha": blob_sha,
+    }
+    return trace, condition
+
+
 def load_schema() -> dict:
     return json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
 
@@ -357,6 +447,24 @@ class PluginTraceGraderTests(unittest.TestCase):
         condition = {"type": "tool_trace_contains", "path": "checkpoints/session-A.md"}
         self.assertEqual(grade_task(make_task(condition), trace)["status"], "pass")
 
+
+    def test_checkpoint_rehydrated_requires_exact_pinned_read_before_any_write(self) -> None:
+        trace, condition = make_checkpoint_rehydration_trace()
+        result = grade_task(make_task(condition, task_id="ORBIT-A-S07-002"), trace)
+        self.assertEqual(result["status"], "pass")
+
+    def test_checkpoint_rehydrated_rejects_failed_or_wrong_blob_fetch(self) -> None:
+        trace, condition = make_checkpoint_rehydration_trace(fetch_ok=False)
+        self.assertEqual(grade_task(make_task(condition, task_id="ORBIT-A-S07-002"), trace)["status"], "fail")
+
+        trace, condition = make_checkpoint_rehydration_trace()
+        fetch_result = trace["events"][2]["actual_tool_result"]["result"]
+        fetch_result["sha"] = "0" * 40
+        self.assertEqual(grade_task(make_task(condition, task_id="ORBIT-A-S07-002"), trace)["status"], "fail")
+
+    def test_checkpoint_rehydrated_rejects_read_after_first_write(self) -> None:
+        trace, condition = make_checkpoint_rehydration_trace(checkpoint_after_write=True)
+        self.assertEqual(grade_task(make_task(condition, task_id="ORBIT-A-S07-002"), trace)["status"], "fail")
 
     def test_source_fact_uses_raw_response_not_final_answer_claim(self) -> None:
         trace = make_trace()
