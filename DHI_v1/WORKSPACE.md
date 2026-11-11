@@ -1,16 +1,18 @@
 # DHI-v1 Live Workspace
 
-> **RESEARCH RESET — 2026-11-11. Read this before every other section.**
+> **DHI RESEARCH CONTROL — 2026-11-11. Read this before any other section.**
 >
-> The active research direction is now defined in [14_RESEARCH_DIRECTION_RESET_2026-11-11.md](docs/14_RESEARCH_DIRECTION_RESET_2026-11-11.md). It supersedes older next-action lists and dated handovers. The research question is whether a learned agent can maintain a **joint belief over task/world state and changing tool-ecosystem state** to assess capability coverage and feasibility, select/compose tools, predict effects, recover from tool/schema/permission drift, and verify closure. This is a falsifiable hypothesis, not a novelty claim.
+> This repository is the **DHI-v1 / ORBIT research programme only**. Do not mix code, datasets, claims, tasks, or conclusions from GBA/DPAK, Oriael, or other research projects.
 >
-> **Stop the infrastructure-first loop.** Do not expand the 30/120/240 task panel, add provider adapters, continue S07/S09 hardening, create scripted workflows, or generate training data unless a specific declared experiment requires that work. No unrelated research repos or results may enter DHI.
+> **Current research question and prior-art gate:** read [15_PRIOR_ART_AND_NOVELTY_GATE_2026-11-11.md](docs/15_PRIOR_ART_AND_NOVELTY_GATE_2026-11-11.md). The broad joint-world/tool-state framing is not a novelty claim. The current candidate is whether a task-solving policy can choose among capability-acquisition and tool-lifecycle actions by forecasting effects on goal reachability and the future callable action set under permission, safety, and resource constraints. SafeMCP, MCP-Zero, Qwen-AgentWorld, AutoTool and other work overlap directly. The gap remains unproven; reject it if full-paper comparison shows it is already solved.
 >
-> **Evidence boundary:** no DHI model inference, model-generated execution trajectory, adjudicated training corpus, or DHI-v1 training run is established. The old ORBIT-VERIFY-012 result (224 offline tests) belongs to its recorded older exact commit only. Later S07/S09 changes remain not fully verified. The current task manifest still has model-run permissions disabled. Do not change them, run any model, switch to a free endpoint, or launch training without explicit user authorization. The live OpenRouter credit balance checked 2026-11-11 is zero; Deepnote's DHI verifier has no model-provider integration.
+> **What has actually been implemented:** `DHI_v1/research/joint_state.py` defines separate observed task/world and tool-ecosystem state, diffs, and forecast scoring. `DHI_v1/research/dhi_environment_observer.py` reads real `DHIEnvironment` snapshots without mutating the environment. It keeps catalogue tags separate from explicit capabilities and required permission scopes separate from granted permissions. This is a deterministic measurement mechanism—not a learned model, planner, or capability result.
 >
-> **Current research code:** `DHI_v1/research/joint_state.py` now defines the observed joint-state and forecast-scoring contract; focused tests are in `DHI_v1/research/tests/test_joint_state.py`. It is not a learned model and is not wired into the runtime. Thirteen tests and compileall passed against an isolated local copy. Exact committed files are mirrored into the Deepnote verifier; that focused run is pending inspection.
+> **Verification:** exact branch files passed **22/22 focused research tests** and `compileall` in Deepnote run `ca0c1e0e-bace-4927-ae65-5d83528eb59a` on 2026-11-11. The tested code commit was `81a299342ecee919e1a068a34897789934b1685c`. This does not validate the old ORBIT full harness or any model capability.
 >
-> **Next action:** add a read-only observer that builds these records from the actual `DHIEnvironment` catalogue and workspace snapshots. Preserve full-vs-partial inventory scope, visible vs discoverable vs disconnected tools, unknown permission/schema metadata, and source references. Test it against DHI environment fixtures. Do not change `agent_runner.py` until this observation boundary works. This is mechanism verification, not model-capability evidence. The next model experiment still requires explicit authorization and an approved inference route.
+> **Hard evidence boundary:** no DHI model inference, model-generated trajectory, adjudicated training corpus, capability score, or DHI-v1 training run/checkpoint exists. The old ORBIT-VERIFY-012 224-test result belongs only to its historical exact commit. Later S07/S09 full regression remains not confirmed. All task-manifest `model_runs_allowed` flags remain false. The last live OpenRouter check on 2026-11-11 showed zero credits; Deepnote has no model-provider integration. Do not run a model, switch to a free endpoint/candidate, alter permissions, spend credits, or launch training without explicit user authorization and an approved resource route.
+>
+> **Next action:** complete a full-paper comparison of SafeMCP, Qwen-AgentWorld, MCP-Zero, AutoTool, and the other closest work against the precise candidate question in document 15. Decide whether any falsifiable gap remains. Do not add more generic harness or observation infrastructure while that gate is open. After the research gap is accepted, freeze the matched B0/B1/B2/B3 model experiment and seek explicit authorization for inference. No additional model/framework code should be written merely to make the project look more complete.
 
 
 **Last updated:** 2026-11-11  
@@ -28,7 +30,7 @@
 
 ## 2. Current objective
 
-Develop a model whose learned capabilities support goal/constraint reasoning, dynamic tool discovery and affordance-aware selection, hierarchical long-horizon planning, action-effect prediction, feedback-conditioned replanning, safe execution, context continuity, and independently verified goal closure.
+Develop a learned policy that reasons about task goals and constraints while choosing among normal tool actions and capability/lifecycle actions, predicts the consequences for task reachability and future available actions, replans from actual feedback, respects external permission gates, and verifies goal closure. The precise candidate and prior-art exclusions are governed by docs/15_PRIOR_ART_AND_NOVELTY_GATE_2026-11-11.md.
 
 This is a research target, not a result or novelty claim. A prompt, RAG store, fixed router, scripted client, or external orchestrator is not by itself the learned model contribution.
 
@@ -40,13 +42,19 @@ This is a research target, not a result or novelty claim. A prompt, RAG store, f
 ```yaml
 programme: DHI-v1
 codename: ORBIT
-phase: joint_state_measurement_contract_integration
+phase: prior_art_novelty_gate_after_joint_state_observer
 status: research_in_progress
-status_reason: Research direction is governed by docs/14_RESEARCH_DIRECTION_RESET_2026-11-11.md. DHI/research/joint_state.py and its focused tests are committed; the 13-test isolated local copy passed, while the exact committed file test is pending Deepnote run inspection. The module is not integrated with DHIEnvironment or the model runner and is not a learned model. No DHI model inference, model-generated trajectory, adjudicated training corpus, capability score, or training run exists. Existing harness and task-manifest evidence retains its original commit/run boundary. All model_runs_allowed flags remain false; training remains unauthorized. Next action: implement and test a read-only observer over the actual DHIEnvironment state, with complete-snapshot, permission, schema, and provenance semantics; no benchmark expansion or provider work by default.
+status_reason: DHI/research/joint_state.py and DHI/research/dhi_environment_observer.py now implement the deterministic joint observation/diff/forecast-scoring mechanism. Exact branch files passed 22/22 focused tests and compileall in Deepnote run ca0c1e0e-bace-4927-ae65-5d83528eb59a on 2026-11-11; tested code commit 81a299342ecee919e1a068a34897789934b1685c. This is not model capability evidence. The broad joint-belief novelty framing has been narrowed by docs/15_PRIOR_ART_AND_NOVELTY_GATE_2026-11-11.md after direct overlap from SafeMCP, Qwen-AgentWorld, MCP-Zero, AutoTool and related work. The candidate policy-level lifecycle-choice gap is unverified and must be rejected if already covered. No model inference, model-generated trajectory, adjudicated training corpus, capability score, or training checkpoint exists. All model_runs_allowed flags remain false; model execution and training require explicit user authorization and an approved resource route.
 training_status: not_authorized
 benchmark_status: stage_a_authoring_30_of_120; stage_b_sealed_unmaterialized
-last_verified_code_commit: 7f244bf76ccbccec5477b0055d23da5a5931e27a
-last_verified_test_commit: 7f244bf76ccbccec5477b0055d23da5a5931e27a
+last_verified_code_commit: 81a299342ecee919e1a068a34897789934b1685c
+last_verified_test_commit: 81a299342ecee919e1a068a34897789934b1685c
+last_verified_test_run: ca0c1e0e-bace-4927-ae65-5d83528eb59a
+last_verified_test_count: 22
+last_research_compileall_exit_code: 0
+model_runs_allowed: false
+training_runs_allowed: false
+next_action: full_paper_prior_art_gate_for_tool_lifecycle_policy
 ```
 </details>
 
