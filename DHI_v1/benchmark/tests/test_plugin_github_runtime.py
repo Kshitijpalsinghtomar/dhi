@@ -533,3 +533,79 @@ def test_runtime_verifies_s07_002_tool_ecosystem_checkpoint_blob_at_declared_com
         "path": checkpoint_path,
         "ref": "8c6295255c88b0baea04529a475af8f85a946cd6",
     }
+
+
+
+def test_fresh_s07_runner_records_linked_pinned_checkpoint_rehydration_event():
+    from DHI_v1.benchmark.plugin_github_runtime import run_github_plugin_task
+
+    task_id = "ORBIT-A-S07-001"
+    plan = _plan_for(task_id)
+    client = FakeGitHubClient()
+    checkpoint_path = "DHI_v1/benchmark/fixtures/plugin_ecology/checkpoints/resume-task-A.md"
+    checkpoint_text = (ROOT / checkpoint_path).read_text(encoding="utf-8")
+    checkpoint_blob = "c1a32746e5b2dbdb02aa9fa2fd3c9b9e66b79827"
+    checkpoint_commit = "04d0e12f48067b3b3a3de3ffe10944b7ef594984"
+    assert _blob_sha(checkpoint_text) == checkpoint_blob
+    client.files[checkpoint_path] = checkpoint_text
+    report_path = "DHI_v1/benchmark/fixtures/plugin_ecology/reports/resume-release-review.md"
+    client.files[report_path] = "# Resume report fixture\n"
+    client.compare_commits = lambda arguments: {"files": []}
+    runtime = build_github_plugin_runtime(plan, client, repository_full_name=REPOSITORY)
+
+    task_record = next(
+        task for task in json.loads(MANIFEST.read_text(encoding="utf-8"))["tasks"]
+        if task["task_id"] == task_id
+    )
+    task_record["execution"]["model_runs_allowed"] = True
+
+    class CheckpointReadModel:
+        def __init__(self):
+            self.calls = 0
+
+        def complete(self, *, messages, tools, temperature=0.0):
+            self.calls += 1
+            if self.calls == 1:
+                return {"choices": [{"message": {
+                    "role": "assistant",
+                    "tool_calls": [{
+                        "id": "checkpoint-read-call",
+                        "type": "function",
+                        "function": {
+                            "name": runtime.prepared.tool_name_by_id[FETCH_FILE_TOOL_ID],
+                            "arguments": json.dumps({
+                                "repository_full_name": REPOSITORY,
+                                "path": checkpoint_path,
+                                "ref": checkpoint_commit,
+                            }),
+                        },
+                    }],
+                }}]}
+            return {"choices": [{"message": {"role": "assistant", "content": "Checkpoint re-read."}}]}
+
+    result = run_github_plugin_task(
+        task_record,
+        runtime,
+        CheckpointReadModel(),
+        trajectory_id="traj-s07-fresh-context-checkpoint",
+    )
+    resumed = [
+        event for event in result.trace["events"]
+        if event["event_type"] == "checkpoint_resumed"
+    ]
+    assert len(resumed) == 1
+    event = resumed[0]
+    assert event["checkpoint_ref"] == checkpoint_path
+    assert event["checkpoint_commit"] == checkpoint_commit
+    assert event["checkpoint_blob_sha"] == checkpoint_blob
+    assert event["action_id"]
+    assert event["source_ref"] == (
+        f"https://github.com/{REPOSITORY}/blob/{checkpoint_commit}/{checkpoint_path}"
+    )
+    action = next(
+        item for item in result.trace["events"]
+        if item["event_type"] == "action_executed" and item["action_id"] == event["action_id"]
+    )
+    assert action["actual_tool_result"]["ok"] is True
+    assert action["actual_tool_result"]["result"]["sha"] == checkpoint_blob
+    assert event["event_index"] > action["event_index"]
