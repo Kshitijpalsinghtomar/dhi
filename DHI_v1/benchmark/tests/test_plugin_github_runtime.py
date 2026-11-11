@@ -507,3 +507,29 @@ def test_runtime_binds_s09_003_update_to_seeded_blob_and_task_scoped_branch():
             "message": "update",
             "branch": runtime.expected_branch,
         })
+
+
+
+def test_runtime_verifies_s07_002_tool_ecosystem_checkpoint_blob_at_declared_commit():
+    plan = _plan_for("ORBIT-A-S07-002")
+    client = FakeGitHubClient()
+    runtime = build_github_plugin_runtime(plan, client, repository_full_name=REPOSITORY)
+
+    checkpoint_path = "DHI_v1/benchmark/fixtures/plugin_ecology/checkpoints/tool-ecosystem-audit-A.md"
+    checkpoint_text = (ROOT / checkpoint_path).read_text(encoding="utf-8")
+    expected_blob = "be8dd3e8cc57cdbe881103702e7ba7815400d3c8"
+    assert _blob_sha(checkpoint_text) == expected_blob
+    client.files[checkpoint_path] = checkpoint_text
+
+    observed = runtime.precondition_observer({"task_id": "ORBIT-A-S07-002"}, plan.preconditions[0])
+
+    assert observed == {
+        "path": checkpoint_path,
+        "commit": "8c6295255c88b0baea04529a475af8f85a946cd6",
+        "blob_sha": expected_blob,
+    }
+    assert client.file_reads[-1] == {
+        "repository_full_name": REPOSITORY,
+        "path": checkpoint_path,
+        "ref": "8c6295255c88b0baea04529a475af8f85a946cd6",
+    }
