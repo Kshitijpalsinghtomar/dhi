@@ -4,15 +4,21 @@
 >
 > This repository is the **DHI-v1 / ORBIT research programme only**. Do not mix code, datasets, claims, tasks, or conclusions from GBA/DPAK, Oriael, or other research projects.
 >
-> **Active research path:** the proposed tool-acquisition/lifecycle novelty candidate has been rejected as insufficiently distinct. See [15_PRIOR_ART_AND_NOVELTY_GATE_2026-11-11.md](docs/15_PRIOR_ART_AND_NOVELTY_GATE_2026-11-11.md) for direct prior art including CostBench, CAM-DF, ToolQP, MCP-Zero, SafeMCP, Qwen-AgentWorld, AutoTool, Tool Recommendation and BATS/CATS. Stop narrowing that candidate. DHI-v1 is a model-development programme: measure untouched base models, train only on real independently verified tool-execution trajectories, then run controlled action-effect-prediction and closure-supervision ablations.
+> **Active research path:** the tool-acquisition/lifecycle novelty candidate has been rejected as insufficiently distinct. See [15_PRIOR_ART_AND_NOVELTY_GATE_2026-11-11.md](docs/15_PRIOR_ART_AND_NOVELTY_GATE_2026-11-11.md) for direct prior art including CostBench, CAM-DF, ToolQP, MCP-Zero, SafeMCP, Qwen-AgentWorld, AutoTool, Tool Recommendation and BATS/CATS. Stop narrowing that candidate. DHI-v1 is an empirical model-development programme: untouched base-model screening, verified-execution SFT, then controlled prediction/closure ablations.
+>
+> **Study 0 tracking:** [Issue #2 — freeze untouched base-model capability screen](https://github.com/Kshitijpalsinghtomar/dhi/issues/2). The existing Stage A panel is **not eligible for comparative model scoring yet**: 30 materialized tasks, 30 `ready_for_validation`, only 1/30 grader checks passed and only 1/30 task families is accepted; 29 graders remain `not_run` and 29 families remain draft/unreviewed. Every execution is `not_run`; all 30 model-run flags are false. S07/S09 coverage is partial. Do not promote tasks or synthesize passing grader traces.
+>
+> **Development pilot boundary:** `DHI_v1/benchmark/pilot_cases.json` is a 12-case integration/harness pilot explicitly excluded from Stage A/B; the runner supports file-workspace cases (and an optional Adaption catalogue case), not the 30 plugin-native panel tasks. It is not a substitute for Study 0.
 >
 > **Implemented research code:** `DHI_v1/research/joint_state.py` defines separate observed task/world and tool-ecosystem state, diffs and forecast scoring. `DHI_v1/research/dhi_environment_observer.py` reads real `DHIEnvironment` snapshots without mutating the environment. It keeps catalogue tags separate from explicit capabilities and required permission scopes separate from granted permissions. This is deterministic measurement infrastructure, not a learned model or capability result.
 >
-> **Verification:** exact research files passed **22/22 focused tests** and `compileall` in Deepnote run `ca0c1e0e-bace-4927-ae65-5d83528eb59a` on 2026-11-11. Tested code commit: `81a299342ecee919e1a068a34897789934b1685c`. This does not validate the old ORBIT full harness or establish model capability.
+> **Research-mechanism verification:** exact research files passed **22/22 focused tests** and `compileall` in Deepnote run `ca0c1e0e-bace-4927-ae65-5d83528eb59a` on 2026-11-11, at code commit `81a299342ecee919e1a068a34897789934b1685c`. This does not validate the full ORBIT harness or establish model capability.
 >
-> **Hard evidence boundary:** no DHI model inference, model-generated execution trajectory, adjudicated training corpus, capability score, or DHI-v1 training run/checkpoint exists. The old ORBIT-VERIFY-012 224-test result belongs only to its historical exact commit. Later S07/S09 full regression remains not confirmed. All task-manifest `model_runs_allowed` flags remain false. The last live OpenRouter check on 2026-11-11 showed zero credits; Deepnote has no model-provider integration. Do not run a model, switch to a free endpoint/candidate, alter permissions, spend credits, or launch training without explicit user authorization and an approved resource route.
+> **Current manifest gate:** exact GitHub manifest blob `8d3678ceea97f0de7814bc765cf2a09ef54e54b9` at branch head `16c0bdc61fc7ef387d9fcc0f0a25f583e5d4e0ed` was mirrored into Deepnote in four chunks. Validator/test output is **pending** because the first run attempted while the project machine was stopped; a rerun is active. Do not mark the manifest valid until its exit code/output are inspected and the validator/schema/trace/registry/evidence file hashes are confirmed against the same branch head.
 >
-> **Next research action:** prepare Study 0, the matched untouched-base model screen, using the existing DHI pilot/Stage A subset only after its current task graders and exact-head harness are verified. The current 30 materialized tasks are screening-only, not confirmatory. Use Qwen3.6-35B-A3B as primary and GPT-OSS-20B as mandatory challenger; include Gemma 4 only for real multimodal cases. Do not expand the panel, create a new adapter, or modify `model_runs_allowed`. The next intervention after baseline is one verified-trajectory SFT run, followed by prediction/closure ablations.
+> **Hard evidence boundary:** no DHI model inference, model-generated execution trajectory, adjudicated training corpus, capability score, or training checkpoint exists. The old ORBIT-VERIFY-012 224-test result belongs only to its historical exact commit. Later S07/S09 full regression remains not confirmed. All task-manifest `model_runs_allowed` flags remain false. The last live OpenRouter check on 2026-11-11 showed zero credits; Deepnote has no model-provider integration. Do not run a model, switch to a free endpoint/candidate, alter permissions, spend credits, or launch training without explicit user authorization and an approved resource route.
+>
+> **Next action:** complete exact-head manifest integrity verification, then decide whether any existing Stage A task can pass its grader and independent-review gate. Do not expand the panel, create another provider adapter, or run inference. A matched base-model screen is not ready until a genuine multi-task scored subset is admitted and the user explicitly authorizes a funded inference route.
 
 
 **Last updated:** 2026-11-11  
@@ -42,19 +48,24 @@ This is a research target, not a result or novelty claim. A prompt, RAG store, f
 ```yaml
 programme: DHI-v1
 codename: ORBIT
-phase: study_0_base_model_screen_preparation
+phase: study_0_task_admission_blocked
 status: research_in_progress
-status_reason: DHI-specific tool-acquisition/lifecycle novelty candidate was rejected as insufficiently distinct in docs/15_PRIOR_ART_AND_NOVELTY_GATE_2026-11-11.md. Active path is empirical model development: untouched base-model screen, verified-execution SFT, then action-effect prediction and closure ablations. The joint_state and DHIEnvironment observer research mechanism passed 22/22 tests and compileall in Deepnote run ca0c1e0e-bace-4927-ae65-5d83528eb59a at code commit 81a299342ecee919e1a068a34897789934b1685c; this is not model evidence. Stage A has only 30 materialized tasks ready for validation; this is screening scope only, not confirmatory. Full later S07/S09 harness regression is not confirmed. No model inference, model-generated trajectory, adjudicated training corpus, capability score, or training checkpoint exists. Model runs remain explicitly unauthorized; OpenRouter last showed zero credits on 2026-11-11 and Deepnote has no model-provider integration.
+status_reason: DHI-specific acquisition/lifecycle novelty candidate has been rejected as insufficiently distinct; DHI returns to empirical model development. Study 0 is blocked by task admission: current manifest has 30 Stage A tasks, 1/30 grader_check=pass, 29 not_run; 1/30 family accepted, 29 draft/unreviewed; all 30 execution.status=not_run and model_runs_allowed=false. S07/S09 coverage remains partial. The 12-case pilot is explicitly excluded from Stage A/B and is not a substitute. Exact manifest blob 8d3678ceea97f0de7814bc765cf2a09ef54e54b9 at head 16c0bdc61fc7ef387d9fcc0f0a25f583e5d4e0ed is staged in Deepnote; manifest validator output is pending after a project-machine restart/rerun. No model inference, model-generated trajectories, adjudicated training data, capability score or training checkpoint exists. No model run or training is authorized.
 training_status: not_authorized
-benchmark_status: stage_a_authoring_30_of_120; stage_b_sealed_unmaterialized
-last_verified_code_commit: 81a299342ecee919e1a068a34897789934b1685c
-last_verified_test_commit: 81a299342ecee919e1a068a34897789934b1685c
-last_verified_test_run: ca0c1e0e-bace-4927-ae65-5d83528eb59a
-last_verified_test_count: 22
-last_research_compileall_exit_code: 0
+benchmark_status: stage_a_30_materialized_of_120; 1_grader_pass; 1_family_accepted; stage_b_sealed_unmaterialized
+task_admission: blocked
 model_runs_allowed: false
 training_runs_allowed: false
-next_action: verify_existing_dhi_task_and_harness_gate_for_study_0
+research_mechanism_test_commit: 81a299342ecee919e1a068a34897789934b1685c
+research_mechanism_test_run: ca0c1e0e-bace-4927-ae65-5d83528eb59a
+research_mechanism_test_count: 22
+research_mechanism_compileall_exit_code: 0
+manifest_blob: 8d3678ceea97f0de7814bc765cf2a09ef54e54b9
+manifest_at_commit: 16c0bdc61fc7ef387d9fcc0f0a25f583e5d4e0ed
+manifest_validator_run: e9f36377-5826-4176-a0a8-7da743215de2
+manifest_validator_status: pending
+next_action: finish_exact_head_manifest_validation_then_task_admission
+study_0_issue: 2
 ```
 </details>
 
