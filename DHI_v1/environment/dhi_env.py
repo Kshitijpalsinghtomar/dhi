@@ -242,6 +242,24 @@ class DHIEnvironment:
     def active_task_id(self) -> str | None:
         return self._active_task.task_id if self._active_task else None
 
+    @property
+    def active_task_allowed_tool_ids(self) -> tuple[str, ...] | None:
+        """Return the active task's explicit tool allowlist, without exposing TaskSpec."""
+        if self._active_task is None or self._active_task.allowed_tool_ids is None:
+            return None
+        return tuple(sorted(self._active_task.allowed_tool_ids))
+
+    @property
+    def tool_catalogue_snapshot(self) -> tuple[dict[str, Any], ...]:
+        """Return a complete detached copy of the configured tool catalogue."""
+        import copy
+        return tuple(copy.deepcopy(item) for item in self.catalogue)
+
+    @property
+    def configured_tool_handler_ids(self) -> frozenset[str]:
+        """Return IDs with configured external handlers; does not imply user permission."""
+        return frozenset(self.tool_handlers)
+
     def list_tools(self, *, visible_only: bool = True) -> list[dict[str, Any]]:
         """Return a copy of the visible inventory or the full discoverable catalogue."""
         if self._active_task and self._active_task.visible_tool_ids is not None:
