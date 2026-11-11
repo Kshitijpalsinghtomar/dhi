@@ -1,18 +1,19 @@
 import hashlib
 import json
-
-import pytest
+import tempfile
+import unittest
+from pathlib import Path
 
 from DHI_v1.environment.dhi_env import DHIEnvironment, DEFAULT_TOOL_CATALOGUE, TaskSpec
 from DHI_v1.research.dhi_environment_observer import observe_dhi_environment
-from DHI_v1.research.joint_state import diff_joint_state
+from DHI_v1.research.joint_state import ToolChange, diff_joint_state
 
 
 def make_task(**overrides):
     values = {
         "task_id": "joint-observer-case",
         "prompt": "Inspect the workspace and report its state.",
-        "goal": "Read the workspace without modifying protected files.",
+        "goal": "Read the workspace and verify its observed state.",
         "postconditions": [
             {"type": "contains", "path": "README.md", "text": "# Observer fixture"}
         ],
@@ -59,150 +60,155 @@ def make_catalogue():
     return catalogue
 
 
-def make_env(tmp_path, *, allowed_tool_ids=None):
-    (tmp_path / "README.md").write_text("# Observer fixture\n", encoding="utf-8")
-    env = DHIEnvironment(
-        tmp_path,
-        catalogue=make_catalogue(),
-        visible_tool_ids={"fs.read_file", "fs.append_file"},
-    )
-    env.begin_task(make_task(allowed_tool_ids=allowed_tool_ids))
-    return env
+class DHIEnvironmentObserverTests(unittest.TestCase):
+    def setUp(self):
+        self._temp = tempfile.TemporaryDirectory()
+        self.root = Path(self._temp.name)
 
+    def tearDown(self):
+        self._temp.cleanup()
 
-def observe(env, suffix):
-    return observe_dhi_environment(
-        env,
-        workspace_scope_id="workspace:joint-observer-case",
-        catalogue_scope_id="catalogue:joint-observer-case",
-        observation_ref=f"test://joint-observer/{suffix}",
-    )
+    def make_env(self, name, *, allowed_tool_ids=None):
+        workspace = self.root / name
+        workspace.mkdir()
+        (workspace / "README.md").write_text("# Observer fixture\n", encoding="utf-8")
+        env = DHIEnvironment(
+            workspace,
+            catalogue=make_catalogue(),
+            visible_tool_ids={"fs.read_file", "fs.append_file"},
+        )
+        env.begin_task(make_task(allowed_tool_ids=allowed_tool_ids))
+        return env
 
+    @staticmethod
+    def observe(env, suffix):
+        return observe_dhi_environment(
+            env,
+            workspace_scope_id="workspace:joint-observer-case",
+            catalogue_scope_id="catalogue:joint-observer-case",
+            observation_ref=f"test://joint-observer/{suffix}",
+        )
 
-def test_observer_uses_real_dhi_environment_and_preserves_unknowns(tmp_path):
-    env = make_env(tmp_path)
-    before_events = len(env.events)
+    def test_observer_uses_real_dhi_environment_and_preserves_unknowns(self):
+        env = self.make_env("initial")
+        before_events = len(env.events)
 
-    observed = observe(env, "initial")
+        observed = self.observe(env, "initial")
 
-    assert len(env.events) == before_events
-    assert observed.task.complete_snapshot is True
-    assert observed.ecosystem.complete_snapshot is True
-    assert observed.task.scope_id == "workspace:joint-observer-case"
-    assert observed.ecosystem.scope_id == "catalogue:joint-observer-case"
+        self.assertEqual(len(env.events), before_events)
+        self.assertTrue(observed.task.complete_snapshot)
+        self.assertTrue(observed.ecosystem.complete_snapshot)
+        self.assertEqual(observed.task.scope_id, "workspace:joint-observer-case")
+        self.assertEqual(observed.ecosystem.scope_id, "catalogue:joint-observer-case")
 
-    facts = {fact.key: fact.value for fact in observed.task.facts}
-    expected_hash = hashlib.sha256(b"# Observer fixture\n").hexdigest()
-    assert facts == {"file:README.md": expected_hash}
+        facts = {fact.key: fact.value for fact in observed.task.facts}
+        expected_hash = hashlib.sha256(b"# Observer fixture\n").hexdigest()
+        self.assertEqual(facts, {"file:README.md": expected_hash})
 
-    tools = {tool.tool_id: tool for tool in observed.ecosystem.tools}
-    assert tools["fs.read_file"].availability == "callable"
-    assert tools["fs.search_text"].availability == "discoverable"
-    assert tools["external.read"].availability == "disconnected"
-    assert tools["restricted.write"].availability == "unavailable"
-    assert tools["restricted.write"].permission_state == "unknown"
-    assert tools["external.read"].permission_state == "unknown"
-    assert tools["external.read"].permissions == ("external_read",)
-    read_metadata = next(item for item in env.catalogue if item["tool_id"] == "fs.read_file")
-    expected_schema_hash = hashlib.sha256(
-        json.dumps(
-            read_metadata["input_schema"],
-            sort_keys=True, separators=(",", ":"), ensure_ascii=False,
-        ).encode("utf-8")
-    ).hexdigest()
-    assert tools["fs.read_file"].schema_sha256 == expected_schema_hash
+        tools = {tool.tool_id: tool for tool in observed.ecosystem.tools}
+        self.assertEqual(tools["fs.read_file"].availability, "callable")
+        self.assertEqual(tools["fs.search_text"].availability, "discoverable")
+        self.assertEqual(tools["external.read"].availability, "disconnected")
+        self.assertEqual(tools["restricted.write"].availability, "unavailable")
+        self.assertEqual(tools["restricted.write"].permission_state, "unknown")
+        self.assertEqual(tools["external.read"].permission_state, "unknown")
+        self.assertEqual(tools["external.read"].permissions, ("external_read",))
 
+        read_metadata = next(item for item in env.catalogue if item["tool_id"] == "fs.read_file")
+        expected_schema_hash = hashlib.sha256(
+            json.dumps(
+                read_metadata["input_schema"],
+                sort_keys=True, separators=(",", ":"), ensure_ascii=False,
+            ).encode("utf-8")
+        ).hexdigest()
+        self.assertEqual(tools["fs.read_file"].schema_sha256, expected_schema_hash)
 
-def test_explicit_task_allowlist_denial_is_not_reported_as_callable(tmp_path):
-    env = make_env(tmp_path, allowed_tool_ids=["fs.read_file"])
-    observed = observe(env, "allowlist")
+    def test_explicit_task_allowlist_denial_is_not_reported_as_callable(self):
+        env = self.make_env("allowlist", allowed_tool_ids=["fs.read_file"])
+        observed = self.observe(env, "allowlist")
 
-    tools = {tool.tool_id: tool for tool in observed.ecosystem.tools}
-    assert tools["fs.write_file"].availability == "unavailable"
-    assert tools["fs.write_file"].permission_state == "denied"
+        tools = {tool.tool_id: tool for tool in observed.ecosystem.tools}
+        self.assertEqual(tools["fs.write_file"].availability, "unavailable")
+        self.assertEqual(tools["fs.write_file"].permission_state, "denied")
 
+    def test_observer_requires_an_active_task_scope(self):
+        workspace = self.root / "no-task"
+        workspace.mkdir()
+        (workspace / "README.md").write_text("# Observer fixture\n", encoding="utf-8")
+        env = DHIEnvironment(workspace, catalogue=make_catalogue())
 
-def test_observer_requires_an_active_task_scope(tmp_path):
-    (tmp_path / "README.md").write_text("# Observer fixture\n", encoding="utf-8")
-    env = DHIEnvironment(tmp_path, catalogue=make_catalogue())
+        with self.assertRaisesRegex(ValueError, "active task"):
+            self.observe(env, "no-active-task")
 
-    with pytest.raises(ValueError, match="active task"):
-        observe(env, "no-active-task")
+    def test_discovery_changes_tool_availability_in_ecosystem_state(self):
+        env = self.make_env("discovery")
+        before = self.observe(env, "before-discovery")
 
+        discovered = env.discover_tools("search text in files")
+        self.assertTrue(any(item["tool_id"] == "fs.search_text" for item in discovered))
+        after = self.observe(env, "after-discovery")
 
-def test_discovery_changes_tool_availability_without_changing_world_state(tmp_path):
-    env = make_env(tmp_path)
-    before = observe(env, "before-discovery")
+        delta = diff_joint_state(before, after)
+        self.assertEqual(delta.world_changes, ())
+        self.assertEqual(delta.tool_changes, (
+            ToolChange("fs.search_text", "availability", "discoverable", "callable"),
+        ))
 
-    discovered = env.discover_tools("search text in files")
-    assert any(item["tool_id"] == "fs.search_text" for item in discovered)
-    after = observe(env, "after-discovery")
+    def test_workspace_action_changes_only_world_state_observation(self):
+        env = self.make_env("workspace-change")
+        before = self.observe(env, "before-write")
 
-    delta = diff_joint_state(before, after)
-    assert delta.world_changes == ()
-    assert delta.tool_changes == (
-        type(delta.tool_changes[0])(
-            "fs.search_text", "availability", "discoverable", "callable"
-        ),
-    )
-    tools = {tool.tool_id: tool for tool in after.ecosystem.tools}
-    assert tools["fs.search_text"].availability == "callable"
+        result = env.run_action({
+            "tool_id": "fs.append_file",
+            "arguments": {"path": "README.md", "content": "Research note\n"},
+        })
+        self.assertTrue(result.ok)
+        after = self.observe(env, "after-write")
 
+        delta = diff_joint_state(before, after)
+        self.assertEqual(len(delta.world_changes), 1)
+        self.assertEqual(delta.world_changes[0].key, "file:README.md")
+        self.assertEqual(delta.world_changes[0].operation, "update")
+        self.assertEqual(delta.tool_changes, ())
 
-def test_workspace_action_changes_only_world_state_observation(tmp_path):
-    env = make_env(tmp_path)
-    before = observe(env, "before-write")
+    def test_catalogue_schema_drift_changes_only_ecosystem_observation(self):
+        env = self.make_env("schema-drift")
+        before = self.observe(env, "before-schema-drift")
 
-    result = env.run_action({
-        "tool_id": "fs.append_file",
-        "arguments": {"path": "README.md", "content": "Research note\n"},
-    })
-    assert result.ok is True
-    after = observe(env, "after-write")
+        target = next(item for item in env.catalogue if item["tool_id"] == "fs.read_file")
+        target["input_schema"]["properties"]["encoding"] = {"type": "string"}
+        target["input_schema"]["properties"]["path"]["description"] = "Workspace-relative path."
+        after = self.observe(env, "after-schema-drift")
 
-    delta = diff_joint_state(before, after)
-    assert len(delta.world_changes) == 1
-    assert delta.world_changes[0].key == "file:README.md"
-    assert delta.world_changes[0].operation == "update"
-    assert delta.tool_changes == ()
+        delta = diff_joint_state(before, after)
+        self.assertEqual(delta.world_changes, ())
+        schema_changes = [
+            item for item in delta.tool_changes
+            if item.tool_id == "fs.read_file" and item.field == "schema_sha256"
+        ]
+        self.assertEqual(len(schema_changes), 1)
+        self.assertNotEqual(schema_changes[0].before, schema_changes[0].after)
 
+    def test_joint_mechanism_test_detects_world_and_tool_drift_independently(self):
+        env = self.make_env("joint-drift")
+        before = self.observe(env, "joint-before")
 
-def test_catalogue_schema_drift_changes_only_ecosystem_observation(tmp_path):
-    env = make_env(tmp_path)
-    before = observe(env, "before-schema-drift")
+        result = env.run_action({
+            "tool_id": "fs.append_file",
+            "arguments": {"path": "README.md", "content": "Changed world.\n"},
+        })
+        self.assertTrue(result.ok)
+        target = next(item for item in env.catalogue if item["tool_id"] == "fs.read_file")
+        target["input_schema"]["properties"]["encoding"] = {"type": "string"}
+        after = self.observe(env, "joint-after")
 
-    target = next(item for item in env.catalogue if item["tool_id"] == "fs.read_file")
-    target["input_schema"]["properties"]["encoding"] = {"type": "string"}
-    target["input_schema"]["properties"]["path"]["description"] = "Workspace-relative path."
-    after = observe(env, "after-schema-drift")
-
-    delta = diff_joint_state(before, after)
-    assert delta.world_changes == ()
-    schema_changes = [
-        item for item in delta.tool_changes
-        if item.tool_id == "fs.read_file" and item.field == "schema_sha256"
-    ]
-    assert len(schema_changes) == 1
-    assert schema_changes[0].before != schema_changes[0].after
-
-
-def test_joint_mechanism_test_detects_world_and_tool_drift_independently(tmp_path):
-    env = make_env(tmp_path)
-    before = observe(env, "joint-before")
-
-    env.run_action({
-        "tool_id": "fs.append_file",
-        "arguments": {"path": "README.md", "content": "Changed world.\n"},
-    })
-    target = next(item for item in env.catalogue if item["tool_id"] == "fs.read_file")
-    target["input_schema"]["properties"]["encoding"] = {"type": "string"}
-    after = observe(env, "joint-after")
-
-    delta = diff_joint_state(before, after)
-    assert len(delta.world_changes) == 1
-    assert any(x.tool_id == "fs.read_file" and x.field == "schema_sha256" for x in delta.tool_changes)
+        delta = diff_joint_state(before, after)
+        self.assertEqual(len(delta.world_changes), 1)
+        self.assertTrue(any(
+            item.tool_id == "fs.read_file" and item.field == "schema_sha256"
+            for item in delta.tool_changes
+        ))
 
 
 if __name__ == "__main__":
-    import unittest
     unittest.main()
