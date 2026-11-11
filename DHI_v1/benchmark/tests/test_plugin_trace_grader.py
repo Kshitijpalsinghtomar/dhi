@@ -258,10 +258,10 @@ def make_checkpoint_rehydration_trace(*, checkpoint_after_write: bool = False, f
         "actual_tool_result": {"ok": True, "result": {"commit_sha": "d" * 40}, "error": None},
         "actual_effects": {
             "added_paths": [report_path], "modified_paths": [], "deleted_paths": [],
-            "changed_paths": [report_path], "unchanged_paths": [],
+            "changed_paths": [report_path], "unchanged_paths": ["README.md"],
         },
-        "observed_state_before": {},
-        "observed_state_after": {report_path: report_sha},
+        "observed_state_before": {"README.md": "b" * 64},
+        "observed_state_after": {"README.md": "b" * 64, report_path: report_sha},
     })
 
     if checkpoint_after_write:
