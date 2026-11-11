@@ -78,6 +78,7 @@ class ToolState:
     permission_state: PermissionState
     permissions: tuple[str, ...] | None = None
     side_effects: tuple[str, ...] | None = None
+    required_permission_scopes: tuple[str, ...] | None = None
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "tool_id", _text(self.tool_id, "tool.tool_id"))
@@ -94,7 +95,7 @@ class ToolState:
             "granted", "denied", "requires_consent", "unknown"
         }:
             raise JointStateError("tool.permission_state is unsupported")
-        for field in ("capabilities", "permissions", "side_effects"):
+        for field in ("capabilities", "permissions", "side_effects", "required_permission_scopes"):
             object.__setattr__(self, field, _string_set(getattr(self, field), f"tool.{field}"))
 
 
@@ -261,6 +262,10 @@ def diff_joint_state(before: ObservedJointState, after: ObservedJointState) -> J
                 "permission_state": (old.permission_state, new.permission_state),
                 "permissions": (_set_json(old.permissions), _set_json(new.permissions)),
                 "side_effects": (_set_json(old.side_effects), _set_json(new.side_effects)),
+                "required_permission_scopes": (
+                    _set_json(old.required_permission_scopes),
+                    _set_json(new.required_permission_scopes),
+                ),
             }
             for field, (before_value, after_value) in sorted(fields.items()):
                 if before_value != after_value:
