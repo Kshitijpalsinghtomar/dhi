@@ -488,6 +488,23 @@ class GitHubReadWriteClient:
             )
             if not allowed:
                 raise GitHubClientError("unsupported GitHub API path")
+        branch_list_endpoint = (
+            host == API_HOST
+            and re.fullmatch(
+                r"/repos/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+/branches",
+                path,
+            ) is not None
+        )
+        if branch_list_endpoint:
+            supplied_page_size = next((value for key, value in query_pairs if key == "per_page"), None)
+            supplied_page = next((value for key, value in query_pairs if key == "page"), None)
+            if supplied_page_size not in (None, "100") or supplied_page not in (None, "1"):
+                raise GitHubClientError(
+                    "branch-state snapshots require the first page with per_page=100"
+                )
+            if supplied_page_size is None:
+                query_pairs.append(("per_page", "100"))
+
         query: dict[str, Any] | None = None
         if query_pairs:
             query = {}
@@ -526,7 +543,34 @@ class GitHubReadWriteClient:
         title = None
         if isinstance(payload, dict):
             title = payload.get("name") or payload.get("full_name")
-        return {"content": content, "title": title, "modified_date": None, "url": request_url}
+        result = {"content": content, "title": title, "modified_date": None, "url": request_url}
+        if branch_list_endpoint:
+            if not isinstance(payload, list):
+                raise GitHubClientError("GitHub branch listing must be a JSON array")
+            if len(payload) >= 100:
+                raise GitHubClientError(
+                    "GitHub branch listing reached the 100-entry page limit; completeness cannot be verified"
+                )
+            branches = []
+            seen_names = set()
+            for item in payload:
+                commit = item.get("commit") if isinstance(item, dict) else None
+                name = item.get("name") if isinstance(item, dict) else None
+                head_sha = commit.get("sha") if isinstance(commit, dict) else None
+                if (
+                    not isinstance(name, str)
+                    or not name
+                    or name in seen_names
+                    or not isinstance(head_sha, str)
+                    or not re.fullmatch(r"[a-f0-9]{40}", head_sha)
+                ):
+                    raise GitHubClientError(
+                        "GitHub branch listing contains an invalid branch record"
+                    )
+                seen_names.add(name)
+                branches.append({"name": name, "head_sha": head_sha})
+            result["repository_state"] = {"branches": branches}
+        return result
 
     def compare_commits(self, arguments: dict[str, Any]) -> dict[str, Any]:
         args = _validate_object(arguments, GITHUB_TOOL_CATALOGUE[2]["input_schema"], "compare_commits")
