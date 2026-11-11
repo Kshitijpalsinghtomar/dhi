@@ -609,3 +609,97 @@ def test_fresh_s07_runner_records_linked_pinned_checkpoint_rehydration_event():
     assert action["actual_tool_result"]["ok"] is True
     assert action["actual_tool_result"]["result"]["sha"] == checkpoint_blob
     assert event["event_index"] > action["event_index"]
+
+
+
+def test_s09_runner_records_structured_prediction_before_write_and_grades_it():
+    from DHI_v1.benchmark.plugin_github_runtime import run_github_plugin_task
+
+    task_id = "ORBIT-A-S09-001"
+    plan = _plan_for(task_id)
+    client = FakeGitHubClient()
+    target_path = "DHI_v1/benchmark/fixtures/plugin_ecology/reports/effect-check.md"
+
+    def compare(arguments):
+        assert arguments["repo_full_name"] == REPOSITORY
+        assert arguments["base"] == BASE_COMMIT
+        assert arguments["head"] == "orbit/sandbox/orbit-a-s09-001"
+        return {
+            "files": [
+                {"filename": name, "status": "added", "sha": _blob_sha(content)}
+                for name, content in sorted(client.files.items())
+            ]
+        }
+
+    client.compare_commits = compare
+    runtime = build_github_plugin_runtime(plan, client, repository_full_name=REPOSITORY)
+    task_record = next(
+        task for task in json.loads(MANIFEST.read_text(encoding="utf-8"))["tasks"]
+        if task["task_id"] == task_id
+    )
+    task_record["execution"]["model_runs_allowed"] = True
+    report = "Passed: 3\nBlocked: 1\nNot Run: 1\nFailed: 1\n"
+    expected_effects = {
+        "added_paths": [target_path],
+        "modified_paths": [],
+        "deleted_paths": [],
+        "changed_paths": [target_path],
+        "unchanged_paths": [],
+    }
+
+    class ForecastingModel:
+        def __init__(self):
+            self.calls = 0
+
+        def complete(self, *, messages, tools, temperature=0.0):
+            self.calls += 1
+            if self.calls == 1:
+                return {"choices": [{"message": {
+                    "role": "assistant",
+                    "tool_calls": [{
+                        "id": "forecasted-create",
+                        "type": "function",
+                        "function": {
+                            "name": runtime.prepared.tool_name_by_id[CREATE_FILE_TOOL_ID],
+                            "arguments": json.dumps({
+                                "repository_full_name": REPOSITORY,
+                                "path": target_path,
+                                "content": report,
+                                "message": "Add verified acceptance summary",
+                                "branch": "orbit/sandbox/orbit-a-s09-001",
+                                "__dhi_expected_effects": expected_effects,
+                            }),
+                        },
+                    }],
+                }}]}
+            return {"choices": [{"message": {"role": "assistant", "content": "Created and verified the report."}}]}
+
+    result = run_github_plugin_task(
+        task_record,
+        runtime,
+        ForecastingModel(),
+        trajectory_id="traj-s09-prediction-adapter",
+    )
+    events = result.trace["events"]
+    prediction = next(event for event in events if event["event_type"] == "assistant_prediction")
+    action_start = next(
+        event for event in events
+        if event["event_type"] == "action_started" and event["tool_id"] == CREATE_FILE_TOOL_ID
+    )
+    action_done = next(
+        event for event in events
+        if event["event_type"] == "action_executed" and event["tool_id"] == CREATE_FILE_TOOL_ID
+    )
+    assert prediction["event_index"] < action_start["event_index"] < action_done["event_index"]
+    assert prediction["expected_effects"] == expected_effects
+    assert "__dhi_expected_effects" not in action_done["arguments"]
+    assert client.created == [{
+        "repository_full_name": REPOSITORY,
+        "path": target_path,
+        "content": report,
+        "message": "Add verified acceptance summary",
+        "branch": "orbit/sandbox/orbit-a-s09-001",
+    }]
+    assert action_done["actual_effects"]["added_paths"] == [target_path]
+    assert result.trace_validation_errors == []
+    assert result.grade["status"] == "pass"
