@@ -11,7 +11,8 @@ This package contains research mechanisms for **DHI-v1 / Predictive Agentic Inte
 - The observer reads the complete configured catalogue, not just visible or callable tools. It distinguishes visible/callable, hidden-but-discoverable, handler-disconnected, and task-policy-unavailable tools.
 - The workspace scope incorporates a digest of the exact ignored-directory and snapshot-size policy. Snapshots with different coverage policies cannot be diffed as though they were the same scope.
 - File state is represented by path and content SHA-256, not copied file contents.
-- A permission-scope label is not evidence of user consent. Permission state remains unknown unless explicitly provided; an explicit task allowlist denial is represented as denied.
+- Catalogue `tags` are retrieval keywords, not verified capabilities. The observer reads capabilities only from an explicit `capabilities` field; otherwise they remain unknown.
+- Required permission scopes are stored separately from granted permissions. A `permission_scope` label is not evidence of user consent. Permission state and grants remain unknown unless explicitly provided; an explicit task allowlist denial is represented as denied.
 - Missing schema/capability metadata stays unknown (`None`); a known empty set is `()`.
 - Renamed tool IDs are removal plus addition. No alias or semantic identity is inferred.
 - An omitted forecast (`None`) is unscored; an empty forecast (`()`) is an explicit no-change prediction. World and ecosystem forecasts are scored separately.
@@ -27,7 +28,7 @@ The deterministic observer tests use real `DHIEnvironment` instances and exercis
 - catalogue schema drift changing only ecosystem state;
 - a combined world + ecosystem transition.
 
-These tests establish that the DHI environment can expose the two state dimensions separately and that the diff contract can identify the changes. They do **not** show that a model can predict those changes, discover tools well, plan, recover, or complete goals.
+These tests establish that the DHI environment can expose the two state dimensions separately and that the diff contract can identify the changes. On 2026-11-11, the exact committed files passed 22/22 focused tests and compileall in Deepnote run `ca0c1e0e-bace-4927-ae65-5d83528eb59a`. They do **not** show that a model can predict those changes, discover tools well, plan, recover, or complete goals.
 
 ## Focused verification
 
