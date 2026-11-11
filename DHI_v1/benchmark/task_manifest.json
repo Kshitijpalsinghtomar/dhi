@@ -1196,7 +1196,9 @@
           "condition": {
             "type": "github_file_blob",
             "path": "DHI_v1/benchmark/fixtures/plugin_ecology/checkpoints/resume-task-A.md",
-            "blob_sha": "c1a32746e5b2dbdb02aa9fa2fd3c9b9e66b79827"
+            "blob_sha": "c1a32746e5b2dbdb02aa9fa2fd3c9b9e66b79827",
+            "commit": "04d0e12f48067b3b3a3de3ffe10944b7ef594984",
+            "repository_full_name": "Kshitijpalsinghtomar/dhi"
           }
         }
       ],
@@ -1204,8 +1206,11 @@
         {
           "verifier_id": "checkpoint_rehydrated",
           "condition": {
-            "type": "tool_trace_contains",
-            "path": "DHI_v1/benchmark/fixtures/plugin_ecology/checkpoints/resume-task-A.md"
+            "type": "checkpoint_rehydrated",
+            "path": "DHI_v1/benchmark/fixtures/plugin_ecology/checkpoints/resume-task-A.md",
+            "repository_full_name": "Kshitijpalsinghtomar/dhi",
+            "commit": "04d0e12f48067b3b3a3de3ffe10944b7ef594984",
+            "blob_sha": "c1a32746e5b2dbdb02aa9fa2fd3c9b9e66b79827"
           },
           "expected_evidence": "Task resumes by fetching the pinned checkpoint.",
           "failure_if_unmet": true
@@ -1275,6 +1280,7 @@
         "review_status": "not_reviewed",
         "harness_gap_ids": [],
         "validation_evidence": [
+          "Trusted runner re-fetches this exact repository/path/commit and verifies the pinned Git blob before emitting checkpoint_resumed; the grader requires the linked successful read before the first write.",
           "Checkpoint seeded in a separate branch and re-read in a later tool call.",
           "Seven source files re-read after the checkpoint.",
           "Final report created and re-fetched.",
@@ -1576,11 +1582,10 @@
         "environment_check": "pass",
         "grader_check": "not_run",
         "review_status": "not_reviewed",
-        "harness_gap_ids": [
-          "plugin_prediction_trace_adapter"
-        ],
+        "harness_gap_ids": [],
         "validation_evidence": [
-          "Plugin write and readback are proven by release report task; explicit pre-action effect capture still requires model-run validation."
+          "A scripted runner test records the structured predicted added-path effect before create_file, strips the metadata before provider dispatch, and passes the independent write/readback grader.",
+          "Task-level forecast accuracy and capability remain unvalidated until an authorized model run."
         ]
       },
       "execution": {
@@ -2925,7 +2930,8 @@
         "harness_gap_ids": [],
         "validation_evidence": [
           "Pre-state had three known branch heads.",
-          "Post-state had exactly one new branch and all prior heads unchanged."
+          "Post-state had exactly one new branch and all prior heads unchanged.",
+          "GitHub /branches reads now expose a normalized complete repository_state; partial pages, malformed records, and ambiguous 100-entry results fail closed."
         ]
       },
       "execution": {
@@ -3859,7 +3865,9 @@
           "condition": {
             "type": "github_file_blob",
             "path": "DHI_v1/benchmark/fixtures/plugin_ecology/checkpoints/tool-ecosystem-audit-A.md",
-            "commit": "8c6295255c88b0baea04529a475af8f85a946cd6"
+            "commit": "8c6295255c88b0baea04529a475af8f85a946cd6",
+            "blob_sha": "be8dd3e8cc57cdbe881103702e7ba7815400d3c8",
+            "repository_full_name": "Kshitijpalsinghtomar/dhi"
           }
         }
       ],
@@ -3867,8 +3875,11 @@
         {
           "verifier_id": "checkpoint_rehydrated",
           "condition": {
-            "type": "tool_trace_contains",
-            "path": "DHI_v1/benchmark/fixtures/plugin_ecology/checkpoints/tool-ecosystem-audit-A.md"
+            "type": "checkpoint_rehydrated",
+            "path": "DHI_v1/benchmark/fixtures/plugin_ecology/checkpoints/tool-ecosystem-audit-A.md",
+            "repository_full_name": "Kshitijpalsinghtomar/dhi",
+            "commit": "8c6295255c88b0baea04529a475af8f85a946cd6",
+            "blob_sha": "be8dd3e8cc57cdbe881103702e7ba7815400d3c8"
           },
           "expected_evidence": "Checkpoint was fetched after resume.",
           "failure_if_unmet": true
@@ -3967,6 +3978,7 @@
         "review_status": "not_reviewed",
         "harness_gap_ids": [],
         "validation_evidence": [
+          "Trusted runner re-fetches this exact repository/path/commit and verifies the pinned Git blob before emitting checkpoint_resumed; the grader requires the linked successful read before the first write.",
           "Checkpoint was re-read in a later tool call.",
           "Five source/registry files re-fetched and reviewed after resume.",
           "Final audit report created and fetched back; report blob 3308462ff380f2f72605e49e7538f4c6498c610a.",
