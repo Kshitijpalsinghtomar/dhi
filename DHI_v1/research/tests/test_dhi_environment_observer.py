@@ -16,7 +16,7 @@ def make_task(**overrides):
         "postconditions": [
             {"type": "contains", "path": "README.md", "text": "# Observer fixture"}
         ],
-        "visible_tool_ids": ["fs.read_file"],
+        "visible_tool_ids": ["fs.read_file", "fs.append_file"],
     }
     values.update(overrides)
     return TaskSpec(**values)
@@ -64,7 +64,7 @@ def make_env(tmp_path, *, allowed_tool_ids=None):
     env = DHIEnvironment(
         tmp_path,
         catalogue=make_catalogue(),
-        visible_tool_ids={"fs.read_file"},
+        visible_tool_ids={"fs.read_file", "fs.append_file"},
     )
     env.begin_task(make_task(allowed_tool_ids=allowed_tool_ids))
     return env
@@ -140,7 +140,11 @@ def test_discovery_changes_tool_availability_without_changing_world_state(tmp_pa
 
     delta = diff_joint_state(before, after)
     assert delta.world_changes == ()
-    assert delta.tool_changes == ()
+    assert delta.tool_changes == (
+        type(delta.tool_changes[0])(
+            "fs.search_text", "availability", "discoverable", "callable"
+        ),
+    )
     tools = {tool.tool_id: tool for tool in after.ecosystem.tools}
     assert tools["fs.search_text"].availability == "callable"
 
