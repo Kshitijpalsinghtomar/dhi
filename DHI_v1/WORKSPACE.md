@@ -27,9 +27,9 @@ This is a research target, not a result or novelty claim. A prompt, RAG store, f
 ```yaml
 programme: DHI-v1
 codename: ORBIT
-phase: s06_artifact_and_grader_checks_complete_stage_a_validation_gated
+phase: s07_s09_harness_hardening_not_confirmed
 status: in_progress
-status_reason: >
+status_reason: S07 checkpoint and S09 forecast harness changes are committed. Full DHI benchmark/environment regression is not yet confirmed from the current Deepnote block snapshot (not available from current block snapshot); see DHI_v1/experiments/ORBIT-S07-S09-HARNESS-HARDENING-001/verification-report.json. Stage A remains ready_for_validation, Stage B sealed, all model_runs_allowed=false; no model inference or training.
   ORBIT-VERIFY-012 passed the exact-head offline engineering regression:
   224 benchmark/environment tests, compileall, imports, manifest validation
   for 30 Stage A tasks, and 30-plan loader; zero model runs were enabled.
@@ -765,3 +765,15 @@ S06 remains `ready_for_validation`; all 30 Stage A tasks remain `ready_for_valid
 - S06 validation subchecks: contract=pass, environment=pass, grader=pass; family review=accepted. Task status remains `ready_for_validation` and task execution remains `not_run` / `model_runs_allowed=false`.
 - The panel-level S07/S09 gate still blocks promotion of any Stage A task to `validated`. No model inference, model-generated trajectory, capability score or training occurred.
 - Detailed records: `experiments/ORBIT-S06-LIVE-SMOKE-001/` and `experiments/ORBIT-S06-ADJUDICATION-001/`.
+
+
+## 31. S07 checkpoint rehydration and S09 forecast harness hardening
+
+- Active branch: `orbit/plugin-benchmark-fixture`. This work stayed in `Kshitijpalsinghtomar/dhi`; no merge and no changes to other research repositories.
+- Implemented normalized branch snapshots with fail-closed pagination and record validation.
+- S07-001 and S07-002 now pin repository, commit, and blob SHA; `checkpoint_rehydrated` requires a successful linked fetch and independently checked blob/content hashes before the first write.
+- S09-001 forecast metadata is exercised end-to-end through the scripted runner and grader; harness gap `plugin_prediction_trace_adapter` is removed. Model forecast accuracy remains untested.
+- Full DHI benchmark/environment suite status: **not_confirmed** (not available from current block snapshot); compileall is not confirmed.
+- Verification record: `DHI_v1/experiments/ORBIT-S07-S09-HARNESS-HARDENING-001/verification-report.json`; experiment README: `DHI_v1/experiments/ORBIT-S07-S09-HARNESS-HARDENING-001/README.md`.
+- Stage A remains 30 `ready_for_validation` tasks, Stage B sealed, all `model_runs_allowed=false`. No model execution or training occurred.
+- Deepnote notebook: `3639f9a98ce5435fa4cd0168eaaca3a1`; verification block: `2ed9a06177484889836fb66f5df188bb`.
