@@ -1136,3 +1136,50 @@ No model inference or training was authorized. The OpenRouter balance was zero o
 - Qwen-AgentWorld, arXiv:2606.24597: https://arxiv.org/abs/2606.24597
 - Agent Planning Benchmark, arXiv:2606.04874: https://arxiv.org/abs/2606.04874
 
+## 2026-11-11 — Reject lifecycle-acquisition novelty candidate; restore DHI model-development sequence
+
+### Decision
+The tool-acquisition/lifecycle novelty candidate is rejected as insufficiently distinct. Stop trying to narrow that candidate into a novelty claim. DHI-v1 returns to its original programme: empirically develop and evaluate a learned tool-aware, long-horizon predictive agent.
+
+The central empirical question is whether training on real, independently verified tool-execution trajectories improves general tool-aware task execution over untouched base models, and whether explicit action-effect prediction and goal-closure supervision add measurable gains.
+
+### Prior-art basis
+The following direct overlaps were checked and added to `docs/15_PRIOR_ART_AND_NOVELTY_GATE_2026-11-11.md`:
+- CostBench (ACL 2026): multi-turn cost-optimal plans and replanning under tool bans, tool removal, cost changes and preference changes.
+- CAM-DF: cost-aware one-shot tool acquisition stopping under heterogeneous costs.
+- MCP-Zero and ToolQP: active multi-round tool request/query retrieval.
+- Plan-or-Retrieve-First and the 2026 multi-tool completeness study: complexity-dependent retrieval strategies, prerequisite failures and retrieval cost.
+- Tool Recommendation: production-scale catalogue access through a small fixed meta-tool interface, with consent and per-user authorization controls.
+- BATS/CATS: budget-aware allocation of token and tool-call resources.
+- AutoTool: dynamic multi-step selection and unseen-tool generalization.
+- Qwen-AgentWorld, ANTE and RWML: environment/world modelling and execution-checked action-effect prediction.
+- SafeMCP: predictive tool acquisition/action-set filtering for safety.
+- CreativityBench: affordance-based physical object repurposing (adjacent, not equivalent to software/API tools).
+
+The joint-state observer remains a measurement mechanism only. No unique DHI model architecture or novel method is claimed.
+
+### Active experimental sequence
+1. **Study 0 — untouched base-model screen:** Qwen3.6-35B-A3B primary; GPT-OSS-20B mandatory challenger; Gemma 4 only for executable multimodal tasks. Use the existing DHI pilot/Stage A subset only after task graders and exact-head harness pass. The 30 materialized Stage A tasks are screening-only, not confirmatory.
+2. **Study 1 — verified trajectory SFT:** real model-generated actions and observations, independently computed state deltas and postconditions; no scripted/synthetic traces as successful execution data.
+3. **Study 2 — prediction/closure ablations:** ordinary agentic SFT vs SFT plus pre-action effects and real state deltas vs that plus explicit goal-closure labels.
+4. **Study 3 — held-out transfer and dynamic robustness:** unseen tool names/schemas/families and controlled changes in availability, permissions and environment state, comparing prior methods as baselines.
+
+Change one causal factor per study and preserve the exact model, data, task, environment, grader and resource provenance.
+
+### Operational boundary
+No model run or training was authorized. All task-manifest `model_runs_allowed` flags remain false. OpenRouter showed zero credits on 2026-11-11 and the Deepnote verifier has no model-provider integration. Do not swap in a free endpoint or alternate candidate. The next action is to verify the existing DHI task/harness gate for Study 0, without expanding the benchmark or writing another provider adapter.
+
+### References
+- CostBench, ACL 2026: https://aclanthology.org/2026.acl-long.584/
+- CAM-DF: https://arxiv.org/abs/2607.27083
+- ToolQP, Findings ACL 2026: https://aclanthology.org/2026.findings-acl.2090/
+- Plan or Retrieve First, EMNLP 2026 Industry Track: https://aclanthology.org/2026.emnlp-industry.19/
+- Tool Recommendation: https://arxiv.org/abs/2610.23707
+- BATS/CATS: https://arxiv.org/abs/2511.17006
+- AutoTool: https://proceedings.mlr.press/v306/zou26p.html
+- Qwen-AgentWorld: https://arxiv.org/abs/2606.24597
+- ANTE: https://arxiv.org/abs/2610.15368
+- RWML: https://arxiv.org/abs/2602.05842
+- SafeMCP: https://aclanthology.org/2026.acl-long.522/
+- CreativityBench: https://arxiv.org/abs/2605.02910
+
