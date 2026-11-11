@@ -14,7 +14,7 @@
 >
 > **Research-mechanism verification:** exact research files passed **22/22 focused tests** and `compileall` in Deepnote run `ca0c1e0e-bace-4927-ae65-5d83528eb59a` on 2026-11-11, at code commit `81a299342ecee919e1a068a34897789934b1685c`. This does not validate the full ORBIT harness or establish model capability.
 >
-> **Current manifest gate:** exact GitHub manifest blob `8d3678ceea97f0de7814bc765cf2a09ef54e54b9` at branch head `16c0bdc61fc7ef387d9fcc0f0a25f583e5d4e0ed` was mirrored into Deepnote in four chunks. Validator/test output is **pending** because the first run attempted while the project machine was stopped; a rerun is active. Do not mark the manifest valid until its exit code/output are inspected and the validator/schema/trace/registry/evidence file hashes are confirmed against the same branch head.
+> **Current manifest gate:** exact GitHub manifest blob `c999b25ff39b37db521f5b8052b30c54b4d4f828` at code commit `c8df9b462e40d9f7f04369de931f175c11990eb1` passed the exact-file gate in Deepnote run `9bb0da1e-577c-4547-8d79-db36a0f54486`: seven Git blob hashes matched; manifest validator returned `valid=true`, 30 tasks, zero errors; `test_task_manifest_validator.py` passed 21/21; compileall exit code 0. The repair only refreshed two S07 family fingerprints, four S07/S09 task-instance fingerprints and the trace schema/grader digests. No task semantic fields, status, family review status or execution permissions changed. The manifest is structurally valid, but task admission remains blocked: 29 graders are still `not_run` and 29 families are still draft/unreviewed. Do not confuse manifest integrity with grader validation or model capability.
 >
 > **Hard evidence boundary:** no DHI model inference, model-generated execution trajectory, adjudicated training corpus, capability score, or training checkpoint exists. The old ORBIT-VERIFY-012 224-test result belongs only to its historical exact commit. Later S07/S09 full regression remains not confirmed. All task-manifest `model_runs_allowed` flags remain false. The last live OpenRouter check on 2026-11-11 showed zero credits; Deepnote has no model-provider integration. Do not run a model, switch to a free endpoint/candidate, alter permissions, spend credits, or launch training without explicit user authorization and an approved resource route.
 >
@@ -60,10 +60,15 @@ research_mechanism_test_commit: 81a299342ecee919e1a068a34897789934b1685c
 research_mechanism_test_run: ca0c1e0e-bace-4927-ae65-5d83528eb59a
 research_mechanism_test_count: 22
 research_mechanism_compileall_exit_code: 0
-manifest_blob: 8d3678ceea97f0de7814bc765cf2a09ef54e54b9
-manifest_at_commit: 16c0bdc61fc7ef387d9fcc0f0a25f583e5d4e0ed
-manifest_validator_run: e9f36377-5826-4176-a0a8-7da743215de2
-manifest_validator_status: pending
+manifest_blob: c999b25ff39b37db521f5b8052b30c54b4d4f828
+manifest_at_commit: c8df9b462e40d9f7f04369de931f175c11990eb1
+manifest_validator_run: 9bb0da1e-577c-4547-8d79-db36a0f54486
+manifest_validator_status: pass
+manifest_validator_valid: true
+manifest_validator_errors: 0
+manifest_validator_tests_passed: 21
+manifest_validator_tests_failed: 0
+manifest_compileall_exit_code: 0
 next_action: finish_exact_head_manifest_validation_then_task_admission
 study_0_issue: 2
 ```
