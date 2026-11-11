@@ -169,82 +169,115 @@ def make_task(condition: dict, *, task_id: str = "ORBIT-A-S09-001") -> dict:
 
 
 def make_checkpoint_rehydration_trace(*, checkpoint_after_write: bool = False, fetch_ok: bool = True):
+    import copy
+
     repository = "Kshitijpalsinghtomar/dhi"
     path = "DHI_v1/benchmark/fixtures/plugin_ecology/checkpoints/tool-ecosystem-audit-A.md"
     commit = "8c6295255c88b0baea04529a475af8f85a946cd6"
     content = "Pinned checkpoint content for the S07 resume test.\n"
     data = content.encode("utf-8")
-    blob_sha = hashlib.sha1(b"blob " + str(len(data)).encode("ascii") + bytes([0]) + data).hexdigest()
+    blob_sha = hashlib.sha1(
+        b"blob " + str(len(data)).encode("ascii") + bytes([0]) + data
+    ).hexdigest()
     source_ref = f"https://github.com/{repository}/blob/{commit}/{path}"
+    report_path = "reports/tool-ecosystem-cost-audit.md"
+    trace = make_trace()
+    task_id = "ORBIT-A-S07-002"
+    task_started, read_prediction, read_start, read_done, assistant_message, task_closed = trace["events"]
     read_action_id = "checkpoint-read"
-    events = [
-        {
-            "event_id": "start", "event_index": 1, "event_type": "task_started",
-            "timestamp_utc": "2026-11-03T00:00:00Z", "task_id": "ORBIT-A-S07-002",
+    read_arguments = {"repository_full_name": repository, "path": path, "ref": commit}
+
+    read_start.update({
+        "event_id": "checkpoint-read-start",
+        "task_id": task_id,
+        "action_id": read_action_id,
+        "tool_id": "mcp__GitHub__fetch_file",
+        "arguments": read_arguments,
+    })
+    read_done.update({
+        "event_id": "checkpoint-read-done",
+        "task_id": task_id,
+        "action_id": read_action_id,
+        "tool_id": "mcp__GitHub__fetch_file",
+        "arguments": read_arguments,
+        "actual_tool_result": {
+            "ok": fetch_ok,
+            "result": {"content": content, "sha": blob_sha, "display_url": source_ref} if fetch_ok else None,
+            "error": None if fetch_ok else "provider read failed",
         },
-        {
-            "event_id": "read-start", "event_index": 2, "event_type": "action_started",
-            "timestamp_utc": "2026-11-03T00:00:01Z", "task_id": "ORBIT-A-S07-002",
-            "action_id": read_action_id, "tool_id": "mcp__GitHub__fetch_file",
-            "arguments": {"repository_full_name": repository, "path": path, "ref": commit},
-            "observed_state_before": {},
+        "actual_effects": {
+            "added_paths": [], "modified_paths": [], "deleted_paths": [],
+            "changed_paths": [], "unchanged_paths": [],
         },
-        {
-            "event_id": "read-done", "event_index": 3, "event_type": "action_executed",
-            "timestamp_utc": "2026-11-03T00:00:02Z", "task_id": "ORBIT-A-S07-002",
-            "action_id": read_action_id, "tool_id": "mcp__GitHub__fetch_file",
-            "arguments": {"repository_full_name": repository, "path": path, "ref": commit},
-            "actual_tool_result": {
-                "ok": fetch_ok,
-                "result": {"content": content, "sha": blob_sha, "display_url": source_ref} if fetch_ok else None,
-                "error": None if fetch_ok else "provider read failed",
-            },
-            "observed_state_before": {}, "observed_state_after": {},
-            "actual_effects": {
-                "added_paths": [], "modified_paths": [], "deleted_paths": [],
-                "changed_paths": [], "unchanged_paths": [],
-            },
+        "observed_state_before": {},
+        "observed_state_after": {},
+    })
+
+    checkpoint_event = {
+        "event_id": "checkpoint-resumed",
+        "event_type": "checkpoint_resumed",
+        "task_id": task_id,
+        "action_id": read_action_id,
+        "checkpoint_ref": path,
+        "checkpoint_commit": commit,
+        "checkpoint_blob_sha": blob_sha,
+        "checkpoint_sha256": sha(content),
+        "source_ref": source_ref,
+    }
+    write_prediction = copy.deepcopy(read_prediction)
+    write_prediction.update({
+        "event_id": "write-prediction",
+        "task_id": task_id,
+        "expected_effects": {
+            "added_paths": [report_path],
+            "modified_paths": [],
+            "deleted_paths": [],
         },
-        {
-            "event_id": "checkpoint", "event_index": 4, "event_type": "checkpoint_resumed",
-            "timestamp_utc": "2026-11-03T00:00:03Z", "task_id": "ORBIT-A-S07-002",
-            "action_id": read_action_id, "checkpoint_ref": path,
-            "checkpoint_commit": commit, "checkpoint_blob_sha": blob_sha,
-            "checkpoint_sha256": sha(content), "source_ref": source_ref,
+    })
+    write_action_id = "report-write"
+    write_arguments = {"repository_full_name": repository, "path": report_path}
+    write_start = copy.deepcopy(read_start)
+    write_start.update({
+        "event_id": "report-write-start",
+        "task_id": task_id,
+        "action_id": write_action_id,
+        "tool_id": "mcp__GitHub__create_file",
+        "arguments": write_arguments,
+        "side_effect_class": "sandbox_write",
+    })
+    write_done = copy.deepcopy(read_done)
+    write_done.update({
+        "event_id": "report-write-done",
+        "task_id": task_id,
+        "action_id": write_action_id,
+        "tool_id": "mcp__GitHub__create_file",
+        "arguments": write_arguments,
+        "actual_tool_result": {"ok": True, "result": {"commit_sha": "d" * 40}, "error": None},
+        "actual_effects": {
+            "added_paths": [report_path], "modified_paths": [], "deleted_paths": [],
+            "changed_paths": [report_path], "unchanged_paths": [],
         },
-        {
-            "event_id": "write-start", "event_index": 5, "event_type": "action_started",
-            "timestamp_utc": "2026-11-03T00:00:04Z", "task_id": "ORBIT-A-S07-002",
-            "action_id": "report-write", "tool_id": "mcp__GitHub__create_file",
-            "arguments": {"repository_full_name": repository, "path": "reports/tool-ecosystem-cost-audit.md"},
-            "observed_state_before": {},
-        },
-        {
-            "event_id": "write-done", "event_index": 6, "event_type": "action_executed",
-            "timestamp_utc": "2026-11-03T00:00:05Z", "task_id": "ORBIT-A-S07-002",
-            "action_id": "report-write", "tool_id": "mcp__GitHub__create_file",
-            "arguments": {"repository_full_name": repository, "path": "reports/tool-ecosystem-cost-audit.md"},
-            "actual_tool_result": {"ok": True, "result": {"commit_sha": "d" * 40}, "error": None},
-            "observed_state_before": {}, "observed_state_after": {},
-            "actual_effects": {
-                "added_paths": ["reports/tool-ecosystem-cost-audit.md"],
-                "modified_paths": [], "deleted_paths": [],
-                "changed_paths": ["reports/tool-ecosystem-cost-audit.md"], "unchanged_paths": [],
-            },
-        },
-        {
-            "event_id": "close", "event_index": 7, "event_type": "task_closed",
-            "timestamp_utc": "2026-11-03T00:00:06Z", "task_id": "ORBIT-A-S07-002",
-            "closure_status": "success",
-        },
-    ]
+        "observed_state_before": {},
+        "observed_state_after": {},
+    })
+
     if checkpoint_after_write:
-        checkpoint = events.pop(3)
-        events.insert(5, checkpoint)
+        events = [
+            task_started, read_prediction, read_start, read_done,
+            write_prediction, write_start, write_done,
+            checkpoint_event, assistant_message, task_closed,
+        ]
+    else:
+        events = [
+            task_started, read_prediction, read_start, read_done,
+            checkpoint_event, write_prediction, write_start, write_done,
+            assistant_message, task_closed,
+        ]
     for index, event in enumerate(events, 1):
         event["event_index"] = index
-    trace = make_trace(events)
-    trace["task_id"] = "ORBIT-A-S07-002"
+        event["task_id"] = task_id
+    trace["events"] = events
+    trace["task_id"] = task_id
     trace["usage"]["tool_calls"] = 2
     condition = {
         "type": "checkpoint_rehydrated",
