@@ -435,7 +435,10 @@ class PluginTraceGraderTests(unittest.TestCase):
             "event_type": "checkpoint_resumed",
             "timestamp_utc": "2026-11-03T00:00:03Z",
             "task_id": "ORBIT-A-S09-001",
+            "action_id": "checkpoint-read",
             "checkpoint_ref": "checkpoints/session-A.md",
+            "checkpoint_commit": "a" * 40,
+            "checkpoint_blob_sha": "b" * 40,
             "checkpoint_sha256": "f" * 64,
             "source_ref": "github://commit/checkpoint",
         })
