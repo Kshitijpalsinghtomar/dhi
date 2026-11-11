@@ -113,7 +113,7 @@ class Study0DirectAnswerControlGraderTests(unittest.TestCase):
 
     def test_any_provider_credit_spend_fails_the_no_tool_guard(self):
         task = self.task_copy("ORBIT-A-S01-002")
-        trace = control_trace(task, "7", credits=1)
+        trace = control_trace(task, "7", tool_calls=1, credits=1)
         result = grade_task(task, trace, schema=self.schema)
         by_id = {item["verifier_id"]: item for item in result["results"]}
         self.assertEqual(result["status"], "fail")
