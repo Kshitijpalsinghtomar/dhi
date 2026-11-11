@@ -311,6 +311,7 @@ def build_github_plugin_runtime(
             path = condition.get("path")
             commit = condition.get("commit") or expected_base_commit
             expected_blob = condition.get("blob_sha")
+            declared_repository = condition.get("repository_full_name")
             if (
                 not isinstance(path, str)
                 or not path
@@ -322,8 +323,12 @@ def build_github_plugin_runtime(
                 or commit != expected_base_commit
                 or not isinstance(expected_blob, str)
                 or not re.fullmatch(r"[a-f0-9]{40}", expected_blob)
+                or (
+                    declared_repository is not None
+                    and declared_repository != repository_full_name
+                )
             ):
-                raise GitHubTaskRuntimeError("pinned GitHub file-blob precondition is malformed or outside the task base")
+                raise GitHubTaskRuntimeError("pinned GitHub file-blob precondition is malformed or outside the task base/repository")
             response = client.fetch_file({
                 "repository_full_name": repository_full_name,
                 "path": path,
