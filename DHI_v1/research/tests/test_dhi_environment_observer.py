@@ -155,7 +155,7 @@ class DHIEnvironmentObserverTests(unittest.TestCase):
         env = self.make_env("discovery")
         before = self.observe(env, "before-discovery")
 
-        discovered = env.discover_tools("search text in files")
+        discovered = env.discover_tools("grep query")
         self.assertTrue(any(item["tool_id"] == "fs.search_text" for item in discovered))
         after = self.observe(env, "after-discovery")
 
