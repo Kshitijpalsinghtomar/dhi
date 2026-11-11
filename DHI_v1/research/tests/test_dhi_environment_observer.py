@@ -103,12 +103,14 @@ def test_observer_uses_real_dhi_environment_and_preserves_unknowns(tmp_path):
     assert tools["restricted.write"].permission_state == "unknown"
     assert tools["external.read"].permission_state == "unknown"
     assert tools["external.read"].permissions == ("external_read",)
-    assert tools["fs.read_file"].schema_sha256 == hashlib.sha256(
+    read_metadata = next(item for item in env.catalogue if item["tool_id"] == "fs.read_file")
+    expected_schema_hash = hashlib.sha256(
         json.dumps(
-            tools["fs.read_file"]._schema_for_test,
+            read_metadata["input_schema"],
             sort_keys=True, separators=(",", ":"), ensure_ascii=False,
         ).encode("utf-8")
-    ).hexdigest() if hasattr(tools["fs.read_file"], "_schema_for_test") else isinstance(tools["fs.read_file"].schema_sha256, str)
+    ).hexdigest()
+    assert tools["fs.read_file"].schema_sha256 == expected_schema_hash
 
 
 def test_explicit_task_allowlist_denial_is_not_reported_as_callable(tmp_path):
