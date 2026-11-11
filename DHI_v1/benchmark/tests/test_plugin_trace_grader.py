@@ -498,7 +498,7 @@ class PluginTraceGraderTests(unittest.TestCase):
         self.assertEqual(grade_task(make_task(condition, task_id="ORBIT-A-S07-002"), trace)["status"], "fail")
 
         trace, condition = make_checkpoint_rehydration_trace()
-        fetch_result = trace["events"][2]["actual_tool_result"]["result"]
+        fetch_result = trace["events"][3]["actual_tool_result"]["result"]
         fetch_result["sha"] = "0" * 40
         self.assertEqual(grade_task(make_task(condition, task_id="ORBIT-A-S07-002"), trace)["status"], "fail")
 
