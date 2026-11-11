@@ -34,6 +34,9 @@ class DHIEnvironmentObservationSource(Protocol):
     @property
     def configured_tool_handler_ids(self) -> frozenset[str]: ...
 
+    @property
+    def workspace_snapshot_policy(self) -> dict[str, Any]: ...
+
     def list_tools(self, *, visible_only: bool = True) -> list[dict[str, Any]]: ...
 
     def snapshot(self) -> dict[str, str]: ...
@@ -218,9 +221,15 @@ def observe_dhi_environment(
         )
         for tool in sorted(tools, key=lambda item: item.tool_id)
     ]
+    snapshot_policy = env.workspace_snapshot_policy
+    if not isinstance(snapshot_policy, dict):
+        raise JointStateError("workspace_snapshot_policy must return an object")
+    effective_workspace_scope = (
+        f"{workspace_scope_id}|snapshot-policy:{_digest(snapshot_policy)}"
+    )
     task_state = TaskWorldState(
         revision=_digest(world_payload),
-        scope_id=workspace_scope_id,
+        scope_id=effective_workspace_scope,
         complete_snapshot=True,
         facts=tuple(world_facts),
         observation_ref=f"{observation_ref}#workspace",
