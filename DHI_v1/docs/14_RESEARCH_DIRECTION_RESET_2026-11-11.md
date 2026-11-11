@@ -121,11 +121,12 @@ Report per-factor and per-stratum results, not only an aggregate. Use paired tas
 
 ## 8. First research execution — gated plan
 
-### Work that can proceed without model access
-1. Finish the primary-literature gap review and distinguish tool retrieval, tool selection, tool drift, action prediction, planning, and joint belief modelling.
-2. Formalize the joint state and transition target, including uncertainty and provenance; inspect whether existing DHI trace fields can represent it without conflating prediction with observation.
-3. Build a small, deterministic *mechanism test* over the existing safe DHI fixtures: change one tool/ecosystem property at a time, execute the matching authorized tool action, and verify both world-state and ecosystem-state observations. This tests whether the experimental factors and graders are identifiable; it does **not** establish learned agent ability.
-4. Freeze a small paired pilot and its scoring rules before any model result is observed.
+### No-model research work: current state
+1. **Prior art:** an initial focused review has identified direct overlap in dynamic tool selection (AutoTool), catalogue drift (ToolDriftBench/ToolDriftGuard), verified pre-action beliefs (ANTE), environment world models (Qwen-AgentWorld), long-horizon planning diagnostics (APB), and tool-use restraint (MetaTool / The Tool Illusion). This is not yet a saturation review and supports no novelty claim.
+2. **Joint observation/forecast contract:** `DHI_v1/research/joint_state.py` is now committed. It models independently observed task/world and tool-ecosystem snapshots, keeps their diffs separate, and scores each forecast against observations. It distinguishes omitted forecasts from explicit no-change predictions; preserves unknown metadata; and rejects partial or cross-scope diffs.
+3. **Focused verification:** 13 unit tests and compileall passed against the isolated local copy. The exact committed GitHub copies have been mirrored to the Deepnote verifier for an exact-file focused run; until that run completes with inspectable output, do not mark the committed implementation verified.
+4. **Next code action:** integrate a read-only observer from the actual `DHIEnvironment` catalogue/workspace state into `ObservedJointState`. It must preserve complete-snapshot scope, explicit unknown fields, visibility/discoverability, permission state, exact schema fingerprints, and provenance. Add focused tests against real DHI environment fixtures. Do not touch `agent_runner.py` until the observer and provenance boundaries are proven.
+5. **Then:** create a small paired deterministic mechanism test that changes one environment/tool-ecosystem property at a time. It tests observability and score identifiability only; it does **not** establish learned agent ability. Freeze the pilot and scoring before any model result is observed.
 
 ### Work that requires explicit model-run authorization and a funded/approved route
 1. Matched untouched-base inference on the already selected DHI candidates (Qwen3.6-35B-A3B primary and GPT-OSS-20B challenger); include the multimodal challenger only for executable multimodal cases.
