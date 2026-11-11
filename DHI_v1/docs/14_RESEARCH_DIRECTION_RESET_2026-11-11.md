@@ -6,7 +6,7 @@
 **Authority:** This reset supersedes older "next actions" and engineering priorities in earlier handovers and audit documents. `DHI_v1/WORKSPACE.md` remains the session entrypoint.  
 **Branch:** `orbit/plugin-benchmark-fixture`; do not merge or modify `main`.
 
-> **Narrowing update (2026-11-11):** the broad joint-state formulation below is a measurement foundation, not DHI's claimed novelty. Read [15_PRIOR_ART_AND_NOVELTY_GATE_2026-11-11.md](15_PRIOR_ART_AND_NOVELTY_GATE_2026-11-11.md) for the expanded prior-art review and the current candidate question: learned choice among tool-lifecycle actions by predicting effects on both future task reachability and the future callable action set under permission, safety, and resource constraints. SafeMCP, MCP-Zero, Qwen-AgentWorld, AutoTool, and other work are direct prior art. No novelty claim is established.
+> **Research programme correction (2026-11-11):** the tool-acquisition/lifecycle novelty candidate has been rejected as insufficiently distinct after reviewing CostBench, CAM-DF, ToolQP, MCP-Zero, SafeMCP, Qwen-AgentWorld, AutoTool, Tool Recommendation, BATS/CATS and related work. Read [15_PRIOR_ART_AND_NOVELTY_GATE_2026-11-11.md](15_PRIOR_ART_AND_NOVELTY_GATE_2026-11-11.md). Stop narrowing that novelty claim. DHI-v1 returns to its actual model-development sequence: untouched base-model screening, verified-execution SFT, then controlled prediction/closure ablations and held-out generalization. No new method claim is accepted before results.
 
 ## 1. Hard project boundary
 
@@ -18,7 +18,7 @@ The objective is a learned agent, not a product wrapper, fixed router, retrieval
 
 DHI's target capability is not simply "tool calling" or "predict what a file edit does." The research question is:
 
-> **Can a task-solving policy learn to choose among capability-acquisition and tool-lifecycle actions by predicting how those choices change both future goal reachability and the future callable action set, while respecting consent, safety, and acquisition cost—and outperform strong active-discovery and predictive-safety baselines on held-out tool ecosystems?**
+> **Can a single DHI-v1 model, trained on real and independently verified tool-execution trajectories, become measurably better than its untouched base model at tool discovery and selection, long-horizon planning, action-effect prediction, feedback-conditioned replanning, and verified goal closure—and which supervision components cause those improvements without safety or generalization regressions?**
 
 The tool ecosystem is part of the changing environment. Its state can include:
 - which tools are visible, discoverable, connected, callable, or unavailable;
@@ -51,7 +51,7 @@ The following work directly overlaps with individual parts of the idea and must 
 | MetaTool, ICLR 2024 | Whether to use tools and which tool(s) to select. | Tool-use awareness or tool restraint by itself. |
 | The Tool Illusion, COLM 2026 | Controlled analysis of whether and when tool use benefits web agents across tools, models, frameworks, and benchmarks. | Assuming that adding more tools necessarily improves agents. |
 
-**Working candidate (not a novelty claim):** a task-solving policy choosing among lifecycle actions by forecasting their counterfactual effects on future action-set availability and task-goal reachability, jointly with permission/consent, safety and resource costs. SafeMCP directly overlaps with predictive tool acquisition for safety; MCP-Zero overlaps with active capability requests; Qwen-AgentWorld overlaps with MCP environment simulation. The candidate survives only if full-paper comparison and controlled baselines show that this *task-utility choice problem* is not already solved. The joint-state records below are instrumentation for that test, not the contribution. See document 15 for the current hypotheses and experiment.
+**There is no accepted novel method hypothesis at this point.** The observation contract below is instrumentation only. Existing work covers many component capabilities; the DHI research contribution must be earned empirically by improving a selected base model with real, verified execution data and controlled ablations. Document 15 records the prior-art boundaries and the active model-development sequence.
 
 ## 4. Competing hypotheses
 
@@ -134,13 +134,18 @@ Report per-factor and per-stratum results, not only an aggregate. Use paired tas
 4. **Focused verification:** exact branch files passed 22/22 focused tests and `compileall` in Deepnote run `ca0c1e0e-bace-4927-ae65-5d83528eb59a` (2026-11-11). This establishes deterministic observation/diff/scoring mechanics only, not model capability.
 
 ### Current research action
-Do not add more generic joint-state/harness infrastructure. Complete the full-paper prior-art/novelty gate in document 15, focusing on whether existing work already trains a task-solving policy to optimize future task reachability under predicted tool-lifecycle/action-set transitions. If the gap is not defensible, reject this candidate rather than protecting it.
+Stop further novelty hunting and do not add generic benchmark infrastructure. Prepare **Study 0 — untouched base-model capability screen** from the existing DHI pilot and Stage A subset. First ensure the exact selected task graders and current runtime are valid; do not expand the 30-task panel or promote tasks without evidence. Use the existing runner rather than creating another model adapter. The 30-task subset is screening-only, not confirmatory evidence.
+
+### Model-development sequence
+1. **Study 0:** matched untouched-base screen for Qwen3.6-35B-A3B and GPT-OSS-20B; include Gemma 4 only for genuinely multimodal cases. Freeze task, model revision, prompts, schemas, permissions, retries, decode and budget. Map failures by DHI capability.
+2. **Study 1:** one SFT run only after Study 0 and after real model-generated, independently verified, deduplicated trajectories exist. No scripted or synthetic traces as positive execution data.
+3. **Study 2:** on matched trajectories, compare ordinary agentic SFT with (a) action-effect prediction supervision and (b) prediction plus explicit closure supervision. Keep each intervention isolated.
+4. **Study 3:** test transfer to held-out tools, schemas and task families, then controlled environment drift and recovery. Use prior-work methods as baselines, not as claimed novelties.
 
 ### Work requiring explicit model-run authorization and an approved resource route
-1. Matched untouched-base inference on the selected DHI candidates (Qwen3.6-35B-A3B primary and GPT-OSS-20B challenger); include Gemma 4 only for an in-scope multimodal question.
-2. Compare B0 static action set, B1 active acquisition (MCP-Zero/AutoTool-inspired), B2 predictive safety (SafeMCP-inspired), and B3 the DHI candidate from document 15 under identical model/task/permission/environment/budget conditions.
-3. Capture pre-action forecasts before lifecycle actions; obtain actual tool-set/world changes from the environment; independently verify goal closure and permissions.
-4. Only after model-originated execution traces exist and are adjudicated may candidate SFT examples be prepared. No synthetic task description or scripted reference trace may be presented as model behavior.
+- Matched base-model inference for Study 0.
+- Capture model-originated tool actions, pre-action predictions, actual results, observed state deltas, replans, costs and independent postconditions.
+- Any training, including SFT, DPO, RL or custom predictive objectives.
 
 **No model run or training is authorized by this document.** The last live check on 2026-11-11 showed zero OpenRouter credits, and the Deepnote verifier has no model-provider integration. All DHI task-manifest model-run flags remain false. Do not switch provider, select a free endpoint, change candidate models, spend credits, or launch training without explicit user authorization.
 
