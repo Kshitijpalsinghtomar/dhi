@@ -170,7 +170,7 @@
       "family_id": "ORBIT-S07-CROSS-PLUGIN-RESUME-WORKFLOW-01",
       "stage": "A",
       "independence_group_id": "ORBIT-S07-INDEP-A-001",
-      "family_fingerprint_sha256": "edd88daeafb9f3b0e21be16d09a510b51b94ba36ceb68ce7f90c070553a00286",
+      "family_fingerprint_sha256": "fd910c52e9aa97a5cd868929eda6ee89d374499f05672067c6c0f3d6732caf94",
       "review_status": "draft"
     },
     {
@@ -303,7 +303,7 @@
       "family_id": "ORBIT-S07-CROSS-PLUGIN-COST-AUDIT-02",
       "stage": "A",
       "independence_group_id": "ORBIT-S07-INDEP-A-002",
-      "family_fingerprint_sha256": "32d6faad31289cc626d8ab7cddf47814c1ee94c9c82992702986d99704858c10",
+      "family_fingerprint_sha256": "b2ff5da286e1a57df19e7b769a3c4959792ea201102839e4489b241c554b7544",
       "review_status": "draft"
     },
     {
@@ -1298,9 +1298,9 @@
       },
       "split_metadata": {
         "partition": "stage_a",
-        "family_fingerprint_sha256": "edd88daeafb9f3b0e21be16d09a510b51b94ba36ceb68ce7f90c070553a00286",
+        "family_fingerprint_sha256": "fd910c52e9aa97a5cd868929eda6ee89d374499f05672067c6c0f3d6732caf94",
         "holdout_sealed": false,
-        "task_instance_sha256": "c0c5a9249e7411bbf030a200fb267c4a78a62414dd3a265a4490836fe412ed09"
+        "task_instance_sha256": "afe9b420eb6b017f1357ca05b0e05c34a3487a327b29e72e0db25d1e146a7ba5"
       }
     },
     {
@@ -1601,7 +1601,7 @@
         "partition": "stage_a",
         "family_fingerprint_sha256": "4334cdf2c8b8ab6424bf15b07befc8c6cbc8634c4f2e6f9670f16b68d3ab6995",
         "holdout_sealed": false,
-        "task_instance_sha256": "b86655753d0c01549d7c4200d784169749fcf615ea91bf6b60ae80c73c555c18"
+        "task_instance_sha256": "caa634872a0ad3703fdfbb6bd7846515964aa626e13a03e5c9d5b8486f9f3688"
       }
     },
     {
@@ -2947,7 +2947,7 @@
         "partition": "stage_a",
         "family_fingerprint_sha256": "9dca420812586a63b50b3bf0713d0e7c37d84783d75ae32e231b7ab8416d74f3",
         "holdout_sealed": false,
-        "task_instance_sha256": "25950daead2804e5dd1900d7ddaf62ec29e5b829efaa23d971e6139be4eb596d"
+        "task_instance_sha256": "d226990737ba6deba7af99fd98e60b5531a686d274ff9cf98e1b0e3e4c120ad8"
       }
     },
     {
@@ -3997,9 +3997,9 @@
       },
       "split_metadata": {
         "partition": "stage_a",
-        "family_fingerprint_sha256": "32d6faad31289cc626d8ab7cddf47814c1ee94c9c82992702986d99704858c10",
+        "family_fingerprint_sha256": "b2ff5da286e1a57df19e7b769a3c4959792ea201102839e4489b241c554b7544",
         "holdout_sealed": false,
-        "task_instance_sha256": "47c01550ce74aaea8855749bff91137afa9cc02f23356affecf7b7d7e7047a74"
+        "task_instance_sha256": "1a4e96ba47f51053352e4ccf054274ce044b269b97bf705d8f06ae0e945c5ebc"
       }
     },
     {
@@ -4689,8 +4689,8 @@
     ],
     "trace_schema_path": "DHI_v1/benchmark/plugin_trace.schema.json",
     "trace_grader_path": "DHI_v1/benchmark/plugin_trace.py",
-    "trace_schema_sha256": "a5ea42279bccff7fa5f5fb192ce78bba1c485c6f06f6b1cf03e60271fb8eb45c",
-    "trace_grader_sha256": "497e038ab2159700a9698068382b9cb2b5531c940f354803b38915cf2cc2e3ed"
+    "trace_schema_sha256": "6d977adb6b723f03910cee70caa02cfe8d4defe9d781e3df037393396300b96a",
+    "trace_grader_sha256": "5676f8020d7454205dd7e1000cb8c43f0eefb75d23b501a3be98001ed5ae7198"
   },
   "existing_development_pilot": {
     "path": "DHI_v1/benchmark/pilot_cases.json",
