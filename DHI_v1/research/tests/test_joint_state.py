@@ -93,6 +93,20 @@ class JointStateDiffTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "SHA-256"):
             ToolState("repo.read", "not-a-hash", ("read_file",), "callable", "granted")
 
+    def test_required_permission_scope_is_distinct_from_granted_permissions(self):
+        before = joint_state(tools=[ToolState(
+            "repo.write", HASH_A, None, "callable", "unknown",
+            permissions=None, required_permission_scopes=("workspace_write",),
+        )])
+        after = joint_state(tools=[ToolState(
+            "repo.write", HASH_A, None, "callable", "unknown",
+            permissions=("workspace_write",), required_permission_scopes=("workspace_write",),
+        )])
+        changes = diff_joint_state(before, after).tool_changes
+        self.assertEqual(changes, (
+            ToolChange("repo.write", "permissions", None, '["workspace_write"]'),
+        ))
+
     def test_world_add_and_remove_are_explicit(self):
         before = joint_state(world=[WorldFact("file:old", "present")])
         after = joint_state(world=[WorldFact("file:new", "present")])
