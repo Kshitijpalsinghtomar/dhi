@@ -466,3 +466,32 @@ def test_fetch_branches_rejects_malformed_branch_head_records():
         with pytest.raises(GitHubClientError, match="branch listing contains an invalid branch record"):
             client.fetch({"url": f"https://api.github.com/repos/{REPO}/branches"})
     assert len(opener.requests) == 1
+
+
+
+def test_fetch_branches_rejects_noninitial_or_partial_page_requests_before_network():
+    client = GitHubReadWriteClient(api_key=TOKEN)
+    opener = ScriptedOpener([])
+
+    with _patch_opener(opener):
+        with pytest.raises(GitHubClientError, match="branch-state snapshots require the first page with per_page=100"):
+            client.fetch({"url": f"https://api.github.com/repos/{REPO}/branches?per_page=50"})
+        with pytest.raises(GitHubClientError, match="branch-state snapshots require the first page with per_page=100"):
+            client.fetch({"url": f"https://api.github.com/repos/{REPO}/branches?page=2&per_page=100"})
+
+    assert opener.requests == []
+
+
+def test_fetch_branches_refuses_a_full_page_whose_completeness_is_ambiguous():
+    payload = [
+        {"name": f"branch-{index:03d}", "commit": {"sha": f"{index + 1:040x}"}}
+        for index in range(100)
+    ]
+    client = GitHubReadWriteClient(api_key=TOKEN)
+    opener = ScriptedOpener([FakeHTTPResponse(payload)])
+
+    with _patch_opener(opener):
+        with pytest.raises(GitHubClientError, match="reached the 100-entry page limit"):
+            client.fetch({"url": f"https://api.github.com/repos/{REPO}/branches"})
+
+    assert len(opener.requests) == 1
