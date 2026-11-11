@@ -240,11 +240,12 @@ def make_checkpoint_rehydration_trace(*, checkpoint_after_write: bool = False, f
     ]
     if checkpoint_after_write:
         checkpoint = events.pop(3)
-        events.insert(6, checkpoint)
+        events.insert(5, checkpoint)
     for index, event in enumerate(events, 1):
         event["event_index"] = index
     trace = make_trace(events)
     trace["task_id"] = "ORBIT-A-S07-002"
+    trace["usage"]["tool_calls"] = 2
     condition = {
         "type": "checkpoint_rehydrated",
         "path": path,
