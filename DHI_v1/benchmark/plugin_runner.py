@@ -916,20 +916,36 @@ def run_plugin_task(
                         checkpoint_blob = raw_result.get("sha")
                         checkpoint_source = raw_result.get("display_url")
                         expected_checkpoint_blob = checkpoint_condition.get("blob_sha")
+                        expected_checkpoint_commit = checkpoint_condition.get("commit")
+                        expected_checkpoint_repository = checkpoint_condition.get("repository_full_name")
+                        expected_checkpoint_source = (
+                            f"https://github.com/{expected_checkpoint_repository}/blob/"
+                            f"{expected_checkpoint_commit}/{read_path}"
+                            if isinstance(expected_checkpoint_repository, str)
+                            and isinstance(expected_checkpoint_commit, str)
+                            else None
+                        )
                         if (
                             isinstance(checkpoint_content, str)
                             and isinstance(checkpoint_blob, str)
                             and re.fullmatch(r"[a-f0-9]{40}", checkpoint_blob)
                             and checkpoint_blob == expected_checkpoint_blob
                             and _git_blob_sha(checkpoint_content) == checkpoint_blob
-                            and isinstance(checkpoint_source, str)
-                            and checkpoint_source.startswith("https://github.com/")
+                            and isinstance(expected_checkpoint_commit, str)
+                            and re.fullmatch(r"[a-f0-9]{40}", expected_checkpoint_commit)
+                            and isinstance(expected_checkpoint_repository, str)
+                            and arguments.get("repository_full_name") == expected_checkpoint_repository
+                            and arguments.get("ref") == expected_checkpoint_commit
+                            and checkpoint_source == expected_checkpoint_source
                         ):
                             _event(
                                 events,
                                 task_id=task_id,
                                 event_type="checkpoint_resumed",
+                                action_id=action_id,
                                 checkpoint_ref=read_path,
+                                checkpoint_commit=expected_checkpoint_commit,
+                                checkpoint_blob_sha=checkpoint_blob,
                                 checkpoint_sha256=hashlib.sha256(
                                     checkpoint_content.encode("utf-8")
                                 ).hexdigest(),
