@@ -7,7 +7,7 @@ from pathlib import Path
 
 from DHI_v1.environment.dhi_env import DHIEnvironment, DEFAULT_TOOL_CATALOGUE, TaskSpec
 from DHI_v1.research.dhi_environment_observer import observe_dhi_environment
-from DHI_v1.research.joint_state import ToolChange, diff_joint_state
+from DHI_v1.research.joint_state import JointStateError, ToolChange, diff_joint_state
 
 
 def make_task(**overrides):
@@ -99,7 +99,7 @@ class DHIEnvironmentObserverTests(unittest.TestCase):
         self.assertEqual(len(env.events), before_events)
         self.assertTrue(observed.task.complete_snapshot)
         self.assertTrue(observed.ecosystem.complete_snapshot)
-        self.assertEqual(observed.task.scope_id, "workspace:joint-observer-case")
+        self.assertTrue(observed.task.scope_id.startswith("workspace:joint-observer-case|snapshot-policy:"))
         self.assertEqual(observed.ecosystem.scope_id, "catalogue:joint-observer-case")
 
         facts = {fact.key: fact.value for fact in observed.task.facts}
@@ -140,6 +140,16 @@ class DHIEnvironmentObserverTests(unittest.TestCase):
 
         with self.assertRaisesRegex(ValueError, "active task"):
             self.observe(env, "no-active-task")
+
+    def test_workspace_snapshot_policy_is_part_of_observation_scope(self):
+        env = self.make_env("snapshot-policy")
+        before = self.observe(env, "policy-before")
+        env.max_file_bytes += 1
+        after = self.observe(env, "policy-after")
+
+        self.assertNotEqual(before.task.scope_id, after.task.scope_id)
+        with self.assertRaisesRegex(JointStateError, "scope"):
+            diff_joint_state(before, after)
 
     def test_discovery_changes_tool_availability_in_ecosystem_state(self):
         env = self.make_env("discovery")
