@@ -24,6 +24,13 @@ The implementation in `DHI_v1/research/joint_state.py` and `dhi_environment_obse
 | **SafeMCP**, Wang et al., ACL 2026, 2026.acl-long.522 / arXiv:2606.01991 | A learned, agent-agnostic server-side defence predicts next states, predicts future unsafe actions/states, and proactively prunes the state-specific effective tool set before the agent acts; it combines safety and utility in a Stackelberg formulation, then adds immediate intervention. Its own method trains next-state prediction + unsafe-step prediction, SFT, then RL with dual verifiable rewards. | Predictive look-ahead over tool acquisition, action-set power, state transitions, and safety/utility trade-offs is already direct prior art. DHI cannot claim predictive acquisition or future action-set reasoning alone. A possible distinction is that SafeMCP is an external safety leader/filter while the underlying task agent remains the utility-maximizing follower—but the paper must be compared in full before treating that distinction as a gap. |
 | **MCP-Zero**, Fei et al., arXiv:2506.01056 (2025) | Active tool request: the model identifies capability gaps, asks for tools on demand, routes requests to servers/tools, and iteratively extends cross-domain toolchains. | Active tool discovery, capability-gap requests, and iterative toolchain assembly are not new. |
 | **AutoTool**, Zou et al., ICML 2026, PMLR 306 | SFT/RL-based dynamic multi-step tool selection and generalization to previously unseen tools in evolving tool inventories. | Dynamic selection, multi-step retrieval/selection, and unseen-tool generalization are not new. |
+| **AutoTool: Dynamic Tool Selection and Integration for Agentic Reasoning**, Zou et al., arXiv:2512.13278v2 / ICML 2026 | Dual-phase SFT/RL trajectory stabilization plus Plackett–Luce ranking refinement of per-step tool selection; 200k-scale training data across 1,000+ tools and 100+ tasks; claims transfer to evolving/unseen toolsets. | Learned per-step dynamic tool selection, multi-step tool composition, embedding-grounded unseen-tool selection, and trajectory-level tool-choice refinement are already direct prior art. |
+| **Scores Are Not Decisions: Cost-Aware Stopping for Tool Acquisition in LLM Agents (CAM-DF)**, Feng et al., arXiv:2607.27083 (2026) | Learns regret-weighted stop/continue decisions over ranked tool prefixes under task sufficiency and heterogeneous acquisition costs. Evaluates 1,343 tasks across five tool-use domains; live Retail exposure fell 37% with comparable observed success. The paper explicitly scopes this to one-turn pre-execution prefix acquisition and does not update decisions after tool outputs. | Cost-aware tool acquisition, learned acquisition stopping, and reducing exposed tools while preserving task success are already covered. The remaining scope distinction is online output-adaptive multi-round control, which must be compared with iterative retrieval/discovery work—not claimed novel by itself. |
+| **Utility-Guided Agent Orchestration for Efficient LLM Tool Use**, Liu et al., arXiv:2603.19896 (2026) | Explicit action policy chooses among respond, retrieve, tool call, verify, and stop using estimated gain, step cost, uncertainty and redundancy. The paper states it is a heuristic/control framework, not a learned RL policy. | Utility-guided orchestration actions and gain/cost/uncertainty/redundancy control are not new at the systems level. A learned-policy extension requires matched evidence, not just a new utility formula. |
+| **Beyond Single-Shot: Multi-step Tool Retrieval via Query Planning (ToolQP)**, Fang & Glass, Findings of ACL 2026 | Iteratively decomposes tasks into subqueries and retrieves tools for each subtask; trained with synthetic query trajectories and RL with verifiable rewards; evaluates zero-shot transfer and downstream execution. | Multi-round query-planned tool retrieval, decomposition-driven discovery, and RL-trained retrieval queries are already prior art. |
+| **Plan or Retrieve First? A Scale Study of Tool Discovery Architectures**, Zhang et al., EMNLP 2026 Industry Track | Compares Retrieve-then-Plan with Plan-then-Retrieve on 46,984 ToolBench endpoints; finds a task-complexity-dependent crossover, and measures extra discovery-call cost and stub hallucination. | Planning before retrieval, abstract tool stubs, and complexity-adaptive retrieval are already studied. |
+| **Completeness and Cost of Retrieval Structures for Multi-Tool Requests in LLM Agents**, Zhang, arXiv:2610.41905 (2026 preprint) | Compares six retrieval structures on 345 AppWorld queries and 103 MCP-Bench tasks over 257 tools; measures complete required-tool-set retrieval and retrieval-time cost. Reports major multi-tool completeness gaps and distinct prerequisite-vs-target failure modes. | Multi-tool tool-set completeness, dependency-aware retrieval, and quality/cost trade-offs are already being measured directly. DHI cannot claim those metrics or the basic problem as new. |
+| **When Should Agents Build Reusable Tools?**, Xu, Wilder & Singh, SSRN working paper (2026) | Models online capability creation versus patching/reuse under uncertain task recurrence and stochastic tool quality; proposes a cost-sensitive acquisition controller and reports an API-migration benchmark. | Economic decision-making about whether to create/acquire reusable capabilities under uncertain future demand is already being explored; this is a working paper and must be verified at full-paper level before drawing detailed conclusions. |
 | **ANTE**, Ge et al., arXiv:2610.15368 (2026) | Coding-agent pre-action beliefs are checked against actual execution; feedback provides per-action learning signals and supports test-time action optimization. | Pre-action outcome prediction and execution-verified belief learning are not new. |
 | **Reinforcement World Model Learning (RWML)**, Yu et al., arXiv:2602.05842 (2026) | Self-supervised action-conditioned next-state world-model learning from the target policy's own real environment rollouts, using sim-to-real embedding-gap rewards and GRPO before downstream task-success RL. Evaluated on ALFWorld and `\\tau^2` Bench. | Action-conditioned world-model training from real rollout transitions without expert or stronger-model labels is already prior art. A DHI-specific transition loss/representation must show why it is needed beyond RWML and structured state-diff scoring. |
 | **ToolDriftBench / ToolDriftGuard**, IEEE SmartIoT 2026 | Schema, semantic, and capability drift in MCP tool indexes, with detection and index repair/re-embedding evaluated under controlled drift. | Drift detection and stale-index repair are not new. |
@@ -47,13 +54,25 @@ The MCP security/lifecycle survey (ACM, 2026, DOI 10.1145/3796519) describes ser
 
 ### Covered by prior work
 - action-conditioned next-state world-model learning from the target model's own environment rollouts, including self-supervised sim-to-real reward (RWML);
-- retrieving/selecting tools from large or changing inventories;
-- actively requesting tools to fill identified capability gaps;
+- learned per-step dynamic tool choice and multi-step tool composition over evolving/unseen tool inventories (AutoTool);
+- active multi-turn capability requests (MCP-Zero);
+- cost-aware pre-execution acquisition depth and stopping (CAM-DF);
+- utility-guided choices among retrieve, tool call, verify, and stop (Utility-Guided Agent Orchestration);
+- iterative query-planned retrieval, plan-then-retrieve and dependency-aware multi-tool retrieval (ToolQP, Plan-or-Retrieve-First, multi-tool retrieval structures study);
+- modelling required tool-set completeness and retrieval costs across multi-tool tasks;
+- online tool/capability creation under task-recurrence and quality uncertainty (DSA working paper);
 - simulating tool/environment state, including MCP schemas and permissions;
 - predicting action outcomes before execution and verifying those beliefs afterwards;
 - applying look-ahead to filter dangerous tool acquisitions;
 - handling schema/catalogue drift and repairing retrieval indexes;
 - typed task-state preservation, long-horizon planning, recovery and refusal.
+
+### Status of the candidate
+The previous candidate—cost- and permission-aware choice among capability-acquisition/lifecycle actions—is **not accepted as a distinct DHI contribution**. Its components substantially overlap with CAM-DF, Utility-Guided Orchestration, MCP-Zero, SafeMCP, AutoTool, ToolQP and the recent multi-tool completeness studies. Combining known components is not enough to establish novelty.
+
+A narrow unresolved comparison question remains: whether an agent can make **output-adaptive, multi-round capability-acquisition decisions after actual tool results and environment changes**, optimizing verified multi-step task outcomes under acquisition cost and external permission constraints. CAM-DF explicitly leaves output-adaptive multi-round control outside its current one-turn pre-execution prefix formulation; MCP-Zero and ToolQP already cover iterative discovery/retrieval; SafeMCP covers per-step predictive safety filtering; Qwen-AgentWorld covers MCP environment simulation and same-model next-state prediction. Therefore the possible gap is only the *specific interaction and learning objective*, not online discovery, cost-awareness, action prediction, or joint state modelling individually.
+
+No novelty claim is accepted. The immediate programme direction is **reproduction-first**: fully inspect and, where feasible, reproduce the strongest relevant baselines on a common DHI environment before designing another DHI-specific method. If the common comparison shows no meaningful gap, adopt the best baseline and stop pursuing this novelty candidate.
 
 ### Potentially under-tested intersection (not a novelty claim)
 Qwen-AgentWorld is a particularly direct overlap: its MCP simulator is initialized with tool schemas/server configuration plus hidden environment summaries containing database state, permission settings, and service availability; it can inject turn-level errors and control resulting environment states. It also reports an agent-foundation-model setting where the *same model* predicts action consequences before choosing actions. SafeMCP predicts next states and future unsafe steps, then prunes the effective tool set before the acting model chooses. MCP-Zero lets the acting model actively request capabilities. RWML separately demonstrates self-supervised action-conditioned transition learning from real rollouts. The former joint-belief gap is therefore not defensible as stated.
@@ -65,25 +84,28 @@ The remaining candidate is narrower and concerns the task-solving policy's **cho
 4. acquisition/activation latency, monetary/resource cost, and later reliability;
 5. the value of alternative routes if the requested capability fails to appear.
 
-A narrower candidate question is:
+The only retained candidate for further investigation is:
 
-> **Can the task-solving policy itself learn a cost- and permission-aware counterfactual value for choosing whether to request, enable, reconnect, or decline a capability—based on its predicted effects on future goal reachability and future callable actions—and outperform active-discovery, world-model, and server-side safety-filter baselines under held-out tool-lifecycle changes?**
+> **Does an output-adaptive, multi-round capability-acquisition policy—updated after actual tool outputs and independently observed environment changes—improve verified multi-step task outcomes at a fixed cost/permission budget over (a) one-shot cost-aware acquisition, (b) iterative active discovery/query planning, and (c) per-step predictive safety filtering?**
 
-This is not claimed as novel. SafeMCP is a particularly close overlap for predictive tool acquisition; MCP-Zero is close for active capability acquisition; Qwen-AgentWorld is close for modelling tool/environment states. A systematic review of SafeMCP's methods, Qwen-AgentWorld's MCP setup, MCP-Zero's acquisition loop, and any work on tool lifecycle/authorization planning is required before deciding whether any research gap remains.
+This remains an open comparison question, not a novelty claim. The first contribution may instead be a careful reproduction or negative result. Before implementation, complete full-paper method and artifact review for CAM-DF, ToolQP, Plan-or-Retrieve-First, MCP-Zero, SafeMCP, Qwen-AgentWorld and the multi-tool completeness study, then freeze one common test protocol. Do not build a bespoke DHI policy until the strongest baseline can be reproduced and a residual failure is demonstrated.
 
 ## 4. Competing hypotheses
 
-### H0 — Active discovery is sufficient
-An MCP-Zero/AutoTool-style request-and-retrieve policy, followed by a strong planner, is sufficient. Predictive future-action-set modelling provides no reliable incremental gain.
+### H0 — One-shot cost-aware acquisition is sufficient
+CAM-DF-style ranked-prefix stopping captures most of the value from limiting tool exposure. Online decisions after tool outputs do not produce a reliable additional gain.
 
-### H1 — Predictive lifecycle choice improves goal closure
-For tasks in which the current action set is insufficient, a policy that predicts the post-acquisition action set and task reachability will improve independently verified goal closure over active retrieval/request alone, under the same base model and tool budget.
+### H1 — Iterative discovery is sufficient
+MCP-Zero/ToolQP-style iterative tool requests and query planning recover from incomplete initial tool sets without a learned outcome-conditioned acquisition policy.
 
-### H2 — Predictive lifecycle choice improves safe capability use
-The policy will reduce unnecessary acquisitions, unauthorized attempts and false claims of capability availability, while retaining success on feasible tasks. This must be compared directly with SafeMCP-style predictive safety filtering and deterministic permission enforcement; the model never replaces enforcement.
+### H2 — Predictive safety filtering is sufficient
+A SafeMCP-style state-conditioned filter combined with a capable task agent provides the necessary safety and task utility without moving lifecycle choice into the DHI task policy.
 
-### H3 — Any benefit is conditional, not universal
-Improvements occur only when a task includes a consequential lifecycle choice (acquire, enable, reconnect, seek consent, or choose a replacement path) and a multi-step dependency. There should be little or no uplift on tasks where the currently callable set already suffices.
+### H3 — Output-adaptive acquisition adds measurable value
+After a tool result or observed ecosystem change, a policy that revises acquisition decisions using actual output, task progress, and remaining cost improves verified task closure over H0–H2 on held-out multi-tool tasks.
+
+### H4 — No useful residual gap exists
+The combined strongest baselines match or exceed the DHI candidate. In that case, stop this research direction and adopt the simplest best-performing method rather than inventing a marginal contribution.
 
 **Falsification:** reject H1/H2 if the candidate fails to beat H0 and the best matched prior-work-inspired baseline on held-out lifecycle choices, or if gains rely on extra context, tool budget, hidden-state leakage, privileged access, or a different base model. Reject any claim of learned improvement if the intervention is only a prompt or hand-coded router change.
 
@@ -91,11 +113,11 @@ Improvements occur only when a task includes a consequential lifecycle choice (a
 
 Use the same untouched base model, task instances, initial tool catalogue, lifecycle action set, permission/consent state, environment snapshots, decoding, and resource budget across arms.
 
-- **B0 — Static action set:** only initially callable tools are presented.
-- **B1 — Active acquisition:** model can discover/request missing tools, MCP-Zero/AutoTool-inspired; no explicit predicted future action set.
-- **B2 — Action-conditioned world model:** same base model predicts next environment state (including observable tool-set changes) from history/action using an ANTE/RWML-style forecast target; a conventional policy chooses the lifecycle action. This is a forecast ablation, not a distinct agent policy.
-- **B3 — Predictive safety filter:** a SafeMCP-inspired server-side filter forecasts unsafe transitions and constrains the returned tool set; the task agent remains the utility-maximizing follower. Filter and agent decisions are logged separately.
-- **B4 — DHI candidate:** the task-solving policy predicts the counterfactual result of each lifecycle option on task state, future callable actions, goal reachability, permission requirements, and acquisition cost, then chooses whether to acquire, enable, reconnect, request consent, use an alternative route, or stop. Its forecasts are captured before the lifecycle action; the environment supplies independent actual state.
+- **B0 — Fixed/full initial catalogue:** a strong task agent receives the initial tool set; this anchors the cost of full exposure and avoids confounding retrieval failures.
+- **B1 — CAM-DF-style one-shot cost-aware acquisition:** freeze a tool ranking, select a cost-aware ranked prefix before execution, and then do not change the acquired set.
+- **B2 — Iterative discovery/query planning:** use MCP-Zero/ToolQP-style multi-round capability requests or query decomposition, with no explicit outcome-conditioned cost-value model.
+- **B3 — SafeMCP-style per-step predictive safety filter:** a state-conditioned server-side filter prunes unsafe actions/tools; log filter decisions separately from the task policy.
+- **B4 — Output-adaptive DHI candidate (only if the prior-art gate survives):** after actual tool output or observed tool-ecosystem change, re-evaluate whether the current set is sufficient, whether a new capability is worth acquiring under the remaining budget, or whether an alternative/stop is preferable. Forecasts must precede actions; actual state comes independently from the environment.
 
 Qwen-AgentWorld is an important external world-model reference; any direct checkpoint comparison is cross-model and must be reported separately from same-base-model ablations.
 
