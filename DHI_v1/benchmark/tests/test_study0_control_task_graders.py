@@ -44,8 +44,17 @@ def control_trace(task: dict, answer: str, *, tool_calls: int = 0, credits: int 
     trace["provenance"]["evidence_class"] = "scripted-reference"
     trace["provenance"]["executor"] = "study0-control-unit-test"
 
-    # Direct-answer controls must have no action/discovery/prediction events.
-    trace["events"] = [copy.deepcopy(trace["events"][0]), copy.deepcopy(trace["events"][-1])]
+    # Positive controls have no action events. Negative cases use the complete
+    # valid paired action trace so the grader returns a condition failure, not
+    # invalid_trace from a synthetic usage/event-count mismatch.
+    if tool_calls == 0 and credits == 0:
+        trace["events"] = [copy.deepcopy(trace["events"][0]), copy.deepcopy(trace["events"][-1])]
+    elif credits > 0:
+        action = next(
+            event for event in trace["events"]
+            if event["event_type"] == "action_executed"
+        )
+        action["actual_tool_result"]["provider_cost"] = credits
     for index, event in enumerate(trace["events"], 1):
         event["event_id"] = f"{task_id}-event-{index}"
         event["event_index"] = index
