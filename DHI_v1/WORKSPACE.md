@@ -4,15 +4,15 @@
 >
 > This repository is the **DHI-v1 / ORBIT research programme only**. Do not mix code, datasets, claims, tasks, or conclusions from GBA/DPAK, Oriael, or other research projects.
 >
-> **Current research question and prior-art gate:** read [15_PRIOR_ART_AND_NOVELTY_GATE_2026-11-11.md](docs/15_PRIOR_ART_AND_NOVELTY_GATE_2026-11-11.md). The broad joint-world/tool-state framing is not a novelty claim. The current candidate is whether a task-solving policy can choose among capability-acquisition and tool-lifecycle actions by forecasting effects on goal reachability and the future callable action set under permission, safety, and resource constraints. SafeMCP, MCP-Zero, Qwen-AgentWorld, AutoTool and other work overlap directly. The gap remains unproven; reject it if full-paper comparison shows it is already solved.
+> **Active research path:** the proposed tool-acquisition/lifecycle novelty candidate has been rejected as insufficiently distinct. See [15_PRIOR_ART_AND_NOVELTY_GATE_2026-11-11.md](docs/15_PRIOR_ART_AND_NOVELTY_GATE_2026-11-11.md) for direct prior art including CostBench, CAM-DF, ToolQP, MCP-Zero, SafeMCP, Qwen-AgentWorld, AutoTool, Tool Recommendation and BATS/CATS. Stop narrowing that candidate. DHI-v1 is a model-development programme: measure untouched base models, train only on real independently verified tool-execution trajectories, then run controlled action-effect-prediction and closure-supervision ablations.
 >
-> **What has actually been implemented:** `DHI_v1/research/joint_state.py` defines separate observed task/world and tool-ecosystem state, diffs, and forecast scoring. `DHI_v1/research/dhi_environment_observer.py` reads real `DHIEnvironment` snapshots without mutating the environment. It keeps catalogue tags separate from explicit capabilities and required permission scopes separate from granted permissions. This is a deterministic measurement mechanism—not a learned model, planner, or capability result.
+> **Implemented research code:** `DHI_v1/research/joint_state.py` defines separate observed task/world and tool-ecosystem state, diffs and forecast scoring. `DHI_v1/research/dhi_environment_observer.py` reads real `DHIEnvironment` snapshots without mutating the environment. It keeps catalogue tags separate from explicit capabilities and required permission scopes separate from granted permissions. This is deterministic measurement infrastructure, not a learned model or capability result.
 >
-> **Verification:** exact branch files passed **22/22 focused research tests** and `compileall` in Deepnote run `ca0c1e0e-bace-4927-ae65-5d83528eb59a` on 2026-11-11. The tested code commit was `81a299342ecee919e1a068a34897789934b1685c`. This does not validate the old ORBIT full harness or any model capability.
+> **Verification:** exact research files passed **22/22 focused tests** and `compileall` in Deepnote run `ca0c1e0e-bace-4927-ae65-5d83528eb59a` on 2026-11-11. Tested code commit: `81a299342ecee919e1a068a34897789934b1685c`. This does not validate the old ORBIT full harness or establish model capability.
 >
-> **Hard evidence boundary:** no DHI model inference, model-generated trajectory, adjudicated training corpus, capability score, or DHI-v1 training run/checkpoint exists. The old ORBIT-VERIFY-012 224-test result belongs only to its historical exact commit. Later S07/S09 full regression remains not confirmed. All task-manifest `model_runs_allowed` flags remain false. The last live OpenRouter check on 2026-11-11 showed zero credits; Deepnote has no model-provider integration. Do not run a model, switch to a free endpoint/candidate, alter permissions, spend credits, or launch training without explicit user authorization and an approved resource route.
+> **Hard evidence boundary:** no DHI model inference, model-generated execution trajectory, adjudicated training corpus, capability score, or DHI-v1 training run/checkpoint exists. The old ORBIT-VERIFY-012 224-test result belongs only to its historical exact commit. Later S07/S09 full regression remains not confirmed. All task-manifest `model_runs_allowed` flags remain false. The last live OpenRouter check on 2026-11-11 showed zero credits; Deepnote has no model-provider integration. Do not run a model, switch to a free endpoint/candidate, alter permissions, spend credits, or launch training without explicit user authorization and an approved resource route.
 >
-> **Next action:** complete a full-paper comparison of SafeMCP, Qwen-AgentWorld, MCP-Zero, AutoTool, and the other closest work against the precise candidate question in document 15. Decide whether any falsifiable gap remains. Do not add more generic harness or observation infrastructure while that gate is open. After the research gap is accepted, freeze the matched B0/B1/B2/B3 model experiment and seek explicit authorization for inference. No additional model/framework code should be written merely to make the project look more complete.
+> **Next research action:** prepare Study 0, the matched untouched-base model screen, using the existing DHI pilot/Stage A subset only after its current task graders and exact-head harness are verified. The current 30 materialized tasks are screening-only, not confirmatory. Use Qwen3.6-35B-A3B as primary and GPT-OSS-20B as mandatory challenger; include Gemma 4 only for real multimodal cases. Do not expand the panel, create a new adapter, or modify `model_runs_allowed`. The next intervention after baseline is one verified-trajectory SFT run, followed by prediction/closure ablations.
 
 
 **Last updated:** 2026-11-11  
@@ -42,9 +42,9 @@ This is a research target, not a result or novelty claim. A prompt, RAG store, f
 ```yaml
 programme: DHI-v1
 codename: ORBIT
-phase: prior_art_novelty_gate_after_joint_state_observer
+phase: study_0_base_model_screen_preparation
 status: research_in_progress
-status_reason: DHI/research/joint_state.py and DHI/research/dhi_environment_observer.py now implement the deterministic joint observation/diff/forecast-scoring mechanism. Exact branch files passed 22/22 focused tests and compileall in Deepnote run ca0c1e0e-bace-4927-ae65-5d83528eb59a on 2026-11-11; tested code commit 81a299342ecee919e1a068a34897789934b1685c. This is not model capability evidence. The broad joint-belief novelty framing has been narrowed by docs/15_PRIOR_ART_AND_NOVELTY_GATE_2026-11-11.md after direct overlap from SafeMCP, Qwen-AgentWorld, MCP-Zero, AutoTool and related work. The candidate policy-level lifecycle-choice gap is unverified and must be rejected if already covered. No model inference, model-generated trajectory, adjudicated training corpus, capability score, or training checkpoint exists. All model_runs_allowed flags remain false; model execution and training require explicit user authorization and an approved resource route.
+status_reason: DHI-specific tool-acquisition/lifecycle novelty candidate was rejected as insufficiently distinct in docs/15_PRIOR_ART_AND_NOVELTY_GATE_2026-11-11.md. Active path is empirical model development: untouched base-model screen, verified-execution SFT, then action-effect prediction and closure ablations. The joint_state and DHIEnvironment observer research mechanism passed 22/22 tests and compileall in Deepnote run ca0c1e0e-bace-4927-ae65-5d83528eb59a at code commit 81a299342ecee919e1a068a34897789934b1685c; this is not model evidence. Stage A has only 30 materialized tasks ready for validation; this is screening scope only, not confirmatory. Full later S07/S09 harness regression is not confirmed. No model inference, model-generated trajectory, adjudicated training corpus, capability score, or training checkpoint exists. Model runs remain explicitly unauthorized; OpenRouter last showed zero credits on 2026-11-11 and Deepnote has no model-provider integration.
 training_status: not_authorized
 benchmark_status: stage_a_authoring_30_of_120; stage_b_sealed_unmaterialized
 last_verified_code_commit: 81a299342ecee919e1a068a34897789934b1685c
@@ -54,7 +54,7 @@ last_verified_test_count: 22
 last_research_compileall_exit_code: 0
 model_runs_allowed: false
 training_runs_allowed: false
-next_action: full_paper_prior_art_gate_for_tool_lifecycle_policy
+next_action: verify_existing_dhi_task_and_harness_gate_for_study_0
 ```
 </details>
 
