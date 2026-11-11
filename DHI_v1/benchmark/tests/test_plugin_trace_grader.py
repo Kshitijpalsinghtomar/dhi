@@ -216,6 +216,7 @@ def make_checkpoint_rehydration_trace(*, checkpoint_after_write: bool = False, f
     checkpoint_event = {
         "event_id": "checkpoint-resumed",
         "event_type": "checkpoint_resumed",
+        "timestamp_utc": "2026-11-03T00:00:05Z",
         "task_id": task_id,
         "action_id": read_action_id,
         "checkpoint_ref": path,
@@ -245,6 +246,8 @@ def make_checkpoint_rehydration_trace(*, checkpoint_after_write: bool = False, f
         "arguments": write_arguments,
         "side_effect_class": "sandbox_write",
     })
+    report_content = "Tool ecosystem cost audit complete.\n"
+    report_sha = sha(report_content)
     write_done = copy.deepcopy(read_done)
     write_done.update({
         "event_id": "report-write-done",
@@ -258,7 +261,7 @@ def make_checkpoint_rehydration_trace(*, checkpoint_after_write: bool = False, f
             "changed_paths": [report_path], "unchanged_paths": [],
         },
         "observed_state_before": {},
-        "observed_state_after": {},
+        "observed_state_after": {report_path: report_sha},
     })
 
     if checkpoint_after_write:
