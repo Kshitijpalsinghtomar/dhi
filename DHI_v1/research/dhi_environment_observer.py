@@ -183,9 +183,21 @@ def observe_dhi_environment(
 
         input_schema = item.get("input_schema")
         schema_hash = _digest(input_schema) if isinstance(input_schema, dict) else None
-        capabilities = _optional_string_tuple(item.get("tags"), field=f"{tool_id}.tags")
-        scope = item.get("permission_scope")
-        permissions = (scope,) if isinstance(scope, str) and scope.strip() else None
+        # Tags are retrieval keywords, not a verified capability declaration.
+        # Preserve capabilities as unknown unless the catalogue explicitly states them.
+        capabilities = _optional_string_tuple(
+            item.get("capabilities"), field=f"{tool_id}.capabilities"
+        )
+        permissions = _optional_string_tuple(
+            item.get("permissions"), field=f"{tool_id}.permissions"
+        )
+        raw_scope = item.get("required_permission_scopes", item.get("permission_scope"))
+        if isinstance(raw_scope, str) and raw_scope.strip():
+            required_permission_scopes = (raw_scope,)
+        else:
+            required_permission_scopes = _optional_string_tuple(
+                raw_scope, field=f"{tool_id}.required_permission_scopes"
+            )
         raw_effects = item.get("side_effects")
         if isinstance(raw_effects, str) and raw_effects.strip():
             side_effects = (raw_effects,)
@@ -211,6 +223,7 @@ def observe_dhi_environment(
             ),
             permissions=permissions,
             side_effects=side_effects,
+            required_permission_scopes=required_permission_scopes,
         ))
 
     world_payload = [(fact.key, fact.value) for fact in world_facts]
@@ -218,6 +231,7 @@ def observe_dhi_environment(
         (
             tool.tool_id, tool.schema_sha256, tool.capabilities, tool.availability,
             tool.permission_state, tool.permissions, tool.side_effects,
+            tool.required_permission_scopes,
         )
         for tool in sorted(tools, key=lambda item: item.tool_id)
     ]
