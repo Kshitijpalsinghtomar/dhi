@@ -1,6 +1,17 @@
 # DHI-v1 Live Workspace
 
-**Last updated:** 2026-11-05  
+> **RESEARCH RESET — 2026-11-11. Read this before every other section.**
+>
+> The active research direction is now defined in [14_RESEARCH_DIRECTION_RESET_2026-11-11.md](docs/14_RESEARCH_DIRECTION_RESET_2026-11-11.md). It supersedes older next-action lists and dated handovers. The research question is whether a learned agent can maintain a **joint belief over task/world state and changing tool-ecosystem state** to assess capability coverage and feasibility, select/compose tools, predict effects, recover from tool/schema/permission drift, and verify closure. This is a falsifiable hypothesis, not a novelty claim.
+>
+> **Stop the infrastructure-first loop.** Do not expand the 30/120/240 task panel, add provider adapters, continue S07/S09 hardening, create scripted workflows, or generate training data unless a specific declared experiment requires that work. No unrelated research repos or results may enter DHI.
+>
+> **Evidence boundary:** no DHI model inference, model-generated execution trajectory, adjudicated training corpus, or DHI-v1 training run is established. The old ORBIT-VERIFY-012 result (224 offline tests) belongs to its recorded older exact commit only. Later S07/S09 changes remain not fully verified. The current task manifest still has model-run permissions disabled. Do not change them, run any model, switch to a free endpoint, or launch training without explicit user authorization. The live OpenRouter credit balance checked 2026-11-11 is zero; Deepnote's DHI verifier has no model-provider integration.
+>
+> **Next action:** execute the no-cost research work in the reset document: complete the focused prior-art gap review, formalize the joint state/transition representation, and implement only the smallest deterministic mechanism test needed to prove that task-state and tool-ecosystem changes can be separately observed and scored. This is not a model-capability result. The next model experiment requires an explicit authorization and a funded/approved inference route.
+
+
+**Last updated:** 2026-11-11  
 **Repository:** https://github.com/Kshitijpalsinghtomar/dhi  
 **Active research branch:** `orbit/plugin-benchmark-fixture` (default `main` remains unchanged; branch is intentionally unmerged)  
 **Live-state rule:** This file is the first read at every session. It supersedes older chat summaries and dated handover snapshots when describing current status.
@@ -27,23 +38,9 @@ This is a research target, not a result or novelty claim. A prompt, RAG store, f
 ```yaml
 programme: DHI-v1
 codename: ORBIT
-phase: s07_s09_harness_hardening_not_confirmed
-status: in_progress
-status_reason: S07 checkpoint and S09 forecast harness changes are committed. Full DHI benchmark/environment regression is not yet confirmed from the current Deepnote block snapshot (not available from current block snapshot); see DHI_v1/experiments/ORBIT-S07-S09-HARNESS-HARDENING-001/verification-report.json. Stage A remains ready_for_validation, Stage B sealed, all model_runs_allowed=false; no model inference or training.
-  ORBIT-VERIFY-012 passed the exact-head offline engineering regression:
-  224 benchmark/environment tests, compileall, imports, manifest validation
-  for 30 Stage A tasks, and 30-plan loader; zero model runs were enabled.
-  S06's approved report was updated through the Deepnote token (PUT HTTP 200),
-  independently read back, and compared with the pinned base: exactly one
-  approved report path changed. ORBIT-S06-ADJUDICATION-001 passed 11/11
-  deterministic source-based checks across seven pinned fixtures. The S06
-  manifest record now has contract/environment/grader checks passing and
-  family review accepted, but task status remains ready_for_validation.
-  Panel policy requires S07 checkpoint/resume and S09 action-effect forecast
-  gaps to close before any Stage A task is promoted to validated. Stage A has
-  30 materialized tasks; Stage B remains sealed with zero tasks. All model
-  execution flags remain false. No ORBIT inference, model-generated
-  trajectory, capability score or training run exists.
+phase: research_direction_reset_joint_state_and_ecosystem
+status: research_pivot
+status_reason: The 2026-11-11 research reset in docs/14_RESEARCH_DIRECTION_RESET_2026-11-11.md supersedes the prior infrastructure-first next-step sequence. No DHI model inference, model-generated trajectory, adjudicated training corpus, capability score, or training run exists. Existing harness and task-manifest evidence remains historical and must retain its original commit/run boundary. All model_runs_allowed flags remain false; training remains unauthorized. The next no-cost work is focused prior-art analysis, formalization of the joint task-state/tool-ecosystem belief, and a small deterministic mechanism test; no benchmark expansion or provider work by default.
 training_status: not_authorized
 benchmark_status: stage_a_authoring_30_of_120; stage_b_sealed_unmaterialized
 last_verified_code_commit: 7f244bf76ccbccec5477b0055d23da5a5931e27a
