@@ -469,6 +469,14 @@
         },
         "artifact_readback": {
           "$ref": "#/$defs/artifactReadback"
+        },
+        "checkpoint_commit": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        },
+        "checkpoint_blob_sha": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
         }
       },
       "allOf": [
@@ -476,126 +484,21 @@
           "if": {
             "properties": {
               "event_type": {
-                "const": "task_started"
-              }
-            }
-          },
-          "then": {
-            "required": [
-              "source_ref"
-            ]
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "event_type": {
-                "const": "assistant_prediction"
-              }
-            }
-          },
-          "then": {
-            "required": [
-              "expected_effects"
-            ]
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "event_type": {
-                "const": "tool_discovery"
-              }
-            }
-          },
-          "then": {
-            "required": [
-              "query",
-              "visible_tool_ids",
-              "discovered_tool_ids",
-              "discovery_results"
-            ]
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "event_type": {
-                "const": "action_started"
-              }
-            }
-          },
-          "then": {
-            "required": [
-              "action_id",
-              "tool_id",
-              "arguments",
-              "observed_state_before"
-            ]
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "event_type": {
-                "const": "action_executed"
-              }
-            }
-          },
-          "then": {
-            "required": [
-              "action_id",
-              "tool_id",
-              "arguments",
-              "actual_tool_result",
-              "actual_effects",
-              "observed_state_before",
-              "observed_state_after"
-            ]
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "event_type": {
-                "const": "checkpoint_saved"
-              }
-            }
-          },
-          "then": {
-            "required": [
-              "checkpoint_ref",
-              "checkpoint_sha256"
-            ]
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "event_type": {
                 "const": "checkpoint_resumed"
               }
-            }
+            },
+            "required": [
+              "event_type"
+            ]
           },
           "then": {
             "required": [
+              "action_id",
               "checkpoint_ref",
+              "checkpoint_commit",
+              "checkpoint_blob_sha",
               "checkpoint_sha256",
               "source_ref"
-            ]
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "event_type": {
-                "const": "task_closed"
-              }
-            }
-          },
-          "then": {
-            "required": [
-              "closure_status"
             ]
           }
         }
