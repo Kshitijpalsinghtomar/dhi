@@ -260,6 +260,16 @@ class DHIEnvironment:
         """Return IDs with configured external handlers; does not imply user permission."""
         return frozenset(self.tool_handlers)
 
+    @property
+    def workspace_snapshot_policy(self) -> dict[str, Any]:
+        """Return the exact bounds and exclusions defining snapshot completeness."""
+        return {
+            "ignored_dirs": tuple(sorted(self.ignored_dirs)),
+            "max_file_bytes": self.max_file_bytes,
+            "max_snapshot_files": self.max_snapshot_files,
+            "max_snapshot_bytes": self.max_snapshot_bytes,
+        }
+
     def list_tools(self, *, visible_only: bool = True) -> list[dict[str, Any]]:
         """Return a copy of the visible inventory or the full discoverable catalogue."""
         if self._active_task and self._active_task.visible_tool_ids is not None:
