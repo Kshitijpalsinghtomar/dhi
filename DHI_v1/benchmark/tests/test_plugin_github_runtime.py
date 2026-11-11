@@ -550,7 +550,12 @@ def test_fresh_s07_runner_records_linked_pinned_checkpoint_rehydration_event():
     client.files[checkpoint_path] = checkpoint_text
     report_path = "DHI_v1/benchmark/fixtures/plugin_ecology/reports/resume-release-review.md"
     client.files[report_path] = "# Resume report fixture\n"
-    client.compare_commits = lambda arguments: {"files": []}
+    client.compare_commits = lambda arguments: {
+        "repository_full_name": REPOSITORY,
+        "base": arguments["base"],
+        "head": arguments["head"],
+        "files": [],
+    }
     runtime = build_github_plugin_runtime(plan, client, repository_full_name=REPOSITORY)
 
     task_record = next(
@@ -625,10 +630,13 @@ def test_s09_runner_records_structured_prediction_before_write_and_grades_it():
         assert arguments["base"] == BASE_COMMIT
         assert arguments["head"] == "orbit/sandbox/orbit-a-s09-001"
         return {
+            "repository_full_name": REPOSITORY,
+            "base": arguments["base"],
+            "head": arguments["head"],
             "files": [
                 {"filename": name, "status": "added", "sha": _blob_sha(content)}
                 for name, content in sorted(client.files.items())
-            ]
+            ],
         }
 
     client.compare_commits = compare
