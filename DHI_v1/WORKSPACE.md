@@ -8,7 +8,9 @@
 >
 > **Evidence boundary:** no DHI model inference, model-generated execution trajectory, adjudicated training corpus, or DHI-v1 training run is established. The old ORBIT-VERIFY-012 result (224 offline tests) belongs to its recorded older exact commit only. Later S07/S09 changes remain not fully verified. The current task manifest still has model-run permissions disabled. Do not change them, run any model, switch to a free endpoint, or launch training without explicit user authorization. The live OpenRouter credit balance checked 2026-11-11 is zero; Deepnote's DHI verifier has no model-provider integration.
 >
-> **Next action:** execute the no-cost research work in the reset document: complete the focused prior-art gap review, formalize the joint state/transition representation, and implement only the smallest deterministic mechanism test needed to prove that task-state and tool-ecosystem changes can be separately observed and scored. This is not a model-capability result. The next model experiment requires an explicit authorization and a funded/approved inference route.
+> **Current research code:** `DHI_v1/research/joint_state.py` now defines the observed joint-state and forecast-scoring contract; focused tests are in `DHI_v1/research/tests/test_joint_state.py`. It is not a learned model and is not wired into the runtime. Thirteen tests and compileall passed against an isolated local copy. Exact committed files are mirrored into the Deepnote verifier; that focused run is pending inspection.
+>
+> **Next action:** add a read-only observer that builds these records from the actual `DHIEnvironment` catalogue and workspace snapshots. Preserve full-vs-partial inventory scope, visible vs discoverable vs disconnected tools, unknown permission/schema metadata, and source references. Test it against DHI environment fixtures. Do not change `agent_runner.py` until this observation boundary works. This is mechanism verification, not model-capability evidence. The next model experiment still requires explicit authorization and an approved inference route.
 
 
 **Last updated:** 2026-11-11  
@@ -38,9 +40,9 @@ This is a research target, not a result or novelty claim. A prompt, RAG store, f
 ```yaml
 programme: DHI-v1
 codename: ORBIT
-phase: research_direction_reset_joint_state_and_ecosystem
-status: research_pivot
-status_reason: The 2026-11-11 research reset in docs/14_RESEARCH_DIRECTION_RESET_2026-11-11.md supersedes the prior infrastructure-first next-step sequence. No DHI model inference, model-generated trajectory, adjudicated training corpus, capability score, or training run exists. Existing harness and task-manifest evidence remains historical and must retain its original commit/run boundary. All model_runs_allowed flags remain false; training remains unauthorized. The next no-cost work is focused prior-art analysis, formalization of the joint task-state/tool-ecosystem belief, and a small deterministic mechanism test; no benchmark expansion or provider work by default.
+phase: joint_state_measurement_contract_integration
+status: research_in_progress
+status_reason: Research direction is governed by docs/14_RESEARCH_DIRECTION_RESET_2026-11-11.md. DHI/research/joint_state.py and its focused tests are committed; the 13-test isolated local copy passed, while the exact committed file test is pending Deepnote run inspection. The module is not integrated with DHIEnvironment or the model runner and is not a learned model. No DHI model inference, model-generated trajectory, adjudicated training corpus, capability score, or training run exists. Existing harness and task-manifest evidence retains its original commit/run boundary. All model_runs_allowed flags remain false; training remains unauthorized. Next action: implement and test a read-only observer over the actual DHIEnvironment state, with complete-snapshot, permission, schema, and provenance semantics; no benchmark expansion or provider work by default.
 training_status: not_authorized
 benchmark_status: stage_a_authoring_30_of_120; stage_b_sealed_unmaterialized
 last_verified_code_commit: 7f244bf76ccbccec5477b0055d23da5a5931e27a
