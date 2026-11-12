@@ -64,8 +64,8 @@ research_mechanism_test_count: 22
 research_mechanism_compileall_exit_code: 0
 latest_manifest_blob: e2a1951d1aca0786b7f6b2d87662c4099eda5b7d
 latest_manifest_commit: 269a22e5a85181ac4b69182f750625b13a5ec977
-latest_integrated_regression_run: 0e097bf0-85f2-4278-b2aa-700db9be4e15
-latest_integrated_regression_tests: 66
+latest_integrated_regression_run: a9c3a43c-f560-46f5-ac6f-cb0d44bc01ed
+latest_integrated_regression_tests: 79
 latest_integrated_regression_exit_code: 0
 latest_integrated_compileall_exit_code: 0
 latest_manifest_validator_run: 6380935a-c19f-4709-8669-2d480129b605
