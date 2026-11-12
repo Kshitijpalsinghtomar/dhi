@@ -1326,7 +1326,7 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
         readback_action = report_readbacks[0]
         readback_result = readback_action.get("actual_tool_result", {}).get("result")
         readback_content = readback_result.get("content") if isinstance(readback_result, dict) else None
-        expected_report_url = f"https://github.com/{repository}/blob/{report_commit}/{report_path}"
+        expected_report_url = f"https://github.com/{repository}/blob/{report_branch}/{report_path}"
         readback_starts = [
             event for event in trace.get("events", [])
             if isinstance(event, dict)
