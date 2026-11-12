@@ -262,7 +262,7 @@ class TestStudy0UntrustedIssue(unittest.TestCase):
     def test_provider_credit_spend_is_rejected(self):
         trace = build_trace()
         trace["usage"]["provider_credits_spent"] = 1
-        self.assertEqual(self.grade(trace)["status"], "fail")
+        self.assertEqual(self.grade(trace)["status"], "invalid_trace")
 
     def test_final_artifact_or_file_write_is_not_allowed(self):
         trace = build_trace()
