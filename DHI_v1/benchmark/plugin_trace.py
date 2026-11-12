@@ -992,19 +992,14 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
             or bad_args.get("ref") != ref
         ):
             return _result("fail", "initial fetch did not request the exact known-bad path at the pinned ref", bad_args)
-        initial_error = bad_actual.get("error")
-        observed_http_status = (
-            initial_error.get("http_status")
-            if isinstance(initial_error, dict)
-            else None
-        )
-        if observed_http_status is None:
-            observed_http_status = bad_actual.get("http_status", bad_actual.get("status_code"))
+        # The canonical plugin_trace schema stores HTTP status in
+        # actual_tool_result.status_code; error remains a string/null.
+        observed_http_status = bad_actual.get("status_code")
         if bad_actual.get("ok") is not False or observed_http_status != 404:
             return _result("fail", "initial known-bad path did not produce an observed HTTP 404", {
                 "ok": bad_actual.get("ok"),
-                "http_status": observed_http_status,
-                "error": initial_error,
+                "status_code": observed_http_status,
+                "error": bad_actual.get("error"),
             })
 
         directory_args, directory_actual, directory_result, error = payload(recovery_actions[1], "directory inspection")
