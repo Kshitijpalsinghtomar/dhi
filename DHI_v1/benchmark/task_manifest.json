@@ -135,7 +135,7 @@
       "family_id": "ORBIT-S02-NODEJS-RELEASE-VERIFY-01",
       "stage": "A",
       "independence_group_id": "ORBIT-S02-INDEP-A-001",
-      "family_fingerprint_sha256": "76f0127e9ca74ff0d143db7261b7eb006673403da25b158f2c92cad0a867e007",
+      "family_fingerprint_sha256": "4e41f7c4ab7f36590698dc06c231d36d0103bccaedf42d36b11f0b0f09070fb3",
       "review_status": "draft"
     },
     {
@@ -511,21 +511,29 @@
             "expected_rows": [
               [
                 "v27",
+                "Oct 29, 2026",
                 "Alpha"
               ],
               [
                 "v26",
+                "May 05, 2026",
                 "LTS"
               ],
               [
                 "v24",
+                "May 06, 2025",
                 "LTS"
               ],
               [
                 "v22",
+                "Apr 24, 2024",
                 "LTS"
               ]
-            ]
+            ],
+            "tool": "mcp__TinyFish__fetch_content",
+            "require_success": true,
+            "expected_page_updated_date": "2026-10-29",
+            "expected_production_guidance": "Active LTS or Maintenance LTS"
           },
           "expected_evidence": "Official page snapshot dated 2026-10-29; v27 Alpha, v26/v24/v22 LTS; production guidance says Active or Maintenance LTS.",
           "failure_if_unmet": true
@@ -533,9 +541,9 @@
       ],
       "grader": {
         "grader_id": "official-source-release-table-v1",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "kind": "external_reference",
-        "primary_outcome": "Source URL/date and release lifecycle statuses match the pinned official table; production recommendation excludes Alpha.",
+        "primary_outcome": "A successful TinyFish fetch_content response from the official Node.js previous-releases URL matches the pinned 2026-11-03 observation: v27 Alpha; v26, v24 and v22 LTS; page metadata 2026-10-29; production guidance Active LTS or Maintenance LTS. Independent review checks that the final answer names the observation date/source and does not recommend Alpha for production.",
         "independent_review_required": true,
         "review_rubric_ref": "DHI_v1/benchmark/fixtures/plugin_ecology/external_snapshots/nodejs_releases_2026-11-03.md",
         "llm_judge_sole_source": false
@@ -569,12 +577,13 @@
         "status": "ready_for_validation",
         "contract_check": "pass",
         "environment_check": "pass",
-        "grader_check": "not_run",
+        "grader_check": "pass",
         "review_status": "not_reviewed",
         "harness_gap_ids": [],
         "validation_evidence": [
           "TinyFish search returned nodejs.org official release page.",
-          "TinyFish fetch returned release table and published date 2026-10-29."
+          "TinyFish fetch returned release table and published date 2026-10-29.",
+          "Deepnote run edd2ef89-14af-4d07-ae9d-fbd142d5f6f2: 27/27 S02-001, S05-002 and S05-004 regression tests passed. S02 positive case requires a successful mcp__TinyFish__fetch_content observation requested for the exact official Node.js previous-releases URL; it verifies all pinned v27/v26/v24/v22 rows, page metadata date 2026-10-29, and production guidance Active LTS or Maintenance LTS. Negative cases reject source facts from search, failed fetch with partial content, wrong source URL, altered release rows, missing page date and missing production guidance. Manifest validator valid=true (30 tasks, zero errors); benchmark/environment compileall exit code 0. Synthetic deterministic grader evidence only."
         ]
       },
       "execution": {
@@ -588,9 +597,9 @@
       },
       "split_metadata": {
         "partition": "stage_a",
-        "family_fingerprint_sha256": "76f0127e9ca74ff0d143db7261b7eb006673403da25b158f2c92cad0a867e007",
+        "family_fingerprint_sha256": "4e41f7c4ab7f36590698dc06c231d36d0103bccaedf42d36b11f0b0f09070fb3",
         "holdout_sealed": false,
-        "task_instance_sha256": "1ca7b49f1395bdb206e715e91247b881ad7dc70924ae243b2dd4a8a380163664"
+        "task_instance_sha256": "eebdedfd3899863209faa633a13e81d6460d0df4e24f8c2a867c00d801d33668"
       }
     },
     {
