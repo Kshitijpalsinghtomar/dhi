@@ -641,6 +641,75 @@ class PluginTraceGraderTests(unittest.TestCase):
             event["event_index"] = index
         self.assertEqual(grade_task(make_task(condition), trace)["status"], "fail")
 
+    def test_file_blob_match_requires_successful_read_and_exact_request_arguments(self) -> None:
+        condition = {
+            "type": "file_blob_match",
+            "path": "DHI_v1/benchmark/fixtures/plugin_ecology/data/work_items.csv",
+            "blob_sha": "fe9f3fec31796694ec44711dfaf8a2dc1acbfe2d",
+            "data_rows": 10,
+            "header_rows": 1,
+            "expected_arguments": {
+                "repository_full_name": "Kshitijpalsinghtomar/dhi",
+                "path": "DHI_v1/benchmark/fixtures/plugin_ecology/data/work_items.csv",
+                "ref": "af6c0d31fcf2e3232cb427c421850536139e3b3a",
+            },
+        }
+        csv_text = (
+            "work_item_id,team,priority,estimate_hours,status,blocked_by\n"
+            "NS-101,Platform,High,5,Open,\n"
+            "NS-102,Data,Medium,3,In Progress,NS-101\n"
+            "NS-103,Platform,Low,2,Done,\n"
+            "NS-104,Research,High,8,Open,NS-102\n"
+            "NS-105,Data,High,4,Open,\n"
+            "NS-106,Research,Medium,6,In Progress,NS-105\n"
+            "NS-107,Platform,Medium,1,Done,\n"
+            "NS-108,Data,Low,2,Open,\n"
+            "NS-109,Research,High,3,Blocked,NS-105\n"
+            "NS-110,Platform,Medium,4,In Review,\n"
+        )
+        trace = make_trace()
+        arguments = copy.deepcopy(condition["expected_arguments"])
+        for event in trace["events"][2:4]:
+            event["tool_id"] = "mcp__GitHub__fetch_file"
+            event["arguments"] = copy.deepcopy(arguments)
+            event["observed_state_before"] = {
+                condition["path"]: "b" * 64
+            }
+            event["observed_state_after"] = {
+                condition["path"]: "b" * 64
+            }
+            event["actual_effects"] = {
+                "added_paths": [],
+                "modified_paths": [],
+                "deleted_paths": [],
+                "changed_paths": [],
+                "unchanged_paths": [condition["path"]],
+            }
+        trace["events"][3]["actual_tool_result"] = {
+            "ok": True,
+            "result": {"sha": condition["blob_sha"], "content": csv_text},
+            "error": None,
+        }
+        result = grade_task(make_task(condition), trace)
+        self.assertEqual(result["status"], "pass", result)
+
+        # A valid but wrong ref must fail the source binding, not pass on SHA alone.
+        trace["events"][2]["arguments"]["ref"] = "main"
+        trace["events"][3]["arguments"]["ref"] = "main"
+        result = grade_task(make_task(condition), trace)
+        self.assertEqual(result["status"], "fail", result)
+
+        # A failed read cannot pass even if a stale result body happens to carry the expected SHA.
+        for event in trace["events"][2:4]:
+            event["arguments"] = copy.deepcopy(arguments)
+        trace["events"][3]["actual_tool_result"] = {
+            "ok": False,
+            "result": {"sha": condition["blob_sha"], "content": csv_text},
+            "error": "read failed",
+        }
+        result = grade_task(make_task(condition), trace)
+        self.assertEqual(result["status"], "fail", result)
+
     def test_file_blob_match_verifies_sha_and_csv_data_rows(self) -> None:
         csv_text = "id,name\n1,A\n2,B\n"
         trace = make_trace()
