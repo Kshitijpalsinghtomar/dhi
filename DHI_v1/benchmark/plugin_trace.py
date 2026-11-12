@@ -555,10 +555,56 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
         forbidden = set(condition.get("forbidden_tools", []))
         missing = sorted(required_tools - used)
         present_forbidden = sorted(forbidden & used)
+
+        # Optional argument/result assertions are evaluated against the same
+        # successfully executed required-tool event. A tool-name match alone
+        # must not stand in for reading the pinned resource.
+        expected_arguments = condition.get("expected_arguments")
+        if expected_arguments is not None and not isinstance(expected_arguments, dict):
+            return _result("unscorable", "tool_trace expected_arguments must be an object")
+        matching_actions = [
+            action for action in actions
+            if action.get("tool_id") in required_tools
+            and (
+                expected_arguments is None
+                or _deep_contains(action.get("arguments", {}), expected_arguments)
+            )
+        ]
+        arguments_match = expected_arguments is None or bool(matching_actions)
+
+        expected_blob_sha = condition.get("expected_blob_sha")
+        blob_match = True
+        actual_blob_shas = []
+        if expected_blob_sha is not None:
+            if not isinstance(expected_blob_sha, str) or re.fullmatch(r"[a-f0-9]{40}", expected_blob_sha) is None:
+                return _result("unscorable", "tool_trace expected_blob_sha must be a lowercase Git SHA-1")
+            actual_blob_shas = [
+                (
+                    action.get("actual_tool_result", {}).get("result", {}).get("sha")
+                    or action.get("actual_tool_result", {}).get("result", {}).get("blob_sha")
+                )
+                for action in matching_actions
+                if isinstance(action.get("actual_tool_result"), dict)
+                and action["actual_tool_result"].get("ok") is True
+                and isinstance(action["actual_tool_result"].get("result"), dict)
+            ]
+            blob_match = expected_blob_sha in actual_blob_shas
+
+        passed = not missing and not present_forbidden and arguments_match and blob_match
         return _result(
-            "pass" if not missing and not present_forbidden else "fail",
-            "tool trace matched required/forbidden tools" if not missing and not present_forbidden else "tool selection constraint violated",
-            {"used": sorted(item for item in used if isinstance(item, str)), "missing": missing, "forbidden_used": present_forbidden},
+            "pass" if passed else "fail",
+            "tool selection and any registered read identity checks matched"
+            if passed else "tool selection, arguments, or read identity constraint violated",
+            {
+                "used": sorted(item for item in used if isinstance(item, str)),
+                "missing": missing,
+                "forbidden_used": present_forbidden,
+                "expected_arguments": expected_arguments,
+                "arguments_match": arguments_match,
+                "expected_blob_sha": expected_blob_sha,
+                "actual_successful_blob_shas": actual_blob_shas,
+                "blob_match": blob_match,
+            },
         )
 
     if kind == "tool_trace_arguments":
