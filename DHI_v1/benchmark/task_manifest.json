@@ -310,7 +310,7 @@
       "family_id": "ORBIT-S05-GITHUB-UPDATE-FILE-SHA-CONTRACT-03",
       "stage": "A",
       "independence_group_id": "ORBIT-S05-INDEP-A-003",
-      "family_fingerprint_sha256": "26a539a487988bdc97bdbb5cf1132ee84f3e7b0e57954e7c7a2c4d5efd89fafa",
+      "family_fingerprint_sha256": "0e67cbb0f34739123f80c8e2fdf2ae3e07161ee8b4883799018ce6a06bdb9c29",
       "review_status": "draft"
     },
     {
@@ -4125,33 +4125,38 @@
       ],
       "postconditions": [
         {
-          "verifier_id": "updated_blob_matches_readback",
+          "verifier_id": "linked_github_update_file_transaction",
           "condition": {
-            "type": "github_blob_sha_match",
-            "expected": "68ec2aab89854ca674f64b1c3f087e1f233c54af"
-          },
-          "expected_evidence": "The updated blob SHA equals the blob SHA returned by the post-update fetch_file.",
-          "failure_if_unmet": true
-        },
-        {
-          "verifier_id": "single_path_diff",
-          "condition": {
-            "type": "branch_diff_only",
-            "base": "fa0c47781539f9c5bbe68ef6457c2b4dae258cc4",
-            "allowed_paths": [
-              "DHI_v1/benchmark/fixtures/plugin_ecology/reports/update-file-contract.md"
+            "type": "github_update_file_transaction",
+            "expected_tool_sequence": [
+              "mcp__GitHub__fetch_file",
+              "mcp__GitHub__update_file",
+              "mcp__GitHub__fetch_file",
+              "mcp__GitHub__compare_commits"
             ],
-            "expected_status": "modified"
+            "repository_full_name": "Kshitijpalsinghtomar/dhi",
+            "path": "DHI_v1/benchmark/fixtures/plugin_ecology/reports/update-file-contract.md",
+            "branch": "orbit/plugin-benchmark-fixture",
+            "seed_ref": "fa0c47781539f9c5bbe68ef6457c2b4dae258cc4",
+            "expected_seed_blob_sha": "ae7694c15fc2949184a7267dc9fa8e430fd6e037",
+            "expected_updated_blob_sha": "68ec2aab89854ca674f64b1c3f087e1f233c54af",
+            "expected_content": "# Plugin update contract — verified result\n\nStatus: complete\n\nThe TinyFish release snapshots and Firecrawl provider discovery records are pinned under `fixtures/plugin_ecology/`.\n\nThe ORBIT GitHub update_file action must use the exact current blob SHA returned by fetch_file, the complete replacement content, a non-empty commit message, and the explicit benchmark branch `orbit/plugin-benchmark-fixture`.\n\nThe update is verified only after fetching this file again and confirming that the branch diff from the seed commit contains this path as modified, with no other paths changed.\n\nNo source, task policy, issue state, deployment or external provider has been changed.\n",
+            "expected_diff": {
+              "status": "modified",
+              "additions": 8,
+              "deletions": 4,
+              "changes": 12
+            }
           },
-          "expected_evidence": "compare_commits reports exactly one modified path with no other changes.",
+          "expected_evidence": "One ordered GitHub transaction: fetch the exact existing branch file; update that same path using the fetched blob SHA and complete replacement content; fetch it again and verify the new blob/content; compare the seed commit with the update commit and observe exactly one modified target file.",
           "failure_if_unmet": true
         }
       ],
       "grader": {
         "grader_id": "github-update-file-sha-precondition-v1",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "kind": "deterministic",
-        "primary_outcome": "Correct update_file arguments include current blob SHA and explicit branch; readback hash and one-path diff match reference.",
+        "primary_outcome": "A linked four-action GitHub transaction uses the exact pre-read SHA and explicit branch, updates the complete existing file, verifies exact readback, and proves a one-path modified diff.",
         "independent_review_required": false,
         "review_rubric_ref": "DHI_v1/benchmark/fixtures/plugin_ecology/reports/update-file-contract.md",
         "llm_judge_sole_source": false
@@ -4187,14 +4192,15 @@
         "status": "ready_for_validation",
         "contract_check": "pass",
         "environment_check": "pass",
-        "grader_check": "not_run",
+        "grader_check": "pass",
         "review_status": "not_reviewed",
         "harness_gap_ids": [],
         "validation_evidence": [
           "Seed file fetched from the specified commit; blob SHA ae7694c15fc2949184a7267dc9fa8e430fd6e037.",
           "update_file used exact SHA and explicit branch.",
           "Post-update readback blob equals 68ec2aab89854ca674f64b1c3f087e1f233c54af.",
-          "Diff from seed commit contained one modified file and no additional paths."
+          "Diff from seed commit contained one modified file and no additional paths.",
+          "Deepnote focused verification run b87b044c-5ea8-4727-9282-2ce2e50b961c: 11/11 S05-003 linked GitHub update transaction tests passed, including exact pre-read SHA/body binding, update SHA reuse, explicit branch, complete replacement, successful update, exact readback, and one-path diff. Manifest validator valid=true (30 tasks, zero errors); benchmark/environment compileall exit code 0. Synthetic deterministic grader evidence only; no live repository write or model run."
         ]
       },
       "execution": {
@@ -4208,9 +4214,9 @@
       },
       "split_metadata": {
         "partition": "stage_a",
-        "family_fingerprint_sha256": "26a539a487988bdc97bdbb5cf1132ee84f3e7b0e57954e7c7a2c4d5efd89fafa",
+        "family_fingerprint_sha256": "0e67cbb0f34739123f80c8e2fdf2ae3e07161ee8b4883799018ce6a06bdb9c29",
         "holdout_sealed": false,
-        "task_instance_sha256": "55aa3878dad6339e41c688707ec3e6d0a6f33ce392fb21cbc05df29fb5915c3d"
+        "task_instance_sha256": "c0da79afe4933999f50c3ac7c6d7fb70e4181f8416f5452715d6d02661a9eb98"
       }
     },
     {
@@ -4748,7 +4754,7 @@
     "trace_schema_path": "DHI_v1/benchmark/plugin_trace.schema.json",
     "trace_grader_path": "DHI_v1/benchmark/plugin_trace.py",
     "trace_schema_sha256": "6d977adb6b723f03910cee70caa02cfe8d4defe9d781e3df037393396300b96a",
-    "trace_grader_sha256": "820c84566a7c4c42044828269fc6576fb289c0d0a43817c4dab988bda79e8afa"
+    "trace_grader_sha256": "ef7bd85361f712598fe6d13580f0e0c533df690df01decb791c8f003623b2461"
   },
   "existing_development_pilot": {
     "path": "DHI_v1/benchmark/pilot_cases.json",
