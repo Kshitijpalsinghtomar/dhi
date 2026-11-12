@@ -1150,6 +1150,25 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
             return _result("unscorable", "checkpoint_resume_integrity requires pinned checkpoint, seven source blobs, report identity, and content rules")
 
         ordered_actions = sorted(actions, key=lambda event: event.get("event_index", 10**9))
+        min_tool_calls = condition.get("min_tool_calls", 9)
+        max_tool_calls = condition.get("max_tool_calls", 24)
+        actual_tool_calls = trace.get("usage", {}).get("tool_calls")
+        observed_action_starts = sum(
+            isinstance(event, dict) and event.get("event_type") == "action_started"
+            for event in trace.get("events", [])
+        )
+        if (
+            not isinstance(min_tool_calls, int) or isinstance(min_tool_calls, bool)
+            or not isinstance(max_tool_calls, int) or isinstance(max_tool_calls, bool)
+            or min_tool_calls < 0 or max_tool_calls < min_tool_calls
+            or not isinstance(actual_tool_calls, int) or isinstance(actual_tool_calls, bool)
+            or actual_tool_calls != observed_action_starts
+            or actual_tool_calls < min_tool_calls or actual_tool_calls > max_tool_calls
+        ):
+            return _result("fail", "observed tool-call count is inconsistent with the trace or task action budget", {
+                "expected_min": min_tool_calls, "expected_max": max_tool_calls,
+                "declared_tool_calls": actual_tool_calls, "observed_action_starts": observed_action_starts,
+            })
         resume_events = _events_of_type(trace, "checkpoint_resumed")
         if len(resume_events) != 1:
             return _result("fail", f"expected exactly one checkpoint_resumed event; found {len(resume_events)}")
@@ -1169,6 +1188,23 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
             }
         ):
             return _result("fail", "checkpoint resume is not linked to the exact successful registered GitHub file-read action")
+        checkpoint_starts = [
+            event for event in trace.get("events", [])
+            if isinstance(event, dict)
+            and event.get("event_type") == "action_started"
+            and event.get("action_id") == checkpoint_action.get("action_id")
+        ]
+        if len(checkpoint_starts) != 1:
+            return _result("fail", "checkpoint fetch has no unique invocation start")
+        checkpoint_start = checkpoint_starts[0]
+        if (
+            checkpoint_start.get("tool_id") != "mcp__GitHub__fetch_file"
+            or checkpoint_start.get("arguments") != {
+                "repository_full_name": repository, "path": checkpoint_path, "ref": checkpoint_commit
+            }
+            or checkpoint_start.get("event_index", 10**9) >= checkpoint_action.get("event_index", 0)
+        ):
+            return _result("fail", "checkpoint fetch invocation start is not the exact pinned GitHub read")
         checkpoint_result = checkpoint_action["actual_tool_result"].get("result")
         checkpoint_content = checkpoint_result.get("content") if isinstance(checkpoint_result, dict) else None
         if (
@@ -1217,12 +1253,16 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
         if not isinstance(report_content, str):
             return _result("fail", "report write content is not text")
 
-        source_actions = [
+        source_path_actions = [
             event for event in ordered_actions
-            if event.get("tool_id") == "mcp__GitHub__fetch_file"
-            and isinstance(event.get("arguments"), dict)
+            if isinstance(event.get("arguments"), dict)
             and event["arguments"].get("path") in required_sources
         ]
+        if len(source_path_actions) != 7 or any(
+            event.get("tool_id") != "mcp__GitHub__fetch_file" for event in source_path_actions
+        ):
+            return _result("fail", "the seven registered source paths must be read only through the exact GitHub fetch_file tool")
+        source_actions = source_path_actions
         for source_path, expected_source_blob in required_sources.items():
             if not isinstance(source_path, str) or not source_path or not isinstance(expected_source_blob, str) or re.fullmatch(r"[a-f0-9]{40}", expected_source_blob) is None:
                 return _result("unscorable", "required_sources must map seven exact paths to lowercase Git blob SHAs")
@@ -1267,6 +1307,15 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
         if len(source_actions) != 7:
             return _result("fail", "trace contains duplicate, stale, or unregistered source reads")
 
+        report_path_actions = [
+            event for event in ordered_actions
+            if isinstance(event.get("arguments"), dict)
+            and event["arguments"].get("path") == report_path
+        ]
+        if len(report_path_actions) != 2 or {
+            event.get("tool_id") for event in report_path_actions
+        } != {"mcp__GitHub__create_file", "mcp__GitHub__fetch_file"}:
+            return _result("fail", "the report path must have exactly one registered create_file and one registered fetch_file action")
         report_readbacks = [
             event for event in ordered_actions
             if event.get("tool_id") == "mcp__GitHub__fetch_file"
@@ -1381,7 +1430,7 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
                 "expected": expected_file, "actual": files[0],
             })
 
-        normalized_report = report_content.casefold()
+        normalized_report = report_content.casefold().replace("→", "->").replace("⇒", "->")
         missing_phrases = [phrase for phrase in required_phrases if phrase.casefold() not in normalized_report]
         forbidden_found = [phrase for phrase in forbidden_phrases if phrase.casefold() in normalized_report]
         if missing_phrases or forbidden_found:
