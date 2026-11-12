@@ -137,6 +137,7 @@ def build_trace(report: str = REPORT_CONTENT) -> dict:
         "event_id": f"e{closed_index}", "event_index": closed_index,
         "event_type": "task_closed", "timestamp_utc": "2026-11-03T00:00:12Z",
         "task_id": "ORBIT-A-S09-001", "closure_status": "success",
+        "prediction_comparison": {"status": "correct", "matched_fields": ["added_paths", "modified_paths", "deleted_paths"], "missed_fields": [], "details": "The observed one-file add matched the pre-write prediction."},
     })
     return {
         "trace_schema_version": "orbit.plugin-trace.v1",
