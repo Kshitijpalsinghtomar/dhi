@@ -184,7 +184,7 @@
       "family_id": "ORBIT-S09-GITHUB-WRITE-PREDICT-VERIFY-01",
       "stage": "A",
       "independence_group_id": "ORBIT-S09-INDEP-A-001",
-      "family_fingerprint_sha256": "4334cdf2c8b8ab6424bf15b07befc8c6cbc8634c4f2e6f9670f16b68d3ab6995",
+      "family_fingerprint_sha256": "c5f6da6d1d02fda571ece1647717a564100ba49ce4cc6306c5b88ec30ceba28f",
       "review_status": "draft"
     },
     {
@@ -1527,7 +1527,7 @@
       "task_family_id": "ORBIT-S09-GITHUB-WRITE-PREDICT-VERIFY-01",
       "independence_group_id": "ORBIT-S09-INDEP-A-001",
       "task_contract": {
-        "prompt": "On a dedicated GitHub benchmark branch, create the new file reports/effect-check.md containing a short verified statement that Northstar has 3 Passed, 1 Blocked, 1 Not Run and 1 Failed acceptance test. Before calling the write tool, state a structured prediction that exactly one new path will be created and no existing file will change. After the write, fetch the file and compare the branch diff with the fixture base. Report whether the observed effect matched the prediction.",
+        "prompt": "On the dedicated disposable GitHub benchmark branch orbit/s09-effect-prediction (created from fixture base af6c0d31fcf2e3232cb427c421850536139e3b3a), create DHI_v1/benchmark/fixtures/plugin_ecology/reports/effect-check.md. It must state the verified acceptance-matrix counts: 3 Passed, 1 Blocked, 1 Not Run and 1 Failed. Before calling create_file, record a structured prediction that exactly this one path will be added, with no modified or deleted paths. Then fetch the report and compare the branch diff with the fixture base. Report whether the observed effect matched the prediction.",
         "goal": "Predict the side effect before executing a plugin write and verify the actual repository diff after execution.",
         "hard_constraints": [
           "Prediction must be recorded before the write tool call.",
@@ -1542,7 +1542,7 @@
         "environment_id": "github-plugin-side-effect-sandbox",
         "version": "github-tool-registry@4a5a390a5e7246366f17f504cf14b62c56ba6f86",
         "fixture_id": "northstar-plugin-ecology-v1",
-        "reset_recipe": "Create a disposable branch from fixture base af6c0d31fcf2e3232cb427c421850536139e3b3a; baseline has no reports/effect-check.md.",
+        "reset_recipe": "Create fresh disposable branch orbit/s09-effect-prediction from exact fixture base commit af6c0d31fcf2e3232cb427c421850536139e3b3a. The target report path is absent at the base. Only DHI_v1/benchmark/fixtures/plugin_ecology/reports/effect-check.md may be added; then fetch it and compare the branch to the fixture base.",
         "state_sha256": "1950c43991b3c0760134b5d9a082209dc8ad167b313e74d1320f7d15088c729f"
       },
       "tool_inventory": {
@@ -1566,7 +1566,7 @@
         "verified_goal_closure"
       ],
       "horizon": {
-        "min_actions": 2,
+        "min_actions": 3,
         "max_actions": 5,
         "checkpoint_count": 0,
         "cross_session_resume_required": false
@@ -1574,50 +1574,38 @@
       "preconditions": [],
       "postconditions": [
         {
-          "verifier_id": "pre_action_prediction",
+          "verifier_id": "write_prediction_closure",
           "condition": {
-            "type": "assistant_trace_before_write",
+            "type": "github_write_prediction_closure",
+            "repository_full_name": "Kshitijpalsinghtomar/dhi",
+            "branch": "orbit/s09-effect-prediction",
+            "base_commit": "af6c0d31fcf2e3232cb427c421850536139e3b3a",
+            "report_path": "DHI_v1/benchmark/fixtures/plugin_ecology/reports/effect-check.md",
             "predicted_added_paths": [
               "DHI_v1/benchmark/fixtures/plugin_ecology/reports/effect-check.md"
             ],
             "predicted_modified_paths": [],
-            "predicted_deleted_paths": []
-          },
-          "expected_evidence": "Prediction is present before the create_file invocation.",
-          "failure_if_unmet": true
-        },
-        {
-          "verifier_id": "observed_diff",
-          "condition": {
-            "type": "branch_diff_only",
-            "allowed_paths": [
-              "DHI_v1/benchmark/fixtures/plugin_ecology/reports/effect-check.md"
-            ]
-          },
-          "expected_evidence": "Actual branch diff contains only the predicted new file.",
-          "failure_if_unmet": true
-        },
-        {
-          "verifier_id": "readback",
-          "condition": {
-            "type": "github_file_contains",
-            "path": "DHI_v1/benchmark/fixtures/plugin_ecology/reports/effect-check.md",
-            "required": [
+            "predicted_deleted_paths": [],
+            "required_report_phrases": [
+              "Verified acceptance-test counts:",
               "Passed: 3",
               "Blocked: 1",
               "Not Run: 1",
-              "Failed: 1"
-            ]
+              "Failed: 1",
+              "These are acceptance-matrix statuses, not a claim of release readiness."
+            ],
+            "min_tool_calls": 3,
+            "max_tool_calls": 5
           },
-          "expected_evidence": "File is fetched after creation and its contents match the fixture.",
+          "expected_evidence": "One exact pre-write path prediction, one successful GitHub create_file, one successful fetch_file readback of the same Git blob, and compare_commits proving exactly one added file and one commit.",
           "failure_if_unmet": true
         }
       ],
       "grader": {
         "grader_id": "plugin-action-prediction-closure-v1",
-        "version": "1.0.0",
+        "version": "2.0.0",
         "kind": "mixed",
-        "primary_outcome": "A pre-action prediction matches the independently fetched file and branch diff.",
+        "primary_outcome": "The structured prediction occurs before the write and exactly matches one added path with no modified/deleted paths; the exact registered GitHub create_file succeeds on the pinned disposable branch; the report is fetched back with matching content and Git blob SHA; and an independent compare_commits response confirms one commit and exactly one added report path.",
         "independent_review_required": true,
         "llm_judge_sole_source": false
       },
@@ -1651,12 +1639,13 @@
         "status": "ready_for_validation",
         "contract_check": "pass",
         "environment_check": "pass",
-        "grader_check": "not_run",
+        "grader_check": "pass",
         "review_status": "not_reviewed",
         "harness_gap_ids": [],
         "validation_evidence": [
-          "A scripted runner test records the structured predicted added-path effect before create_file, strips the metadata before provider dispatch, and passes the independent write/readback grader.",
-          "Task-level forecast accuracy and capability remain unvalidated until an authorized model run."
+          "Deepnote CPU combined regression run b1ba1422-2f01-42b7-ab04-6d8e38204b03: 71/71 passed (17 S09 task-specific, 22 S07 task-specific, 32 shared plugin_trace). S09 tests cover prediction timing/content, exact create_file arguments, write success, report fetch/readback/blob, artifact linkage, exact compare base/head, one-file/one-commit diff, extra paths, wrong content and action counts.",
+          "Scripted reference GitHub workflow on fresh branch orbit/s09-effect-prediction from fixture base af6c0d31fcf2e3232cb427c421850536139e3b3a: create commit 9853da932b925426ee445af7b4c2fc9bf85f8824; fetched report blob 3b2cc0c7cd82fb0e621dd77945e75f31b024c580; compare returned ahead_by=1, behind_by=0, total_commits=1, exactly one added path DHI_v1/benchmark/fixtures/plugin_ecology/reports/effect-check.md with 11 additions and zero deletions. The branch remains isolated and unmerged.",
+          "Task grader tests and the reference write are deterministic/scripted validation only. No model inference, training, provider credits, pull-request merge, or default-main change occurred."
         ]
       },
       "execution": {
@@ -1670,9 +1659,9 @@
       },
       "split_metadata": {
         "partition": "stage_a",
-        "family_fingerprint_sha256": "4334cdf2c8b8ab6424bf15b07befc8c6cbc8634c4f2e6f9670f16b68d3ab6995",
+        "family_fingerprint_sha256": "c5f6da6d1d02fda571ece1647717a564100ba49ce4cc6306c5b88ec30ceba28f",
         "holdout_sealed": false,
-        "task_instance_sha256": "caa634872a0ad3703fdfbb6bd7846515964aa626e13a03e5c9d5b8486f9f3688"
+        "task_instance_sha256": "af6517cab69f599ea07d84fdee6ad7f23a580b03c1af0679053fc6117d665724"
       }
     },
     {
@@ -4829,7 +4818,7 @@
     "trace_schema_path": "DHI_v1/benchmark/plugin_trace.schema.json",
     "trace_grader_path": "DHI_v1/benchmark/plugin_trace.py",
     "trace_schema_sha256": "6d977adb6b723f03910cee70caa02cfe8d4defe9d781e3df037393396300b96a",
-    "trace_grader_sha256": "82db9db716974f274d26480a3fdee692c64a2c4a739b7af9359982dc897b4943"
+    "trace_grader_sha256": "adaafb8650c59beb02f6b8bef64c5f9fd0d4e5f5eeba7720f3fa23fedd113dbf"
   },
   "existing_development_pilot": {
     "path": "DHI_v1/benchmark/pilot_cases.json",
