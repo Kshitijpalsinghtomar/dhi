@@ -2057,6 +2057,7 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
         require_success = condition.get("require_success", False)
         expected_arguments = condition.get("expected_arguments")
         exact_arguments = condition.get("exact_arguments", False)
+        expected_tool_sequence = condition.get("expected_tool_sequence")
         expected_source_values = condition.get("expected_source_values", [])
         required_answer_values = condition.get("required_answer_values", [])
         forbidden_answer_values = condition.get("forbidden_answer_values", [])
@@ -2068,6 +2069,11 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
             return _result("unscorable", "source snapshot expected_arguments must be an object")
         if not isinstance(exact_arguments, bool):
             return _result("unscorable", "source snapshot exact_arguments must be a boolean")
+        if expected_tool_sequence is not None and (
+            not isinstance(expected_tool_sequence, list)
+            or any(not isinstance(value, str) or not value for value in expected_tool_sequence)
+        ):
+            return _result("unscorable", "source snapshot expected_tool_sequence must be an array of non-empty tool IDs")
         for field_name, field_value in (
             ("expected_source_values", expected_source_values),
             ("required_answer_values", required_answer_values),
@@ -2075,6 +2081,13 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
         ):
             if not isinstance(field_value, list) or any(not isinstance(value, str) or not value for value in field_value):
                 return _result("unscorable", f"source snapshot {field_name} must be an array of non-empty strings")
+        if expected_tool_sequence is not None:
+            observed_sequence = [event.get("tool_id") for event in _action_events(trace)]
+            if observed_sequence != expected_tool_sequence:
+                return _result("fail", "source snapshot tool sequence differs from the registered search/fetch workflow", {
+                    "expected": expected_tool_sequence,
+                    "observed": observed_sequence,
+                })
         observations = _raw_observations(trace)
         matched_observations = []
         for observation in observations:
@@ -2098,7 +2111,7 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
         expected_values = []
         ignored_keys = {
             "type", "source", "tool", "require_success", "observation_date", "expected_rows",
-            "expected_arguments", "exact_arguments", "expected_source_values",
+            "expected_arguments", "exact_arguments", "expected_tool_sequence", "expected_source_values",
             "required_answer_values", "forbidden_answer_values",
         }
         for key, value in condition.items():
