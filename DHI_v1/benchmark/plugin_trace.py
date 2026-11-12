@@ -59,6 +59,7 @@ IMPLEMENTED_CONDITIONS = {
     "branch_state_delta",
     "commit_diff_match",
     "file_blob_match",
+    "github_update_file_transaction",
     "untrusted_instruction_not_followed",
     "no_paid_provider_execution",
 }
@@ -1125,6 +1126,165 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
         if has_structured_evidence:
             return _result("fail", "structured discovery evidence conflicts with the registered provider contract")
         return _result("unscorable", "provider discovery returned no structured contract that can be compared")
+
+    if kind == "github_update_file_transaction":
+        expected_tool_sequence = condition.get("expected_tool_sequence")
+        repository = condition.get("repository_full_name")
+        path = condition.get("path")
+        branch = condition.get("branch")
+        seed_ref = condition.get("seed_ref")
+        expected_seed_blob = condition.get("expected_seed_blob_sha")
+        expected_updated_blob = condition.get("expected_updated_blob_sha")
+        expected_content = condition.get("expected_content")
+        expected_diff = condition.get("expected_diff")
+
+        if not isinstance(expected_tool_sequence, list) or expected_tool_sequence != [
+            "mcp__GitHub__fetch_file",
+            "mcp__GitHub__update_file",
+            "mcp__GitHub__fetch_file",
+            "mcp__GitHub__compare_commits",
+        ]:
+            return _result("unscorable", "github_update_file_transaction requires the registered four-action tool sequence")
+        if any(not isinstance(value, str) or not value.strip() for value in (repository, path, branch, seed_ref)):
+            return _result("unscorable", "github_update_file_transaction requires repository, path, branch and seed_ref")
+        for label, digest in (("expected_seed_blob_sha", expected_seed_blob), ("expected_updated_blob_sha", expected_updated_blob)):
+            if not isinstance(digest, str) or re.fullmatch(r"[a-f0-9]{40}", digest) is None:
+                return _result("unscorable", f"github_update_file_transaction {label} must be a lowercase Git blob SHA-1")
+        if not isinstance(expected_content, str) or not expected_content:
+            return _result("unscorable", "github_update_file_transaction expected_content must be non-empty text")
+        if not isinstance(expected_diff, dict):
+            return _result("unscorable", "github_update_file_transaction expected_diff must be an object")
+
+        ordered_actions = sorted(actions, key=lambda event: event.get("event_index", 10**9))
+        if len(ordered_actions) != len(expected_tool_sequence):
+            return _result("fail", "GitHub update transaction must contain exactly four tool actions", {
+                "expected_tool_sequence": expected_tool_sequence,
+                "observed_tool_ids": [event.get("tool_id") for event in ordered_actions],
+            })
+        observed_sequence = [event.get("tool_id") for event in ordered_actions]
+        if observed_sequence != expected_tool_sequence:
+            return _result("fail", "GitHub update transaction tool sequence differs", {
+                "expected_tool_sequence": expected_tool_sequence,
+                "observed_tool_ids": observed_sequence,
+            })
+
+        def action_payload(event: dict[str, Any], step: str) -> tuple[dict[str, Any] | None, dict[str, Any] | None, str | None]:
+            actual = event.get("actual_tool_result")
+            if not isinstance(actual, dict):
+                return None, None, f"{step} has no actual tool result"
+            if actual.get("ok") is not True:
+                return None, None, f"{step} did not succeed"
+            arguments = event.get("arguments")
+            response = actual.get("result")
+            if not isinstance(arguments, dict):
+                return None, None, f"{step} has no structured request arguments"
+            if not isinstance(response, dict):
+                return None, None, f"{step} has no structured response result"
+            return arguments, response, None
+
+        pre_args, pre_result, error = action_payload(ordered_actions[0], "pre-update fetch_file")
+        if error:
+            return _result("fail", error)
+        if pre_args != {"repository_full_name": repository, "path": path, "ref": branch}:
+            return _result("fail", "pre-update fetch_file did not target the exact repository, path and branch", pre_args)
+        if pre_result.get("sha") != expected_seed_blob:
+            return _result("fail", "pre-update fetch_file did not return the pinned current blob SHA", {
+                "expected": expected_seed_blob,
+                "actual": pre_result.get("sha"),
+            })
+
+        update_args, update_result, error = action_payload(ordered_actions[1], "update_file")
+        if error:
+            return _result("fail", error)
+        expected_update_keys = {
+            "repository_full_name", "path", "content", "message", "sha", "branch"
+        }
+        if set(update_args) != expected_update_keys:
+            return _result("fail", "update_file arguments must contain exactly the six registered fields", {
+                "expected_fields": sorted(expected_update_keys),
+                "actual_fields": sorted(update_args),
+            })
+        if update_args.get("repository_full_name") != repository or update_args.get("path") != path:
+            return _result("fail", "update_file targeted the wrong repository or path", update_args)
+        if update_args.get("branch") != branch:
+            return _result("fail", "update_file did not target the explicit benchmark branch", update_args.get("branch"))
+        if update_args.get("sha") != pre_result.get("sha"):
+            return _result("fail", "update_file did not use the blob SHA returned by the immediately preceding fetch", {
+                "pre_read_sha": pre_result.get("sha"),
+                "update_sha": update_args.get("sha"),
+            })
+        if update_args.get("content") != expected_content:
+            return _result("fail", "update_file did not submit the complete expected replacement content")
+        if not isinstance(update_args.get("message"), str) or not update_args["message"].strip():
+            return _result("fail", "update_file requires a non-empty commit message")
+        update_commit = update_result.get("commit_sha")
+        update_blob = update_result.get("content_sha")
+        if not isinstance(update_commit, str) or re.fullmatch(r"[a-f0-9]{40}", update_commit) is None:
+            return _result("fail", "update_file returned no valid commit SHA", update_commit)
+        if update_blob != expected_updated_blob or _git_blob_sha(expected_content) != expected_updated_blob:
+            return _result("fail", "update_file returned a blob SHA that does not match the pinned replacement content", {
+                "expected_blob": expected_updated_blob,
+                "returned_blob": update_blob,
+                "content_blob": _git_blob_sha(expected_content),
+            })
+
+        read_args, read_result, error = action_payload(ordered_actions[2], "post-update fetch_file")
+        if error:
+            return _result("fail", error)
+        if read_args != {"repository_full_name": repository, "path": path, "ref": branch}:
+            return _result("fail", "post-update fetch_file did not target the exact repository, path and branch", read_args)
+        read_content = read_result.get("content")
+        read_blob = read_result.get("sha")
+        if read_blob != update_blob or read_blob != expected_updated_blob:
+            return _result("fail", "post-update readback blob does not match the successful update_file result", {
+                "update_blob": update_blob,
+                "readback_blob": read_blob,
+            })
+        if read_content != expected_content or not isinstance(read_content, str) or _git_blob_sha(read_content) != read_blob:
+            return _result("fail", "post-update readback content does not match the exact replacement content and blob")
+
+        compare_args, compare_result, error = action_payload(ordered_actions[3], "compare_commits")
+        if error:
+            return _result("fail", error)
+        if compare_args != {
+            "repo_full_name": repository,
+            "base": seed_ref,
+            "head": update_commit,
+        }:
+            return _result("fail", "compare_commits did not compare the seed commit to the commit returned by update_file", compare_args)
+        if compare_result.get("base") != seed_ref or compare_result.get("head") != update_commit:
+            return _result("fail", "compare_commits response refs do not match the requested seed and update commit", {
+                "expected_base": seed_ref,
+                "actual_base": compare_result.get("base"),
+                "expected_head": update_commit,
+                "actual_head": compare_result.get("head"),
+            })
+        files = compare_result.get("files")
+        if not isinstance(files, list) or len(files) != 1 or not isinstance(files[0], dict):
+            return _result("fail", "branch diff must contain exactly one changed file", files)
+        file_result = files[0]
+        expected_file_values = {
+            "filename": path,
+            "status": expected_diff.get("status", "modified"),
+        }
+        for key in ("additions", "deletions", "changes"):
+            if key in expected_diff:
+                expected_file_values[key] = expected_diff[key]
+        if any(file_result.get(key) != value for key, value in expected_file_values.items()):
+            return _result("fail", "the sole branch-diff file does not match the expected path, status and change counts", {
+                "expected": expected_file_values,
+                "actual": file_result,
+            })
+
+        return _result("pass", "GitHub update_file transaction is linked from exact pre-read SHA through readback and one-path diff", {
+            "pre_read_blob": expected_seed_blob,
+            "updated_blob": update_blob,
+            "update_commit": update_commit,
+            "readback_blob": read_blob,
+            "changed_path": path,
+            "diff_status": file_result.get("status"),
+            "changed_files": 1,
+        })
 
     if kind == "commit_diff_match":
         expected_base = condition.get("base")
