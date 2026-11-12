@@ -83,6 +83,7 @@ def make_s05_002_trace(
         "ok": ok,
         "result": result,
         "error": None if ok else "synthetic fetch failure",
+        "provider_cost": 0,
     }
     trace["usage"] = {"tool_calls": 1, "provider_credits_spent": 0}
     trace["final_answer"] = (
@@ -123,6 +124,7 @@ class Study0TinyFishTaskGraderTests(unittest.TestCase):
         task = load_task()
         trace = make_s05_002_trace(task)
         trace["usage"]["provider_credits_spent"] = 1
+        trace["events"][3]["actual_tool_result"]["provider_cost"] = 1
         result = grade_task(task, trace)
         self.assertEqual(result["status"], "fail", result)
 
