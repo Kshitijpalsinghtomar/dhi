@@ -472,8 +472,10 @@ class TestStudy0CheckpointResumeIntegrity(unittest.TestCase):
 
     def test_tool_call_count_must_match_declared_and_observed_actions(self):
         trace = build_trace(GOOD_REPORT)
-        trace["usage"]["tool_calls"] -= 1
-        self.assertEqual(self.grade(trace)["status"], "fail")
+        task = {"task_id": "ORBIT-A-S07-001", "task_instance_sha256": "a" * 64,
+                "postconditions": [{"verifier_id": "resume_integrity", "condition": condition(GOOD_REPORT)}]}
+        task["postconditions"][0]["condition"]["min_tool_calls"] = 12
+        self.assertEqual(grade_task(task, trace, schema=load_schema())["status"], "fail")
 
     def test_report_must_include_ns106_dependency_edge(self):
         self.assertEqual(self.grade(build_trace(BAD_REPORT))["status"], "fail")
