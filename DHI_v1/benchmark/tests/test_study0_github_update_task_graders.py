@@ -278,7 +278,9 @@ class Study0GitHubUpdateFileTaskGraderTests(unittest.TestCase):
 
     def test_s05_003_rejects_compare_head_not_returned_by_update_file(self):
         trace = make_transaction_trace()
+        started = action_event(trace, 4, "start")
         compare = action_event(trace, 4, "executed")
+        started["arguments"]["head"] = "1" * 40
         compare["arguments"]["head"] = "1" * 40
         compare["actual_tool_result"]["result"]["head"] = "1" * 40
         result = grade(trace)
