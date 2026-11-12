@@ -82,7 +82,7 @@ SCENARIOS = {
             "optional_inputs": ["version", "sample"],
             "execution_credits": 1,
             "discovery_credits": 0,
-            "output_fields": ["count", "direct", "indirect", "scope"],
+            "output_fields": ["total", "direct", "indirect"],
         },
         "snapshot_assertions": [
             "package-registry-metadata-download-stats",
@@ -91,10 +91,9 @@ SCENARIOS = {
             "name",
             "version",
             "sample",
-            "count",
+            "total",
             "direct",
             "indirect",
-            "scope",
             "Execution cost: **1 credit**",
             "Discovery call cost: 0 credits",
         ],
@@ -206,7 +205,7 @@ class Study0ProviderDiscoveryTaskGraderTests(unittest.TestCase):
     def test_dependents_discovery_rejects_missing_direct_indirect_output_fields(self):
         task = self.task_copy("ORBIT-A-S03-004")
         response = copy.deepcopy(SCENARIOS[task["task_id"]]["response"])
-        response["output_fields"] = ["count", "scope"]
+        response["output_fields"] = ["total", "indirect"]
         result = grade_task(task, discovery_trace(task, response_override=response))
         self.assertEqual(result["status"], "fail")
 
