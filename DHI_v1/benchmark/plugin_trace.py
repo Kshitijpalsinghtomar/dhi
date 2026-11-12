@@ -609,12 +609,38 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
 
     if kind == "tool_trace_arguments":
         tool = condition.get("tool")
-        expected = {key: value for key, value in condition.items() if key not in {"type", "tool"}}
-        matches = [
-            action for action in actions
-            if action.get("tool_id") == tool and _deep_contains(action.get("arguments", {}), expected)
-        ]
-        return _result("pass" if matches else "fail", "matching tool invocation found" if matches else "no invocation matched the required arguments")
+        require_success = condition.get("require_success", False)
+        exact_list_fields = condition.get("exact_list_fields", [])
+        if not isinstance(require_success, bool):
+            return _result("unscorable", "tool_trace_arguments require_success must be a boolean")
+        if not isinstance(exact_list_fields, list) or any(
+            not isinstance(field, str) or not field for field in exact_list_fields
+        ):
+            return _result("unscorable", "tool_trace_arguments exact_list_fields must be an array of field names")
+        expected = {
+            key: value for key, value in condition.items()
+            if key not in {"type", "tool", "require_success", "exact_list_fields"}
+        }
+        if any(field not in expected or not isinstance(expected[field], list) for field in exact_list_fields):
+            return _result("unscorable", "exact_list_fields must name an expected array argument")
+        matches = []
+        for action in actions:
+            if action.get("tool_id") != tool:
+                continue
+            arguments = action.get("arguments", {})
+            if not _deep_contains(arguments, expected):
+                continue
+            if any(arguments.get(field) != expected[field] for field in exact_list_fields):
+                continue
+            if require_success:
+                tool_result = action.get("actual_tool_result")
+                if not isinstance(tool_result, dict) or tool_result.get("ok") is not True:
+                    continue
+            matches.append(action)
+        return _result(
+            "pass" if matches else "fail",
+            "matching tool invocation found" if matches else "no successful invocation matched the required arguments",
+        )
 
     if kind in {"tool_trace_absence", "no_paid_provider_execution"}:
         forbidden_tool = condition.get("forbidden_tool")
@@ -1038,18 +1064,28 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
 
     if kind in {"source_fact", "external_snapshot_match"}:
         source = condition.get("source")
+        expected_tool = condition.get("tool")
+        require_success = condition.get("require_success", False)
+        if expected_tool is not None and (not isinstance(expected_tool, str) or not expected_tool.strip()):
+            return _result("unscorable", "source snapshot tool must be a non-empty tool id")
+        if not isinstance(require_success, bool):
+            return _result("unscorable", "source snapshot require_success must be a boolean")
         observations = _raw_observations(trace)
         matched_observations = []
         for observation in observations:
+            if expected_tool is not None and observation.get("tool_id") != expected_tool:
+                continue
+            if require_success and observation.get("ok") is not True:
+                continue
             request_text = _canonical_json(observation.get("request", {}))
             source_ref = str(observation.get("source_ref") or "")
             if isinstance(source, str) and (source in request_text or source in source_ref):
                 matched_observations.append(observation)
         if not matched_observations:
-            return _result("unscorable", "trace has no raw tool invocation attributed to the requested source")
+            return _result("unscorable", "trace has no qualifying raw tool invocation attributed to the requested source")
         raw_text = "\\n".join(_raw_text(item.get("response")) for item in matched_observations)
         expected_values = []
-        ignored_keys = {"type", "source", "observation_date", "expected_rows"}
+        ignored_keys = {"type", "source", "tool", "require_success", "observation_date", "expected_rows"}
         for key, value in condition.items():
             if key in ignored_keys:
                 continue
