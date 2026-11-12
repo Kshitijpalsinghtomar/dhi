@@ -17,6 +17,11 @@ def sha(value: str) -> str:
     return hashlib.sha256(value.encode("utf-8")).hexdigest()
 
 
+def git_blob_sha(value: str) -> str:
+    data = value.encode("utf-8")
+    return hashlib.sha1(b"blob " + str(len(data)).encode("ascii") + bytes([0]) + data).hexdigest()
+
+
 def make_trace(events: list[dict] | None = None, *, artifacts: list[dict] | None = None) -> dict:
     return {
         "trace_schema_version": "orbit.plugin-trace.v1",
@@ -713,6 +718,7 @@ class PluginTraceGraderTests(unittest.TestCase):
 
     def test_file_blob_match_verifies_sha_and_csv_data_rows(self) -> None:
         csv_text = "id,name\n1,A\n2,B\n"
+        expected_blob = git_blob_sha(csv_text)
         trace = make_trace()
         trace["events"][2]["tool_id"] = "mcp__GitHub__fetch_file"
         trace["events"][3]["tool_id"] = "mcp__GitHub__fetch_file"
@@ -729,13 +735,13 @@ class PluginTraceGraderTests(unittest.TestCase):
             "unchanged_paths": ["data/items.csv"],
         }
         trace["events"][3]["actual_tool_result"]["result"] = {
-            "sha": "d" * 40,
+            "sha": expected_blob,
             "content": csv_text,
         }
         condition = {
             "type": "file_blob_match",
             "path": "data/items.csv",
-            "blob_sha": "d" * 40,
+            "blob_sha": expected_blob,
             "expected_tool_id": "mcp__GitHub__fetch_file",
             "data_rows": 2,
             "header_rows": 1,
