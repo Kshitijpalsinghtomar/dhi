@@ -101,9 +101,12 @@ def make_s08_trace() -> dict:
     trace["provenance"]["executor"] = "study0-s08-github-404-recovery-unit-test"
     failed_read = {
         "ok": False,
-        "status_code": 404,
         "result": None,
-        "error": "GitHub Contents API returned 404 Not Found",
+        "error": {
+            "http_status": 404,
+            "incorrect_path": BAD_PATH,
+            "message": "GitHub Contents API returned 404 Not Found",
+        },
         "provider_cost": 0,
     }
     directory_read = {
@@ -221,7 +224,7 @@ class Study0GitHub404RecoveryTaskGraderTests(unittest.TestCase):
 
     def test_s08_001_rejects_non_404_initial_failure(self):
         trace = make_s08_trace()
-        _pairs(trace)[0][1]["actual_tool_result"]["status_code"] = 403
+        _pairs(trace)[0][1]["actual_tool_result"]["error"]["http_status"] = 403
         result = grade(trace)
         self.assertEqual(result["status"], "fail", result)
 
