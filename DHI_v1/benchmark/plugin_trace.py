@@ -410,6 +410,25 @@ def _raw_observations(trace: dict[str, Any]) -> list[dict[str, Any]]:
     return observations
 
 
+def _matches_argument_type(value: Any, expected_type: str) -> bool:
+    """Match JSON-like argument types without Python's bool-is-an-int ambiguity."""
+    if expected_type == "array":
+        return isinstance(value, list)
+    if expected_type == "object":
+        return isinstance(value, dict)
+    if expected_type == "string":
+        return isinstance(value, str)
+    if expected_type == "boolean":
+        return type(value) is bool
+    if expected_type == "integer":
+        return type(value) is int
+    if expected_type == "number":
+        return type(value) in {int, float}
+    if expected_type == "null":
+        return value is None
+    return False
+
+
 def _deep_contains(actual: Any, expected: Any) -> bool:
     if isinstance(expected, dict):
         return isinstance(actual, dict) and all(
@@ -612,15 +631,44 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
         tool = condition.get("tool")
         require_success = condition.get("require_success", False)
         exact_list_fields = condition.get("exact_list_fields", [])
+        required_fields = condition.get("required_fields", [])
+        field_types = condition.get("field_types", {})
         if not isinstance(require_success, bool):
             return _result("unscorable", "tool_trace_arguments require_success must be a boolean")
         if not isinstance(exact_list_fields, list) or any(
             not isinstance(field, str) or not field for field in exact_list_fields
         ):
             return _result("unscorable", "tool_trace_arguments exact_list_fields must be an array of field names")
+        if (
+            not isinstance(required_fields, list)
+            or any(not isinstance(field, str) or not field for field in required_fields)
+            or len(required_fields) != len(set(required_fields))
+        ):
+            return _result("unscorable", "tool_trace_arguments required_fields must be unique non-empty field names")
+        supported_argument_types = {"array", "object", "string", "boolean", "integer", "number", "null"}
+        if (
+            not isinstance(field_types, dict)
+            or any(
+                not isinstance(field, str) or not field
+                or not isinstance(expected_type, str)
+                or expected_type not in supported_argument_types
+                for field, expected_type in field_types.items()
+            )
+        ):
+            return _result("unscorable", "tool_trace_arguments field_types must map names to supported JSON-like types")
+        # Backward-compatible shorthand for the original S05-004 contract.
+        legacy_page_metadata_type = condition.get("page_metadata_type")
+        if legacy_page_metadata_type is not None:
+            if legacy_page_metadata_type not in supported_argument_types:
+                return _result("unscorable", "page_metadata_type is not a supported JSON-like type")
+            field_types = dict(field_types)
+            field_types.setdefault("page_metadata", legacy_page_metadata_type)
         expected = {
             key: value for key, value in condition.items()
-            if key not in {"type", "tool", "require_success", "exact_list_fields"}
+            if key not in {
+                "type", "tool", "require_success", "exact_list_fields",
+                "required_fields", "field_types", "page_metadata_type",
+            }
         }
         if any(field not in expected or not isinstance(expected[field], list) for field in exact_list_fields):
             return _result("unscorable", "exact_list_fields must name an expected array argument")
@@ -629,7 +677,14 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
             if action.get("tool_id") != tool:
                 continue
             arguments = action.get("arguments", {})
-            if not _deep_contains(arguments, expected):
+            if not isinstance(arguments, dict) or not _deep_contains(arguments, expected):
+                continue
+            if any(field not in arguments for field in required_fields):
+                continue
+            if any(
+                field not in arguments or not _matches_argument_type(arguments[field], expected_type)
+                for field, expected_type in field_types.items()
+            ):
                 continue
             if any(arguments.get(field) != expected[field] for field in exact_list_fields):
                 continue
@@ -640,7 +695,8 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
             matches.append(action)
         return _result(
             "pass" if matches else "fail",
-            "matching tool invocation found" if matches else "no successful invocation matched the required arguments",
+            "matching successful invocation satisfies required fields and argument types" if matches else "no successful invocation satisfied the required arguments and types",
+            {"matching_actions": len(matches), "required_fields": required_fields, "field_types": field_types},
         )
 
     if kind in {"tool_trace_absence", "no_paid_provider_execution"}:
