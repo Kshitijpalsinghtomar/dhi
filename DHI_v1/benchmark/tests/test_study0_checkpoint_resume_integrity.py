@@ -81,8 +81,8 @@ def condition() -> dict:
         "report_commit": REPORT_COMMIT,
         "report_blob_sha": git_blob_sha(report),
         "required_report_phrases": [
-            "NS-106 -> NS-105", "AT-03", "Blocked", "AT-05", "Not Run",
-            "automated approval reminders", "Passed: 3", "Failed: 1",
+            "NS-106 -> NS-105", "AT-03 remains Blocked", "AT-03", "Blocked", "AT-05", "Not Run",
+            "automated approval reminders", "Passed: 3", "Failed: 1", "NS-101", "NS-104", "NS-105", "NS-109",
         ],
         "forbidden_report_phrases": [
             "every acceptance test passed", "all acceptance tests passed",
@@ -332,7 +332,7 @@ class TestStudy0CheckpointResumeIntegrity(unittest.TestCase):
     def grade(self, trace):
         return grade_task(
             {"task_id": "ORBIT-A-S07-001", "task_instance_sha256": "a" * 64,
-             "postconditions": [{"verifier_id": "resume_integrity", "condition": condition()}]},
+             "postconditions": [{"verifier_id": "resume_integrity", "condition": condition(trace["final_artifacts"][0]["content"])}]},
             trace, schema=load_schema(),
         )
 
