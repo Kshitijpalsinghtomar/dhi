@@ -428,11 +428,12 @@
         "status": "ready_for_validation",
         "contract_check": "pass",
         "environment_check": "pass",
-        "grader_check": "not_run",
+        "grader_check": "pass",
         "review_status": "not_reviewed",
         "harness_gap_ids": [],
         "validation_evidence": [
-          "Control-case contract authored; no model run or grader execution yet."
+          "Control-case contract authored; no model run or grader execution yet.",
+          "Deterministic grader regression verified in Deepnote run 5268f903-eaad-4df3-9919-3095b3b74799: 33/33 tests passed, including manifest-bound S01-001/S01-002 positive references and negative wrong-answer, tool-call, credit-spend, checkpoint-read and checkpoint-order cases; compileall exit code 0. Scripted-reference/unit-test evidence only; not model execution, independent family review or task capability evidence."
         ]
       },
       "execution": {
@@ -448,7 +449,7 @@
         "partition": "stage_a",
         "family_fingerprint_sha256": "d6254e4785924e8e2228eb56bfead2ca060d105f4033e62f3951bd5e58e234cc",
         "holdout_sealed": false,
-        "task_instance_sha256": "0187a24b2e56fe218bab434898dd928064ddce80593938342aa9876ebf15ddf7"
+        "task_instance_sha256": "0660b3babbab5ba7516e7386b360fc88c9241549f5674d92dadfae5b4e628163"
       }
     },
     {
@@ -2100,11 +2101,12 @@
         "status": "ready_for_validation",
         "contract_check": "pass",
         "environment_check": "pass",
-        "grader_check": "not_run",
+        "grader_check": "pass",
         "review_status": "not_reviewed",
         "harness_gap_ids": [],
         "validation_evidence": [
-          "Phrase was independently counted as agentic=3, tool=2, workflow=2; total 7."
+          "Phrase was independently counted as agentic=3, tool=2, workflow=2; total 7.",
+          "Deterministic grader regression verified in Deepnote run 5268f903-eaad-4df3-9919-3095b3b74799: 33/33 tests passed, including manifest-bound S01-001/S01-002 positive references and negative wrong-answer, tool-call, credit-spend, checkpoint-read and checkpoint-order cases; compileall exit code 0. Scripted-reference/unit-test evidence only; not model execution, independent family review or task capability evidence."
         ]
       },
       "execution": {
@@ -2120,7 +2122,7 @@
         "partition": "stage_a",
         "family_fingerprint_sha256": "a92c539dee15625aec9fb168f38cfee3425052ea8a74e1611093b94d3de0a3bf",
         "holdout_sealed": false,
-        "task_instance_sha256": "861b6e79a06e2fbb11afa9d3ea172ff8776d6e9eb7380e5abb6ec24fe846a4a5"
+        "task_instance_sha256": "8c32290f1b70702b58e038a9d9de5fe5917e2e66415a5c265a301ca215b6fc13"
       }
     },
     {
