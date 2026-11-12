@@ -397,6 +397,7 @@ class PluginTraceGraderTests(unittest.TestCase):
             "result": {"sha": condition["expected_blob_sha"], "content": "Pinned policy"},
             "error": None,
         }
+        trace["events"][2]["arguments"]["ref"] = "main"
         trace["events"][3]["arguments"]["ref"] = "main"
         self.assertEqual(grade_task(make_task(condition), trace)["status"], "fail")
 
