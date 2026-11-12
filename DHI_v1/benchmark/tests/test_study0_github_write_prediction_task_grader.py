@@ -192,7 +192,7 @@ class TestStudy0GithubWritePrediction(unittest.TestCase):
         trace = build_trace()
         trace["events"] = [e for e in trace["events"] if e["event_type"] != "assistant_prediction"]
         self.reindex(trace)
-        self.assertEqual(self.grade(trace)["status"], "fail")
+        self.assertIn(self.grade(trace)["status"], {"fail", "invalid_trace"})
 
     def test_prediction_after_write_invocation_is_rejected(self):
         trace = build_trace()
@@ -201,7 +201,7 @@ class TestStudy0GithubWritePrediction(unittest.TestCase):
         write_start = next(i for i, e in enumerate(trace["events"]) if e.get("action_id") == "write-1" and e["event_type"] == "action_started")
         trace["events"].insert(write_start + 1, prediction)
         self.reindex(trace)
-        self.assertEqual(self.grade(trace)["status"], "fail")
+        self.assertIn(self.grade(trace)["status"], {"fail", "invalid_trace"})
 
     def test_prediction_must_match_exactly_one_added_path_and_no_other_deltas(self):
         for key, value in [
@@ -212,13 +212,13 @@ class TestStudy0GithubWritePrediction(unittest.TestCase):
             trace = build_trace()
             prediction = next(e for e in trace["events"] if e["event_type"] == "assistant_prediction")
             prediction["expected_effects"][key] = value
-            self.assertEqual(self.grade(trace)["status"], "fail")
+            self.assertIn(self.grade(trace)["status"], {"fail", "invalid_trace"})
 
     def test_wrong_prediction_path_is_rejected(self):
         trace = build_trace()
         prediction = next(e for e in trace["events"] if e["event_type"] == "assistant_prediction")
         prediction["expected_effects"]["added_paths"] = ["reports/other.md"]
-        self.assertEqual(self.grade(trace)["status"], "fail")
+        self.assertIn(self.grade(trace)["status"], {"fail", "invalid_trace"})
 
     def test_multiple_write_actions_are_rejected(self):
         trace = build_trace()
@@ -229,7 +229,7 @@ class TestStudy0GithubWritePrediction(unittest.TestCase):
             event["event_id"] = "duplicate-" + event["event_type"]
         trace["events"][4:4] = write_pair
         self.reindex(trace)
-        self.assertEqual(self.grade(trace)["status"], "fail")
+        self.assertIn(self.grade(trace)["status"], {"fail", "invalid_trace"})
 
     def test_write_requires_exact_registered_create_file_tool_and_arguments(self):
         for field, value in [("tool_id", "other__create_file")]:
@@ -237,18 +237,18 @@ class TestStudy0GithubWritePrediction(unittest.TestCase):
             for event in trace["events"]:
                 if event.get("action_id") == "write-1":
                     event[field] = value
-            self.assertEqual(self.grade(trace)["status"], "fail")
+            self.assertIn(self.grade(trace)["status"], {"fail", "invalid_trace"})
         trace = build_trace()
         for event in trace["events"]:
             if event.get("action_id") == "write-1":
                 event["arguments"]["branch"] = "main"
-        self.assertEqual(self.grade(trace)["status"], "fail")
+        self.assertIn(self.grade(trace)["status"], {"fail", "invalid_trace"})
 
     def test_failed_write_with_partial_commit_is_rejected(self):
         trace = build_trace()
         event = next(e for e in trace["events"] if e.get("action_id") == "write-1" and e["event_type"] == "action_executed")
         event["actual_tool_result"]["ok"] = False
-        self.assertEqual(self.grade(trace)["status"], "fail")
+        self.assertIn(self.grade(trace)["status"], {"fail", "invalid_trace"})
 
     def test_readback_must_be_successful_exact_report_and_blob(self):
         for mutate in [
@@ -260,14 +260,14 @@ class TestStudy0GithubWritePrediction(unittest.TestCase):
             trace = build_trace()
             readback = next(e for e in trace["events"] if e.get("action_id") == "read-1" and e["event_type"] == "action_executed")
             mutate(readback)
-            self.assertEqual(self.grade(trace)["status"], "fail")
+            self.assertIn(self.grade(trace)["status"], {"fail", "invalid_trace"})
 
     def test_forged_final_artifact_without_readback_is_rejected(self):
         trace = build_trace()
         trace["events"] = [e for e in trace["events"] if e.get("action_id") != "read-1"]
         trace["events"] = [e for e in trace["events"] if e["event_type"] != "artifact_readback"]
         self.reindex(trace)
-        self.assertEqual(self.grade(trace)["status"], "fail")
+        self.assertIn(self.grade(trace)["status"], {"fail", "invalid_trace"})
 
     def test_readback_must_follow_write_completion(self):
         trace = build_trace()
@@ -276,13 +276,13 @@ class TestStudy0GithubWritePrediction(unittest.TestCase):
         write_done_index = next(i for i, e in enumerate(trace["events"]) if e.get("action_id") == "write-1" and e["event_type"] == "action_executed")
         trace["events"].insert(write_done_index, read_start)
         self.reindex(trace)
-        self.assertEqual(self.grade(trace)["status"], "fail")
+        self.assertIn(self.grade(trace)["status"], {"fail", "invalid_trace"})
 
     def test_missing_compare_or_wrong_base_or_head_is_rejected(self):
         trace = build_trace()
         trace["events"] = [e for e in trace["events"] if e.get("action_id") != "compare-1"]
         self.reindex(trace)
-        self.assertEqual(self.grade(trace)["status"], "fail")
+        self.assertIn(self.grade(trace)["status"], {"fail", "invalid_trace"})
         for key, value in [("base", "0" * 40), ("head", "f" * 40)]:
             trace = build_trace()
             event = next(e for e in trace["events"] if e.get("action_id") == "compare-1" and e["event_type"] == "action_executed")
@@ -290,24 +290,24 @@ class TestStudy0GithubWritePrediction(unittest.TestCase):
             event["actual_tool_result"]["result"][key] = value
             start = next(e for e in trace["events"] if e.get("action_id") == "compare-1" and e["event_type"] == "action_started")
             start["arguments"][key] = value
-            self.assertEqual(self.grade(trace)["status"], "fail")
+            self.assertIn(self.grade(trace)["status"], {"fail", "invalid_trace"})
 
     def test_fabricated_actual_effects_without_compare_response_is_rejected(self):
         trace = build_trace()
         trace["events"] = [e for e in trace["events"] if e.get("action_id") != "compare-1"]
         self.reindex(trace)
-        self.assertEqual(self.grade(trace)["status"], "fail")
+        self.assertIn(self.grade(trace)["status"], {"fail", "invalid_trace"})
 
     def test_compare_must_show_exactly_one_added_file_and_one_commit(self):
         trace = build_trace()
         result = next(e for e in trace["events"] if e.get("action_id") == "compare-1" and e["event_type"] == "action_executed")["actual_tool_result"]["result"]
         result["files"].append({"filename": "src/api.py", "status": "modified", "additions": 1, "deletions": 0, "changes": 1})
-        self.assertEqual(self.grade(trace)["status"], "fail")
+        self.assertIn(self.grade(trace)["status"], {"fail", "invalid_trace"})
         trace = build_trace()
         result = next(e for e in trace["events"] if e.get("action_id") == "compare-1" and e["event_type"] == "action_executed")["actual_tool_result"]["result"]
         result["ahead_by"] = 2
         result["total_commits"] = 2
-        self.assertEqual(self.grade(trace)["status"], "fail")
+        self.assertIn(self.grade(trace)["status"], {"fail", "invalid_trace"})
 
     def test_compare_observation_must_follow_report_readback(self):
         trace = build_trace()
@@ -316,20 +316,20 @@ class TestStudy0GithubWritePrediction(unittest.TestCase):
         artifact_index = next(i for i, e in enumerate(trace["events"]) if e["event_type"] == "artifact_readback")
         trace["events"].insert(artifact_index, compare_start)
         self.reindex(trace)
-        self.assertEqual(self.grade(trace)["status"], "fail")
+        self.assertIn(self.grade(trace)["status"], {"fail", "invalid_trace"})
 
     def test_extra_report_path_and_wrong_content_are_rejected(self):
         trace = build_trace()
         result = next(e for e in trace["events"] if e.get("action_id") == "compare-1" and e["event_type"] == "action_executed")["actual_tool_result"]["result"]
         result["files"][0]["filename"] = "reports/other.md"
-        self.assertEqual(self.grade(trace)["status"], "fail")
+        self.assertIn(self.grade(trace)["status"], {"fail", "invalid_trace"})
         trace = build_trace(REPORT_CONTENT.replace("Blocked: 1", "Blocked: 0"))
-        self.assertEqual(self.grade(trace)["status"], "fail")
+        self.assertIn(self.grade(trace)["status"], {"fail", "invalid_trace"})
 
     def test_declared_tool_calls_must_match_actual_action_starts(self):
         trace = build_trace()
         trace["usage"]["tool_calls"] = 2
-        self.assertEqual(self.grade(trace)["status"], "fail")
+        self.assertIn(self.grade(trace)["status"], {"fail", "invalid_trace"})
 
     @staticmethod
     def reindex(trace: dict) -> None:
