@@ -198,7 +198,7 @@
       "family_id": "ORBIT-S02-PYTHON-RELEASE-VERIFY-02",
       "stage": "A",
       "independence_group_id": "ORBIT-S02-INDEP-A-002",
-      "family_fingerprint_sha256": "d89a09743af0caf3b61cdab258ab6e3962bcdc52cee2122a80d75a6953e632f1",
+      "family_fingerprint_sha256": "2393eb73c2b28c6af6ccb3f3a2bb0e21c96c07e7fb57669cc47c3fce8b31f80b",
       "review_status": "draft"
     },
     {
@@ -1895,7 +1895,105 @@
               "3.12": "security",
               "3.11": "security",
               "3.10": "end-of-life"
-            }
+            },
+            "tool": "mcp__TinyFish__fetch_content",
+            "require_success": true,
+            "expected_tool_sequence": [
+              "mcp__TinyFish__search",
+              "mcp__TinyFish__fetch_content"
+            ],
+            "expected_arguments": {
+              "urls": [
+                "https://www.python.org/downloads/"
+              ],
+              "format": "markdown",
+              "links": false,
+              "image_links": false,
+              "iframe_links": false,
+              "page_metadata": true
+            },
+            "exact_arguments": true,
+            "expected_source_values": [
+              "Observation date: 2026-11-03"
+            ],
+            "expected_rows": [
+              [
+                "3.16",
+                "pre-release",
+                "2027-10-06 (planned)",
+                "2032-10"
+              ],
+              [
+                "3.15",
+                "bugfix",
+                "2026-10-09",
+                "2031-10"
+              ],
+              [
+                "3.14",
+                "bugfix",
+                "2025-10-07",
+                "2030-10"
+              ],
+              [
+                "3.13",
+                "security",
+                "2024-10-07",
+                "2029-10"
+              ],
+              [
+                "3.12",
+                "security",
+                "2023-10-02",
+                "2028-10"
+              ],
+              [
+                "3.11",
+                "security",
+                "2022-10-24",
+                "2027-10"
+              ],
+              [
+                "3.10",
+                "end-of-life",
+                "2021-10-04",
+                "2026-10-01"
+              ],
+              [
+                "Python 3.15.2",
+                "Oct. 25, 2026"
+              ],
+              [
+                "Python 3.14.10",
+                "Oct. 25, 2026"
+              ],
+              [
+                "Python 3.13.18",
+                "Oct. 25, 2026"
+              ],
+              [
+                "Python 3.12.16",
+                "Oct. 25, 2026"
+              ],
+              [
+                "Python 3.11.18",
+                "Oct. 25, 2026"
+              ]
+            ],
+            "required_answer_values": [
+              "Observation date: 2026-11-03",
+              "https://www.python.org/downloads/",
+              "Latest stable release: Python 3.15.2",
+              "Python 3.16 is a planned pre-release for 2027-10-06, not a stable release",
+              "Python 3.15 and 3.14 are bugfix",
+              "3.13, 3.12 and 3.11 are security",
+              "Python 3.10 is end-of-life since 2026-10-01"
+            ],
+            "forbidden_answer_values": [
+              "Python 3.16 is the latest stable release",
+              "Python 3.16 is a stable release",
+              "Python 3.10 is still supported"
+            ]
           },
           "expected_evidence": "Python downloads page lists 3.15.2 on Oct 25, 2026; 3.16 is a planned pre-release; Python 3.10 reached end of support 2026-10-01.",
           "failure_if_unmet": true
@@ -1903,9 +2001,9 @@
       ],
       "grader": {
         "grader_id": "official-python-release-page-v1",
-        "version": "1.0.0",
+        "version": "2.0.0",
         "kind": "external_reference",
-        "primary_outcome": "Correctly identify latest stable and pre-release, all requested branch maintenance states, observation date and official URL.",
+        "primary_outcome": "A successful exact TinyFish fetch of the sole official Python downloads URL follows search. The pinned 2026-11-03 snapshot verifies Python 3.15.2 as latest stable, Python 3.16 only as planned pre-release, exact lifecycle rows for versions 3.15 through 3.10 and all latest stable patch versions. The final response includes the official URL and observation date, all branch statuses and explicit Python 3.10 EOL without promoting a pre-release.",
         "independent_review_required": true,
         "review_rubric_ref": "DHI_v1/benchmark/fixtures/plugin_ecology/external_snapshots/python_releases_2026-11-03.md",
         "llm_judge_sole_source": false
@@ -1937,12 +2035,16 @@
         "status": "ready_for_validation",
         "contract_check": "pass",
         "environment_check": "pass",
-        "grader_check": "not_run",
+        "grader_check": "pass",
         "review_status": "not_reviewed",
         "harness_gap_ids": [],
         "validation_evidence": [
           "TinyFish search returned python.org/downloads and official source-release pages.",
-          "TinyFish fetch returned release status rows and latest release table."
+          "TinyFish fetch returned release status rows and latest release table.",
+          "Deepnote RED run ed34e11e-df5e-47fb-b5af-73c1dad9627a reproduced eight false accepts against the old condition: failed partial Fetch; Search substituting for exact Fetch; extra URL in the fetch list; missing source observation date; incorrect branch row/status association; missing/incorrect answer date and official URL; falsely promoting Python 3.16 to stable; and omitting Python 3.10 EOL.",
+          "Deepnote focused run 7da5c4be-941f-4bcf-9452-0ea3e352582a: 44/44 passed (12 S02-002 task-specific + 32 shared plugin_trace tests). The strengthened external_snapshot_match binds exact TinyFish tool sequence, successful exact-argument fetch from the sole python.org URL, pinned page rows and source observation date, and required/forbidden final answer values.",
+          "Deepnote integrated run 58f16a28-ac15-456f-9ae5-a149a3ec53a9: 105/105 passed — S02 Python 12, S02 Node.js 8, S07 22, S09 17, S10 14 and shared plugin_trace 32. This confirms compatibility across all previously completed task-specific suites.",
+          "The evidence is deterministic verifier testing against the 2026-11-03 pinned Python official downloads snapshot; no live provider call, inference, training, or credit spending occurred."
         ]
       },
       "execution": {
@@ -1956,9 +2058,9 @@
       },
       "split_metadata": {
         "partition": "stage_a",
-        "family_fingerprint_sha256": "d89a09743af0caf3b61cdab258ab6e3962bcdc52cee2122a80d75a6953e632f1",
+        "family_fingerprint_sha256": "2393eb73c2b28c6af6ccb3f3a2bb0e21c96c07e7fb57669cc47c3fce8b31f80b",
         "holdout_sealed": false,
-        "task_instance_sha256": "37416c4dcd51df198692198bcbc77fd156c0e7e0c047138020ddf933e09af482"
+        "task_instance_sha256": "03370e63f10a06287050cffeefddb8708f9633e80ef6c30e10f9e11e35a4b516"
       }
     },
     {
@@ -4840,7 +4942,7 @@
     "trace_schema_path": "DHI_v1/benchmark/plugin_trace.schema.json",
     "trace_grader_path": "DHI_v1/benchmark/plugin_trace.py",
     "trace_schema_sha256": "6d977adb6b723f03910cee70caa02cfe8d4defe9d781e3df037393396300b96a",
-    "trace_grader_sha256": "ac3be37fa39f8ff9fe8aeb61b6b9af8d7b9ce8f39aab6ecc8ba680feadb57dfd"
+    "trace_grader_sha256": "28f4a20278bba855da3a9b916cbfb1dd59115913860a071109d45f2ea16798ee"
   },
   "existing_development_pilot": {
     "path": "DHI_v1/benchmark/pilot_cases.json",
