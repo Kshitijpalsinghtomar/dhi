@@ -3736,10 +3736,9 @@
             "execution_credits": 1,
             "discovery_credits": 0,
             "output_fields": [
-              "count",
+              "total",
               "direct",
-              "indirect",
-              "scope"
+              "indirect"
             ]
           },
           "expected_evidence": "Pinned discovery snapshot reports the required inputs, direct/indirect counts and one-credit execution cost.",
