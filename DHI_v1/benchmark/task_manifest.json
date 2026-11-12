@@ -233,7 +233,7 @@
       "family_id": "ORBIT-S05-TINYFISH-BATCH-FETCH-CONTRACT-02",
       "stage": "A",
       "independence_group_id": "ORBIT-S05-INDEP-A-002",
-      "family_fingerprint_sha256": "a0a16e438d5d519f2f8421b1870ff65bc37ee7790602244d9c254e7778939058",
+      "family_fingerprint_sha256": "9b011c0f8934dff4683dbfecf7ed524a78670d77c879eb03bd03e65366f27f2e",
       "review_status": "draft"
     },
     {
@@ -2477,17 +2477,55 @@
               "https://www.python.org/downloads/",
               "https://www.python.org/downloads/source/"
             ],
-            "format": "markdown"
+            "format": "markdown",
+            "links": false,
+            "image_links": false,
+            "iframe_links": false,
+            "page_metadata": false,
+            "exact_list_fields": [
+              "urls"
+            ],
+            "require_success": true
           },
-          "expected_evidence": "Successful fetch has two independent results and official Python page data; Python 3.15.2 latest stable.",
+          "expected_evidence": "One successful TinyFish fetch_content action uses exactly the two required URLs, markdown output, and every required boolean field.",
+          "failure_if_unmet": true
+        },
+        {
+          "verifier_id": "python_release_snapshot",
+          "condition": {
+            "type": "external_snapshot_match",
+            "source": "https://www.python.org/downloads/",
+            "tool": "mcp__TinyFish__fetch_content",
+            "require_success": true,
+            "observation_date": "2026-11-03",
+            "latest_stable": "3.15.2",
+            "latest_pre_release": "3.16",
+            "python_316_status": "pre-release",
+            "python_316_planned_date": "2027-10-06",
+            "expected_sources": [
+              "https://www.python.org/downloads/",
+              "https://www.python.org/downloads/source/"
+            ]
+          },
+          "expected_evidence": "The successful raw response includes both requested page URLs and the pinned 2026-11-03 release facts. The independent reviewer must verify both page result records and the stable/pre-release interpretation.",
+          "failure_if_unmet": true
+        },
+        {
+          "verifier_id": "single_read_no_credit",
+          "condition": {
+            "type": "no_paid_provider_execution",
+            "credits_spent": 0,
+            "tool_calls": 1
+          },
+          "expected_evidence": "Exactly one read-only batch fetch and zero provider credits spent.",
           "failure_if_unmet": true
         }
       ],
       "grader": {
         "grader_id": "tinyfish-batch-fetch-schema-v1",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "kind": "mixed",
-        "primary_outcome": "Correct argument schema accepted and both official sources returned; latest stable/pre-release distinction correct.",
+        "primary_outcome": "One successful exact two-URL TinyFish batch fetch, raw evidence for both official sources, correct interpretation of the pinned 2026-11-03 Python release snapshot, and zero credits. Independent review must assess both page results.",
         "independent_review_required": true,
         "review_rubric_ref": "DHI_v1/benchmark/fixtures/plugin_ecology/external_snapshots/python_releases_2026-11-03.md",
         "llm_judge_sole_source": false
@@ -2525,11 +2563,12 @@
         "status": "ready_for_validation",
         "contract_check": "pass",
         "environment_check": "pass",
-        "grader_check": "not_run",
+        "grader_check": "pass",
         "review_status": "not_reviewed",
         "harness_gap_ids": [],
         "validation_evidence": [
-          "TinyFish fetch_content accepted a two-element urls array and returned both official page contents."
+          "TinyFish fetch_content accepted a two-element urls array and returned both official page contents.",
+          "Deepnote run 375bcd7a-9887-4111-bca2-8d1bbe47d7b0: 48/48 shared trace-grader, S05-001 and S05-002 regression tests passed; task-manifest validator valid=true (30 tasks, zero errors); benchmark/environment compileall exit code 0. Focused S05-002 suite run afb668ad-5192-4dde-ade4-a273b7a87cc7: 8/8 passed. Synthetic deterministic grader evidence only; no live TinyFish call or model trajectory."
         ]
       },
       "execution": {
@@ -2543,9 +2582,9 @@
       },
       "split_metadata": {
         "partition": "stage_a",
-        "family_fingerprint_sha256": "a0a16e438d5d519f2f8421b1870ff65bc37ee7790602244d9c254e7778939058",
+        "family_fingerprint_sha256": "9b011c0f8934dff4683dbfecf7ed524a78670d77c879eb03bd03e65366f27f2e",
         "holdout_sealed": false,
-        "task_instance_sha256": "98ca802db481bcbf213158e64dd1b1751dacab3da2eb1910cf1b6eb241821853"
+        "task_instance_sha256": "c6ec866e722514e151899a695d620f327c72f7f6618dd628feea78221ec6e570"
       }
     },
     {
@@ -4709,7 +4748,7 @@
     "trace_schema_path": "DHI_v1/benchmark/plugin_trace.schema.json",
     "trace_grader_path": "DHI_v1/benchmark/plugin_trace.py",
     "trace_schema_sha256": "6d977adb6b723f03910cee70caa02cfe8d4defe9d781e3df037393396300b96a",
-    "trace_grader_sha256": "c7613076b69af47634b17d0badd17fceb054730310de62dd4ab32cf277fb5055"
+    "trace_grader_sha256": "820c84566a7c4c42044828269fc6576fb289c0d0a43817c4dab988bda79e8afa"
   },
   "existing_development_pilot": {
     "path": "DHI_v1/benchmark/pilot_cases.json",
