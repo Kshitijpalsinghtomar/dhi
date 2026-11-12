@@ -2,17 +2,19 @@
 
 > **DHI RESEARCH CONTROL — 2026-11-12. Read this before any other section.**
 >
+> **Fresh-agent handoff:** [`DHI_v1/NEXT_AGENT_HANDOFF.md`](NEXT_AGENT_HANDOFF.md) contains the exact S07-001 continuation prompt, pinned source inventory, branch state, verified test evidence and known report/grader gaps.
+>
 > This repository is the **DHI-v1 / ORBIT research programme only**. Do not mix code, datasets, claims, tasks, or conclusions from GBA/DPAK, Oriael, or other research projects.
 >
 > **Active research path:** the tool-acquisition/lifecycle novelty candidate was rejected as insufficiently distinct. See [15_PRIOR_ART_AND_NOVELTY_GATE_2026-11-11.md](docs/15_PRIOR_ART_AND_NOVELTY_GATE_2026-11-11.md). DHI-v1 is an empirical model-development programme: untouched base-model screening, verified-execution SFT, then controlled prediction/closure ablations. No new method claim is accepted before results.
 >
-> **Study 0 tracking:** [Issue #2 — freeze untouched base-model capability screen](https://github.com/Kshitijpalsinghtomar/dhi/issues/2). Current Stage A has 30 tasks and Stage B has zero. **Thirteen of 30 deterministic grader checks pass; 17 remain `not_run`.** These are S06-001, S01-001/002, S03-001..004, S04-001, S05-001..004, and S08-001. Only S06-001 has an accepted family review; the other 29 are still `not_reviewed`. Every execution remains `not_run`; all 30 `model_runs_allowed` flags are false. S07/S09 remain partial. Do not confuse deterministic grader tests with model capability or family acceptance.
+> **Study 0 tracking:** [Issue #2 — freeze untouched base-model capability screen](https://github.com/Kshitijpalsinghtomar/dhi/issues/2). Current Stage A has 30 tasks and Stage B has zero. **Fourteen of 30 deterministic grader checks pass; 16 remain `not_run`.** The unrun IDs are S07-001, S09-001, S10-001, S02-002, S04-002, S06-002, S08-002, S09-002, S10-002, S02-003, S08-003, S06-003, S04-003, S07-002, S09-003 and S06-004. Only S06-001 has an accepted family review; the other 29 remain `not_reviewed`. Every execution remains `not_run`; all 30 `model_runs_allowed` flags are false. Do not confuse deterministic grader tests with model capability or family acceptance.
 >
 > **Important S04 grader correction:** `tool_trace` now checks the successful fetched result's exact Git blob SHA and optional exact arguments, not just the tool name. S04-001 is pinned to repository `Kshitijpalsinghtomar/dhi`, `DHI_v1/benchmark/fixtures/plugin_ecology/TASK_POLICY.md`, ref `af6c0d31fcf2e3232cb427c421850536139e3b3a`, blob `0e5d3c519749651ad5f5ec728622895cfc44a649`. Regression coverage rejects wrong SHA, wrong ref, failed reads and write-tool substitution.
 >
-> **Latest integrated regression attempt:** Deepnote run `60c6ecc2-a1c1-4a88-a7d6-26ed2b2476dc` assembled 103 tests but its integrated-regression subprocess hit the 300-second timeout; do not count it as a pass. Its standalone manifest validator and `compileall` both passed. S08-001 separately passed its final schema-corrected focused suite **12/12** in run `e4e8e116-8e45-4f19-96bc-3b02737abce1`; exact committed-manifest validation and `compileall` passed in run `9ca039ce-6bba-4dbd-af33-4003e3634aa9`.
+> **Latest integrated regression attempt:** Deepnote run `60c6ecc2-a1c1-4a88-a7d6-26ed2b2476dc` assembled 103 tests but its integrated-regression subprocess hit the 300-second timeout; do not count it as a pass. Its standalone manifest validator and `compileall` both passed. S08-001 passed its schema-corrected focused suite **12/12** in run `e4e8e116-8e45-4f19-96bc-3b02737abce1`. S02-001 plus the existing S05-002/S05-004 TinyFish suites then passed **27/27** in run `edd2ef89-14af-4d07-ae9d-fbd142d5f6f2`. The exact committed-manifest validator and `compileall` passed in run `e4ac486d-414c-4a04-b35e-ec08432e045c`.
 >
-> **Latest manifest:** trace-grader commit `9b2e8faf5f573ec11ef2d852fefe41c319fba03f`, manifest commit `153337511faa800f2af58d477cd96565431d1ede`, Git blob `296c1b24801167fce1bf491f4c63bba38d7957aa`. It records 13 grader checks passed, 17 `not_run`, 1 family accepted and 29 `not_reviewed`. All executions remain `not_run`, all model-run flags false. A grader-check pass records deterministic verifier-test evidence—not a model trajectory.
+> **Latest manifest:** trace-grader commit `9b2e8faf5f573ec11ef2d852fefe41c319fba03f`, manifest commit `21b332eece4648bb2889232672f882fcca210b5f`, Git blob `1fb2ca721e926117f40071fce3f3cbffe52ca5a2`. It records 14 grader checks passed, 16 `not_run`, 1 family accepted and 29 `not_reviewed`. All executions remain `not_run`, all model-run flags false. A grader-check pass records deterministic verifier-test evidence—not a model trajectory.
 >
 > **Development pilot boundary:** `DHI_v1/benchmark/pilot_cases.json` is a 12-case integration/harness pilot explicitly excluded from Stage A/B; its runner supports file-workspace cases (and an optional Adaption catalogue case), not the 30 plugin-native panel tasks. It is not a substitute for Study 0.
 >
@@ -20,7 +22,7 @@
 >
 > **Hard evidence boundary:** no DHI model inference, model-generated execution trajectory, adjudicated training corpus, capability score, or training checkpoint exists. Later S07/S09 full regression was not independently confirmed as a complete older harness suite; current 66-test regression does cover the updated trace grader/task fixtures. The last OpenRouter check on 2026-11-11 showed zero credits; Deepnote has no model-provider integration. Do not run a model, switch to a free endpoint/candidate, alter permissions, spend credits, or launch training without explicit user authorization and an approved resource route.
 >
-> **Next action:** continue with the next unrun manifest task, `ORBIT-A-S02-001` (Node.js official release-state snapshot). First inspect its pinned 2026-11-03 source snapshot and existing `external_snapshot_match` behavior; add task-specific positive/adversarial traces only where the current grader is insufficient. Keep it fixture-backed and offline; no live provider calls or model execution.
+> **Next-agent handoff:** read [`NEXT_AGENT_HANDOFF.md`](NEXT_AGENT_HANDOFF.md). The next manifest task is `ORBIT-A-S07-001` (persistent GitHub checkpoint resume). Its sandbox branch already has the single allowed report-path commit; the handoff records exact source hashes, grader gaps, and a report-content discrepancy to review. Keep the sandbox branch read-only and work only on `orbit/plugin-benchmark-fixture`.
 
 
 **Last updated:** 2026-11-12  
@@ -52,9 +54,9 @@ programme: DHI-v1
 codename: ORBIT
 phase: study_0_task_grader_admission
 status: research_in_progress
-status_reason: The lifecycle/acquisition novelty candidate is rejected as insufficiently distinct. Active work is empirical DHI-v1 model development. Stage A has 30 materialized tasks; Stage B has 0. Thirteen deterministic grader checks pass, 17 remain not_run, including S05-001 through S05-004 and S08-001. Only S06-001 has accepted family review; the other 29 remain not_reviewed. All 30 executions are not_run and all model_runs_allowed flags remain false. No model inference, model-generated trajectory, adjudicated training corpus, capability score, or training checkpoint exists. S08-001 passed 12/12 schema-valid recovery tests; exact committed manifest validation is valid for 30 tasks with zero errors and benchmark/environment compileall passed. The attempted 103-test integrated bundle timed out at its configured five-minute limit and is not a pass.
+status_reason: The lifecycle/acquisition novelty candidate is rejected as insufficiently distinct. Active work is empirical DHI-v1 model development. Stage A has 30 materialized tasks; Stage B has 0. Fourteen deterministic grader checks pass, 16 remain not_run. Only S06-001 has accepted family review; the other 29 remain not_reviewed. All 30 executions are not_run and all model_runs_allowed flags remain false. No model inference, model-generated trajectory, adjudicated training corpus, capability score, or training checkpoint exists. S08-001 passed 12/12 schema-valid recovery tests. S02-001 plus S05-002/S05-004 passed 27/27 focused regressions. The exact committed manifest validates for 30 tasks with zero errors and benchmark/environment compileall passes. The 103-test integrated attempt timed out at its configured five-minute limit and is not a pass.
 training_status: not_authorized
-benchmark_status: stage_a_30_materialized_of_120; 13_grader_checks_pass; 17_grader_checks_not_run; stage_b_sealed_unmaterialized
+benchmark_status: stage_a_30_materialized_of_120; 14_grader_checks_pass; 16_grader_checks_not_run; stage_b_sealed_unmaterialized
 task_admission: blocked_pending_family_review
 model_runs_allowed: false
 training_runs_allowed: false
@@ -62,14 +64,22 @@ research_mechanism_test_commit: 81a299342ecee919e1a068a34897789934b1685c
 research_mechanism_test_run: ca0c1e0e-bace-4927-ae65-5d83528eb59a
 research_mechanism_test_count: 22
 research_mechanism_compileall_exit_code: 0
-latest_manifest_blob: 296c1b24801167fce1bf491f4c63bba38d7957aa
-latest_manifest_commit: 153337511faa800f2af58d477cd96565431d1ede
+latest_manifest_blob: 1fb2ca721e926117f40071fce3f3cbffe52ca5a2
+latest_manifest_commit: 21b332eece4648bb2889232672f882fcca210b5f
 latest_integrated_regression_run: 60c6ecc2-a1c1-4a88-a7d6-26ed2b2476dc
 latest_integrated_regression_tests: 103
 latest_integrated_regression_exit_code: timed_out_300s
 latest_integrated_compileall_exit_code: 0
-latest_manifest_validator_run: 9ca039ce-6bba-4dbd-af33-4003e3634aa9
+latest_manifest_validator_run: e4ac486d-414c-4a04-b35e-ec08432e045c
 latest_manifest_validator_status: pass
+latest_regression_run: edd2ef89-14af-4d07-ae9d-fbd142d5f6f2
+latest_regression_test_count: 27
+latest_regression_scope: S02-001 plus S05-002 and S05-004
+latest_regression_exit_code: 0
+latest_s02_001_focused_tests: 8
+latest_s02_001_test_commit: 28d145773668e7f4ffb8a8a699976ddb91174c19
+latest_s02_001_exact_manifest_valid: true
+latest_s02_001_compileall_exit_code: 0
 latest_s08_001_focused_run: e4e8e116-8e45-4f19-96bc-3b02737abce1
 latest_s08_001_focused_tests: 12
 latest_s08_001_manifest_update_run: d147615d-dc94-4b14-98b7-768a879a17b7
@@ -79,6 +89,8 @@ latest_s08_001_compileall_exit_code: 0
 latest_s08_001_trace_grader_commit: 9b2e8faf5f573ec11ef2d852fefe41c319fba03f
 latest_s08_001_test_commit: e9b5287a9dd20e204113132a9f1efdd8f87f389d
 latest_trace_grader_commit: 9b2e8faf5f573ec11ef2d852fefe41c319fba03f
+next_agent_handoff_commit: ab0e72f6a6b3e358ab0ca98cd711af7cbca6a841
+next_agent_handoff: DHI_v1/NEXT_AGENT_HANDOFF.md
 latest_s05_grader_tests: 11
 latest_s05_compileall_exit_code: 0
 latest_trace_grader_commit: 9b2e8faf5f573ec11ef2d852fefe41c319fba03f
@@ -97,9 +109,9 @@ latest_s05_004_compatibility_run: 486b8ab3-088f-4d96-9d30-cb78eb3ee724
 latest_s05_004_compatibility_tests: 72
 latest_s05_004_compatibility_note: 71_passed_1_expected_release_literal_mismatch_then_fixed
 latest_s05_002_focused_tests: 8
-latest_exact_manifest_validation: a48565c7-87bb-42d5-a219-6582cc0c261f
+latest_exact_manifest_validation: e4ac486d-414c-4a04-b35e-ec08432e045c
 latest_exact_manifest_valid: true
-next_action: validate_orbit_a_s02_001_nodejs_release_snapshot
+next_action: validate_orbit_a_s07_001_persistent_checkpoint_resume_transaction
 study_0_issue: 2
 ```
 </details>
@@ -902,3 +914,18 @@ S06 remains `ready_for_validation`; all 30 Stage A tasks remain `ready_for_valid
 - No GitHub repository write, live TinyFish call, provider-credit spend, model inference, training, merge or default-`main` change occurred. Only read-only GitHub fixture/source inspection was used.
 
 **Next exact task from the manifest:** `ORBIT-A-S02-001` — verify the pinned Node.js official release-state snapshot. Review its dated source fixture and current external-snapshot grader, then add targeted tests only for demonstrable grader gaps. Keep it offline and fixture-backed.
+
+
+## 37. S02-001 Node.js release snapshot grader — 12 November 2026
+
+- Added task-specific regression file `DHI_v1/benchmark/tests/test_study0_nodejs_release_task_grader.py`; commit `28d145773668e7f4ffb8a8a699976ddb91174c19`.
+- The initial RED suite reproduced six false accepts: release facts accepted from Search instead of Fetch; failed Fetch accepted despite partial content; missing v27 Alpha row; missing one LTS row; missing page-updated date; and missing production guidance. Wrong source URL was already rejected.
+- S02-001 now pins a successful `mcp__TinyFish__fetch_content` observation from `https://nodejs.org/en/about/previous-releases`, and checks all four dated rows (v27 Alpha; v26/v24/v22 LTS), page metadata date `2026-10-29`, and production guidance `Active LTS or Maintenance LTS`. Grader version is 1.1.0.
+- The historical observation date remains `2026-11-03`; this is a reproducible snapshot, not a current Node.js release assertion.
+- Combined Deepnote run `edd2ef89-14af-4d07-ae9d-fbd142d5f6f2`: **27/27 passed** across S02-001 (8 tests), existing S05-002 tests and S05-004 tests. Direct manifest validator: `valid=true`, 30 tasks, zero errors; benchmark/environment `compileall` exit code 0.
+- Exact manifest commit `21b332eece4648bb2889232672f882fcca210b5f`, blob `1fb2ca721e926117f40071fce3f3cbffe52ca5a2`. Exact committed-blob verification run `e4ac486d-414c-4a04-b35e-ec08432e045c`: validator `valid=true`, 30 tasks, zero errors; compileall exit code 0.
+- S02-001 now records `grader_check=pass`, but remains `ready_for_validation` / `not_reviewed`; execution remains `not_run` and `model_runs_allowed=false`. Study 0 is **14/30** deterministic grader checks passed, 16 `not_run`; only S06-001 has accepted family review.
+- The 103-test integrated regression attempt timed out at its 300-second subprocess limit and is not counted as a pass. The focused 27-test run above is the verified regression result for this unit.
+- No live TinyFish call, provider-credit spend, model inference, training, merge or default-`main` change occurred.
+
+**Next exact task:** `ORBIT-A-S07-001` — persistent GitHub checkpoint resume. Continue from [`NEXT_AGENT_HANDOFF.md`](NEXT_AGENT_HANDOFF.md); inspect the existing one-report sandbox branch without mutating it and first close the identified source-read/report/grader coverage gaps.
