@@ -70,7 +70,7 @@ def make_transaction_trace() -> dict:
             },
             "result": {
                 "ok": True,
-                "result": {"sha": SEED_BLOB, "content": "# Plugin update contract — seed\n"},
+                "result": {"sha": SEED_BLOB, "content": "# Plugin update contract — seed\n\nStatus: draft\n\nThis file is an existing report target for the ORBIT GitHub update_file argument-contract task.\n\nThe task is not complete until the file is updated with the final evidence statement, fetched back, and compared to the seed commit. Only this file may change.\n"},
                 "error": None,
             },
             "side_effect": None,
@@ -198,6 +198,15 @@ class Study0GitHubUpdateFileTaskGraderTests(unittest.TestCase):
     def test_s05_003_accepts_exact_sha_branch_readback_and_single_path_diff(self):
         result = grade(make_transaction_trace())
         self.assertEqual(result["status"], "pass", result)
+
+    def test_s05_003_rejects_pre_read_content_not_matching_provider_blob_sha(self):
+        trace = make_transaction_trace()
+        pre_read = action_event(trace, 1, "executed")
+        pre_read["actual_tool_result"]["result"]["content"] = (
+            pre_read["actual_tool_result"]["result"]["content"].replace("Status: draft", "Status: final")
+        )
+        result = grade(trace)
+        self.assertEqual(result["status"], "fail", result)
 
     def test_s05_003_rejects_update_sha_not_obtained_from_pre_read(self):
         trace = make_transaction_trace()
