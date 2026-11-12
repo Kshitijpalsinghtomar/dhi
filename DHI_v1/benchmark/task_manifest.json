@@ -953,11 +953,12 @@
         "status": "ready_for_validation",
         "contract_check": "pass",
         "environment_check": "pass",
-        "grader_check": "not_run",
+        "grader_check": "pass",
         "review_status": "not_reviewed",
         "harness_gap_ids": [],
         "validation_evidence": [
-          "GitHub fetch_file read work_items.csv successfully with exact repository_full_name/path/ref."
+          "GitHub fetch_file read work_items.csv successfully with exact repository_full_name/path/ref.",
+          "Deepnote run 6ad055f4-9e6d-4ec0-9c9c-35f412653d5b: 8/8 focused S05 file-blob grader tests passed; task-manifest validator valid=true (30 tasks, zero errors); benchmark/environment compileall exit code 0. Deterministic grader evidence only; task execution remains not_run."
         ]
       },
       "execution": {
@@ -973,7 +974,7 @@
         "partition": "stage_a",
         "family_fingerprint_sha256": "5561d33cb685fcb7dd4f05176f190e97f6fcfa857323b26bbe294126eac101c5",
         "holdout_sealed": false,
-        "task_instance_sha256": "850d1cfeeb04464b11768fc8eae81e9be4809a2aef2b8f4f64f20c07a32e7b6c"
+        "task_instance_sha256": "622f47e63d48b75390f9575c604eddc132dfd20afdd67b427c707f067856ad1f"
       }
     },
     {
