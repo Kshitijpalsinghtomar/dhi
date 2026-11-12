@@ -111,6 +111,21 @@ class Study0TinyFishTaskGraderTests(unittest.TestCase):
         result = grade_task(task, trace)
         self.assertEqual(result["status"], "fail", result)
 
+    def test_s05_002_rejects_omitted_required_boolean_argument(self):
+        task = load_task()
+        trace = make_s05_002_trace(task)
+        for event in trace["events"][2:4]:
+            event["arguments"].pop("page_metadata")
+        result = grade_task(task, trace)
+        self.assertEqual(result["status"], "fail", result)
+
+    def test_s05_002_rejects_provider_credit_spend(self):
+        task = load_task()
+        trace = make_s05_002_trace(task)
+        trace["usage"]["provider_credits_spent"] = 1
+        result = grade_task(task, trace)
+        self.assertEqual(result["status"], "fail", result)
+
     def test_s05_002_rejects_wrong_tool_even_when_request_and_response_look_valid(self):
         task = load_task()
         result = grade_task(task, make_s05_002_trace(task, tool_id="mcp__GitHub__fetch"))
