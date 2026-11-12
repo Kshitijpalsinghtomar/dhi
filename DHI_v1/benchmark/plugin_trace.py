@@ -2082,7 +2082,7 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
             if not isinstance(field_value, list) or any(not isinstance(value, str) or not value for value in field_value):
                 return _result("unscorable", f"source snapshot {field_name} must be an array of non-empty strings")
         if expected_tool_sequence is not None:
-            observed_sequence = [event.get("tool_id") for event in _action_events(trace)]
+            observed_sequence = [event.get("tool_id") for event in sorted(_action_events(trace), key=lambda item: item.get("event_index", 0))]
             if observed_sequence != expected_tool_sequence:
                 return _result("fail", "source snapshot tool sequence differs from the registered search/fetch workflow", {
                     "expected": expected_tool_sequence,
