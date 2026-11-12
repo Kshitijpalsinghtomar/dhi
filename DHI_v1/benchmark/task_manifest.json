@@ -156,7 +156,7 @@
       "family_id": "ORBIT-S05-GITHUB-FETCH-FILE-SCHEMA-01",
       "stage": "A",
       "independence_group_id": "ORBIT-S05-INDEP-A-001",
-      "family_fingerprint_sha256": "7b5bd2e30eee708f114aa4a4fdfefb4b7bbd934069a65edda284a3089b9773d2",
+      "family_fingerprint_sha256": "5561d33cb685fcb7dd4f05176f190e97f6fcfa857323b26bbe294126eac101c5",
       "review_status": "draft"
     },
     {
@@ -177,7 +177,7 @@
       "family_id": "ORBIT-S08-GITHUB-404-RECOVERY-01",
       "stage": "A",
       "independence_group_id": "ORBIT-S08-INDEP-A-001",
-      "family_fingerprint_sha256": "a259758fc79c2861128762f1d94ce86576051dcefde06008956e8c326b0a7cec",
+      "family_fingerprint_sha256": "22ed4f4506775d750e9989d3bcfa2d34ab13810a92c0020933addc1bb2e52580",
       "review_status": "draft"
     },
     {
@@ -909,7 +909,8 @@
               "repository_full_name": "Kshitijpalsinghtomar/dhi",
               "path": "DHI_v1/benchmark/fixtures/plugin_ecology/data/work_items.csv",
               "ref": "af6c0d31fcf2e3232cb427c421850536139e3b3a"
-            }
+            },
+            "expected_tool_id": "mcp__GitHub__fetch_file"
           },
           "expected_evidence": "GitHub fetch_file returns the pinned blob SHA; CSV contains 10 records plus header.",
           "failure_if_unmet": true
@@ -970,9 +971,9 @@
       },
       "split_metadata": {
         "partition": "stage_a",
-        "family_fingerprint_sha256": "7b5bd2e30eee708f114aa4a4fdfefb4b7bbd934069a65edda284a3089b9773d2",
+        "family_fingerprint_sha256": "5561d33cb685fcb7dd4f05176f190e97f6fcfa857323b26bbe294126eac101c5",
         "holdout_sealed": false,
-        "task_instance_sha256": "03d2f19f225ae4ac2097bdf43b889b7d8a3639f976471fbc63c18fce7a395eab"
+        "task_instance_sha256": "850d1cfeeb04464b11768fc8eae81e9be4809a2aef2b8f4f64f20c07a32e7b6c"
       }
     },
     {
@@ -1394,7 +1395,8 @@
             "type": "file_blob_match",
             "path": "DHI_v1/benchmark/fixtures/plugin_ecology/data/work_items.csv",
             "blob_sha": "fe9f3fec31796694ec44711dfaf8a2dc1acbfe2d",
-            "data_rows": 10
+            "data_rows": 10,
+            "expected_tool_id": "mcp__GitHub__fetch_file"
           },
           "expected_evidence": "Recovered path and returned blob match the fixture.",
           "failure_if_unmet": true
@@ -1457,9 +1459,9 @@
       },
       "split_metadata": {
         "partition": "stage_a",
-        "family_fingerprint_sha256": "a259758fc79c2861128762f1d94ce86576051dcefde06008956e8c326b0a7cec",
+        "family_fingerprint_sha256": "22ed4f4506775d750e9989d3bcfa2d34ab13810a92c0020933addc1bb2e52580",
         "holdout_sealed": false,
-        "task_instance_sha256": "67fcfe865f850266fdae45e8aa360e9b59f9710d3e7a531707d90ac3f0c3ee19"
+        "task_instance_sha256": "876bc433931ff54a985ce14b4e71cb7254ea315c9160dc611b35792d16971405"
       }
     },
     {
@@ -4706,7 +4708,7 @@
     "trace_schema_path": "DHI_v1/benchmark/plugin_trace.schema.json",
     "trace_grader_path": "DHI_v1/benchmark/plugin_trace.py",
     "trace_schema_sha256": "6d977adb6b723f03910cee70caa02cfe8d4defe9d781e3df037393396300b96a",
-    "trace_grader_sha256": "f0a9dc46a6a86c755a5ff96ebb6622cda9038ad0d390656279bd767080d6c50c"
+    "trace_grader_sha256": "c7613076b69af47634b17d0badd17fceb054730310de62dd4ab32cf277fb5055"
   },
   "existing_development_pilot": {
     "path": "DHI_v1/benchmark/pilot_cases.json",
