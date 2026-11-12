@@ -773,8 +773,14 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
         expected_path = condition.get("path")
         expected_rows = condition.get("data_rows")
         expected_arguments = condition.get("expected_arguments")
+        expected_tool_id = condition.get("expected_tool_id")
         if expected_arguments is not None and not isinstance(expected_arguments, dict):
             return _result("unscorable", "file_blob_match expected_arguments must be an object")
+        if kind == "file_blob_match":
+            if not isinstance(expected_blob, str) or re.fullmatch(r"[a-f0-9]{40}", expected_blob) is None:
+                return _result("unscorable", "file_blob_match requires a lowercase pinned Git blob SHA-1")
+            if not isinstance(expected_tool_id, str) or not expected_tool_id.strip():
+                return _result("unscorable", "file_blob_match requires the exact expected_tool_id")
         observations = _raw_observations(trace)
         matching_responses = []
         for observation in observations:
@@ -783,6 +789,8 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
             # A response body or digest from a failed action is not evidence of
             # a successful read, even if a provider returned partial data.
             if observation.get("ok") is not True or not isinstance(response, dict):
+                continue
+            if expected_tool_id is not None and observation.get("tool_id") != expected_tool_id:
                 continue
             if expected_path and not (isinstance(request, dict) and request.get("path") == expected_path):
                 continue
@@ -814,8 +822,18 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
                 "observed": observed,
             })
         response = matching_responses[-1]
+        content_value = response.get("content")
+        if kind == "file_blob_match":
+            if not isinstance(content_value, str):
+                return _result("unscorable", "file response has no text content for Git blob verification")
+            actual_content_blob = _git_blob_sha(content_value)
+            if actual_content_blob != expected_blob:
+                return _result("fail", "fetched content does not match the pinned Git blob SHA", {
+                    "expected_blob": expected_blob,
+                    "provider_blob": response.get("sha") or response.get("blob_sha"),
+                    "actual_content_blob": actual_content_blob,
+                })
         if expected_rows is not None:
-            content_value = response.get("content")
             if not isinstance(content_value, str):
                 return _result("unscorable", "file response has no text content for row-count verification")
             try:
