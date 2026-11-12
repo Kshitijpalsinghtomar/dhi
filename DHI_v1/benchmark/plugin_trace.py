@@ -2055,10 +2055,26 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
         source = condition.get("source")
         expected_tool = condition.get("tool")
         require_success = condition.get("require_success", False)
+        expected_arguments = condition.get("expected_arguments")
+        exact_arguments = condition.get("exact_arguments", False)
+        expected_source_values = condition.get("expected_source_values", [])
+        required_answer_values = condition.get("required_answer_values", [])
+        forbidden_answer_values = condition.get("forbidden_answer_values", [])
         if expected_tool is not None and (not isinstance(expected_tool, str) or not expected_tool.strip()):
             return _result("unscorable", "source snapshot tool must be a non-empty tool id")
         if not isinstance(require_success, bool):
             return _result("unscorable", "source snapshot require_success must be a boolean")
+        if expected_arguments is not None and not isinstance(expected_arguments, dict):
+            return _result("unscorable", "source snapshot expected_arguments must be an object")
+        if not isinstance(exact_arguments, bool):
+            return _result("unscorable", "source snapshot exact_arguments must be a boolean")
+        for field_name, field_value in (
+            ("expected_source_values", expected_source_values),
+            ("required_answer_values", required_answer_values),
+            ("forbidden_answer_values", forbidden_answer_values),
+        ):
+            if not isinstance(field_value, list) or any(not isinstance(value, str) or not value for value in field_value):
+                return _result("unscorable", f"source snapshot {field_name} must be an array of non-empty strings")
         observations = _raw_observations(trace)
         matched_observations = []
         for observation in observations:
@@ -2066,19 +2082,30 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
                 continue
             if require_success and observation.get("ok") is not True:
                 continue
-            request_text = _canonical_json(observation.get("request", {}))
+            request = observation.get("request", {})
+            request_text = _canonical_json(request)
             source_ref = str(observation.get("source_ref") or "")
             if isinstance(source, str) and (source in request_text or source in source_ref):
+                if expected_arguments is not None:
+                    if exact_arguments and request != expected_arguments:
+                        continue
+                    if not exact_arguments and not _deep_contains(request, expected_arguments):
+                        continue
                 matched_observations.append(observation)
         if not matched_observations:
             return _result("unscorable", "trace has no qualifying raw tool invocation attributed to the requested source")
         raw_text = "\\n".join(_raw_text(item.get("response")) for item in matched_observations)
         expected_values = []
-        ignored_keys = {"type", "source", "tool", "require_success", "observation_date", "expected_rows"}
+        ignored_keys = {
+            "type", "source", "tool", "require_success", "observation_date", "expected_rows",
+            "expected_arguments", "exact_arguments", "expected_source_values",
+            "required_answer_values", "forbidden_answer_values",
+        }
         for key, value in condition.items():
             if key in ignored_keys:
                 continue
             expected_values.extend(_flatten_source_values(value))
+        expected_values.extend(expected_source_values)
         normalized_raw = _normalize_fact_text(raw_text)
         missing = [
             value for value in expected_values
@@ -2096,7 +2123,21 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
                 missing_rows.append(row)
         if missing_rows:
             missing.append({"missing_rows": missing_rows})
-        return _result("pass" if not missing else "fail", "source facts match the raw response" if not missing else "raw source response does not contain the expected facts", {"missing": missing})
+        answer = trace.get("final_answer")
+        answer_folded = answer.casefold() if isinstance(answer, str) else ""
+        missing_answer = [
+            value for value in required_answer_values
+            if value.casefold() not in answer_folded
+        ]
+        forbidden_answer = [
+            value for value in forbidden_answer_values
+            if value.casefold() in answer_folded
+        ]
+        if missing_answer:
+            missing.append({"missing_final_answer_values": missing_answer})
+        if forbidden_answer:
+            missing.append({"forbidden_final_answer_values": forbidden_answer})
+        return _result("pass" if not missing else "fail", "source facts and final answer match the registered release-state contract" if not missing else "raw source response or final answer does not satisfy the registered release-state contract", {"missing": missing})
 
     if kind in {"provider_capability_contract", "provider_capability_contracts"}:
         expected = {key: value for key, value in condition.items() if key != "type"}
