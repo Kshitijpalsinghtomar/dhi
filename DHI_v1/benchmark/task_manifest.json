@@ -149,7 +149,7 @@
       "family_id": "ORBIT-S04-GITHUB-READ-VS-WRITE-SELECTION-01",
       "stage": "A",
       "independence_group_id": "ORBIT-S04-INDEP-A-001",
-      "family_fingerprint_sha256": "e0668359b7a1be00bd5e4435a2e99722be5d18de783a82c3ec68b68ec540cf68",
+      "family_fingerprint_sha256": "9ca5886696e936ba6a336e5928aa24c4129ec34da46ddb95efd06ca7c8622529",
       "review_status": "draft"
     },
     {
@@ -842,9 +842,9 @@
       },
       "split_metadata": {
         "partition": "stage_a",
-        "family_fingerprint_sha256": "e0668359b7a1be00bd5e4435a2e99722be5d18de783a82c3ec68b68ec540cf68",
+        "family_fingerprint_sha256": "9ca5886696e936ba6a336e5928aa24c4129ec34da46ddb95efd06ca7c8622529",
         "holdout_sealed": false,
-        "task_instance_sha256": "7a00a8f2f5db1eea0b3ca5bf402aec6334cc8145386d4e8a9751dcf2b583ced9"
+        "task_instance_sha256": "ec82271abc45663fe5670f8c9a9c87136989fd57f576de6880f8acc20f4d1aaa"
       }
     },
     {
@@ -4700,7 +4700,7 @@
     "trace_schema_path": "DHI_v1/benchmark/plugin_trace.schema.json",
     "trace_grader_path": "DHI_v1/benchmark/plugin_trace.py",
     "trace_schema_sha256": "6d977adb6b723f03910cee70caa02cfe8d4defe9d781e3df037393396300b96a",
-    "trace_grader_sha256": "5676f8020d7454205dd7e1000cb8c43f0eefb75d23b501a3be98001ed5ae7198"
+    "trace_grader_sha256": "e5b24beba6a3e75807e9a25120708d2f583e80ffb02c8873ac8f8760a6fe124b"
   },
   "existing_development_pilot": {
     "path": "DHI_v1/benchmark/pilot_cases.json",
