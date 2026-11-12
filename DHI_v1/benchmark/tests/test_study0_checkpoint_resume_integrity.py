@@ -162,7 +162,7 @@ def build_trace(report: str = GOOD_REPORT) -> dict:
     append("artifact_readback", artifact_readback={
         "path": REPORT_PATH, "repository_full_name": REPO, "ref": REPORT_BRANCH,
         "status": "verified", "source_action_id": report_write_id,
-        "sha256": sha256(report), "blob_sha": REPORT_BLOB, "source_ref": report_url,
+        "sha256": sha256(report), "blob_sha": git_blob_sha(report), "source_ref": report_url,
     })
     action(
         "mcp__GitHub__compare_commits",
