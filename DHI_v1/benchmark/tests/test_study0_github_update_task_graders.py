@@ -39,6 +39,12 @@ def condition() -> dict:
         "expected_seed_blob_sha": SEED_BLOB,
         "expected_updated_blob_sha": UPDATED_BLOB,
         "expected_content": UPDATED_CONTENT,
+        "expected_tool_sequence": [
+            "mcp__GitHub__fetch_file",
+            "mcp__GitHub__update_file",
+            "mcp__GitHub__fetch_file",
+            "mcp__GitHub__compare_commits",
+        ],
         "expected_diff": {
             "status": "modified",
             "additions": 8,
