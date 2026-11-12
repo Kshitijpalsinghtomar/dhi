@@ -177,7 +177,7 @@
       "family_id": "ORBIT-S08-GITHUB-404-RECOVERY-01",
       "stage": "A",
       "independence_group_id": "ORBIT-S08-INDEP-A-001",
-      "family_fingerprint_sha256": "22ed4f4506775d750e9989d3bcfa2d34ab13810a92c0020933addc1bb2e52580",
+      "family_fingerprint_sha256": "a29aacade5d47dc90d13eb18f18cceadfb28cb7f210187fd6052677d937fe668",
       "review_status": "draft"
     },
     {
@@ -1380,12 +1380,14 @@
         {
           "verifier_id": "recovery_sequence",
           "condition": {
-            "type": "ordered_tool_trace",
-            "sequence": [
-              "fetch_file:404",
-              "fetch_directory",
-              "fetch_file:success"
-            ]
+            "type": "github_404_recovery",
+            "repository_full_name": "Kshitijpalsinghtomar/dhi",
+            "ref": "af6c0d31fcf2e3232cb427c421850536139e3b3a",
+            "bad_path": "DHI_v1/benchmark/fixtures/plugin_ecology/data/work-items.csv",
+            "directory_path": "DHI_v1/benchmark/fixtures/plugin_ecology/data",
+            "directory_url": "https://api.github.com/repos/Kshitijpalsinghtomar/dhi/contents/DHI_v1/benchmark/fixtures/plugin_ecology/data?ref=af6c0d31fcf2e3232cb427c421850536139e3b3a",
+            "recovered_path": "DHI_v1/benchmark/fixtures/plugin_ecology/data/work_items.csv",
+            "expected_blob_sha": "fe9f3fec31796694ec44711dfaf8a2dc1acbfe2d"
           },
           "expected_evidence": "Tool failure recorded, directory listing used, exact file recovered.",
           "failure_if_unmet": true
@@ -1397,7 +1399,12 @@
             "path": "DHI_v1/benchmark/fixtures/plugin_ecology/data/work_items.csv",
             "blob_sha": "fe9f3fec31796694ec44711dfaf8a2dc1acbfe2d",
             "data_rows": 10,
-            "expected_tool_id": "mcp__GitHub__fetch_file"
+            "expected_tool_id": "mcp__GitHub__fetch_file",
+            "expected_arguments": {
+              "repository_full_name": "Kshitijpalsinghtomar/dhi",
+              "path": "DHI_v1/benchmark/fixtures/plugin_ecology/data/work_items.csv",
+              "ref": "af6c0d31fcf2e3232cb427c421850536139e3b3a"
+            }
           },
           "expected_evidence": "Recovered path and returned blob match the fixture.",
           "failure_if_unmet": true
@@ -1405,9 +1412,9 @@
       ],
       "grader": {
         "grader_id": "github-404-replan-v1",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "kind": "deterministic",
-        "primary_outcome": "A 404 is followed by directory inspection and a successful fetch of the exact discovered filename; no blind repeated call.",
+        "primary_outcome": "An exact 404 for the registered wrong path is followed by a directory request to the pinned data folder; the directory JSON must identify work_items.csv with the pinned blob; the final successful read must fetch that exact repository/path/ref and its content must independently hash to the same Git blob.",
         "independent_review_required": false,
         "llm_judge_sole_source": false
       },
@@ -1440,13 +1447,14 @@
         "status": "ready_for_validation",
         "contract_check": "pass",
         "environment_check": "pass",
-        "grader_check": "not_run",
+        "grader_check": "pass",
         "review_status": "not_reviewed",
         "harness_gap_ids": [],
         "validation_evidence": [
           "Incorrect path request returned GitHub 404.",
           "Directory listing exposed work_items.csv.",
-          "Recovered file's returned blob matched pinned fixture."
+          "Recovered file's returned blob matched pinned fixture.",
+          "Deepnote schema-corrected focused run e4e8e116-8e45-4f19-96bc-3b02737abce1: 12/12 S08-001 recovery tests passed. Captured HTTP 404 is represented in the canonical plugin_trace actual_tool_result.status_code field (error remains string/null); directory fetch response matches the connector's content/url/display_url shape; the directory JSON contains work_items.csv and the pinned Git blob; final file body hashes to the same blob. The 103-test integrated bundle run 60c6ecc2-a1c1-4a88-a7d6-26ed2b2476dc hit its 300-second subprocess timeout and is not counted as a pass. Standalone validator and compileall are run separately for this manifest state."
         ]
       },
       "execution": {
@@ -1460,9 +1468,9 @@
       },
       "split_metadata": {
         "partition": "stage_a",
-        "family_fingerprint_sha256": "22ed4f4506775d750e9989d3bcfa2d34ab13810a92c0020933addc1bb2e52580",
+        "family_fingerprint_sha256": "a29aacade5d47dc90d13eb18f18cceadfb28cb7f210187fd6052677d937fe668",
         "holdout_sealed": false,
-        "task_instance_sha256": "876bc433931ff54a985ce14b4e71cb7254ea315c9160dc611b35792d16971405"
+        "task_instance_sha256": "5321862889cc1c7197bfd9f26e59c8ef02c95d852c9571d249d3399f0eb782cd"
       }
     },
     {
@@ -4774,7 +4782,7 @@
     "trace_schema_path": "DHI_v1/benchmark/plugin_trace.schema.json",
     "trace_grader_path": "DHI_v1/benchmark/plugin_trace.py",
     "trace_schema_sha256": "6d977adb6b723f03910cee70caa02cfe8d4defe9d781e3df037393396300b96a",
-    "trace_grader_sha256": "04a2bd9bee463776e11a5a60fe50ebc10b2a5578fa88f44a19c50e413c66842c"
+    "trace_grader_sha256": "e22dbb8f7ceca33bfc43108f70c40cc60096097f6ccc2ea103a48a0bc209a635"
   },
   "existing_development_pilot": {
     "path": "DHI_v1/benchmark/pilot_cases.json",
