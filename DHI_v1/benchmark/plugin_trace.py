@@ -772,14 +772,21 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
         expected_sha = condition.get("sha256")
         expected_path = condition.get("path")
         expected_rows = condition.get("data_rows")
+        expected_arguments = condition.get("expected_arguments")
+        if expected_arguments is not None and not isinstance(expected_arguments, dict):
+            return _result("unscorable", "file_blob_match expected_arguments must be an object")
         observations = _raw_observations(trace)
         matching_responses = []
         for observation in observations:
             request = observation.get("request", {})
             response = observation.get("response")
-            if not isinstance(response, dict):
+            # A response body or digest from a failed action is not evidence of
+            # a successful read, even if a provider returned partial data.
+            if observation.get("ok") is not True or not isinstance(response, dict):
                 continue
             if expected_path and not (isinstance(request, dict) and request.get("path") == expected_path):
+                continue
+            if expected_arguments is not None and not _deep_contains(request, expected_arguments):
                 continue
             response_sha = response.get("sha") or response.get("blob_sha")
             if expected_blob and response_sha != expected_blob:
