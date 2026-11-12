@@ -2,7 +2,7 @@
 
 > **DHI RESEARCH CONTROL — 2026-11-12. Read this before any other section.**
 >
-> **Fresh-agent handoff:** [`DHI_v1/NEXT_AGENT_HANDOFF.md`](NEXT_AGENT_HANDOFF.md) contains the exact S07-001 continuation prompt, pinned source inventory, branch state, verified test evidence and known report/grader gaps.
+> **Fresh-agent handoff:** [`DHI_v1/NEXT_AGENT_HANDOFF.md`](NEXT_AGENT_HANDOFF.md) contains the exact S09-001 continuation prompt, current branch state, verified test evidence and next-task constraints.
 >
 > This repository is the **DHI-v1 / ORBIT research programme only**. Do not mix code, datasets, claims, tasks, or conclusions from GBA/DPAK, Oriael, or other research projects.
 >
@@ -20,7 +20,7 @@
 >
 > **Implemented research code:** `DHI_v1/research/joint_state.py` defines separate observed task/world and tool-ecosystem state, diffs and forecast scoring. `DHI_v1/research/dhi_environment_observer.py` reads real `DHIEnvironment` snapshots without mutating the environment. This is deterministic measurement infrastructure, not a learned model or capability result. Research mechanism: 22/22 focused tests and `compileall` passed in Deepnote run `ca0c1e0e-bace-4927-ae65-5d83528eb59a` at commit `81a299342ecee919e1a068a34897789934b1685c`.
 >
-> **Hard evidence boundary:** no DHI model inference, model-generated execution trajectory, adjudicated training corpus, capability score, or training checkpoint exists. Later S07/S09 full regression was not independently confirmed as a complete older harness suite; current 66-test regression does cover the updated trace grader/task fixtures. The last OpenRouter check on 2026-11-11 showed zero credits; Deepnote has no model-provider integration. Do not run a model, switch to a free endpoint/candidate, alter permissions, spend credits, or launch training without explicit user authorization and an approved resource route.
+> **Hard evidence boundary:** no DHI model inference, model-generated execution trajectory, adjudicated training corpus, capability score, or training checkpoint exists. The S07-001 focused run covered 21 task-specific tests plus all 32 tests in the shared plugin_trace grader module (53 total); it is not the full historical benchmark/environment suite. The last OpenRouter check on 2026-11-11 showed zero credits; Deepnote has no model-provider integration. Do not run a model, switch to a free endpoint/candidate, alter permissions, spend credits, or launch training without explicit user authorization and an approved resource route.
 >
 > **Next-agent handoff:** read [`NEXT_AGENT_HANDOFF.md`](NEXT_AGENT_HANDOFF.md). S07-001's deterministic grader work is complete; the next unrun manifest task is `ORBIT-A-S09-001`. Keep the S07 sandbox branch read-only and work only on `orbit/plugin-benchmark-fixture`. No model inference or training is authorized.
 
