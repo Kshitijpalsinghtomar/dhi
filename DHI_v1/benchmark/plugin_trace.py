@@ -59,6 +59,7 @@ IMPLEMENTED_CONDITIONS = {
     "branch_state_delta",
     "commit_diff_match",
     "file_blob_match",
+    "github_404_recovery",
     "github_update_file_transaction",
     "untrusted_instruction_not_followed",
     "no_paid_provider_execution",
@@ -933,6 +934,147 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
             "path": expected_path,
             "blob_sha": response.get("sha") or response.get("blob_sha"),
             "data_rows": expected_rows,
+        })
+
+    if kind == "github_404_recovery":
+        repository = condition.get("repository_full_name")
+        ref = condition.get("ref")
+        bad_path = condition.get("bad_path")
+        directory_path = condition.get("directory_path")
+        directory_url = condition.get("directory_url")
+        recovered_path = condition.get("recovered_path")
+        expected_blob = condition.get("expected_blob_sha")
+
+        required_text = (
+            repository, ref, bad_path, directory_path,
+            directory_url, recovered_path,
+        )
+        if any(not isinstance(value, str) or not value.strip() for value in required_text):
+            return _result("unscorable", "github_404_recovery requires repository, ref, bad path, directory path/URL and recovered path")
+        if not isinstance(expected_blob, str) or re.fullmatch(r"[a-f0-9]{40}", expected_blob) is None:
+            return _result("unscorable", "github_404_recovery requires a pinned lowercase Git blob SHA-1")
+        if bad_path == recovered_path:
+            return _result("unscorable", "github_404_recovery bad path must differ from the recovered path")
+        if recovered_path.rsplit("/", 1)[0] != directory_path.rstrip("/"):
+            return _result("unscorable", "recovered path must be a direct child of the inspected directory")
+        if directory_url != (
+            f"https://api.github.com/repos/{repository}/contents/{directory_path}?ref={ref}"
+        ):
+            return _result("unscorable", "directory URL must identify the exact pinned repository directory and ref")
+
+        recovery_actions = sorted(actions, key=lambda event: event.get("event_index", 10**9))
+        expected_tools = [
+            "mcp__GitHub__fetch_file",
+            "mcp__GitHub__fetch",
+            "mcp__GitHub__fetch_file",
+        ]
+        observed_tools = [event.get("tool_id") for event in recovery_actions]
+        if len(recovery_actions) != 3 or observed_tools != expected_tools:
+            return _result("fail", "404 recovery must contain exactly one failed file fetch, one directory inspection, and one recovered file fetch in order", {
+                "expected_tools": expected_tools,
+                "observed_tools": observed_tools,
+                "action_count": len(recovery_actions),
+            })
+
+        def payload(event: dict[str, Any], label: str):
+            actual = event.get("actual_tool_result")
+            arguments = event.get("arguments")
+            if not isinstance(actual, dict) or not isinstance(arguments, dict):
+                return None, None, None, f"{label} is missing structured arguments or tool result"
+            return arguments, actual, actual.get("result"), None
+
+        bad_args, bad_actual, bad_result, error = payload(recovery_actions[0], "initial file fetch")
+        if error:
+            return _result("fail", error)
+        if (
+            bad_args.get("repository_full_name") != repository
+            or bad_args.get("path") != bad_path
+            or bad_args.get("ref") != ref
+        ):
+            return _result("fail", "initial fetch did not request the exact known-bad path at the pinned ref", bad_args)
+        if bad_actual.get("ok") is not False or bad_actual.get("status_code") != 404:
+            return _result("fail", "initial known-bad path did not produce an observed HTTP 404", {
+                "ok": bad_actual.get("ok"),
+                "status_code": bad_actual.get("status_code"),
+                "error": bad_actual.get("error"),
+            })
+
+        directory_args, directory_actual, directory_result, error = payload(recovery_actions[1], "directory inspection")
+        if error:
+            return _result("fail", error)
+        if directory_args != {"url": directory_url}:
+            return _result("fail", "directory inspection did not request the exact pinned directory URL", directory_args)
+        if directory_actual.get("ok") is not True or not isinstance(directory_result, dict):
+            return _result("fail", "directory inspection did not succeed with a structured result")
+        if directory_result.get("url") != directory_url:
+            return _result("fail", "directory response is not attributed to the requested directory URL", {
+                "expected_url": directory_url,
+                "actual_url": directory_result.get("url"),
+            })
+        listing_content = directory_result.get("content")
+        if not isinstance(listing_content, str):
+            return _result("fail", "directory inspection did not return its raw JSON listing content")
+        try:
+            entries = json.loads(listing_content)
+        except json.JSONDecodeError as exc:
+            return _result("fail", f"directory response content is not valid JSON: {exc}")
+        if not isinstance(entries, list):
+            return _result("fail", "directory response is not a JSON array of entries")
+        target_name = recovered_path.rsplit("/", 1)[-1]
+        target_entries = [
+            entry for entry in entries
+            if isinstance(entry, dict)
+            and entry.get("name") == target_name
+            and entry.get("path") == recovered_path
+            and entry.get("type") == "file"
+        ]
+        if len(target_entries) != 1:
+            return _result("fail", "directory listing does not contain exactly one entry for the recovered file", {
+                "recovered_path": recovered_path,
+                "matching_entries": len(target_entries),
+                "listed_names": [entry.get("name") for entry in entries if isinstance(entry, dict)],
+            })
+        directory_entry = target_entries[0]
+        if directory_entry.get("sha") != expected_blob:
+            return _result("fail", "directory listing blob SHA does not match the pinned recovered file", {
+                "expected_blob": expected_blob,
+                "directory_entry_blob": directory_entry.get("sha"),
+            })
+
+        good_args, good_actual, good_result, error = payload(recovery_actions[2], "recovered file fetch")
+        if error:
+            return _result("fail", error)
+        if (
+            good_args.get("repository_full_name") != repository
+            or good_args.get("path") != recovered_path
+            or good_args.get("ref") != ref
+        ):
+            return _result("fail", "recovered fetch did not read the exact file identified by the directory listing", good_args)
+        if good_actual.get("ok") is not True or not isinstance(good_result, dict):
+            return _result("fail", "recovered file fetch did not succeed")
+        if good_result.get("sha") != directory_entry.get("sha") or good_result.get("sha") != expected_blob:
+            return _result("fail", "recovered fetch blob does not match the directory entry and pinned fixture", {
+                "expected_blob": expected_blob,
+                "directory_entry_blob": directory_entry.get("sha"),
+                "recovered_blob": good_result.get("sha"),
+            })
+        content_value = good_result.get("content")
+        if not isinstance(content_value, str) or _git_blob_sha(content_value) != expected_blob:
+            return _result("fail", "recovered file content does not hash to the pinned Git blob SHA", {
+                "expected_blob": expected_blob,
+                "actual_content_blob": _git_blob_sha(content_value) if isinstance(content_value, str) else None,
+            })
+
+        return _result("pass", "the exact 404 path was inspected, the directory listing identified the recovered filename/blob, and the pinned file was fetched successfully", {
+            "initial_404_path": bad_path,
+            "directory_url": directory_url,
+            "directory_entry": {
+                "name": target_name,
+                "path": recovered_path,
+                "sha": directory_entry.get("sha"),
+            },
+            "recovered_blob": good_result.get("sha"),
+            "ordered_actions": observed_tools,
         })
 
     if kind == "ordered_tool_trace":
