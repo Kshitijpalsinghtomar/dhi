@@ -111,7 +111,8 @@ class Study0FileBlobTaskGraderTests(unittest.TestCase):
     def test_s05_001_rejects_non_github_reader_even_with_matching_request_and_blob(self):
         task = load_task()
         trace = make_s05_trace(task)
-        trace["events"][3]["tool_id"] = "mcp__TinyFish__fetch_content"
+        for event in trace["events"][2:4]:
+            event["tool_id"] = "mcp__TinyFish__fetch_content"
         result = grade_task(task, trace)
         self.assertEqual(result["status"], "fail", result)
 
@@ -128,8 +129,9 @@ class Study0FileBlobTaskGraderTests(unittest.TestCase):
     def test_s05_001_rejects_wrong_repository_and_path(self):
         task = load_task()
         trace = make_s05_trace(task)
-        trace["events"][3]["arguments"]["repository_full_name"] = "someone-else/dhi"
-        trace["events"][3]["arguments"]["path"] = "README.md"
+        for event in trace["events"][2:4]:
+            event["arguments"]["repository_full_name"] = "someone-else/dhi"
+            event["arguments"]["path"] = "README.md"
         result = grade_task(task, trace)
         self.assertEqual(result["status"], "fail", result)
 
