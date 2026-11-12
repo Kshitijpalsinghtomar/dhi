@@ -317,7 +317,7 @@
       "family_id": "ORBIT-S05-TINYFISH-FETCH-PAGE-METADATA-REQUIRED-04",
       "stage": "A",
       "independence_group_id": "ORBIT-S05-INDEP-A-004",
-      "family_fingerprint_sha256": "aeacc33daabd5c29ca295cf77e2ceff6bd0de82325061e26c6417a836225844b",
+      "family_fingerprint_sha256": "d7f078b68303de7272913e7719130ac46e100f97f8e15b6010f384cc732ab7a8",
       "review_status": "draft"
     },
     {
@@ -4274,6 +4274,10 @@
           "condition": {
             "type": "tool_trace_arguments",
             "tool": "mcp__TinyFish__fetch_content",
+            "urls": [
+              "https://go.dev/doc/devel/release"
+            ],
+            "format": "markdown",
             "required_fields": [
               "urls",
               "format",
@@ -4282,27 +4286,42 @@
               "iframe_links",
               "page_metadata"
             ],
-            "page_metadata_type": "boolean"
+            "field_types": {
+              "urls": "array",
+              "format": "string",
+              "links": "boolean",
+              "image_links": "boolean",
+              "iframe_links": "boolean",
+              "page_metadata": "boolean"
+            },
+            "exact_list_fields": [
+              "urls"
+            ],
+            "require_success": true
           },
-          "expected_evidence": "Fetch succeeds and returns the official Go release-history page.",
+          "expected_evidence": "A successful TinyFish fetch_content action uses the official Go release URL, markdown format, all required fields, and the exact declared JSON-like argument types.",
           "failure_if_unmet": true
         },
         {
           "verifier_id": "go_latest_minor",
           "condition": {
             "type": "external_snapshot_match",
-            "expected_release": "go1.27.3",
+            "source": "https://go.dev/doc/devel/release",
+            "tool": "mcp__TinyFish__fetch_content",
+            "require_success": true,
+            "observation_date": "2026-11-03",
+            "expected_release": "Go 1.27.3",
             "release_date": "2026-10-19"
           },
-          "expected_evidence": "Official page includes Go 1.27.3 released 2026-10-19.",
+          "expected_evidence": "A successful fetch from the official Go release-history URL contains the pinned Go 1.27.3 release and 2026-10-19 date from the 2026-11-03 snapshot.",
           "failure_if_unmet": true
         }
       ],
       "grader": {
         "grader_id": "tinyfish-fetch-required-fields-v1",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "kind": "deterministic",
-        "primary_outcome": "All required fields supplied with correct types; official page retrieval succeeds; version/date correct.",
+        "primary_outcome": "A successful TinyFish fetch uses the exact official Go URL and complete required argument schema, including boolean page_metadata, and the source-bound response supports Go 1.27.3 released 2026-10-19.",
         "independent_review_required": false,
         "review_rubric_ref": "DHI_v1/benchmark/fixtures/plugin_ecology/external_snapshots/go_releases_2026-11-03.md",
         "llm_judge_sole_source": false
@@ -4334,12 +4353,13 @@
         "status": "ready_for_validation",
         "contract_check": "pass",
         "environment_check": "pass",
-        "grader_check": "not_run",
+        "grader_check": "pass",
         "review_status": "not_reviewed",
         "harness_gap_ids": [],
         "validation_evidence": [
           "Initial attempt without page_metadata was rejected before dispatch.",
-          "Corrected call with page_metadata=true succeeded and returned Go release history."
+          "Corrected call with page_metadata=true succeeded and returned Go release history.",
+          "Deepnote run f053191d-85db-48ec-8868-dffa35892cf3: 11/11 focused S05-004 tests passed; the successful request used the exact official Go URL, all six required fields and declared types, including boolean page_metadata; failed fetches, missing/type-invalid arguments, wrong/extra URLs, wrong tools and mismatched Go release/date were rejected; source facts were bound to a successful TinyFish fetch from https://go.dev/doc/devel/release and matched the pinned 2026-11-03 snapshot (Go 1.27.3, 2026-10-19). Direct manifest validator run 82fe7ca4-62a1-4af7-bbea-71355ecdb8ab: valid=true (30 tasks, zero errors); benchmark/environment compileall exit code 0. Deterministic synthetic evidence only; no live TinyFish call or model run."
         ]
       },
       "execution": {
@@ -4353,9 +4373,9 @@
       },
       "split_metadata": {
         "partition": "stage_a",
-        "family_fingerprint_sha256": "aeacc33daabd5c29ca295cf77e2ceff6bd0de82325061e26c6417a836225844b",
+        "family_fingerprint_sha256": "d7f078b68303de7272913e7719130ac46e100f97f8e15b6010f384cc732ab7a8",
         "holdout_sealed": false,
-        "task_instance_sha256": "b98c375dc679a966952e88376b3fef46122e9be0c283f0e86ad861d357a6c5f3"
+        "task_instance_sha256": "eeabe36198db73f20358301d1005758bd0ac71ca2b61fc5edfec45591d437ee3"
       }
     },
     {
@@ -4754,7 +4774,7 @@
     "trace_schema_path": "DHI_v1/benchmark/plugin_trace.schema.json",
     "trace_grader_path": "DHI_v1/benchmark/plugin_trace.py",
     "trace_schema_sha256": "6d977adb6b723f03910cee70caa02cfe8d4defe9d781e3df037393396300b96a",
-    "trace_grader_sha256": "ef7bd85361f712598fe6d13580f0e0c533df690df01decb791c8f003623b2461"
+    "trace_grader_sha256": "04a2bd9bee463776e11a5a60fe50ebc10b2a5578fa88f44a19c50e413c66842c"
   },
   "existing_development_pilot": {
     "path": "DHI_v1/benchmark/pilot_cases.json",
