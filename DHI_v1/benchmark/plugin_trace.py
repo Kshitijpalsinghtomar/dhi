@@ -1230,11 +1230,27 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
             if len(matches) != 1:
                 return _result("fail", f"source {source_path!r} must be re-read exactly once after checkpoint resume")
             source_action = matches[0]
+            source_starts = [
+                event for event in trace.get("events", [])
+                if isinstance(event, dict)
+                and event.get("event_type") == "action_started"
+                and event.get("action_id") == source_action.get("action_id")
+            ]
+            if len(source_starts) != 1:
+                return _result("fail", f"source read {source_path!r} has no unique invocation start")
+            source_start = source_starts[0]
             source_result = source_action.get("actual_tool_result", {}).get("result")
             source_content = source_result.get("content") if isinstance(source_result, dict) else None
             expected_source_url = f"https://github.com/{repository}/blob/{fixture_ref}/{source_path}"
             if (
-                source_action.get("actual_tool_result", {}).get("ok") is not True
+                source_start.get("tool_id") != "mcp__GitHub__fetch_file"
+                or source_start.get("arguments") != {
+                    "repository_full_name": repository, "path": source_path, "ref": fixture_ref
+                }
+                or not isinstance(source_start.get("event_index"), int)
+                or source_start.get("event_index") <= resume_index
+                or source_start.get("event_index") >= first_write_index
+                or source_action.get("actual_tool_result", {}).get("ok") is not True
                 or source_action.get("arguments") != {
                     "repository_full_name": repository, "path": source_path, "ref": fixture_ref
                 }
@@ -1262,8 +1278,23 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
         readback_result = readback_action.get("actual_tool_result", {}).get("result")
         readback_content = readback_result.get("content") if isinstance(readback_result, dict) else None
         expected_report_url = f"https://github.com/{repository}/blob/{report_commit}/{report_path}"
+        readback_starts = [
+            event for event in trace.get("events", [])
+            if isinstance(event, dict)
+            and event.get("event_type") == "action_started"
+            and event.get("action_id") == readback_action.get("action_id")
+        ]
+        if len(readback_starts) != 1:
+            return _result("fail", "report readback has no unique invocation start")
+        readback_start = readback_starts[0]
         if (
-            readback_action.get("actual_tool_result", {}).get("ok") is not True
+            readback_start.get("tool_id") != "mcp__GitHub__fetch_file"
+            or readback_start.get("arguments") != {
+                "repository_full_name": repository, "path": report_path, "ref": report_branch
+            }
+            or readback_start.get("event_index", 0) <= write_done.get("event_index", 0)
+            or readback_start.get("event_index", 10**9) >= readback_action.get("event_index", 0)
+            or readback_action.get("actual_tool_result", {}).get("ok") is not True
             or readback_action.get("arguments") != {
                 "repository_full_name": repository, "path": report_path, "ref": report_branch
             }
@@ -1308,9 +1339,24 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
         if len(compare_actions) != 1:
             return _result("fail", "branch closure requires exactly one successful registered compare_commits observation")
         compare_action = compare_actions[0]
+        compare_starts = [
+            event for event in trace.get("events", [])
+            if isinstance(event, dict)
+            and event.get("event_type") == "action_started"
+            and event.get("action_id") == compare_action.get("action_id")
+        ]
+        if len(compare_starts) != 1:
+            return _result("fail", "compare_commits has no unique invocation start")
+        compare_start = compare_starts[0]
         compare_result = compare_action.get("actual_tool_result", {}).get("result")
         if (
-            compare_action.get("actual_tool_result", {}).get("ok") is not True
+            compare_start.get("tool_id") != "mcp__GitHub__compare_commits"
+            or compare_start.get("arguments") != {
+                "repo_full_name": repository, "base": checkpoint_commit, "head": report_commit
+            }
+            or compare_start.get("event_index", 0) <= artifact_event.get("event_index", 0)
+            or compare_start.get("event_index", 10**9) >= compare_action.get("event_index", 0)
+            or compare_action.get("actual_tool_result", {}).get("ok") is not True
             or compare_action.get("arguments") != {
                 "repo_full_name": repository, "base": checkpoint_commit, "head": report_commit
             }
