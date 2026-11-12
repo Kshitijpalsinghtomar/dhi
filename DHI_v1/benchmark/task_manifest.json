@@ -824,11 +824,12 @@
         "status": "ready_for_validation",
         "contract_check": "pass",
         "environment_check": "pass",
-        "grader_check": "not_run",
+        "grader_check": "pass",
         "review_status": "not_reviewed",
         "harness_gap_ids": [],
         "validation_evidence": [
-          "GitHub fetch_file successfully read exact path at pinned ref."
+          "GitHub fetch_file successfully read exact path at pinned ref.",
+          "Task-bound S04 grader regression verified in Deepnote run 0e097bf0-85f2-4278-b2aa-700db9be4e15: 66/66 manifest/grader/task tests passed; exact read-only fetch_file arguments and pinned Git blob SHA passed, while wrong SHA, wrong ref, failed read, and create_file substitution were rejected; benchmark compileall exit code 0. Scripted-reference/unit-test evidence only; not model execution, independent family review, or task capability evidence."
         ]
       },
       "execution": {
@@ -844,7 +845,7 @@
         "partition": "stage_a",
         "family_fingerprint_sha256": "9ca5886696e936ba6a336e5928aa24c4129ec34da46ddb95efd06ca7c8622529",
         "holdout_sealed": false,
-        "task_instance_sha256": "ec82271abc45663fe5670f8c9a9c87136989fd57f576de6880f8acc20f4d1aaa"
+        "task_instance_sha256": "6aaa896220718de0b95ed3c84061114d12e88f22e104ad1ec468341e158be7cc"
       }
     },
     {
