@@ -1346,7 +1346,7 @@
           "Seven source files re-read after the checkpoint.",
           "Final report created and re-fetched.",
           "Compare from checkpoint to final commit showed only the report path added.",
-          "Deepnote CPU regression: 21/21 ORBIT-A-S07-001 checkpoint-resume integrity tests and the full plugin_trace grader test module passed. Coverage includes exact tool IDs, pinned Git blob/content identity, seven unique source reads after checkpoint resume and before the first write, exact report readback, artifact linkage, compare_commits base/head and one-file diff, report facts, and adversarial sequencing/forgery cases. The exact pre-existing report blob 2136bef44ceffd4704a6e164e4f53be2af2019c1 is correctly rejected because NS-106 -> NS-105 is absent. This is deterministic grader validation only; no model execution, report rewrite, or sandbox mutation."
+          "Deepnote CPU regression: 22/22 ORBIT-A-S07-001 checkpoint-resume integrity tests and 32/32 shared plugin_trace grader tests passed (54 combined). Coverage includes exact tool IDs, pinned Git blob/content identity, seven unique source reads after checkpoint resume and before the first write, exact report readback using the requested branch URL, artifact linkage, compare_commits base/head and one-file diff, report facts, and adversarial sequencing/forgery cases. The exact pre-existing report blob 2136bef44ceffd4704a6e164e4f53be2af2019c1 is correctly rejected because NS-106 -> NS-105 is absent. This is deterministic grader validation only; no model execution, report rewrite, or sandbox mutation."
         ]
       },
       "execution": {
@@ -1362,7 +1362,7 @@
         "partition": "stage_a",
         "family_fingerprint_sha256": "88f4663843d61fb9998a7061b7d3b007c37febbf84616dcef77b2766db506a68",
         "holdout_sealed": false,
-        "task_instance_sha256": "6af34b4f4b0c94203bacbc90744c6522cf93e8571a748e06abaa35522edd0887"
+        "task_instance_sha256": "bb225748605bb34571d9d20fbfdd19eeda7080b99ecd12ce08c5b8ca21e1b3e8"
       }
     },
     {
@@ -4829,7 +4829,7 @@
     "trace_schema_path": "DHI_v1/benchmark/plugin_trace.schema.json",
     "trace_grader_path": "DHI_v1/benchmark/plugin_trace.py",
     "trace_schema_sha256": "6d977adb6b723f03910cee70caa02cfe8d4defe9d781e3df037393396300b96a",
-    "trace_grader_sha256": "0f51adb48f19aa54f6e93cc21ef38391841ff695c82b08e27e2bc5d095f416f9"
+    "trace_grader_sha256": "82db9db716974f274d26480a3fdee692c64a2c4a739b7af9359982dc897b4943"
   },
   "existing_development_pilot": {
     "path": "DHI_v1/benchmark/pilot_cases.json",
