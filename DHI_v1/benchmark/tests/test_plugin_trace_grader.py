@@ -646,6 +646,7 @@ class PluginTraceGraderTests(unittest.TestCase):
             "type": "file_blob_match",
             "path": "DHI_v1/benchmark/fixtures/plugin_ecology/data/work_items.csv",
             "blob_sha": "fe9f3fec31796694ec44711dfaf8a2dc1acbfe2d",
+            "expected_tool_id": "mcp__GitHub__fetch_file",
             "data_rows": 10,
             "header_rows": 1,
             "expected_arguments": {
@@ -735,6 +736,7 @@ class PluginTraceGraderTests(unittest.TestCase):
             "type": "file_blob_match",
             "path": "data/items.csv",
             "blob_sha": "d" * 40,
+            "expected_tool_id": "mcp__GitHub__fetch_file",
             "data_rows": 2,
             "header_rows": 1,
         }
