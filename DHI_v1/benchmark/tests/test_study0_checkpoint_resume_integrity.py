@@ -470,7 +470,7 @@ class TestStudy0CheckpointResumeIntegrity(unittest.TestCase):
         duplicate_start = copy.deepcopy(original_start)
         duplicate_done = copy.deepcopy(original_done)
         duplicate_start["action_id"] = duplicate_done["action_id"] = "duplicate-source"
-        trace["events"].extend([duplicate_start, duplicate_done])
+        trace["events"][-1:-1] = [duplicate_start, duplicate_done]
         self.reindex(trace)
         self.assertEqual(self.grade(trace)["status"], "fail")
 
