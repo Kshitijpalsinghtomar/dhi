@@ -1192,6 +1192,15 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
                 "expected": expected_seed_blob,
                 "actual": pre_result.get("sha"),
             })
+        pre_content = pre_result.get("content")
+        if (
+            not isinstance(pre_content, str)
+            or _git_blob_sha(pre_content) != pre_result.get("sha")
+        ):
+            return _result("fail", "pre-update file content does not match the blob SHA returned by fetch_file", {
+                "provider_blob": pre_result.get("sha"),
+                "content_blob": _git_blob_sha(pre_content) if isinstance(pre_content, str) else None,
+            })
 
         update_args, update_result, error = action_payload(ordered_actions[1], "update_file")
         if error:
