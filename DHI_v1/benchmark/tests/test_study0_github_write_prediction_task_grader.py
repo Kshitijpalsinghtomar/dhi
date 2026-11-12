@@ -71,17 +71,27 @@ def append_action(events: list[dict], tool_id: str, action_id: str, arguments: d
         "side_effect_class": side_effect_class,
     })
     index = len(events) + 1
+    before_state = copy.deepcopy(before or {})
+    after_state = copy.deepcopy(after if after is not None else before or {})
+    if effects is None:
+        added = sorted(set(after_state) - set(before_state))
+        deleted = sorted(set(before_state) - set(after_state))
+        modified = sorted(path for path in set(before_state) & set(after_state) if before_state[path] != after_state[path])
+        actual_effects = {
+            "added_paths": added, "modified_paths": modified, "deleted_paths": deleted,
+            "changed_paths": sorted(set(added + modified + deleted)),
+            "unchanged_paths": sorted(path for path in set(before_state) & set(after_state) if before_state[path] == after_state[path]),
+        }
+    else:
+        actual_effects = copy.deepcopy(effects)
     events.append({
         "event_id": f"e{index}", "event_index": index, "event_type": "action_executed",
         "timestamp_utc": f"2026-11-03T00:00:{index:02d}Z", "task_id": "ORBIT-A-S09-001",
         "action_id": action_id, "tool_id": tool_id, "arguments": copy.deepcopy(arguments),
-        "observed_state_before": copy.deepcopy(before or {}),
-        "observed_state_after": copy.deepcopy(after if after is not None else before or {}),
+        "observed_state_before": before_state,
+        "observed_state_after": after_state,
         "actual_tool_result": {"ok": True, "result": copy.deepcopy(result), "error": None},
-        "actual_effects": copy.deepcopy(effects or {
-            "added_paths": [], "modified_paths": [], "deleted_paths": [],
-            "changed_paths": [], "unchanged_paths": [],
-        }),
+        "actual_effects": actual_effects,
     })
 
 
