@@ -48,6 +48,7 @@ IMPLEMENTED_CONDITIONS = {
     "ordered_tool_trace",
     "tool_trace_contains",
     "checkpoint_rehydrated",
+    "checkpoint_resume_integrity",
     "source_read_list",
     "exact_status_counts",
     "table_values",
@@ -1115,6 +1116,240 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
                 cursor += 1
         passed = cursor == len(expected_steps)
         return _result("pass" if passed else "fail", "required recovery sequence observed" if passed else "required recovery sequence incomplete", {"matched": matched, "expected": expected_steps})
+
+    if kind == "checkpoint_resume_integrity":
+        repository = condition.get("repository_full_name")
+        checkpoint_path = condition.get("checkpoint_path")
+        checkpoint_commit = condition.get("checkpoint_commit")
+        checkpoint_blob = condition.get("checkpoint_blob_sha")
+        fixture_ref = condition.get("fixture_ref")
+        required_sources = condition.get("required_sources")
+        report_path = condition.get("report_path")
+        report_branch = condition.get("report_branch")
+        report_commit = condition.get("report_commit")
+        report_blob = condition.get("report_blob_sha")
+        required_phrases = condition.get("required_report_phrases", [])
+        forbidden_phrases = condition.get("forbidden_report_phrases", [])
+        expected_diff = condition.get("expected_diff", {})
+
+        if (
+            not isinstance(repository, str) or repository.count("/") != 1
+            or not isinstance(checkpoint_path, str) or not checkpoint_path
+            or not isinstance(checkpoint_commit, str) or re.fullmatch(r"[a-f0-9]{40}", checkpoint_commit) is None
+            or not isinstance(checkpoint_blob, str) or re.fullmatch(r"[a-f0-9]{40}", checkpoint_blob) is None
+            or not isinstance(fixture_ref, str) or not fixture_ref
+            or not isinstance(required_sources, dict) or len(required_sources) != 7
+            or not isinstance(report_path, str) or not report_path
+            or not isinstance(report_branch, str) or not report_branch
+            or not isinstance(report_commit, str) or re.fullmatch(r"[a-f0-9]{40}", report_commit) is None
+            or not isinstance(report_blob, str) or re.fullmatch(r"[a-f0-9]{40}", report_blob) is None
+            or not isinstance(required_phrases, list) or any(not isinstance(x, str) or not x for x in required_phrases)
+            or not isinstance(forbidden_phrases, list) or any(not isinstance(x, str) or not x for x in forbidden_phrases)
+            or not isinstance(expected_diff, dict)
+        ):
+            return _result("unscorable", "checkpoint_resume_integrity requires pinned checkpoint, seven source blobs, report identity, and content rules")
+
+        ordered_actions = sorted(actions, key=lambda event: event.get("event_index", 10**9))
+        resume_events = _events_of_type(trace, "checkpoint_resumed")
+        if len(resume_events) != 1:
+            return _result("fail", f"expected exactly one checkpoint_resumed event; found {len(resume_events)}")
+        resume_event = resume_events[0]
+        resume_index = resume_event.get("event_index")
+        checkpoint_action = next(
+            (event for event in ordered_actions if event.get("action_id") == resume_event.get("action_id")),
+            None,
+        )
+        expected_checkpoint_url = f"https://github.com/{repository}/blob/{checkpoint_commit}/{checkpoint_path}"
+        if (
+            checkpoint_action is None
+            or checkpoint_action.get("tool_id") != "mcp__GitHub__fetch_file"
+            or checkpoint_action.get("actual_tool_result", {}).get("ok") is not True
+            or checkpoint_action.get("arguments") != {
+                "repository_full_name": repository, "path": checkpoint_path, "ref": checkpoint_commit
+            }
+        ):
+            return _result("fail", "checkpoint resume is not linked to the exact successful registered GitHub file-read action")
+        checkpoint_result = checkpoint_action["actual_tool_result"].get("result")
+        checkpoint_content = checkpoint_result.get("content") if isinstance(checkpoint_result, dict) else None
+        if (
+            not isinstance(checkpoint_content, str)
+            or checkpoint_result.get("sha") != checkpoint_blob
+            or _git_blob_sha(checkpoint_content) != checkpoint_blob
+            or checkpoint_result.get("display_url") != expected_checkpoint_url
+            or resume_event.get("checkpoint_ref") != checkpoint_path
+            or resume_event.get("checkpoint_commit") != checkpoint_commit
+            or resume_event.get("checkpoint_blob_sha") != checkpoint_blob
+            or resume_event.get("checkpoint_sha256") != _sha256_text(checkpoint_content)
+            or resume_event.get("source_ref") != expected_checkpoint_url
+            or checkpoint_action.get("event_index", 10**9) >= resume_index
+        ):
+            return _result("fail", "checkpoint content, Git blob, canonical source, or resume linkage differs from the pinned checkpoint")
+
+        write_events = _write_actions(trace)
+        if len(write_events) != 1:
+            return _result("fail", f"resume transaction must contain exactly one write action; found {len(write_events)}")
+        write_start = write_events[0]
+        first_write_index = write_start.get("event_index", 10**9)
+        if (
+            write_start.get("tool_id") != "mcp__GitHub__create_file"
+            or write_start.get("arguments", {}).get("repository_full_name") != repository
+            or write_start.get("arguments", {}).get("path") != report_path
+            or write_start.get("arguments", {}).get("branch") != report_branch
+        ):
+            return _result("fail", "the sole write must create the permitted report path on the dedicated task branch")
+        write_id = write_start.get("action_id")
+        write_completions = [
+            event for event in ordered_actions
+            if event.get("action_id") == write_id and event.get("tool_id") == "mcp__GitHub__create_file"
+        ]
+        if len(write_completions) != 1:
+            return _result("fail", "the permitted report write has no unique successful completion")
+        write_done = write_completions[0]
+        write_result = write_done.get("actual_tool_result", {}).get("result")
+        if (
+            write_done.get("actual_tool_result", {}).get("ok") is not True
+            or not isinstance(write_result, dict)
+            or write_result.get("commit_sha") != report_commit
+            or write_start.get("arguments", {}).get("content") is None
+        ):
+            return _result("fail", "report creation did not succeed with the pinned report commit")
+        report_content = write_start["arguments"]["content"]
+        if not isinstance(report_content, str):
+            return _result("fail", "report write content is not text")
+
+        source_actions = [
+            event for event in ordered_actions
+            if event.get("tool_id") == "mcp__GitHub__fetch_file"
+            and isinstance(event.get("arguments"), dict)
+            and event["arguments"].get("path") in required_sources
+        ]
+        for source_path, expected_source_blob in required_sources.items():
+            if not isinstance(source_path, str) or not source_path or not isinstance(expected_source_blob, str) or re.fullmatch(r"[a-f0-9]{40}", expected_source_blob) is None:
+                return _result("unscorable", "required_sources must map seven exact paths to lowercase Git blob SHAs")
+            matches = [event for event in source_actions if event.get("arguments", {}).get("path") == source_path]
+            if len(matches) != 1:
+                return _result("fail", f"source {source_path!r} must be re-read exactly once after checkpoint resume")
+            source_action = matches[0]
+            source_result = source_action.get("actual_tool_result", {}).get("result")
+            source_content = source_result.get("content") if isinstance(source_result, dict) else None
+            expected_source_url = f"https://github.com/{repository}/blob/{fixture_ref}/{source_path}"
+            if (
+                source_action.get("actual_tool_result", {}).get("ok") is not True
+                or source_action.get("arguments") != {
+                    "repository_full_name": repository, "path": source_path, "ref": fixture_ref
+                }
+                or not isinstance(source_result, dict)
+                or source_result.get("sha") != expected_source_blob
+                or not isinstance(source_content, str)
+                or _git_blob_sha(source_content) != expected_source_blob
+                or source_result.get("display_url") != expected_source_url
+                or not isinstance(source_action.get("event_index"), int)
+                or source_action.get("event_index") <= resume_index
+                or source_action.get("event_index") >= first_write_index
+            ):
+                return _result("fail", f"source read {source_path!r} is failed, stale, misattributed, incorrectly pinned, or outside the resume-to-write window")
+        if len(source_actions) != 7:
+            return _result("fail", "trace contains duplicate, stale, or unregistered source reads")
+
+        report_readbacks = [
+            event for event in ordered_actions
+            if event.get("tool_id") == "mcp__GitHub__fetch_file"
+            and event.get("arguments", {}).get("path") == report_path
+        ]
+        if len(report_readbacks) != 1:
+            return _result("fail", "the report must have exactly one successful GitHub fetch_file readback")
+        readback_action = report_readbacks[0]
+        readback_result = readback_action.get("actual_tool_result", {}).get("result")
+        readback_content = readback_result.get("content") if isinstance(readback_result, dict) else None
+        expected_report_url = f"https://github.com/{repository}/blob/{report_commit}/{report_path}"
+        if (
+            readback_action.get("actual_tool_result", {}).get("ok") is not True
+            or readback_action.get("arguments") != {
+                "repository_full_name": repository, "path": report_path, "ref": report_branch
+            }
+            or not isinstance(readback_result, dict)
+            or readback_result.get("sha") != report_blob
+            or readback_content != report_content
+            or _git_blob_sha(readback_content) != report_blob
+            or readback_result.get("display_url") != expected_report_url
+            or readback_action.get("event_index", 0) <= write_done.get("event_index", 0)
+        ):
+            return _result("fail", "report readback is missing, unsuccessful, stale, or does not match the created report blob/content")
+
+        artifact_events = _events_of_type(trace, "artifact_readback")
+        artifacts = _artifacts(trace)
+        if len(artifact_events) != 1 or len(artifacts) != 1:
+            return _result("fail", "the final report requires exactly one verified artifact_readback and one final artifact")
+        artifact_event = artifact_events[0]
+        artifact_evidence = artifact_event.get("artifact_readback")
+        artifact = artifacts[0]
+        if (
+            not isinstance(artifact_evidence, dict)
+            or artifact_evidence.get("path") != report_path
+            or artifact_evidence.get("repository_full_name") != repository
+            or artifact_evidence.get("ref") != report_branch
+            or artifact_evidence.get("status") != "verified"
+            or artifact_evidence.get("source_action_id") != write_id
+            or artifact_evidence.get("sha256") != _sha256_text(report_content)
+            or artifact_evidence.get("blob_sha") != report_blob
+            or artifact_evidence.get("source_ref") != expected_report_url
+            or artifact.get("path") != report_path
+            or artifact.get("content") != report_content
+            or artifact.get("sha256") != _sha256_text(report_content)
+            or artifact.get("blob_sha") != report_blob
+            or artifact.get("status") != "read"
+            or artifact.get("source_event_index") != artifact_event.get("event_index")
+            or artifact.get("source_ref") != expected_report_url
+            or artifact_event.get("event_index", 0) <= readback_action.get("event_index", 0)
+        ):
+            return _result("fail", "final artifact is not linked to the successful report write and independently fetched report content")
+
+        compare_actions = [event for event in ordered_actions if event.get("tool_id") == "mcp__GitHub__compare_commits"]
+        if len(compare_actions) != 1:
+            return _result("fail", "branch closure requires exactly one successful registered compare_commits observation")
+        compare_action = compare_actions[0]
+        compare_result = compare_action.get("actual_tool_result", {}).get("result")
+        if (
+            compare_action.get("actual_tool_result", {}).get("ok") is not True
+            or compare_action.get("arguments") != {
+                "repo_full_name": repository, "base": checkpoint_commit, "head": report_commit
+            }
+            or not isinstance(compare_result, dict)
+            or compare_result.get("base") != checkpoint_commit
+            or compare_result.get("head") != report_commit
+            or compare_result.get("status") != "ahead"
+            or compare_result.get("ahead_by") != 1
+            or compare_result.get("behind_by") != 0
+            or compare_result.get("total_commits") != 1
+            or compare_action.get("event_index", 0) <= artifact_event.get("event_index", 0)
+        ):
+            return _result("fail", "compare_commits did not verify the exact checkpoint-to-report commit range after readback")
+        files = compare_result.get("files")
+        if not isinstance(files, list) or len(files) != 1 or not isinstance(files[0], dict):
+            return _result("fail", "compare_commits must return exactly one changed file")
+        expected_file = {"filename": report_path, **{
+            key: expected_diff[key] for key in ("status", "additions", "deletions", "changes") if key in expected_diff
+        }}
+        if files[0] != expected_file:
+            return _result("fail", "compare_commits changed-file record differs from the exact one-report closure contract", {
+                "expected": expected_file, "actual": files[0],
+            })
+
+        normalized_report = report_content.casefold()
+        missing_phrases = [phrase for phrase in required_phrases if phrase.casefold() not in normalized_report]
+        forbidden_found = [phrase for phrase in forbidden_phrases if phrase.casefold() in normalized_report]
+        if missing_phrases or forbidden_found:
+            return _result("fail", "report content omits required source-derived facts or contains a forbidden claim", {
+                "missing_required_phrases": missing_phrases,
+                "forbidden_phrases_found": forbidden_found,
+            })
+        return _result("pass", "checkpoint, seven pinned source re-reads, report readback/content, and compare-backed one-path closure are all verified", {
+            "checkpoint_blob": checkpoint_blob,
+            "source_reads": len(source_actions),
+            "report_blob": report_blob,
+            "report_commit": report_commit,
+            "compared_files": files,
+        })
 
     if kind == "checkpoint_rehydrated":
         target_path = condition.get("path")
