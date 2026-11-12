@@ -4,8 +4,8 @@
 **Programme:** DHI-v1 / ORBIT only  
 **Active implementation branch:** `orbit/plugin-benchmark-fixture`  
 **Default branch:** `main` — do not change or merge it  
-**Latest S07 manifest commit:** `87a9afcf28a5c796ed39015efe703f5ce3fd97ba`  
-**Manifest blob:** `a1e198b0f48311a98333a4e53d6e8d38f07ab3dc`
+**Latest S07 manifest commit:** `9c2fe96b232e0f58313cd165fc732930bd7e5461`  
+**Manifest blob:** `69d4ce39e56b033cc8689bc25aec73b06b7af97f`
 
 > Read `DHI_v1/WORKSPACE.md` first. The GitHub manifest is authoritative for task state and hashes. This is a DHI/ORBIT handoff only. Do not mix in GBA/DPAK, Oriael, FDLT, TENS, or unrelated work.
 
@@ -45,13 +45,13 @@ The 103-test integrated attempt `60c6ecc2-a1c1-4a88-a7d6-26ed2b2476dc` timed out
 
 ### Commits and verification
 
-- Trace-grader commit: `bd4ba024c15f15c43ce86af84e8b9d019fa2dc93`.
-- Task-specific test commit: `a52ab526dfdcbc1bdf6fb708795dd8643830f084`.
-- Manifest commit: `87a9afcf28a5c796ed39015efe703f5ce3fd97ba`.
-- Manifest blob: `a1e198b0f48311a98333a4e53d6e8d38f07ab3dc`.
-- Trace-grader SHA-256: `0f51adb48f19aa54f6e93cc21ef38391841ff695c82b08e27e2bc5d095f416f9`.
-- Deepnote run `f578ade9-6369-4ace-b34b-01279c000714`: **53/53** passed (21 S07-specific tests + 32 shared plugin-trace grader tests).
-- Exact committed-manifest reload run `c34a6a9a-8161-41d9-a654-73483f437724`: validator `valid=true`, 30 tasks, Stage A=30, Stage B=0, zero errors; benchmark/environment compileall exit code 0. The exact checked-out grader SHA matched the manifest digest.
+- Trace-grader commit: `69a20654743d6d011396d88c8c7588f048536214`.
+- Task-specific test commit: `4f1e83d2672972f66b8855a14c48e7ee2cf17bf0`.
+- Manifest commit: `9c2fe96b232e0f58313cd165fc732930bd7e5461`.
+- Manifest blob: `69d4ce39e56b033cc8689bc25aec73b06b7af97f`.
+- Trace-grader SHA-256: `82db9db716974f274d26480a3fdee692c64a2c4a739b7af9359982dc897b4943`.
+- Deepnote run `dbbc9cab-c519-4640-ac91-8b6243953e31`: **54/54** passed (22 S07-specific tests + 32 shared plugin-trace grader tests).
+- Exact committed-manifest reload run `fb94a4d5-a2f5-4bd3-bc29-70dce1c36b43`: validator `valid=true`, 30 tasks, Stage A=30, Stage B=0, zero errors; benchmark/environment compileall exit code 0. The exact checked-out grader SHA matched the manifest digest.
 
 ### New deterministic verifier
 
@@ -60,7 +60,7 @@ S07-001 now uses `checkpoint_resume_integrity` as its single task-specific postc
 1. Exact successful registered `mcp__GitHub__fetch_file` checkpoint read at the pinned checkpoint commit/blob, linked to the unique `checkpoint_resumed` event.
 2. Exactly seven unique successful source reads, each from the pinned fixture commit and exact expected Git blob/content. Both invocation start and completion must occur after checkpoint resumption and before the first write.
 3. Exactly one permitted `create_file` action for the report path on `orbit/plugin-resume-sandbox`.
-4. Exactly one successful report `fetch_file` readback after the write completes. The readback content, Git blob, final artifact, and artifact-readback evidence must agree.
+4. Exactly one successful report `fetch_file` readback after the write completes. The readback content, Git blob, final artifact, and artifact-readback evidence must agree. The GitHub fetch_file display URL is branch-based for a branch ref; the report commit identity is separately pinned through create_file's commit_sha and compare_commits.
 5. Exactly one registered `compare_commits` observation after readback, comparing checkpoint commit `04d0e12f48067b3b3a3de3ffe10944b7ef594984` to report commit `d3f7ca37a8623ef6e5f5b3ed4e60f88a2a8efb1c`.
 6. Exactly one changed path: the report, added in one commit, 50 additions and zero deletions. The observed action count must match the trace and stay within the task's 9–24 action budget.
 7. Required source-derived report content, including all dependency edges and acceptance-state facts; forbidden false claims are rejected.
