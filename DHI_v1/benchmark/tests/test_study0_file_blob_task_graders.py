@@ -108,6 +108,31 @@ class Study0FileBlobTaskGraderTests(unittest.TestCase):
         result = grade_task(task, make_s05_trace(task, read_ok=False))
         self.assertEqual(result["status"], "fail", result)
 
+    def test_s05_001_rejects_non_github_reader_even_with_matching_request_and_blob(self):
+        task = load_task()
+        trace = make_s05_trace(task)
+        trace["events"][3]["tool_id"] = "mcp__TinyFish__fetch_content"
+        result = grade_task(task, trace)
+        self.assertEqual(result["status"], "fail", result)
+
+    def test_s05_001_rejects_content_mismatch_when_provider_claims_pinned_blob(self):
+        task = load_task()
+        trace = make_s05_trace(task)
+        source = trace["events"][3]["actual_tool_result"]["result"]["content"]
+        tampered = source.replace("NS-101,Platform,High,5,Open,", "NS-101,Platform,High,9,Open,")
+        self.assertNotEqual(tampered, source)
+        trace["events"][3]["actual_tool_result"]["result"]["content"] = tampered
+        result = grade_task(task, trace)
+        self.assertEqual(result["status"], "fail", result)
+
+    def test_s05_001_rejects_wrong_repository_and_path(self):
+        task = load_task()
+        trace = make_s05_trace(task)
+        trace["events"][3]["arguments"]["repository_full_name"] = "someone-else/dhi"
+        trace["events"][3]["arguments"]["path"] = "README.md"
+        result = grade_task(task, trace)
+        self.assertEqual(result["status"], "fail", result)
+
 
 if __name__ == "__main__":
     unittest.main()
