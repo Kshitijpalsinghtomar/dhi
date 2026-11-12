@@ -10,9 +10,9 @@
 >
 > **Important S04 grader correction:** `tool_trace` now checks the successful fetched result's exact Git blob SHA and optional exact arguments, not just the tool name. S04-001 is pinned to repository `Kshitijpalsinghtomar/dhi`, `DHI_v1/benchmark/fixtures/plugin_ecology/TASK_POLICY.md`, ref `af6c0d31fcf2e3232cb427c421850536139e3b3a`, blob `0e5d3c519749651ad5f5ec728622895cfc44a649`. Regression coverage rejects wrong SHA, wrong ref, failed reads and write-tool substitution.
 >
-> **Latest integrated regression:** Deepnote run `0e097bf0-85f2-4278-b2aa-700db9be4e15` passed **66/66** tests and benchmark-wide `compileall` at the code state before the final S04 validation metadata write. It covered manifest integrity, the trace grader, S01/S03/S04 task-bound suites, and S07 checkpoint regression tests. The latest manifest-only rerun after the S04 status update is being checked; do not claim that result until its terminal output is inspected.
+> **Latest integrated regression:** Deepnote run `0e097bf0-85f2-4278-b2aa-700db9be4e15` passed **66/66** tests and benchmark-wide `compileall`. It covered the manifest, trace grader, S01/S03/S04 task-bound suites, and S07 checkpoint regression tests. After the S04 grader-status write, exact manifest blob `8092bae1bfed118b505156ef226f806c45ae2822` was rechecked in Deepnote run `3eb3ee63-a9eb-4e0e-b617-1ee712464ee5`: validator `valid=true`, 30 tasks, zero errors; manifest validator suite 21/21; compile exit code 0.
 >
-> **Latest manifest:** branch commit `b8b900eb7681834925e91a0c766ff7826d6bf997`, manifest Git blob `8092bae1bfed118b505156ef226f806c45ae2822`. It records 8 grader checks passed, 22 `not_run`, 1 family accepted and 29 `not_reviewed`. All executions remain `not_run`, all model-run flags false. A grader-check pass records a deterministic verifier test—not a model trajectory.
+> **Latest manifest:** branch code commit `b8b900eb7681834925e91a0c766ff7826d6bf997`, manifest Git blob `8092bae1bfed118b505156ef226f806c45ae2822`. It records 8 grader checks passed, 22 `not_run`, 1 family accepted and 29 `not_reviewed`. All executions remain `not_run`, all model-run flags false. A grader-check pass records deterministic verifier-test evidence—not a model trajectory.
 >
 > **Development pilot boundary:** `DHI_v1/benchmark/pilot_cases.json` is a 12-case integration/harness pilot explicitly excluded from Stage A/B; its runner supports file-workspace cases (and an optional Adaption catalogue case), not the 30 plugin-native panel tasks. It is not a substitute for Study 0.
 >
@@ -20,7 +20,7 @@
 >
 > **Hard evidence boundary:** no DHI model inference, model-generated execution trajectory, adjudicated training corpus, capability score, or training checkpoint exists. Later S07/S09 full regression was not independently confirmed as a complete older harness suite; current 66-test regression does cover the updated trace grader/task fixtures. The last OpenRouter check on 2026-11-11 showed zero credits; Deepnote has no model-provider integration. Do not run a model, switch to a free endpoint/candidate, alter permissions, spend credits, or launch training without explicit user authorization and an approved resource route.
 >
-> **Next action:** finish the exact latest-manifest validator check, then continue with the next deterministic task-level grader contract. Keep family review separate; no model screen until a genuine multi-task subset is independently admitted and the user authorizes a funded inference route.
+> **Next action:** continue with S05-001, first binding its `file_blob_match` grader to the exact successful GitHub read request (repository/path/ref), then verify the pinned blob SHA and CSV row count. Keep family review separate; no model screen until a genuine multi-task subset is independently admitted and the user authorizes a funded inference route.
 
 
 **Last updated:** 2026-11-11  
@@ -69,8 +69,8 @@ latest_integrated_regression_tests: 66
 latest_integrated_regression_exit_code: 0
 latest_integrated_compileall_exit_code: 0
 latest_manifest_validator_run: 3eb3ee63-a9eb-4e0e-b617-1ee712464ee5
-latest_manifest_validator_status: pending
-next_action: verify_post_s04_manifest_then_continue_s05_task_grader
+latest_manifest_validator_status: pass
+next_action: implement_s05_file_blob_request_binding
 study_0_issue: 2
 ```
 </details>
