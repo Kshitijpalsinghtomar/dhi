@@ -158,7 +158,7 @@ def build_trace(report: str = GOOD_REPORT) -> dict:
         effects={"added_paths": [REPORT_PATH], "modified_paths": [], "deleted_paths": [],
                  "changed_paths": [REPORT_PATH], "unchanged_paths": ["README.md"]},
     )
-    report_url = f"https://github.com/{REPO}/blob/{REPORT_COMMIT}/{REPORT_PATH}"
+    report_url = f"https://github.com/{REPO}/blob/{REPORT_BRANCH}/{REPORT_PATH}"
     readback_id = action(
         "mcp__GitHub__fetch_file",
         {"repository_full_name": REPO, "path": REPORT_PATH, "ref": REPORT_BRANCH},
@@ -430,6 +430,13 @@ class TestStudy0CheckpointResumeIntegrity(unittest.TestCase):
         resume_index = next(i for i,e in enumerate(trace["events"]) if e.get("event_type") == "checkpoint_resumed")
         trace["events"].insert(resume_index, source_start)
         self.reindex(trace)
+        self.assertEqual(self.grade(trace)["status"], "fail")
+
+
+    def test_report_readback_url_must_match_the_requested_branch_ref(self):
+        trace = build_trace(GOOD_REPORT)
+        readback = next(e for e in trace["events"] if e.get("event_type") == "action_executed" and e.get("arguments", {}).get("path") == REPORT_PATH and e.get("tool_id") == "mcp__GitHub__fetch_file")
+        readback["actual_tool_result"]["result"]["display_url"] = f"https://github.com/{REPO}/blob/{REPORT_COMMIT}/{REPORT_PATH}"
         self.assertEqual(self.grade(trace)["status"], "fail")
 
     def test_report_readback_requires_successful_exact_blob(self):
