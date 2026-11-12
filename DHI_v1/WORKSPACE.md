@@ -6,7 +6,7 @@
 >
 > **Active research path:** the tool-acquisition/lifecycle novelty candidate was rejected as insufficiently distinct. See [15_PRIOR_ART_AND_NOVELTY_GATE_2026-11-11.md](docs/15_PRIOR_ART_AND_NOVELTY_GATE_2026-11-11.md). DHI-v1 is an empirical model-development programme: untouched base-model screening, verified-execution SFT, then controlled prediction/closure ablations. No new method claim is accepted before results.
 >
-> **Study 0 tracking:** [Issue #2 — freeze untouched base-model capability screen](https://github.com/Kshitijpalsinghtomar/dhi/issues/2). Current Stage A has 30 tasks and Stage B has zero. **Nine of 30 deterministic grader checks pass; 21 remain `not_run`.** These are S06-001, S01-001/002, S03-001..004, S04-001 and S05-001. Only S06-001 has an accepted family review; the other 29 are still `not_reviewed`. Every execution remains `not_run`; all 30 `model_runs_allowed` flags are false. S07/S09 remain partial. Do not confuse deterministic grader tests with model capability or family acceptance.
+> **Study 0 tracking:** [Issue #2 — freeze untouched base-model capability screen](https://github.com/Kshitijpalsinghtomar/dhi/issues/2). Current Stage A has 30 tasks and Stage B has zero. **Ten of 30 deterministic grader checks pass; 20 remain `not_run`.** These are S06-001, S01-001/002, S03-001..004, S04-001, S05-001 and S05-002. Only S06-001 has an accepted family review; the other 29 are still `not_reviewed`. Every execution remains `not_run`; all 30 `model_runs_allowed` flags are false. S07/S09 remain partial. Do not confuse deterministic grader tests with model capability or family acceptance.
 >
 > **Important S04 grader correction:** `tool_trace` now checks the successful fetched result's exact Git blob SHA and optional exact arguments, not just the tool name. S04-001 is pinned to repository `Kshitijpalsinghtomar/dhi`, `DHI_v1/benchmark/fixtures/plugin_ecology/TASK_POLICY.md`, ref `af6c0d31fcf2e3232cb427c421850536139e3b3a`, blob `0e5d3c519749651ad5f5ec728622895cfc44a649`. Regression coverage rejects wrong SHA, wrong ref, failed reads and write-tool substitution.
 >
@@ -52,9 +52,9 @@ programme: DHI-v1
 codename: ORBIT
 phase: study_0_task_grader_admission
 status: research_in_progress
-status_reason: The lifecycle/acquisition novelty candidate is rejected as insufficiently distinct. Active work is empirical DHI-v1 model development. Stage A has 30 materialized tasks; Stage B has 0. Nine deterministic grader checks pass, 21 remain not_run, including newly validated S05-001. Only S06-001 has accepted family review; the other 29 remain not_reviewed. All 30 executions are not_run and all model_runs_allowed flags remain false. No model inference, model-generated trajectory, adjudicated training corpus, capability score, or training checkpoint exists. Latest 66-test integrated grader regression and compileall passed; a post-manifest-update exact validator rerun is pending.
+status_reason: The lifecycle/acquisition novelty candidate is rejected as insufficiently distinct. Active work is empirical DHI-v1 model development. Stage A has 30 materialized tasks; Stage B has 0. Ten deterministic grader checks pass, 20 remain not_run, including S05-001 and S05-002. Only S06-001 has accepted family review; the other 29 remain not_reviewed. All 30 executions are not_run and all model_runs_allowed flags remain false. No model inference, model-generated trajectory, adjudicated training corpus, capability score, or training checkpoint exists. Latest S05 regression passed 48/48, exact manifest validation is valid for 30 tasks with zero errors, and benchmark/environment compileall passed.
 training_status: not_authorized
-benchmark_status: stage_a_30_materialized_of_120; 9_grader_checks_pass; 21_grader_checks_not_run; stage_b_sealed_unmaterialized
+benchmark_status: stage_a_30_materialized_of_120; 10_grader_checks_pass; 20_grader_checks_not_run; stage_b_sealed_unmaterialized
 task_admission: blocked_pending_family_review
 model_runs_allowed: false
 training_runs_allowed: false
@@ -62,19 +62,23 @@ research_mechanism_test_commit: 81a299342ecee919e1a068a34897789934b1685c
 research_mechanism_test_run: ca0c1e0e-bace-4927-ae65-5d83528eb59a
 research_mechanism_test_count: 22
 research_mechanism_compileall_exit_code: 0
-latest_manifest_blob: 37d4d42dd9aeb08ae98bc8dfd118e5460c183340
-latest_manifest_commit: 630b238d98b6b6ddc93b95b5f3706ddeff52613d
+latest_manifest_blob: e513532f814c63a379ed8001ac523876571c334d
+latest_manifest_commit: a3939a4583a33ee2446151f735cb78b62b068179
 latest_integrated_regression_run: 0e097bf0-85f2-4278-b2aa-700db9be4e15
 latest_integrated_regression_tests: 66
 latest_integrated_regression_exit_code: 0
 latest_integrated_compileall_exit_code: 0
-latest_manifest_validator_run: 6ad055f4-9e6d-4ec0-9c9c-35f412653d5b
+latest_manifest_validator_run: a48565c7-87bb-42d5-a219-6582cc0c261f
 latest_manifest_validator_status: pass
-latest_s05_grader_run: 6ad055f4-9e6d-4ec0-9c9c-35f412653d5b
-latest_s05_grader_tests: 8
+latest_s05_grader_run: 375bcd7a-9887-4111-bca2-8d1bbe47d7b0
+latest_s05_grader_tests: 48
 latest_s05_compileall_exit_code: 0
 latest_trace_grader_commit: b0c43535d7ee52abc18c2dcae3b20d68efb7f2fa
-next_action: implement_s05_002_scripted_multi_url_grader_coverage
+latest_s05_002_focused_run: afb668ad-5192-4dde-ade4-a273b7a87cc7
+latest_s05_002_focused_tests: 8
+latest_exact_manifest_validation: a48565c7-87bb-42d5-a219-6582cc0c261f
+latest_exact_manifest_valid: true
+next_action: implement_s05_003_update_file_sha_precondition_grader_coverage
 study_0_issue: 2
 ```
 </details>
@@ -816,3 +820,17 @@ S06 remains `ready_for_validation`; all 30 Stage A tasks remain `ready_for_valid
 - Deepnote run `6ad055f4-9e6d-4ec0-9c9c-35f412653d5b`: S05-001 tests **8/8 passed**; manifest validator `valid=true` for 30 tasks with zero errors; benchmark/environment `compileall` exit code 0.
 - S05-001 now records `grader_check=pass`, but remains `ready_for_validation` and `review_status=not_reviewed`. Execution is still `not_run`; `model_runs_allowed=false`. Deterministic grader verification is not a model trajectory, family review or task admission.
 - No model inference, training, live TinyFish request, paid provider action, merge or change to `main` occurred.
+
+
+## 33. S05-002 TinyFish two-page batch fetch grader — 12 November 2026
+
+- S05-002 now has three deterministic conditions: one successful `mcp__TinyFish__fetch_content` invocation with the exact ordered two-URL Python downloads batch and all required boolean fields; successful raw-source evidence bound to the TinyFish tool for both official pages and the pinned historical release facts; and exactly one tool call with zero provider credits.
+- The Python release values are pinned to the 2026-11-03 snapshot only: Python 3.15.2 listed as latest stable and Python 3.16 as a planned pre-release for 2027-10-06. These are fixture facts, not current-version claims.
+- `tool_trace_arguments` now supports opt-in `require_success` and `exact_list_fields`. `external_snapshot_match` / `source_fact` now support opt-in exact tool binding and successful-response requirements. Existing conditions remain backward-compatible when these optional controls are absent.
+- S05-002 grader version is 1.1.0. Independent review remains required: the reviewer must confirm the two separate page results and the release interpretation because the connector response is not a fully pinned typed result schema.
+- Task test file: `DHI_v1/benchmark/tests/test_study0_tinyfish_task_graders.py`. Focused Deepnote run `afb668ad-5192-4dde-ade4-a273b7a87cc7`: **8/8 passed**. Shared regression run `375bcd7a-9887-4111-bca2-8d1bbe47d7b0`: **48/48 passed**, covering the shared trace grader, S05-001 and S05-002 tests.
+- Exact manifest was reloaded from GitHub commit `a3939a4583a33ee2446151f735cb78b62b068179`, blob `e513532f814c63a379ed8001ac523876571c334d`. Deepnote run `a48565c7-87bb-42d5-a219-6582cc0c261f` confirms manifest `valid=true`, 30 tasks, zero errors; benchmark/environment `compileall` exit code 0.
+- S05-002 records `grader_check=pass`, but remains `ready_for_validation` and `review_status=not_reviewed`. Its execution remains `not_run`; `model_runs_allowed=false`. The panel still has 10/30 deterministic grader checks passed and 20 `not_run`; only S06-001 has an accepted family review.
+- No live TinyFish request, provider-credit spend, model inference, training, merge or change to default `main` occurred.
+
+**Next exact work:** S05-003 must test the GitHub `update_file` call itself: current blob SHA precondition, exact full replacement content, explicit `orbit/plugin-benchmark-fixture` branch, successful readback, and exactly one modified target path. S05-004 remains a later contract gap: its current `tool_trace_arguments` condition does not match the supported verifier shape, and its snapshot condition lacks source/tool binding.
