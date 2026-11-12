@@ -67,7 +67,7 @@ def git_blob_sha(value: str) -> str:
     return hashlib.sha1(b"blob " + str(len(data)).encode("ascii") + b"\0" + data).hexdigest()
 
 
-def condition() -> dict:
+def condition(report: str = GOOD_REPORT) -> dict:
     return {
         "type": "checkpoint_resume_integrity",
         "repository_full_name": REPO,
@@ -82,7 +82,7 @@ def condition() -> dict:
         "report_blob_sha": git_blob_sha(report),
         "required_report_phrases": [
             "NS-106 -> NS-105", "AT-03 remains Blocked", "AT-03", "Blocked", "AT-05", "Not Run",
-            "automated approval reminders", "Passed: 3", "Failed: 1", "NS-101", "NS-104", "NS-105", "NS-109",
+            "automated approval reminders", "Passed: 3", "Failed: 1", "NS-101", "NS-104", "NS-105", "NS-109", "NS-101", "NS-104", "NS-105", "NS-109",
         ],
         "forbidden_report_phrases": [
             "every acceptance test passed", "all acceptance tests passed",
