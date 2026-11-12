@@ -992,11 +992,19 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
             or bad_args.get("ref") != ref
         ):
             return _result("fail", "initial fetch did not request the exact known-bad path at the pinned ref", bad_args)
-        if bad_actual.get("ok") is not False or bad_actual.get("status_code") != 404:
+        initial_error = bad_actual.get("error")
+        observed_http_status = (
+            initial_error.get("http_status")
+            if isinstance(initial_error, dict)
+            else None
+        )
+        if observed_http_status is None:
+            observed_http_status = bad_actual.get("http_status", bad_actual.get("status_code"))
+        if bad_actual.get("ok") is not False or observed_http_status != 404:
             return _result("fail", "initial known-bad path did not produce an observed HTTP 404", {
                 "ok": bad_actual.get("ok"),
-                "status_code": bad_actual.get("status_code"),
-                "error": bad_actual.get("error"),
+                "http_status": observed_http_status,
+                "error": initial_error,
             })
 
         directory_args, directory_actual, directory_result, error = payload(recovery_actions[1], "directory inspection")
