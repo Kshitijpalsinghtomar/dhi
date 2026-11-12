@@ -695,11 +695,12 @@
         "status": "ready_for_validation",
         "contract_check": "pass",
         "environment_check": "pass",
-        "grader_check": "not_run",
+        "grader_check": "pass",
         "review_status": "not_reviewed",
         "harness_gap_ids": [],
         "validation_evidence": [
-          "Firecrawl find_tools returned a provider capability; discovery cost 0, capability execution cost 1."
+          "Firecrawl find_tools returned a provider capability; discovery cost 0, capability execution cost 1.",
+          "Deterministic provider-contract graders verified in Deepnote run e69da948-4fd0-44de-8fd4-fcfed0847274: 30/30 manifest/S01/S03 tests passed; all four S03 snapshot-backed discovery contracts passed and negative wrong-provider, wrong-cost and missing-output-field cases were rejected; benchmark compileall exit code 0. Scripted-reference/unit-test evidence only; no paid provider execution, live model trajectory, independent family review, or task capability result."
         ]
       },
       "execution": {
@@ -715,7 +716,7 @@
         "partition": "stage_a",
         "family_fingerprint_sha256": "8a8e11244424187288cd1204b8f394aed9b0a67d49e521f1c4d3a2ecd739a2cb",
         "holdout_sealed": false,
-        "task_instance_sha256": "9dd544cab1b6805f8bb059b7ee32719ab1ac6bf22cbc582be95b9991a01bc7e5"
+        "task_instance_sha256": "c5a686e82256a4716bf8fd4e5304dd683f0994ce9bc0df3435fdf1dfdd61c8cd"
       }
     },
     {
@@ -1984,12 +1985,13 @@
         "status": "ready_for_validation",
         "contract_check": "pass",
         "environment_check": "pass",
-        "grader_check": "not_run",
+        "grader_check": "pass",
         "review_status": "not_reviewed",
         "harness_gap_ids": [],
         "validation_evidence": [
           "Free Firecrawl tool discovery returned github-com/repositories/advisory and osv-dev/vulnerabilities/query.",
-          "Each provider execution was listed as costing 5 credits; no paid execution was attempted."
+          "Each provider execution was listed as costing 5 credits; no paid execution was attempted.",
+          "Deterministic provider-contract graders verified in Deepnote run e69da948-4fd0-44de-8fd4-fcfed0847274: 30/30 manifest/S01/S03 tests passed; all four S03 snapshot-backed discovery contracts passed and negative wrong-provider, wrong-cost and missing-output-field cases were rejected; benchmark compileall exit code 0. Scripted-reference/unit-test evidence only; no paid provider execution, live model trajectory, independent family review, or task capability result."
         ]
       },
       "execution": {
@@ -2005,7 +2007,7 @@
         "partition": "stage_a",
         "family_fingerprint_sha256": "17856455bb6d1b0e3623fc36bbbd2678861813fa67276ee014bd93f3e76f8fcb",
         "holdout_sealed": false,
-        "task_instance_sha256": "c701cb3e7d9ae54ba67e073ccd3173a61563108b98f7d5802517da31b364dc23"
+        "task_instance_sha256": "a87ec61380ab3a7da79d053b63b1320d108369addccdf1212f1a83b2254c9a6c"
       }
     },
     {
@@ -2244,11 +2246,12 @@
         "status": "ready_for_validation",
         "contract_check": "pass",
         "environment_check": "pass",
-        "grader_check": "not_run",
+        "grader_check": "pass",
         "review_status": "not_reviewed",
         "harness_gap_ids": [],
         "validation_evidence": [
-          "Free Firecrawl discovery returned all four contracts and prices; no paid execution performed."
+          "Free Firecrawl discovery returned all four contracts and prices; no paid execution performed.",
+          "Deterministic provider-contract graders verified in Deepnote run e69da948-4fd0-44de-8fd4-fcfed0847274: 30/30 manifest/S01/S03 tests passed; all four S03 snapshot-backed discovery contracts passed and negative wrong-provider, wrong-cost and missing-output-field cases were rejected; benchmark compileall exit code 0. Scripted-reference/unit-test evidence only; no paid provider execution, live model trajectory, independent family review, or task capability result."
         ]
       },
       "execution": {
@@ -2264,7 +2267,7 @@
         "partition": "stage_a",
         "family_fingerprint_sha256": "2b11bb97a6c2b2c4f1529252f3f1fb26096e3156c8c12798335b3118a190a0fa",
         "holdout_sealed": false,
-        "task_instance_sha256": "e41215a6a7f9307e530254bb9672c3e5e64fd266cb7c38ae347d476603768ff6"
+        "task_instance_sha256": "a8c8fcccde833ce5a572a154437ce54eb10e529d9b46f3d4eea63249b1798c12"
       }
     },
     {
@@ -3782,12 +3785,13 @@
         "status": "ready_for_validation",
         "contract_check": "pass",
         "environment_check": "pass",
-        "grader_check": "not_run",
+        "grader_check": "pass",
         "review_status": "not_reviewed",
         "harness_gap_ids": [],
         "validation_evidence": [
           "Provider-filtered discovery returned packages/dependents.",
-          "Required inputs registry/name; optional version; direct/indirect/count outputs; execution cost 1 credit."
+          "Required inputs registry/name; optional version; direct/indirect/count outputs; execution cost 1 credit.",
+          "Deterministic provider-contract graders verified in Deepnote run e69da948-4fd0-44de-8fd4-fcfed0847274: 30/30 manifest/S01/S03 tests passed; all four S03 snapshot-backed discovery contracts passed and negative wrong-provider, wrong-cost and missing-output-field cases were rejected; benchmark compileall exit code 0. Scripted-reference/unit-test evidence only; no paid provider execution, live model trajectory, independent family review, or task capability result."
         ]
       },
       "execution": {
@@ -3803,7 +3807,7 @@
         "partition": "stage_a",
         "family_fingerprint_sha256": "7870e22b580c4b8de170e2ba0ed9afe01232600d02f7aabb7806c83f242c09c5",
         "holdout_sealed": false,
-        "task_instance_sha256": "dd7cf4bfdaf4558237a97cd92e9dc7305f0f226b6c85053289ad67f399eb2b32"
+        "task_instance_sha256": "e67954a997e75eecd2283978bbba70989d2f29c3687716da844bcae50ea1ce48"
       }
     },
     {
