@@ -123,7 +123,7 @@ def make_trace(
         "events": events,
         "final_answer": answer if answer is not None else (
             "Observation date: 2026-11-03. Official source: https://www.python.org/downloads/. "
-            "Latest stable release: Python 3.15.2. Python 3.16 is a planned pre-release, not a stable release. "
+            "Latest stable release: Python 3.15.2. Python 3.16 is a planned pre-release for 2027-10-06, not a stable release. "
             "Maintenance: Python 3.15 and 3.14 are bugfix; 3.13, 3.12 and 3.11 are security; "
             "Python 3.10 is end-of-life since 2026-10-01."
         ),
