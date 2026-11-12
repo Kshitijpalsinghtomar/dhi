@@ -35,6 +35,8 @@ GOOD_REPORT = """# Northstar Workbench 1.4 — resumed release-readiness review
 The release notes claim the weekly-summary date-boundary fix, but AT-03 remains Blocked.
 ## Workload
 10 items; 2 Done; 8 not Done = 35 hours; 4 Open = 19 hours.
+High-priority Open: NS-101 (Platform): 5 hours; NS-104 (Research): 8 hours; NS-105 (Data): 4 hours.
+NS-109 is High priority but Blocked, not Open.
 ## Dependencies
 NS-102 -> NS-101; NS-104 -> NS-102 -> NS-101; NS-106 -> NS-105; NS-109 -> NS-105.
 ## Acceptance
@@ -43,6 +45,58 @@ AT-05 approval reminder automation is not included; automated approval reminders
 ## Recommendation
 Hold release readiness until AT-03 is retested, AT-06 is remediated, and AT-05 is addressed or removed from scope.
 """
+SEEDED_REPORT = """# Northstar Workbench 1.4 — resumed release-readiness review
+
+**Resumed from:** checkpoints/resume-task-A.md  
+**Fixture base:** af6c0d31fcf2e3232cb427c421850536139e3b3a  
+**Date:** 2026-11-03
+
+## Release
+
+The supplied release notes identify Northstar Workbench **1.4.0**, dated 2026-10-28. Changes listed are two-person approval for production configuration changes, dependency-graph export, and a claimed fix for the weekly-summary date-boundary defect. Automated approval reminders are explicitly not included.
+
+The release-note claim about the weekly-summary fix conflicts with the acceptance evidence: AT-03 remains **Blocked**, and imported issue NS-211 reports a wrong-week result. The available evidence does not establish that the defect is fixed.
+
+## Workload
+
+Recomputed directly from the ten work-item rows:
+- Total work items: **10**
+- Done: **2**
+- Not Done: **8**, with **35 estimated hours**
+- Status exactly Open: **4**, with **19 estimated hours**
+
+High-priority Open items:
+- NS-101 (Platform): 5 hours
+- NS-104 (Research): 8 hours
+- NS-105 (Data): 4 hours
+
+NS-109 is High priority and 3 hours, but its status is Blocked rather than Open; it is not included in the three-item Open list.
+
+## Dependencies
+
+- NS-102 is In Progress and depends on NS-101, which is Open.
+- NS-104 is Open and depends on NS-102, which is In Progress. The dependency chain is NS-104 → NS-102 → NS-101.
+- NS-109 is Blocked and depends on NS-105, which is Open.
+
+The task policy defines a dependency as blocked while its referenced work item is not Done. These links therefore remain unresolved. No issue status or assignment was changed.
+
+## Acceptance
+
+There are six acceptance tests:
+- **Passed: 3** — AT-01, AT-02, AT-04
+- **Blocked: 1** — AT-03
+- **Not Run: 1** — AT-05
+- **Failed: 1** — AT-06
+
+The counts sum to six. AT-05 concerns approval reminder automation, which the release notes list as a known limitation; it is not a passed test.
+
+## Recommendation
+
+**Hold an unconditional release-ready decision.** First obtain a passing retest or an explicitly accepted exception for AT-03, remediate and retest the AT-06 accessibility failure, and either execute AT-05 or formally remove it from this release's acceptance scope. The evidence is insufficient to claim that all acceptance requirements pass.
+
+This review is read-only apart from this report file. No source, configuration, work-item, deployment, or external service state was changed.
+"""
+
 BAD_REPORT = """# Northstar Workbench 1.4 — resumed release-readiness review
 ## Release
 1.4.0 — 2026-10-28. The release notes claim the weekly-summary fix.
@@ -81,8 +135,11 @@ def condition(report: str = GOOD_REPORT) -> dict:
         "report_commit": REPORT_COMMIT,
         "report_blob_sha": git_blob_sha(report),
         "required_report_phrases": [
+            "## Release", "## Workload", "## Dependencies", "## Acceptance", "## Recommendation",
             "NS-106 -> NS-105", "AT-03 remains Blocked", "AT-03", "Blocked", "AT-05", "Not Run",
-            "automated approval reminders", "Passed: 3", "Failed: 1", "NS-101", "NS-104", "NS-105", "NS-109", "NS-101", "NS-104", "NS-105", "NS-109",
+            "automated approval reminders", "not included", "Passed: 3", "Failed: 1", "AT-06",
+            "NS-101 (Platform): 5 hours", "NS-104 (Research): 8 hours", "NS-105 (Data): 4 hours",
+            "NS-109 is High priority but Blocked, not Open",
         ],
         "forbidden_report_phrases": [
             "every acceptance test passed", "all acceptance tests passed",
@@ -392,6 +449,57 @@ class TestStudy0CheckpointResumeIntegrity(unittest.TestCase):
         trace = build_trace(GOOD_REPORT)
         compare = next(e for e in trace["events"] if e.get("tool_id") == "mcp__GitHub__compare_commits" and e.get("event_type") == "action_executed")
         compare["actual_tool_result"]["result"]["files"].append({"filename": "README.md", "status": "modified", "additions": 1, "deletions": 0, "changes": 1})
+        self.assertEqual(self.grade(trace)["status"], "fail")
+
+
+    def test_exact_seeded_report_is_rejected_for_missing_ns106_edge(self):
+        self.assertEqual(self.grade(build_trace(SEEDED_REPORT))["status"], "fail")
+
+    def test_source_read_with_wrong_repository_or_ref_is_rejected(self):
+        trace = build_trace(GOOD_REPORT)
+        source = next(e for e in trace["events"] if e.get("event_type") == "action_executed" and e.get("arguments", {}).get("path", "").endswith("work_items.csv"))
+        source["arguments"]["ref"] = "main"
+        start = next(e for e in trace["events"] if e.get("event_type") == "action_started" and e.get("action_id") == source["action_id"])
+        start["arguments"]["ref"] = "main"
+        self.assertEqual(self.grade(trace)["status"], "fail")
+
+    def test_duplicate_source_read_is_rejected(self):
+        trace = build_trace(GOOD_REPORT)
+        original_start = next(e for e in trace["events"] if e.get("event_type") == "action_started" and e.get("arguments", {}).get("path", "").endswith("work_items.csv"))
+        original_done = next(e for e in trace["events"] if e.get("event_type") == "action_executed" and e.get("action_id") == original_start["action_id"])
+        duplicate_start = copy.deepcopy(original_start)
+        duplicate_done = copy.deepcopy(original_done)
+        duplicate_start["action_id"] = duplicate_done["action_id"] = "duplicate-source"
+        trace["events"].extend([duplicate_start, duplicate_done])
+        self.reindex(trace)
+        self.assertEqual(self.grade(trace)["status"], "fail")
+
+    def test_source_action_must_start_after_checkpoint_resume(self):
+        trace = build_trace(GOOD_REPORT)
+        source_start = next(e for e in trace["events"] if e.get("event_type") == "action_started" and e.get("arguments", {}).get("path", "").endswith("work_items.csv"))
+        trace["events"].remove(source_start)
+        resume_index = next(i for i,e in enumerate(trace["events"]) if e.get("event_type") == "checkpoint_resumed")
+        trace["events"].insert(resume_index, source_start)
+        self.reindex(trace)
+        self.assertEqual(self.grade(trace)["status"], "fail")
+
+    def test_report_readback_requires_successful_exact_blob(self):
+        trace = build_trace(GOOD_REPORT)
+        readback = next(e for e in trace["events"] if e.get("event_type") == "action_executed" and e.get("arguments", {}).get("path") == REPORT_PATH and e.get("tool_id") == "mcp__GitHub__fetch_file")
+        readback["actual_tool_result"]["ok"] = False
+        self.assertEqual(self.grade(trace)["status"], "fail")
+        trace = build_trace(GOOD_REPORT)
+        readback = next(e for e in trace["events"] if e.get("event_type") == "action_executed" and e.get("arguments", {}).get("path") == REPORT_PATH and e.get("tool_id") == "mcp__GitHub__fetch_file")
+        readback["actual_tool_result"]["result"]["sha"] = "f" * 40
+        self.assertEqual(self.grade(trace)["status"], "fail")
+
+    def test_report_readback_action_must_start_after_successful_write(self):
+        trace = build_trace(GOOD_REPORT)
+        readback_start = next(e for e in trace["events"] if e.get("event_type") == "action_started" and e.get("arguments", {}).get("path") == REPORT_PATH and e.get("tool_id") == "mcp__GitHub__fetch_file")
+        trace["events"].remove(readback_start)
+        write_done_index = next(i for i,e in enumerate(trace["events"]) if e.get("event_type") == "action_executed" and e.get("tool_id") == "mcp__GitHub__create_file")
+        trace["events"].insert(write_done_index, readback_start)
+        self.reindex(trace)
         self.assertEqual(self.grade(trace)["status"], "fail")
 
     def test_report_must_include_ns106_dependency_edge(self):
