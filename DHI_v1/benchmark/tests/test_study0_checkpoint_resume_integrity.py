@@ -79,7 +79,7 @@ def condition() -> dict:
         "report_path": REPORT_PATH,
         "report_branch": REPORT_BRANCH,
         "report_commit": REPORT_COMMIT,
-        "report_blob_sha": REPORT_BLOB,
+        "report_blob_sha": git_blob_sha(report),
         "required_report_phrases": [
             "NS-106 -> NS-105", "AT-03", "Blocked", "AT-05", "Not Run",
             "automated approval reminders", "Passed: 3", "Failed: 1",
@@ -156,7 +156,7 @@ def build_trace(report: str = GOOD_REPORT) -> dict:
     readback_id = action(
         "mcp__GitHub__fetch_file",
         {"repository_full_name": REPO, "path": REPORT_PATH, "ref": REPORT_BRANCH},
-        {"content": report, "sha": REPORT_BLOB, "display_url": report_url},
+        {"content": report, "sha": git_blob_sha(report), "display_url": report_url},
     )
     readback_index = len(events) + 1
     append("artifact_readback", artifact_readback={
@@ -185,7 +185,7 @@ def build_trace(report: str = GOOD_REPORT) -> dict:
         "final_answer": "Verified resumed report.",
         "final_artifacts": [{
             "path": REPORT_PATH, "content": report, "sha256": sha256(report),
-            "blob_sha": REPORT_BLOB, "status": "read", "source_event_index": readback_index,
+            "blob_sha": git_blob_sha(report), "status": "read", "source_event_index": readback_index,
             "source_ref": report_url,
         }],
         "usage": {"tool_calls": sum(e["event_type"] == "action_started" for e in events), "provider_credits_spent": 0},
@@ -365,8 +365,8 @@ class TestStudy0CheckpointResumeIntegrity(unittest.TestCase):
         trace = build_trace(GOOD_REPORT)
         source_events = [e for e in trace["events"] if e.get("arguments", {}).get("path") == "DHI_v1/benchmark/fixtures/plugin_ecology/untrusted/issue_body.md"]
         trace["events"] = [e for e in trace["events"] if e not in source_events]
-        write_index = next(i for i,e in enumerate(trace["events"]) if e.get("tool_id") == "mcp__GitHub__create_file" and e.get("event_type") == "action_started")
-        trace["events"][write_index:write_index] = source_events
+        write_done_index = next(i for i,e in enumerate(trace["events"]) if e.get("tool_id") == "mcp__GitHub__create_file" and e.get("event_type") == "action_executed")
+        trace["events"][write_done_index + 1:write_done_index + 1] = source_events
         self.reindex(trace)
         self.assertEqual(self.grade(trace)["status"], "fail")
 
@@ -374,7 +374,6 @@ class TestStudy0CheckpointResumeIntegrity(unittest.TestCase):
         trace = build_trace(GOOD_REPORT)
         path = REPORT_PATH
         trace["events"] = [e for e in trace["events"] if not (e.get("arguments", {}).get("path") == path and e.get("tool_id") == "mcp__GitHub__fetch_file")]
-        trace["events"] = [e for e in trace["events"] if e.get("event_type") != "artifact_readback"]
         self.reindex(trace)
         self.assertEqual(self.grade(trace)["status"], "fail")
 
