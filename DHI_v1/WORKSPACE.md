@@ -6,13 +6,13 @@
 >
 > **Active research path:** the tool-acquisition/lifecycle novelty candidate was rejected as insufficiently distinct. See [15_PRIOR_ART_AND_NOVELTY_GATE_2026-11-11.md](docs/15_PRIOR_ART_AND_NOVELTY_GATE_2026-11-11.md). DHI-v1 is an empirical model-development programme: untouched base-model screening, verified-execution SFT, then controlled prediction/closure ablations. No new method claim is accepted before results.
 >
-> **Study 0 tracking:** [Issue #2 — freeze untouched base-model capability screen](https://github.com/Kshitijpalsinghtomar/dhi/issues/2). Current Stage A has 30 tasks and Stage B has zero. **Twelve of 30 deterministic grader checks pass; 18 remain `not_run`.** These are S06-001, S01-001/002, S03-001..004, S04-001, and S05-001..004. Only S06-001 has an accepted family review; the other 29 are still `not_reviewed`. Every execution remains `not_run`; all 30 `model_runs_allowed` flags are false. S07/S09 remain partial. Do not confuse deterministic grader tests with model capability or family acceptance.
+> **Study 0 tracking:** [Issue #2 — freeze untouched base-model capability screen](https://github.com/Kshitijpalsinghtomar/dhi/issues/2). Current Stage A has 30 tasks and Stage B has zero. **Thirteen of 30 deterministic grader checks pass; 17 remain `not_run`.** These are S06-001, S01-001/002, S03-001..004, S04-001, S05-001..004, and S08-001. Only S06-001 has an accepted family review; the other 29 are still `not_reviewed`. Every execution remains `not_run`; all 30 `model_runs_allowed` flags are false. S07/S09 remain partial. Do not confuse deterministic grader tests with model capability or family acceptance.
 >
 > **Important S04 grader correction:** `tool_trace` now checks the successful fetched result's exact Git blob SHA and optional exact arguments, not just the tool name. S04-001 is pinned to repository `Kshitijpalsinghtomar/dhi`, `DHI_v1/benchmark/fixtures/plugin_ecology/TASK_POLICY.md`, ref `af6c0d31fcf2e3232cb427c421850536139e3b3a`, blob `0e5d3c519749651ad5f5ec728622895cfc44a649`. Regression coverage rejects wrong SHA, wrong ref, failed reads and write-tool substitution.
 >
-> **Latest integrated regression:** Deepnote run `a9c3a43c-f560-46f5-ac6f-cb0d44bc01ed` passed **79/79** tests across the shared trace grader, S05-001/002/003, manifest validator tests, followed by direct 30-task validation and benchmark/environment `compileall`. This run preceded the final additional S05-003 pre-read-body hash guard; that guard then passed its own 11/11 focused suite in run `b87b044c-5ea8-4727-9282-2ce2e50b961c`, along with direct manifest validation and `compileall`.
+> **Latest integrated regression attempt:** Deepnote run `60c6ecc2-a1c1-4a88-a7d6-26ed2b2476dc` assembled 103 tests but its integrated-regression subprocess hit the 300-second timeout; do not count it as a pass. Its standalone manifest validator and `compileall` both passed. S08-001 separately passed its final schema-corrected focused suite **12/12** in run `e4e8e116-8e45-4f19-96bc-3b02737abce1`; exact committed-manifest validation and `compileall` passed in run `9ca039ce-6bba-4dbd-af33-4003e3634aa9`.
 >
-> **Latest manifest:** trace-grader commit `f84625099e015a07609555bb087fa4edd3b341d0`, manifest commit `8e772e22e88d354b1023f1a73c02541ac16c4808`, Git blob `c791090e0865297df9e2d99da1e6b7c5e387f36d`. It records 12 grader checks passed, 18 `not_run`, 1 family accepted and 29 `not_reviewed`. All executions remain `not_run`, all model-run flags false. A grader-check pass records deterministic verifier-test evidence—not a model trajectory.
+> **Latest manifest:** trace-grader commit `9b2e8faf5f573ec11ef2d852fefe41c319fba03f`, manifest commit `153337511faa800f2af58d477cd96565431d1ede`, Git blob `296c1b24801167fce1bf491f4c63bba38d7957aa`. It records 13 grader checks passed, 17 `not_run`, 1 family accepted and 29 `not_reviewed`. All executions remain `not_run`, all model-run flags false. A grader-check pass records deterministic verifier-test evidence—not a model trajectory.
 >
 > **Development pilot boundary:** `DHI_v1/benchmark/pilot_cases.json` is a 12-case integration/harness pilot explicitly excluded from Stage A/B; its runner supports file-workspace cases (and an optional Adaption catalogue case), not the 30 plugin-native panel tasks. It is not a substitute for Study 0.
 >
@@ -20,7 +20,7 @@
 >
 > **Hard evidence boundary:** no DHI model inference, model-generated execution trajectory, adjudicated training corpus, capability score, or training checkpoint exists. Later S07/S09 full regression was not independently confirmed as a complete older harness suite; current 66-test regression does cover the updated trace grader/task fixtures. The last OpenRouter check on 2026-11-11 showed zero credits; Deepnote has no model-provider integration. Do not run a model, switch to a free endpoint/candidate, alter permissions, spend credits, or launch training without explicit user authorization and an approved resource route.
 >
-> **Next action:** validate S08-001’s GitHub 404-recovery grader against its pinned read evidence, failed lookup, recovery ordering and final successful read. The `file_blob_match` reader is already explicitly pinned to `mcp__GitHub__fetch_file`; add task-specific negative traces and ensure a stale/failed response cannot masquerade as recovery. Keep this scripted/offline; no live provider calls or model execution.
+> **Next action:** continue with the next unrun manifest task, `ORBIT-A-S02-001` (Node.js official release-state snapshot). First inspect its pinned 2026-11-03 source snapshot and existing `external_snapshot_match` behavior; add task-specific positive/adversarial traces only where the current grader is insufficient. Keep it fixture-backed and offline; no live provider calls or model execution.
 
 
 **Last updated:** 2026-11-12  
@@ -52,9 +52,9 @@ programme: DHI-v1
 codename: ORBIT
 phase: study_0_task_grader_admission
 status: research_in_progress
-status_reason: The lifecycle/acquisition novelty candidate is rejected as insufficiently distinct. Active work is empirical DHI-v1 model development. Stage A has 30 materialized tasks; Stage B has 0. Twelve deterministic grader checks pass, 18 remain not_run, including S05-001 through S05-004. Only S06-001 has accepted family review; the other 29 remain not_reviewed. All 30 executions are not_run and all model_runs_allowed flags remain false. No model inference, model-generated trajectory, adjudicated training corpus, capability score, or training checkpoint exists. S05-004 focused tests passed 11/11 after aligning the release token with the pinned snapshot; the committed manifest validates for 30 tasks with zero errors and benchmark/environment compileall passes.
+status_reason: The lifecycle/acquisition novelty candidate is rejected as insufficiently distinct. Active work is empirical DHI-v1 model development. Stage A has 30 materialized tasks; Stage B has 0. Thirteen deterministic grader checks pass, 17 remain not_run, including S05-001 through S05-004 and S08-001. Only S06-001 has accepted family review; the other 29 remain not_reviewed. All 30 executions are not_run and all model_runs_allowed flags remain false. No model inference, model-generated trajectory, adjudicated training corpus, capability score, or training checkpoint exists. S08-001 passed 12/12 schema-valid recovery tests; exact committed manifest validation is valid for 30 tasks with zero errors and benchmark/environment compileall passed. The attempted 103-test integrated bundle timed out at its configured five-minute limit and is not a pass.
 training_status: not_authorized
-benchmark_status: stage_a_30_materialized_of_120; 12_grader_checks_pass; 18_grader_checks_not_run; stage_b_sealed_unmaterialized
+benchmark_status: stage_a_30_materialized_of_120; 13_grader_checks_pass; 17_grader_checks_not_run; stage_b_sealed_unmaterialized
 task_admission: blocked_pending_family_review
 model_runs_allowed: false
 training_runs_allowed: false
@@ -62,18 +62,26 @@ research_mechanism_test_commit: 81a299342ecee919e1a068a34897789934b1685c
 research_mechanism_test_run: ca0c1e0e-bace-4927-ae65-5d83528eb59a
 research_mechanism_test_count: 22
 research_mechanism_compileall_exit_code: 0
-latest_manifest_blob: c791090e0865297df9e2d99da1e6b7c5e387f36d
-latest_manifest_commit: 8e772e22e88d354b1023f1a73c02541ac16c4808
-latest_integrated_regression_run: a9c3a43c-f560-46f5-ac6f-cb0d44bc01ed
-latest_integrated_regression_tests: 79
-latest_integrated_regression_exit_code: 0
+latest_manifest_blob: 296c1b24801167fce1bf491f4c63bba38d7957aa
+latest_manifest_commit: 153337511faa800f2af58d477cd96565431d1ede
+latest_integrated_regression_run: 60c6ecc2-a1c1-4a88-a7d6-26ed2b2476dc
+latest_integrated_regression_tests: 103
+latest_integrated_regression_exit_code: timed_out_300s
 latest_integrated_compileall_exit_code: 0
-latest_manifest_validator_run: 72c6aec8-d256-4063-acfe-0e0bc33a5035
+latest_manifest_validator_run: 9ca039ce-6bba-4dbd-af33-4003e3634aa9
 latest_manifest_validator_status: pass
-latest_s05_grader_run: f053191d-85db-48ec-8868-dffa35892cf3
+latest_s08_001_focused_run: e4e8e116-8e45-4f19-96bc-3b02737abce1
+latest_s08_001_focused_tests: 12
+latest_s08_001_manifest_update_run: d147615d-dc94-4b14-98b7-768a879a17b7
+latest_s08_001_manifest_validation_run: 9ca039ce-6bba-4dbd-af33-4003e3634aa9
+latest_s08_001_exact_manifest_valid: true
+latest_s08_001_compileall_exit_code: 0
+latest_s08_001_trace_grader_commit: 9b2e8faf5f573ec11ef2d852fefe41c319fba03f
+latest_s08_001_test_commit: e9b5287a9dd20e204113132a9f1efdd8f87f389d
+latest_trace_grader_commit: 9b2e8faf5f573ec11ef2d852fefe41c319fba03f
 latest_s05_grader_tests: 11
 latest_s05_compileall_exit_code: 0
-latest_trace_grader_commit: f84625099e015a07609555bb087fa4edd3b341d0
+latest_trace_grader_commit: 9b2e8faf5f573ec11ef2d852fefe41c319fba03f
 latest_s05_002_focused_run: afb668ad-5192-4dde-ade4-a273b7a87cc7
 latest_s05_003_focused_run: b87b044c-5ea8-4727-9282-2ce2e50b961c
 latest_s05_003_focused_tests: 11
@@ -91,7 +99,7 @@ latest_s05_004_compatibility_note: 71_passed_1_expected_release_literal_mismatch
 latest_s05_002_focused_tests: 8
 latest_exact_manifest_validation: a48565c7-87bb-42d5-a219-6582cc0c261f
 latest_exact_manifest_valid: true
-next_action: validate_s08_001_github_404_recovery_transaction
+next_action: validate_orbit_a_s02_001_nodejs_release_snapshot
 study_0_issue: 2
 ```
 </details>
@@ -878,3 +886,19 @@ S06 remains `ready_for_validation`; all 30 Stage A tasks remain `ready_for_valid
 - No live TinyFish call, provider-credit spend, model inference, training, merge or default-`main` change occurred.
 
 **Next exact work:** S08-001 — exercise the pinned GitHub 404-recovery path with task-specific success and adversarial traces. Verify failed lookup handling, exact pre-read/reader binding, correct recovery ordering and the final successful file read without making real provider calls.
+
+
+## 36. S08-001 linked GitHub 404 recovery grader — 12 November 2026
+
+- Added deterministic condition `github_404_recovery` and upgraded S08-001 to grader version 1.1.0. It verifies exactly three ordered read actions: failed fetch of the registered bad path, GitHub directory inspection, and successful fetch of the recovered file.
+- The initial failure must be HTTP 404 for the exact bad path at the pinned repository/ref. The canonical `plugin_trace.schema.json` represents this using `actual_tool_result.status_code=404` and a string `error`; the repository evidence record's `http_status=404` is normalized into that trace field. Do not put an object in `actual_tool_result.error`.
+- The directory request must match the exact GitHub Contents API URL. Its actual response shape uses the raw JSON array in `result.content` plus `result.url` / `result.display_url`; the grader parses the listing and requires exactly one direct-child entry for `work_items.csv` with pinned SHA `fe9f3fec31796694ec44711dfaf8a2dc1acbfe2d`.
+- The final `fetch_file` must use the exact repository/path/ref, return the same SHA as the directory entry, and return content whose independently recomputed Git blob SHA-1 matches the pinned digest. The existing `file_blob_match` condition also pins the exact successful reader and arguments.
+- Regression file: `DHI_v1/benchmark/tests/test_study0_github_404_recovery_task_grader.py`. Final schema-corrected focused run `e4e8e116-8e45-4f19-96bc-3b02737abce1`: **12/12 passed**. Tests cover wrong initial path/status, wrong directory, absent/wrong directory entries, ordering, failed final read, wrong final path, blind retry and spoofed blob/content.
+- A broader 103-test integrated run `60c6ecc2-a1c1-4a88-a7d6-26ed2b2476dc` hit the configured 300-second subprocess timeout; it is not counted as a pass. The run's direct manifest validator and `compileall` both passed. After the schema correction, direct manifest validation run `d147615d-dc94-4b14-98b7-768a879a17b7` returned `valid=true`, 30 tasks, zero errors, and compileall exit code 0.
+- Exact committed manifest commit `153337511faa800f2af58d477cd96565431d1ede`, blob `296c1b24801167fce1bf491f4c63bba38d7957aa`; reloaded exact blob validation run `9ca039ce-6bba-4dbd-af33-4003e3634aa9` again returned `valid=true`, 30 tasks, zero errors; compileall exit code 0.
+- Trace-grader commit: `9b2e8faf5f573ec11ef2d852fefe41c319fba03f`; S08 test commit: `e9b5287a9dd20e204113132a9f1efdd8f87f389d`; manifest trace-grader SHA-256: `e22dbb8f7ceca33bfc43108f70c40cc60096097f6ccc2ea103a48a0bc209a635`.
+- S08-001 records `grader_check=pass`, but remains `ready_for_validation` and `review_status=not_reviewed`. Execution remains `not_run`; `model_runs_allowed=false`. Study 0 now has **13/30** deterministic grader checks passed and 17 `not_run`; only S06-001 has accepted family review.
+- No GitHub repository write, live TinyFish call, provider-credit spend, model inference, training, merge or default-`main` change occurred. Only read-only GitHub fixture/source inspection was used.
+
+**Next exact task from the manifest:** `ORBIT-A-S02-001` — verify the pinned Node.js official release-state snapshot. Review its dated source fixture and current external-snapshot grader, then add targeted tests only for demonstrable grader gaps. Keep it offline and fixture-backed.
