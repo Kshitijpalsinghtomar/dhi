@@ -344,6 +344,62 @@ class PluginTraceGraderTests(unittest.TestCase):
         report = grade_task(make_task(condition), make_trace())
         self.assertEqual(report["status"], "pass")
 
+    def test_tool_trace_requires_exact_successful_blob_sha_when_declared(self) -> None:
+        condition = {
+            "type": "tool_trace",
+            "required_tool": "mcp__GitHub__fetch_file",
+            "forbidden_tools": ["mcp__GitHub__create_file"],
+            "expected_blob_sha": "0e5d3c519749651ad5f5ec728622895cfc44a649",
+        }
+        trace = make_trace()
+        for event in trace["events"][2:4]:
+            event["tool_id"] = "mcp__GitHub__fetch_file"
+            event["arguments"] = {
+                "repository_full_name": "Kshitijpalsinghtomar/dhi",
+                "path": "DHI_v1/benchmark/fixtures/plugin_ecology/TASK_POLICY.md",
+                "ref": "af6c0d31fcf2e3232cb427c421850536139e3b3a",
+            }
+        trace["events"][3]["actual_tool_result"] = {
+            "ok": True,
+            "result": {"sha": condition["expected_blob_sha"], "content": "Pinned policy"},
+            "error": None,
+        }
+        self.assertEqual(grade_task(make_task(condition), trace)["status"], "pass")
+
+        trace["events"][3]["actual_tool_result"]["result"]["sha"] = "0" * 40
+        self.assertEqual(grade_task(make_task(condition), trace)["status"], "fail")
+
+    def test_tool_trace_expected_blob_requires_successful_read_and_exact_arguments(self) -> None:
+        condition = {
+            "type": "tool_trace",
+            "required_tool": "mcp__GitHub__fetch_file",
+            "forbidden_tools": ["mcp__GitHub__create_file"],
+            "expected_blob_sha": "0e5d3c519749651ad5f5ec728622895cfc44a649",
+            "expected_arguments": {
+                "repository_full_name": "Kshitijpalsinghtomar/dhi",
+                "path": "DHI_v1/benchmark/fixtures/plugin_ecology/TASK_POLICY.md",
+                "ref": "af6c0d31fcf2e3232cb427c421850536139e3b3a",
+            },
+        }
+        trace = make_trace()
+        for event in trace["events"][2:4]:
+            event["tool_id"] = "mcp__GitHub__fetch_file"
+            event["arguments"] = copy.deepcopy(condition["expected_arguments"])
+        trace["events"][3]["actual_tool_result"] = {
+            "ok": False,
+            "result": None,
+            "error": "read failed",
+        }
+        self.assertEqual(grade_task(make_task(condition), trace)["status"], "fail")
+
+        trace["events"][3]["actual_tool_result"] = {
+            "ok": True,
+            "result": {"sha": condition["expected_blob_sha"], "content": "Pinned policy"},
+            "error": None,
+        }
+        trace["events"][3]["arguments"]["ref"] = "main"
+        self.assertEqual(grade_task(make_task(condition), trace)["status"], "fail")
+
     def test_no_paid_action_requires_zero_credits_and_no_forbidden_tool(self) -> None:
         condition = {
             "type": "tool_trace_absence",
