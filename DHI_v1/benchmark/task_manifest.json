@@ -904,7 +904,12 @@
             "path": "DHI_v1/benchmark/fixtures/plugin_ecology/data/work_items.csv",
             "blob_sha": "fe9f3fec31796694ec44711dfaf8a2dc1acbfe2d",
             "data_rows": 10,
-            "header_rows": 1
+            "header_rows": 1,
+            "expected_arguments": {
+              "repository_full_name": "Kshitijpalsinghtomar/dhi",
+              "path": "DHI_v1/benchmark/fixtures/plugin_ecology/data/work_items.csv",
+              "ref": "af6c0d31fcf2e3232cb427c421850536139e3b3a"
+            }
           },
           "expected_evidence": "GitHub fetch_file returns the pinned blob SHA; CSV contains 10 records plus header.",
           "failure_if_unmet": true
