@@ -226,7 +226,7 @@
       "family_id": "ORBIT-S04-GITHUB-COMMIT-DIFF-TOOL-SELECTION-02",
       "stage": "A",
       "independence_group_id": "ORBIT-S04-INDEP-A-002",
-      "family_fingerprint_sha256": "c65b5c4c81d79912636d09f73afb65a7545ec17d712075d0b4d46f7886ec9a8c",
+      "family_fingerprint_sha256": "ab008af3fb3fda98d78b5457576224e4fee0db2b6421148a0d93b91cbf2fe679",
       "review_status": "draft"
     },
     {
@@ -2506,15 +2506,22 @@
         {
           "verifier_id": "commit_diff",
           "condition": {
-            "type": "commit_diff_match",
+            "type": "github_commit_diff_readonly",
+            "repository_full_name": "Kshitijpalsinghtomar/dhi",
             "base": "04d0e12f48067b3b3a3de3ffe10944b7ef594984",
             "head": "d3f7ca37a8623ef6e5f5b3ed4e60f88a2a8efb1c",
+            "expected_tool": "mcp__GitHub__compare_commits",
             "expected": [
               {
                 "path": "DHI_v1/benchmark/fixtures/plugin_ecology/reports/resume-release-review.md",
                 "status": "added",
                 "changes": 50
               }
+            ],
+            "required_answer_values": [
+              "DHI_v1/benchmark/fixtures/plugin_ecology/reports/resume-release-review.md",
+              "added",
+              "50"
             ]
           },
           "expected_evidence": "Actual GitHub compare_commits result contains exactly the report file with added status and 50 line changes.",
@@ -2523,9 +2530,9 @@
       ],
       "grader": {
         "grader_id": "github-diff-tool-selection-v1",
-        "version": "1.0.0",
+        "version": "2.0.0",
         "kind": "deterministic",
-        "primary_outcome": "compare_commits selected, exact diff path/status reported, zero write calls.",
+        "primary_outcome": "Select exactly one registered read-only mcp__GitHub__compare_commits action with the pinned repository/base/head arguments; verify its successful result identifies the exact single added report path and 50 changes; report that path/status; no mutation tool, state delta, artifact or provider spend.",
         "independent_review_required": false,
         "llm_judge_sole_source": false
       },
@@ -2562,11 +2569,15 @@
         "status": "ready_for_validation",
         "contract_check": "pass",
         "environment_check": "pass",
-        "grader_check": "not_run",
+        "grader_check": "pass",
         "review_status": "not_reviewed",
         "harness_gap_ids": [],
         "validation_evidence": [
-          "GitHub compare_commits returned one added report file, 50 changes; task branch diff was previously verified."
+          "GitHub compare_commits returned one added report file, 50 changes; task branch diff was previously verified.",
+          "Connected GitHub read-only compare_commits executed for Kshitijpalsinghtomar/dhi from base 04d0e12f48067b3b3a3de3ffe10944b7ef594984 to head d3f7ca37a8623ef6e5f5b3ed4e60f88a2a8efb1c. Response: status ahead, ahead_by 1, behind_by 0, total_commits 1; exactly one changed file DHI_v1/benchmark/fixtures/plugin_ecology/reports/resume-release-review.md, status added, additions 50, deletions 0, changes 50. No mutation tool was called.",
+          "Deepnote S04 RED run 544e74be-8100-4c0e-9309-b11071091146 reproduced false accepts in the prior commit_diff_match condition: failed compare carrying partial result, wrong repository/base/head invocation arguments, mutation tools and non-read-only side-effect labels, omission/misstatement of the path/status in the final answer. Task-specific regressions are in DHI_v1/benchmark/tests/test_study0_commit_diff_selection_task_grader.py.",
+          "Deepnote integrated run 5c5a2e3f-09e0-402d-91c7-483e88a5782d: 118/118 passed — S04 13, S02 Python 12, S02 Node.js 8, S07 22, S09 17, S10 14, shared plugin_trace 32. The specialized github_commit_diff_readonly verifier requires the sole registered compare_commits action, exact repo/base/head arguments, successful result, exact one-file diff, unchanged observed state, read_only action classification, zero provider credits, no artifacts, and a final answer naming the exact path/status.",
+          "Deterministic regression evidence and one connected read-only GitHub compare only. No repository writes, model inference/training, provider credit spend, or merge occurred."
         ]
       },
       "execution": {
@@ -2580,9 +2591,9 @@
       },
       "split_metadata": {
         "partition": "stage_a",
-        "family_fingerprint_sha256": "c65b5c4c81d79912636d09f73afb65a7545ec17d712075d0b4d46f7886ec9a8c",
+        "family_fingerprint_sha256": "ab008af3fb3fda98d78b5457576224e4fee0db2b6421148a0d93b91cbf2fe679",
         "holdout_sealed": false,
-        "task_instance_sha256": "cb237c82e87ac148f36ca9c3b508fd12489f1003e03af138a4eaf955eeb9eb11"
+        "task_instance_sha256": "fd7674c092fb02b41e2f61b8ca8b890ad50d3dd00e7923af7108066f836ecebf"
       }
     },
     {
@@ -4942,7 +4953,7 @@
     "trace_schema_path": "DHI_v1/benchmark/plugin_trace.schema.json",
     "trace_grader_path": "DHI_v1/benchmark/plugin_trace.py",
     "trace_schema_sha256": "6d977adb6b723f03910cee70caa02cfe8d4defe9d781e3df037393396300b96a",
-    "trace_grader_sha256": "28f4a20278bba855da3a9b916cbfb1dd59115913860a071109d45f2ea16798ee"
+    "trace_grader_sha256": "88e4067f0f98a426a19c7ec0c3b3beb8efc86ce0174a998da2e04d5215f23845"
   },
   "existing_development_pilot": {
     "path": "DHI_v1/benchmark/pilot_cases.json",
