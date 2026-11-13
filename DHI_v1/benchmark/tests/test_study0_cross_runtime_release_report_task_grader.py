@@ -201,6 +201,18 @@ def build_trace(
          "display_url": f"https://github.com/{REPOSITORY}/blob/{BRANCH}/{REPORT_PATH}"},
         before=after, ok=readback_ok,
     )
+    readback_event_index = len(events) + 1
+    events.append({
+        "event_id": f"e{readback_event_index}", "event_index": readback_event_index,
+        "event_type": "artifact_readback", "timestamp_utc": "2026-11-03T00:00:30Z",
+        "task_id": TASK_ID,
+        "artifact_readback": {
+            "path": REPORT_PATH, "repository_full_name": REPOSITORY, "ref": BRANCH,
+            "status": "verified", "source_action_id": "write-report",
+            "sha256": sha(returned_report), "blob_sha": git_blob_sha(returned_report),
+            "source_ref": f"https://github.com/{REPOSITORY}/blob/{BRANCH}/{REPORT_PATH}",
+        },
+    })
     compare_args = {"repo_full_name": REPOSITORY, "base": BASE, "head": WRITE_COMMIT}
     compare_data = compare_result if compare_result is not None else {
         "repository_full_name": REPOSITORY, "base": BASE, "head": WRITE_COMMIT,
@@ -214,18 +226,6 @@ def build_trace(
         events, "mcp__GitHub__compare_commits", "compare-report", compare_args,
         compare_data, before=after, ok=compare_ok,
     )
-    readback_event_index = len(events) + 1
-    events.append({
-        "event_id": f"e{readback_event_index}", "event_index": readback_event_index,
-        "event_type": "artifact_readback", "timestamp_utc": "2026-11-03T00:00:30Z",
-        "task_id": TASK_ID,
-        "artifact_readback": {
-            "path": REPORT_PATH, "repository_full_name": REPOSITORY, "ref": BRANCH,
-            "status": "verified", "source_action_id": "write-report",
-            "sha256": sha(returned_report), "blob_sha": git_blob_sha(returned_report),
-            "source_ref": f"https://github.com/{REPOSITORY}/blob/{BRANCH}/{REPORT_PATH}",
-        },
-    })
     closed_index = len(events) + 1
     events.append({
         "event_id": f"e{closed_index}", "event_index": closed_index,
