@@ -1,0 +1,67 @@
+{
+  "experiment_id": "ORBIT-S09-001-LIVE-SMOKE-001",
+  "pre_action_prediction": {
+    "declared_before_write": true,
+    "added_paths": [
+      "DHI_v1/benchmark/fixtures/plugin_ecology/reports/effect-check.md"
+    ],
+    "modified_paths": [],
+    "deleted_paths": []
+  },
+  "operations": [
+    {
+      "operation": "branch_preflight",
+      "status": "pass",
+      "branch": "orbit/sandbox/orbit-a-s09-001",
+      "head": "af6c0d31fcf2e3233a3de3ffe10944b7ef594984"
+    },
+    {
+      "operation": "target_absence_preflight",
+      "status": "pass"
+    },
+    {
+      "operation": "fixture_read",
+      "status": "pass",
+      "blob_sha": "8e496af712058bb4ca120fd8003b0495e35f0e85"
+    },
+    {
+      "operation": "create_file",
+      "status": "pass",
+      "http_status": 201,
+      "commit": "a2df221f0eeaf1ec5fb8f5f116d8144de6d315f5"
+    },
+    {
+      "operation": "independent_readback",
+      "status": "pass",
+      "blob_sha": "5f0ec81ad7913a55b6f7921e2a40ae75b7d79d42"
+    },
+    {
+      "operation": "base_to_head_compare",
+      "status": "pass",
+      "ahead_by": 1,
+      "behind_by": 0,
+      "changed_paths": [
+        {
+          "path": "DHI_v1/benchmark/fixtures/plugin_ecology/reports/effect-check.md",
+          "status": "added",
+          "additions": 12,
+          "deletions": 0
+        }
+      ]
+    }
+  ],
+  "task_result": {
+    "Passed": 3,
+    "Blocked": 1,
+    "Not Run": 1,
+    "Failed": 1
+  },
+  "checks": {
+    "single_path_only": true,
+    "content_readback": true,
+    "prediction_declared_before_action": true,
+    "expected_effect_matches_observed": true
+  },
+  "model_execution": "not_run",
+  "model_capability_claim": false
+}

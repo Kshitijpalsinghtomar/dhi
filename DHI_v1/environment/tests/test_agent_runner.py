@@ -1,6 +1,10 @@
+import json
+import os
+import urllib.request
 from pathlib import Path
+from unittest.mock import patch
 from DHI_v1.environment.dhi_env import DHIEnvironment, TaskSpec
-from DHI_v1.environment.agent_runner import run_agent_task
+from DHI_v1.environment.agent_runner import OpenAICompatibleChatClient, build_tool_schemas, client_from_env, run_agent_task
 
 
 class FakeToolCallingClient:
@@ -44,6 +48,59 @@ def make_task():
         postconditions=[{"type": "contains", "path": "src/api.py", "text": "def healthcheck"}],
     )
 
+
+
+def test_openai_compatible_client_pins_primeintellect_and_does_not_forward_bearer():
+    client = OpenAICompatibleChatClient(
+        base_url="https://openrouter.ai/api/v1",
+        api_key="openrouter-redirect-secret",
+        model="qwen/qwen3.6-35b-a3b",
+        provider={"only": ["primeintellect"], "allow_fallbacks": False},
+    )
+    captured = {}
+
+    class FakeResponse:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+        def read(self):
+            return json.dumps({"choices": [{"message": {"role": "assistant", "content": "ok"}}]}).encode("utf-8")
+
+    def fake_urlopen(request, timeout):
+        captured["request"] = request
+        captured["body"] = json.loads(request.data)
+        return FakeResponse()
+
+    with patch("urllib.request.urlopen", side_effect=fake_urlopen):
+        result = client.complete(messages=[{"role": "user", "content": "hello"}], tools=[])
+
+    request = captured["request"]
+    assert request.get_header("Authorization") == "Bearer openrouter-redirect-secret"
+    assert captured["body"]["provider"] == {"only": ["primeintellect"], "allow_fallbacks": False}
+    assert captured["body"]["tool_choice"] == "auto"
+    assert result["choices"][0]["message"]["content"] == "ok"
+
+    redirected = urllib.request.HTTPRedirectHandler().redirect_request(
+        request, None, 302, "Found", {"Location": "https://attacker.example/collect"},
+        "https://attacker.example/collect",
+    )
+    assert redirected is not None
+    assert redirected.get_header("Authorization") is None
+
+
+def test_client_from_env_pins_primeintellect_for_openrouter(monkeypatch):
+    monkeypatch.setenv("DHI_MODEL_PROVIDER", "openai_compatible")
+    monkeypatch.setenv("DHI_MODEL_BASE_URL", "https://openrouter.ai/api/v1")
+    monkeypatch.setenv("DHI_MODEL_API_KEY", "test-only-key")
+    monkeypatch.setenv("DHI_MODEL_NAME", "openai/gpt-oss-20b")
+
+    client, model_name = client_from_env()
+
+    assert model_name == "openai/gpt-oss-20b"
+    assert client.provider == {"only": ["primeintellect"], "allow_fallbacks": False}
 
 def test_runner_refreshes_tool_schemas_after_successful_discovery(tmp_path):
     workspace = tmp_path / "workspace"
@@ -150,6 +207,58 @@ def test_discovery_and_hidden_call_in_same_model_turn_requires_schema_refresh(tm
     assert "fs_search_text" not in client.tool_sets[0]
     assert "fs_search_text" in client.tool_sets[1]
     assert result.closure["success"] is True
+
+
+def test_runner_exposes_structured_repository_branch_forecast_schema(tmp_path):
+    env = DHIEnvironment(tmp_path / "workspace")
+    schemas, _ = build_tool_schemas(env)
+    effects = schemas[0]["function"]["parameters"]["properties"]["__dhi_expected_effects"]
+    repository_state = effects["properties"]["repository_state"]
+    assert set(repository_state["required"]) == {
+        "added_branches", "modified_branches", "deleted_branches", "unchanged_branches"
+    }
+    branch_ref = repository_state["properties"]["added_branches"]["items"]
+    assert branch_ref["required"] == ["name", "head_sha"]
+    assert branch_ref["properties"]["head_sha"]["pattern"] == "^[a-f0-9]{40}$"
+    assert branch_ref["additionalProperties"] is False
+
+
+def test_runner_passes_repository_branch_forecast_into_pre_action_trace(tmp_path):
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    (workspace / "README.md").write_text("# Demo\\n", encoding="utf-8")
+    env = DHIEnvironment(workspace)
+    task = TaskSpec(
+        task_id="agent-runner-branch-forecast",
+        prompt="Read and report the repository branch state forecast.",
+        goal="A structured branch-state prediction is recorded before the action.",
+        visible_tool_ids=["fs.read_file"],
+        postconditions=[{"type": "contains", "path": "README.md", "text": "Demo"}],
+    )
+    branches = [{"name": "main", "head_sha": "a" * 40}]
+    expected = {
+        "repository_state": {
+            "added_branches": [],
+            "modified_branches": [],
+            "deleted_branches": [],
+            "unchanged_branches": branches,
+        }
+    }
+    client = FakeToolCallingClient([
+        tool_call("c1", "fs_read_file", {
+            "path": "README.md",
+            "__dhi_expected_effects": expected,
+        }),
+        final_answer("The current main branch is unchanged."),
+    ])
+
+    result = run_agent_task(env, task, client, max_model_turns=3)
+    starts = [event for event in env.events if event.get("event_type") == "action_started"]
+    assert len(starts) == 1
+    assert starts[0]["expected_effects"]["repository_state"] == expected["repository_state"]
+    assert result.closure["success"] is True
+    completed = [event for event in env.events if event.get("event_type") == "action_executed"]
+    assert completed[0]["prediction_comparison"]["status"] == "requires_external_state_verifier"
 
 
 def test_runner_records_and_scores_pre_action_effect_forecast(tmp_path):

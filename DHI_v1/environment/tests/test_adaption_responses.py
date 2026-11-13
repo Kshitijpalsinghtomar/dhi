@@ -1,5 +1,6 @@
 import json
 import urllib.error
+import urllib.request
 from unittest.mock import patch
 
 import pytest
@@ -153,6 +154,29 @@ def test_adaption_client_sends_responses_request_without_persisting_history():
     assert captured["body"]["agentic_memory"] is False
     assert result["choices"][0]["message"]["content"] == "2"
 
+
+
+def test_adaption_bearer_is_not_forwarded_by_default_redirect_handler():
+    client = AdaptionResponsesClient(
+        api_key="adaption-redirect-secret", model="qwen", base_url="https://api.test.invalid"
+    )
+    captured = {}
+
+    def fake_urlopen(request, timeout):
+        captured["request"] = request
+        return FakeHTTPResponse({"object": "list", "data": [{"id": "qwen"}]})
+
+    with patch("urllib.request.urlopen", side_effect=fake_urlopen):
+        client.list_models()
+
+    request = captured["request"]
+    assert dict(request.header_items())["Authorization"] == "Bearer adaption-redirect-secret"
+    redirected = urllib.request.HTTPRedirectHandler().redirect_request(
+        request, None, 302, "Found", {"Location": "https://attacker.example/collect"},
+        "https://attacker.example/collect",
+    )
+    assert redirected is not None
+    assert redirected.get_header("Authorization") is None
 
 def test_adaption_model_catalogue_can_be_filtered_to_hosted_models():
     client = AdaptionResponsesClient(

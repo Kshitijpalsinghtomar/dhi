@@ -1,0 +1,74 @@
+{
+  "experiment_id": "ORBIT-VERIFY-009",
+  "code_under_test": "cca077e9c5c6b50fffee94ea3c74576c89c34462",
+  "branch_head": "eb0f681d13b333b6b4c03b5b14f9555ca624a6ef",
+  "deepnote_project_id": "6415944e-8d6c-432c-a7cf-3bbaa997799c",
+  "python": "3.13.18 (main, Oct 28 2026, 14:29:13) [GCC 12.2.0]",
+  "platform": "Linux-6.18.57-talos-x86_64-with-glibc2.36",
+  "commands": [
+    {
+      "name": "manifest_validator",
+      "command": [
+        "/root/venv/bin/python",
+        "-m",
+        "DHI_v1.benchmark.validate_task_manifest",
+        "--json"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 33.64,
+      "output": "{\n  \"valid\": true,\n  \"task_count\": 30,\n  \"stage_counts\": {\n    \"A\": 30,\n    \"B\": 0\n  },\n  \"errors\": []\n}\n"
+    },
+    {
+      "name": "full_pytest",
+      "command": [
+        "/root/venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "DHI_v1/benchmark/tests",
+        "DHI_v1/environment/tests"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 379.573,
+      "output": "\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m [ 35%]\n\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m [ 70%]\n\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m              [100%]\u001b[0m\n\u001b[32m\u001b[32m\u001b[1m203 passed\u001b[0m\u001b[32m in 370.63s (0:06:10)\u001b[0m\u001b[0m\n"
+    },
+    {
+      "name": "compileall",
+      "command": [
+        "/root/venv/bin/python",
+        "-m",
+        "compileall",
+        "-q",
+        "DHI_v1/benchmark",
+        "DHI_v1/environment"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 79.837,
+      "output": ""
+    },
+    {
+      "name": "entrypoint_import_smoke",
+      "command": [
+        "/root/venv/bin/python",
+        "-c",
+        "from DHI_v1.environment.agent_runner import run_agent_task, client_from_env; from DHI_v1.environment.adaption_responses import AdaptionResponsesClient; from DHI_v1.benchmark.runner import run_pilot_benchmark; from DHI_v1.benchmark.plugin_task_loader import load_all_plugin_tasks; from DHI_v1.benchmark.plugin_execution import prepare_plugin_execution; from DHI_v1.benchmark.plugin_runner import run_plugin_task; from DHI_v1.benchmark.plugin_trace import validate_trace, grade_task; from DHI_v1.environment.github_client import github_plugin_bundle_from_env; print('entrypoint imports: ok')"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 8.662,
+      "output": "entrypoint imports: ok\n"
+    },
+    {
+      "name": "plugin_manifest_loader_smoke",
+      "command": [
+        "/root/venv/bin/python",
+        "-c",
+        "from DHI_v1.benchmark.plugin_task_loader import load_all_plugin_tasks; p=load_all_plugin_tasks('DHI_v1/benchmark/task_manifest.json','DHI_v1/benchmark/fixtures/plugin_ecology/plugin_tool_registry.json'); assert len(p)==30; assert all(set(x.required_tool_ids).issubset(x.allowed_tool_ids) for x in p); assert not any(x.model_runs_allowed for x in p); print('plugin plans:',len(p),'model runs enabled:',sum(x.model_runs_allowed for x in p))"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 2.152,
+      "output": "plugin plans: 30 model runs enabled: 0\n"
+    }
+  ],
+  "all_passed": true,
+  "finished_at_utc": "2026-11-03T18:10:20Z"
+}

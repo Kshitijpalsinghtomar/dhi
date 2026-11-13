@@ -1,0 +1,137 @@
+{
+  "experiment_id": "INFER-002",
+  "title": "OpenRouter base-inference access preflight",
+  "date": "2026-11-03",
+  "status": "blocked_zero_credits",
+  "evidence_class": "read_only_platform_catalogue_and_credit_audit",
+  "repository_branch": "orbit/plugin-benchmark-fixture",
+  "source_of_truth": "GitHub branch artifacts; platform catalogue responses were read-only.",
+  "models": [
+    {
+      "role": "primary_candidate",
+      "model_id": "qwen/qwen3.6-35b-a3b",
+      "canonical_slug": "qwen/qwen3.6-35b-a3b-20260415",
+      "hugging_face_id": "Qwen/Qwen3.6-35B-A3B",
+      "active_parameters_billions": 3,
+      "total_parameters_billions": 35,
+      "context_length": 262144,
+      "input_modalities": [
+        "text",
+        "image",
+        "video"
+      ],
+      "output_modalities": [
+        "text"
+      ],
+      "reasoning": {
+        "default_enabled": true,
+        "mandatory": false
+      },
+      "provider_options": [
+        {
+          "provider": "PrimeIntellect",
+          "quantization": "fp8",
+          "prompt_usd_per_million": 0.01,
+          "completion_usd_per_million": 0.092,
+          "p50_latency_ms": 473,
+          "p50_throughput_tokens_per_second": 83,
+          "supports_tool_choice": [
+            "none",
+            "auto",
+            "required",
+            "function"
+          ]
+        },
+        {
+          "provider": "AkashML",
+          "quantization": "fp8",
+          "prompt_usd_per_million": 0.1,
+          "completion_usd_per_million": 0.9,
+          "p50_latency_ms": 733,
+          "p50_throughput_tokens_per_second": 76,
+          "supports_tool_choice": [
+            "none",
+            "auto",
+            "required",
+            "function"
+          ]
+        }
+      ]
+    },
+    {
+      "role": "mandatory_challenger",
+      "model_id": "openai/gpt-oss-20b",
+      "hugging_face_id": "openai/gpt-oss-20b",
+      "active_parameters_billions": 3.6,
+      "total_parameters_billions": 21,
+      "context_length": 131072,
+      "input_modalities": [
+        "text"
+      ],
+      "output_modalities": [
+        "text"
+      ],
+      "reasoning": {
+        "mandatory": true,
+        "supported_efforts": [
+          "low",
+          "medium",
+          "high"
+        ],
+        "default_effort": "medium"
+      },
+      "provider_options": [
+        {
+          "provider": "PrimeIntellect",
+          "quantization": "fp4",
+          "prompt_usd_per_million": 0.009,
+          "completion_usd_per_million": 0.038,
+          "p50_latency_ms": 390,
+          "p50_throughput_tokens_per_second": 120,
+          "supports_tool_choice": [
+            "none",
+            "auto"
+          ]
+        },
+        {
+          "provider": "CoreWeave",
+          "quantization": "fp4",
+          "prompt_usd_per_million": 0.03,
+          "completion_usd_per_million": 0.13,
+          "p50_latency_ms": 304.5,
+          "p50_throughput_tokens_per_second": 139,
+          "supports_tool_choice": [
+            "none",
+            "auto",
+            "required",
+            "function"
+          ]
+        }
+      ]
+    }
+  ],
+  "common_route_candidate": {
+    "provider": "PrimeIntellect",
+    "tool_choice": "auto",
+    "reason": "The same named provider serves both selected model IDs and supports the shared auto tool-selection mode. It does not expose required tool_choice for GPT-OSS, so any protocol requiring forced tool use must either avoid tool_choice=required for both or select a different matched route before freezing."
+  },
+  "account_credit_audit": {
+    "total_credits_usd": 0,
+    "total_usage_usd": 0.20190338,
+    "interpretation": "No remaining OpenRouter credits were available at audit time.",
+    "inference_calls_attempted": 0,
+    "charges_from_this_audit_usd": 0
+  },
+  "decision": {
+    "status": "do_not_launch_inference",
+    "reason": "Current credit balance is zero. No model request was made. Model catalogue availability is not evidence of DHI inference correctness or capability.",
+    "next_gate": "User-funded inference budget or another authorised inference endpoint, followed by a matched, fixed-provider base-model smoke and Stage A screen."
+  },
+  "limitations": [
+    "No inference request or model generation was executed.",
+    "Provider price and throughput figures are live catalogue snapshots and may change.",
+    "PrimeIntellect serves different quantizations for the two models (Qwen fp8; GPT-OSS fp4).",
+    "No provider-level equivalence, task performance, or model winner is established.",
+    "No DHI fine-tuning, weights update, training run, or deployment was performed."
+  ]
+}

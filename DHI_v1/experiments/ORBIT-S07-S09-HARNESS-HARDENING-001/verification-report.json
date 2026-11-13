@@ -1,0 +1,16 @@
+{
+  "experiment": "ORBIT-S07-S09-HARNESS-HARDENING-001",
+  "repository": "Kshitijpalsinghtomar/dhi",
+  "branch": "orbit/plugin-benchmark-fixture",
+  "status": "not_confirmed",
+  "pytest_summary": null,
+  "compileall_status": "not_confirmed",
+  "evidence_lines": [],
+  "deepnote_notebook_id": "3639f9a98ce5435fa4cd0168eaaca3a1",
+  "deepnote_block_id": "2ed9a06177484889836fb66f5df188bb",
+  "model_execution_performed": false,
+  "training_performed": false,
+  "stage_a_status": "ready_for_validation",
+  "stage_b_status": "sealed",
+  "model_runs_allowed": false
+}

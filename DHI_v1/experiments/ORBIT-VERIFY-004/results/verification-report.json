@@ -1,0 +1,78 @@
+{
+  "experiment_id": "ORBIT-VERIFY-004",
+  "code_under_test": "5b144c531e8a548787918f0fcdf9e681f05d96e8",
+  "python": "3.13.18 (main, Oct 28 2026, 14:29:13) [GCC 12.2.0]",
+  "platform": "Linux-6.18.57-talos-x86_64-with-glibc2.36",
+  "commands": [
+    {
+      "name": "manifest_validator",
+      "command": [
+        "/root/venv/bin/python",
+        "-m",
+        "DHI_v1.benchmark.validate_task_manifest",
+        "--json"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 6.067,
+      "output": "{\n  \"valid\": true,\n  \"task_count\": 30,\n  \"stage_counts\": {\n    \"A\": 30,\n    \"B\": 0\n  },\n  \"errors\": []\n}\n"
+    },
+    {
+      "name": "full_pytest",
+      "command": [
+        "/root/venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "DHI_v1/benchmark/tests",
+        "DHI_v1/environment/tests"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 458.367,
+      "output": "\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m [ 45%]\n\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m [ 91%]\n\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m                                                           [100%]\u001b[0m\n\u001b[32m\u001b[32m\u001b[1m158 passed\u001b[0m\u001b[32m in 336.03s (0:05:36)\u001b[0m\u001b[0m\n"
+    },
+    {
+      "name": "compileall",
+      "command": [
+        "/root/venv/bin/python",
+        "-m",
+        "compileall",
+        "-q",
+        "DHI_v1/benchmark",
+        "DHI_v1/environment"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 34.08,
+      "output": ""
+    },
+    {
+      "name": "entrypoint_import_smoke",
+      "command": [
+        "/root/venv/bin/python",
+        "-c",
+        "from DHI_v1.environment.agent_runner import run_agent_task, client_from_env; from DHI_v1.environment.adaption_responses import AdaptionResponsesClient; from DHI_v1.benchmark.runner import run_pilot_benchmark; print('entrypoint imports: ok')"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 5.266,
+      "output": "entrypoint imports: ok\n"
+    }
+  ],
+  "dependency_bootstrap": {
+    "missing_before_install": [
+      "pytest"
+    ],
+    "command": [
+      "/root/venv/bin/python",
+      "-m",
+      "pip",
+      "install",
+      "--disable-pip-version-check",
+      "-r",
+      "DHI_v1/environment/requirements-dev.txt"
+    ],
+    "returncode": 0,
+    "elapsed_seconds": 7.284,
+    "output": "Collecting pytest<10,>=8.0 (from -r DHI_v1/environment/requirements-dev.txt (line 1))\n  Downloading pytest-9.2.0-py3-none-any.whl.metadata (7.9 kB)\nRequirement already satisfied: jsonschema<5,>=4.21 in /toolkit-cache/2.9.0/python3.13/kernel-libs/lib/python3.13/site-packages (from -r DHI_v1/environment/requirements-dev.txt (line 2)) (4.23.0)\nCollecting iniconfig>=2 (from pytest<10,>=8.0->-r DHI_v1/environment/requirements-dev.txt (line 1))\n  Downloading iniconfig-2.3.1-py3-none-any.whl.metadata (2.8 kB)\nRequirement already satisfied: packaging>=24 in /root/venv/lib/python3.13/site-packages (from pytest<10,>=8.0->-r DHI_v1/environment/requirements-dev.txt (line 1)) (26.3)\nCollecting pluggy<2,>=1.6 (from pytest<10,>=8.0->-r DHI_v1/environment/requirements-dev.txt (line 1))\n  Downloading pluggy-1.7.0-py3-none-any.whl.metadata (5.0 kB)\nRequirement already satisfied: pygments>=2.15 in /root/venv/lib/python3.13/site-packages (from pytest<10,>=8.0->-r DHI_v1/environment/requirements-dev.txt (line 1)) (2.21.0)\nRequirement already satisfied: attrs>=22.2.0 in /root/venv/lib/python3.13/site-packages (from jsonschema<5,>=4.21->-r DHI_v1/environment/requirements-dev.txt (line 2)) (26.1.0)\nRequirement already satisfied: jsonschema-specifications>=2023.03.6 in /toolkit-cache/2.9.0/python3.13/kernel-libs/lib/python3.13/site-packages (from jsonschema<5,>=4.21->-r DHI_v1/environment/requirements-dev.txt (line 2)) (2023.12.1)\nRequirement already satisfied: referencing>=0.28.4 in /toolkit-cache/2.9.0/python3.13/kernel-libs/lib/python3.13/site-packages (from jsonschema<5,>=4.21->-r DHI_v1/environment/requirements-dev.txt (line 2)) (0.35.1)\nRequirement already satisfied: rpds-py>=0.7.1 in /toolkit-cache/2.9.0/python3.13/kernel-libs/lib/python3.13/site-packages (from jsonschema<5,>=4.21->-r DHI_v1/environment/requirements-dev.txt (line 2)) (0.20.0)\nDownloading pytest-9.2.0-py3-none-any.whl (411 kB)\nDownloading pluggy-1.7.0-py3-none-any.whl (27 kB)\nDownloading iniconfig-2.3.1-py3-none-any.whl (7.6 kB)\nInstalling collected packages: pluggy, iniconfig, pytest\n\u001b[?25l\n\u001b[2K   \u001b[91m\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u001b[0m\u001b[91m\u2578\u001b[0m\u001b[90m\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u001b[0m \u001b[32m2/3\u001b[0m [pytest]\n\u001b[2K   \u001b[90m\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u001b[0m \u001b[32m3/3\u001b[0m [pytest]\n\u001b[?25h\n\u001b[1A\u001b[2KSuccessfully installed iniconfig-2.3.1 pluggy-1.7.0 pytest-9.2.0\n"
+  },
+  "all_passed": true,
+  "finished_at_utc": "2026-11-03T15:04:57Z"
+}
