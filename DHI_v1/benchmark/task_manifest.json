@@ -2901,11 +2901,16 @@
         "status": "ready_for_validation",
         "contract_check": "pass",
         "environment_check": "pass",
-        "grader_check": "not_run",
+        "grader_check": "pass",
         "review_status": "not_reviewed",
         "harness_gap_ids": [],
         "validation_evidence": [
-          "Both snapshots fetched and pinned; report created, fetched back, required facts present; baseline-to-head diff showed exactly one new report file."
+          "Both snapshots fetched and pinned; report created, fetched back, required facts present; baseline-to-head diff showed exactly one new report file.",
+          "Deepnote focused run 72d36349-341b-42af-9c5e-fc6a4c8d9bc3: 48/48 passed (16 S06 task-specific plus 32 shared plugin_trace tests). Task-specific negative coverage includes missing/wrong/failed source reads, mismatched pinned blob, wrong source ordering, incorrect runtime release statuses, forbidden stable/pre-release claims, wrong report path/branch, failed write, stale readback, broken artifact linkage, incorrect compare refs/diff, mutation tools and usage/credit mismatches.",
+          "Deepnote integrated run cda896d9-1462-421d-b1c5-9248ef945b48: 134/134 passed — S02 Python 12, S02 Node.js 8, S04 13, S06 16, S07 22, S09 17, S10 14 and shared plugin_trace 32.",
+          "Pinned source snapshots at fixture base d0df1950a0f1d23c8bd6347619ae9a3a36d771fa verified by exact Git blob SHA: Node.js 2316a22af4cb0f9dd582bd52d33d942491f1dba1; Python 39a4a2d2bc222f06327e9630a0613c09ae5e4faf.",
+          "Scripted connected-GitHub reference on isolated branch orbit/s06-runtime-report created from base d0df1950a0f1d23c8bd6347619ae9a3a36d771fa. Report commit ef28038a295403e4928c7a74ee5dae0cec5996a9; report blob cb792af9acd81491caeef83bddf7d9b9b976eb29; successful fetch readback from the task branch matched the exact report content/blob. Independent compare returned ahead 1, behind 0, total commits 1 and exactly one added path DHI_v1/benchmark/fixtures/plugin_ecology/reports/runtime-release-state.md (20 additions, 0 deletions).",
+          "All evidence is deterministic verifier testing plus a scripted reference workflow. No model inference/training, provider spending, issue changes, source/configuration writes, deployment or merge occurred."
         ]
       },
       "execution": {
@@ -2921,7 +2926,7 @@
         "partition": "stage_a",
         "family_fingerprint_sha256": "be6c1c08a85ef6c580285ffeccafb303ad9f7be7b6b3d07f3ef9612ae01ea163",
         "holdout_sealed": false,
-        "task_instance_sha256": "87681c3da6c1cebf6dbaad17fb7e23f4ed2647fa73781f0d6afa842bce0eaf88"
+        "task_instance_sha256": "78e24710b1dd85b8610acfa2b256c7f9e7ce0e81c7b12b48e4e9af9f5f740f22"
       }
     },
     {
@@ -4953,7 +4958,7 @@
     "trace_schema_path": "DHI_v1/benchmark/plugin_trace.schema.json",
     "trace_grader_path": "DHI_v1/benchmark/plugin_trace.py",
     "trace_schema_sha256": "6d977adb6b723f03910cee70caa02cfe8d4defe9d781e3df037393396300b96a",
-    "trace_grader_sha256": "88e4067f0f98a426a19c7ec0c3b3beb8efc86ce0174a998da2e04d5215f23845"
+    "trace_grader_sha256": "38b6bbf0ddd04d6f7b915cc136a7817c98162045c7551182908c8f17de1e0cdd"
   },
   "existing_development_pilot": {
     "path": "DHI_v1/benchmark/pilot_cases.json",
