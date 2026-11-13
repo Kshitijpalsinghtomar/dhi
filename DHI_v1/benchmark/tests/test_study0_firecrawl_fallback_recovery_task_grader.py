@@ -146,7 +146,7 @@ def make_trace(
             "tool_id": "mcp__Firecrawl__firecrawl_scrape",
             "arguments": {"url": "https://registry.npmjs.org/example"},
             "observed_state_before": {"state.json": "a" * 64},
-            "side_effect_class": "external_read",
+            "side_effect_class": "read_only",
         }
         done = {
             "event_id": "s08-paid-done",
@@ -181,6 +181,7 @@ def make_trace(
     })
     for index, event in enumerate(events, 1):
         event["event_index"] = index
+        event["task_id"] = TASK_ID
     trace = copy.deepcopy(base)
     trace.update({
         "trajectory_id": "s08-firecrawl-fallback",
