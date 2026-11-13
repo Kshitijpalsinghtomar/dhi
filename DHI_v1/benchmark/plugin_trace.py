@@ -2866,7 +2866,79 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
 
         provider = condition.get("provider")
         capability = condition.get("capability")
+        expected_tool_id = condition.get("expected_tool_id")
+        expected_broad_query = condition.get("expected_broad_query")
+        expected_scoped_query = condition.get("expected_scoped_query")
+        expected_broad_arguments = condition.get("expected_broad_arguments")
+        expected_scoped_arguments = condition.get("expected_scoped_arguments")
+        expected_continuation = condition.get("expected_continuation")
+        required_output_fields = condition.get("required_output_fields")
+        required_answer_values = condition.get("required_answer_values", [])
+        forbidden_answer_values = condition.get("forbidden_answer_values", [])
+        if expected_tool_id is not None:
+            if (
+                expected_tool_id != "mcp__Firecrawl__firecrawl_find_tools"
+                or not isinstance(expected_broad_query, str) or not expected_broad_query
+                or not isinstance(expected_scoped_query, str) or not expected_scoped_query
+                or not isinstance(expected_broad_arguments, dict)
+                or not isinstance(expected_scoped_arguments, dict)
+                or not isinstance(expected_continuation, dict)
+                or not isinstance(required_output_fields, list)
+                or not required_output_fields
+                or any(not isinstance(value, str) or not value for value in required_output_fields)
+                or not isinstance(required_answer_values, list)
+                or any(not isinstance(value, str) or not value for value in required_answer_values)
+                or not isinstance(forbidden_answer_values, list)
+                or any(not isinstance(value, str) or not value for value in forbidden_answer_values)
+            ):
+                return _result("unscorable", "strict discovery_sequence requires exact Firecrawl source, request arguments, continuation and final-answer contract")
+            discovery_events = sorted(
+                _events_of_type(trace, "tool_discovery"),
+                key=lambda event: event.get("event_index", 0),
+            )
+            action_starts = [
+                event for event in trace.get("events", [])
+                if isinstance(event, dict) and event.get("event_type") == "action_started"
+            ]
+            action_done = _action_events(trace)
+            if (
+                len(discovery_events) != 2
+                or action_starts or action_done
+                or trace.get("final_artifacts")
+                or not isinstance(trace.get("usage"), dict)
+                or trace["usage"].get("tool_calls") != 0
+                or trace["usage"].get("provider_credits_spent") != 0
+            ):
+                return _result("fail", "strict fallback recovery requires exactly two discovery events and no action execution, artifacts or credit spend", {
+                    "discovery_events": len(discovery_events),
+                    "action_starts": len(action_starts),
+                    "action_completions": len(action_done),
+                    "usage": trace.get("usage"),
+                    "artifacts": len(trace.get("final_artifacts", [])),
+                })
+            expected_events = [
+                (expected_broad_query, expected_broad_arguments),
+                (expected_scoped_query, expected_scoped_arguments),
+            ]
+            for index, (event, (query_value, arguments_value)) in enumerate(zip(discovery_events, expected_events)):
+                results = event.get("discovery_results")
+                if (
+                    event.get("tool_id") != expected_tool_id
+                    or expected_tool_id not in event.get("visible_tool_ids", [])
+                    or event.get("query") != query_value
+                    or event.get("arguments") != arguments_value
+                    or capability not in event.get("discovered_tool_ids", [])
+                    or not isinstance(results, list) or len(results) != 1
+                ):
+                    return _result("fail", f"discovery event {index + 1} is not the exact registered Firecrawl request or has no unique raw result", {
+                        "event_index": event.get("event_index"),
+                        "tool_id": event.get("tool_id"),
+                        "query": event.get("query"),
+                        "arguments": event.get("arguments"),
+                    })
         records = _discovery_result_records(trace)
+        if expected_tool_id is not None and len(records) != 2:
+            return _result("fail", "strict fallback recovery requires exactly one result record per discovery event")
         fallbacks: list[tuple[dict[str, Any], dict[str, Any]]] = []
         scoped_successes: list[tuple[dict[str, Any], dict[str, Any]]] = []
 
@@ -2892,7 +2964,11 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
                     and continuation.get("provider") == provider
                     and continuation.get("capability") == capability
                 )
-                if candidate_match and continuation_match:
+                continuation_contract_match = (
+                    expected_tool_id is None
+                    or _deep_contains(continuation, expected_continuation)
+                )
+                if candidate_match and continuation_match and continuation_contract_match:
                     fallbacks.append((event, record))
             elif phase == "provider_filtered" and status in {"success", "ok"}:
                 scoped_successes.append((event, record))
@@ -2921,6 +2997,13 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
             and sorted(actual_inputs) == sorted(expected_inputs)
             and scoped_record.get("execution_credits") == condition.get("execution_cost")
             and scoped_record.get("discovery_credits") == condition.get("discovery_cost")
+            and (
+                required_output_fields is None
+                or (
+                    isinstance(scoped_record.get("output_fields"), list)
+                    and sorted(scoped_record.get("output_fields")) == sorted(required_output_fields)
+                )
+            )
         )
         if not contract_matches:
             return _result("fail", "provider-filtered discovery contract or cost differs from the registered expectation", {
@@ -2952,6 +3035,22 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
                 "credits_spent": credits_spent,
                 "paid_actions": paid_actions,
             })
+        if expected_tool_id is not None:
+            answer = trace.get("final_answer")
+            answer_text = answer.casefold() if isinstance(answer, str) else ""
+            missing_answer = [
+                value for value in required_answer_values
+                if value.casefold() not in answer_text
+            ]
+            forbidden_answer = [
+                value for value in forbidden_answer_values
+                if value.casefold() in answer_text
+            ]
+            if missing_answer or forbidden_answer:
+                return _result("fail", "final answer must report the scoped capability contract and separate discovery/execution costs without a false no-match or paid-execution claim", {
+                    "missing_answer_values": missing_answer,
+                    "forbidden_answer_values": forbidden_answer,
+                })
         return _result("pass", "ordered fallback and provider-filtered recovery matched the pinned contract without paid execution", {
             "fallback_event_index": fallback_event.get("event_index"),
             "candidate_count": len(fallback_record.get("candidate_items", [])),
