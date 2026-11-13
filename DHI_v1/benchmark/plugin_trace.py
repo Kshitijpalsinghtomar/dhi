@@ -60,6 +60,7 @@ IMPLEMENTED_CONDITIONS = {
     "discovery_sequence",
     "branch_state_delta",
     "commit_diff_match",
+    "github_commit_diff_readonly",
     "file_blob_match",
     "github_404_recovery",
     "github_update_file_transaction",
@@ -2335,6 +2336,161 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
             "changed_path": path,
             "diff_status": file_result.get("status"),
             "changed_files": 1,
+        })
+
+    if kind == "github_commit_diff_readonly":
+        repository = condition.get("repository_full_name")
+        expected_base = condition.get("base")
+        expected_head = condition.get("head")
+        expected_files = condition.get("expected")
+        expected_tool = condition.get("expected_tool", "mcp__GitHub__compare_commits")
+        required_answer_values = condition.get("required_answer_values", [])
+        if (
+            not isinstance(repository, str) or repository.count("/") != 1
+            or not isinstance(expected_base, str) or re.fullmatch(r"[a-f0-9]{40}", expected_base) is None
+            or not isinstance(expected_head, str) or re.fullmatch(r"[a-f0-9]{40}", expected_head) is None
+            or expected_base == expected_head
+            or expected_tool != "mcp__GitHub__compare_commits"
+            or not isinstance(expected_files, list) or len(expected_files) != 1
+            or not isinstance(expected_files[0], dict)
+            or set(expected_files[0]) != {"path", "status", "changes"}
+            or not isinstance(expected_files[0].get("path"), str) or not expected_files[0]["path"]
+            or expected_files[0].get("status") not in {"added", "modified", "removed", "renamed"}
+            or not isinstance(expected_files[0].get("changes"), int)
+            or isinstance(expected_files[0].get("changes"), bool)
+            or expected_files[0]["changes"] < 0
+            or not isinstance(required_answer_values, list)
+            or any(not isinstance(value, str) or not value for value in required_answer_values)
+        ):
+            return _result("unscorable", "github_commit_diff_readonly requires a pinned repository/commit pair, one exact expected diff entry, and answer fields")
+
+        events = [event for event in trace.get("events", []) if isinstance(event, dict)]
+        starts = [event for event in events if event.get("event_type") == "action_started"]
+        completions = [event for event in events if event.get("event_type") == "action_executed"]
+        usage = trace.get("usage", {})
+        if (
+            len(starts) != 1 or len(completions) != 1
+            or usage.get("tool_calls") != 1
+            or usage.get("provider_credits_spent") != 0
+            or trace.get("final_artifacts")
+        ):
+            return _result("fail", "the task must perform exactly one tool call, spend zero provider credits, and create no artifacts", {
+                "action_starts": len(starts),
+                "action_completions": len(completions),
+                "declared_tool_calls": usage.get("tool_calls"),
+                "provider_credits_spent": usage.get("provider_credits_spent"),
+                "final_artifact_count": len(trace.get("final_artifacts", [])),
+            })
+
+        start = starts[0]
+        done = completions[0]
+        action_id = start.get("action_id")
+        expected_arguments = {
+            "repo_full_name": repository,
+            "base": expected_base,
+            "head": expected_head,
+        }
+        if (
+            start.get("tool_id") != expected_tool
+            or done.get("tool_id") != expected_tool
+            or not isinstance(action_id, str) or not action_id
+            or done.get("action_id") != action_id
+            or start.get("side_effect_class") != "read_only"
+            or start.get("arguments") != expected_arguments
+            or done.get("arguments") != expected_arguments
+            or start.get("event_index", 0) >= done.get("event_index", 0)
+            or done.get("actual_tool_result", {}).get("ok") is not True
+        ):
+            return _result("fail", "the only action must be a successful, exact-argument, read-only compare_commits invocation")
+
+        before = start.get("observed_state_before")
+        done_before = done.get("observed_state_before")
+        after = done.get("observed_state_after")
+        effects = done.get("actual_effects")
+        if (
+            not isinstance(before, dict)
+            or done_before != before
+            or after != before
+            or not isinstance(effects, dict)
+            or effects.get("added_paths") != []
+            or effects.get("modified_paths") != []
+            or effects.get("deleted_paths") != []
+            or effects.get("changed_paths") != []
+        ):
+            return _result("fail", "the compare action must leave observed repository state unchanged")
+
+        result = done.get("actual_tool_result", {}).get("result")
+        if (
+            not isinstance(result, dict)
+            or result.get("repository_full_name") != repository
+            or result.get("base") != expected_base
+            or result.get("head") != expected_head
+            or result.get("status") != "ahead"
+            or result.get("ahead_by") != 1
+            or result.get("behind_by") != 0
+            or result.get("total_commits") != 1
+        ):
+            return _result("fail", "successful compare_commits response does not identify the exact repository and pinned commit pair", {
+                "expected_repository": repository,
+                "expected_base": expected_base,
+                "expected_head": expected_head,
+            })
+
+        files = result.get("files")
+        if not isinstance(files, list):
+            return _result("fail", "compare_commits response contains no structured files array")
+        normalized = []
+        for item in files:
+            if not isinstance(item, dict):
+                return _result("fail", "compare_commits response contains a malformed file entry")
+            path_value = item.get("filename", item.get("path"))
+            changes = item.get("changes")
+            if (
+                not isinstance(path_value, str) or not path_value
+                or not isinstance(item.get("status"), str)
+                or not isinstance(changes, int) or isinstance(changes, bool)
+            ):
+                return _result("fail", "compare_commits file entry lacks a path, status or integer change count")
+            normalized.append({
+                "path": path_value,
+                "status": item["status"],
+                "changes": changes,
+            })
+        if normalized != expected_files:
+            return _result("fail", "compare_commits changed paths/status/count differ from the exact task diff", {
+                "expected": expected_files,
+                "observed": normalized,
+            })
+
+        answer = trace.get("final_answer")
+        if not isinstance(answer, str) or not answer.strip():
+            return _result("fail", "the task requires a concise report of the changed path and status")
+        answer_folded = answer.casefold()
+        missing_answer_values = [
+            value for value in required_answer_values
+            if value.casefold() not in answer_folded
+        ]
+        if missing_answer_values:
+            return _result("fail", "final answer omits the exact changed path/status details returned by compare_commits", {
+                "missing_answer_values": missing_answer_values,
+            })
+
+        closures = [event for event in events if event.get("event_type") == "task_closed"]
+        if (
+            len(closures) != 1
+            or closures[0].get("closure_status") != "success"
+            or closures[0].get("event_index", 0) <= done.get("event_index", 0)
+            or trace.get("closure", {}).get("status") != "success"
+        ):
+            return _result("fail", "read-only diff task is not successfully closed after the verified comparison")
+
+        return _result("pass", "the exact read-only compare_commits call returned the pinned single-path diff, and no repository mutation occurred", {
+            "repository": repository,
+            "base": expected_base,
+            "head": expected_head,
+            "changed_files": normalized,
+            "tool_calls": 1,
+            "provider_credits_spent": 0,
         })
 
     if kind == "commit_diff_match":
