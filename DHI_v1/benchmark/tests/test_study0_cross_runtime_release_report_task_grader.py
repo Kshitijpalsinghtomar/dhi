@@ -24,60 +24,9 @@ NODE_BLOB = "2316a22af4cb0f9dd582bd52d33d942491f1dba1"
 PYTHON_BLOB = "39a4a2d2bc222f06327e9630a0613c09ae5e4faf"
 WRITE_COMMIT = "d" * 40
 
-NODE_CONTENT = """# Node.js official release table snapshot
+NODE_CONTENT = "# Node.js official release table snapshot\n\n- Source: https://nodejs.org/en/about/previous-releases\n- Retrieved through: TinyFish search + fetch_content\n- Page title: Node.js — Node.js Releases\n- Page published/updated metadata: 2026-10-29\n- Observation date: 2026-11-03\n- Use: historical, reproducible currentness check for benchmark task ORBIT-A-S02-001.\n\n## Release rows captured\n\n| Major | First released | Status |\n|---|---|---|\n| v27 | Oct 29, 2026 | Alpha |\n| v26 | May 05, 2026 | LTS |\n| v25 | Oct 15, 2025 | EOL |\n| v24 | May 06, 2025 | LTS |\n| v23 | Oct 16, 2024 | EOL |\n| v22 | Apr 24, 2024 | LTS |\n\nThe official page states: production applications should use Active LTS or Maintenance LTS releases. It distinguishes Node.js v27 (Alpha) from the current LTS lines v26, v24 and v22 at this observation date.\n\nThis is a date-pinned reference snapshot. A future benchmark run that asks for the latest release at its own evaluation date must fetch a fresh authoritative source and must not reuse this snapshot as current evidence.\n"
 
-- Source: https://nodejs.org/en/about/previous-releases
-- Retrieved through: TinyFish search + fetch_content
-- Page title: Node.js — Node.js Releases
-- Page published/updated metadata: 2026-10-29
-- Observation date: 2026-11-03
-- Use: historical, reproducible currentness check for benchmark task ORBIT-A-S02-001.
-
-## Release rows captured
-
-| Major | First released | Status |
-|---|---|---|
-| v27 | Oct 29, 2026 | Alpha |
-| v26 | May 05, 2026 | LTS |
-| v25 | Oct 15, 2025 | EOL |
-| v24 | May 06, 2025 | LTS |
-| v23 | Oct 16, 2024 | EOL |
-| v22 | Apr 24, 2024 | LTS |
-
-The official page states: production applications should use Active LTS or Maintenance LTS releases. It distinguishes Node.js v27 (Alpha) from the current LTS lines v26, v24 and v22 at this observation date.
-
-This is a date-pinned reference snapshot.
-"""
-
-PYTHON_CONTENT = """# Python official release snapshot
-
-- Source: https://www.python.org/downloads/
-- Retrieved through: TinyFish search + fetch_content
-- Observation date: 2026-11-03
-- Use: historical, reproducible currentness check for ORBIT-A-S02-002.
-
-## Active Python branches at observation time
-
-| Version | Maintenance status | First released | End of support |
-|---|---|---|---|
-| 3.16 | pre-release | 2027-10-06 (planned) | 2032-10 |
-| 3.15 | bugfix | 2026-10-09 | 2031-10 |
-| 3.14 | bugfix | 2025-10-07 | 2030-10 |
-| 3.13 | security | 2024-10-07 | 2029-10 |
-| 3.12 | security | 2023-10-02 | 2028-10 |
-| 3.11 | security | 2022-10-24 | 2027-10 |
-| 3.10 | end-of-life | 2021-10-04 | 2026-10-01 |
-
-## Latest listed stable releases
-
-- Python 3.15.2 — Oct. 25, 2026
-- Python 3.14.10 — Oct. 25, 2026
-- Python 3.13.18 — Oct. 25, 2026
-- Python 3.12.16 — Oct. 25, 2026
-- Python 3.11.18 — Oct. 25, 2026
-
-The page lists Python 3.16 as a pre-release planned for 2027-10-06, not as the current stable release. Python 3.10 is end-of-life as of this observation date.
-"""
+PYTHON_CONTENT = "# Python official release snapshot\n\n- Source: https://www.python.org/downloads/\n- Retrieved through: TinyFish search + fetch_content\n- Observation date: 2026-11-03\n- Use: historical, reproducible currentness check for ORBIT-A-S02-002.\n\n## Active Python branches at observation time\n\n| Version | Maintenance status | First released | End of support |\n|---|---|---|---|\n| 3.16 | pre-release | 2027-10-06 (planned) | 2032-10 |\n| 3.15 | bugfix | 2026-10-09 | 2031-10 |\n| 3.14 | bugfix | 2025-10-07 | 2030-10 |\n| 3.13 | security | 2024-10-07 | 2029-10 |\n| 3.12 | security | 2023-10-02 | 2028-10 |\n| 3.11 | security | 2022-10-24 | 2027-10 |\n| 3.10 | end-of-life | 2021-10-04 | 2026-10-01 |\n\n## Latest listed stable releases\n\n- Python 3.15.2 — Oct. 25, 2026\n- Python 3.14.10 — Oct. 25, 2026\n- Python 3.13.18 — Oct. 25, 2026\n- Python 3.12.16 — Oct. 25, 2026\n- Python 3.11.18 — Oct. 25, 2026\n\nThe page lists Python 3.16 as a pre-release planned for 2027-10-06, not as the current stable release. Python 3.10 is end-of-life as of this observation date. A future currentness benchmark must fetch a fresh page rather than reuse this historical snapshot.\n"
 
 REPORT_CONTENT = """# Cross-runtime release-state comparison
 
@@ -407,7 +356,8 @@ class Study0CrossRuntimeReleaseReportTests(unittest.TestCase):
 
     def test_compare_must_be_successful_and_show_only_one_added_report_path(self):
         self.assertNotEqual(grade(build_trace(compare_ok=False))["status"], "pass")
-        result = copy.deepcopy(build_trace()["events"][9]["actual_tool_result"]["result"])
+        compare_done = next(e for e in build_trace()["events"] if e.get("action_id") == "compare-report" and e["event_type"] == "action_executed")
+        result = copy.deepcopy(compare_done["actual_tool_result"]["result"])
         result["files"].append({"filename": "README.md", "status": "modified", "additions": 1, "deletions": 0, "changes": 1})
         self.assertNotEqual(grade(build_trace(compare_result=result))["status"], "pass")
 
