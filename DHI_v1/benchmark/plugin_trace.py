@@ -40,6 +40,7 @@ IMPLEMENTED_CONDITIONS = {
     "branch_diff_no_changes",
     "assistant_trace_before_write",
     "github_write_prediction_closure",
+    "github_cross_source_report_closure",
     "tool_action_count",
     "report_contains_all",
     "report_contains_discrepancy",
@@ -795,6 +796,340 @@ def _condition_result(condition: dict[str, Any], trace: dict[str, Any]) -> dict[
             return _result("unscorable", "trace has no independent state-diff evidence")
         changed = sorted({path for effect in effects for path in effect.get("changed_paths", [])})
         return _result("pass" if not changed else "fail", "no file changes observed" if not changed else "unexpected file changes observed", changed)
+
+    if kind == "github_cross_source_report_closure":
+        repository = condition.get("repository_full_name")
+        branch = condition.get("branch")
+        base_commit = condition.get("base_commit")
+        source_files = condition.get("source_files")
+        report_path = condition.get("report_path")
+        required_report_phrases = condition.get("required_report_phrases", [])
+        forbidden_report_phrases = condition.get("forbidden_report_phrases", [])
+        required_answer_phrases = condition.get("required_answer_phrases", [])
+        minimum = condition.get("min_tool_calls", 5)
+        maximum = condition.get("max_tool_calls", 9)
+
+        if (
+            not isinstance(repository, str) or repository.count("/") != 1
+            or not isinstance(branch, str) or not branch
+            or not isinstance(base_commit, str) or re.fullmatch(r"[a-f0-9]{40}", base_commit) is None
+            or not isinstance(source_files, list) or len(source_files) != 2
+            or not isinstance(report_path, str) or not report_path
+            or not isinstance(required_report_phrases, list)
+            or any(not isinstance(value, str) or not value for value in required_report_phrases)
+            or not isinstance(forbidden_report_phrases, list)
+            or any(not isinstance(value, str) or not value for value in forbidden_report_phrases)
+            or not isinstance(required_answer_phrases, list)
+            or any(not isinstance(value, str) or not value for value in required_answer_phrases)
+            or not isinstance(minimum, int) or isinstance(minimum, bool)
+            or not isinstance(maximum, int) or isinstance(maximum, bool)
+            or minimum < 5 or maximum < minimum
+        ):
+            return _result("unscorable", "github_cross_source_report_closure requires a pinned repository/branch/base, two source files, a report path, phrase checks and action bounds")
+
+        expected_sources = []
+        source_paths = set()
+        for source in source_files:
+            if (
+                not isinstance(source, dict)
+                or not isinstance(source.get("path"), str) or not source["path"]
+                or not isinstance(source.get("blob_sha"), str)
+                or re.fullmatch(r"[a-f0-9]{40}", source["blob_sha"]) is None
+                or not isinstance(source.get("required_values"), list)
+                or any(not isinstance(value, str) or not value for value in source["required_values"])
+                or source["path"] in source_paths
+            ):
+                return _result("unscorable", "source_files must contain two unique paths, pinned Git blob SHAs and source fact strings")
+            source_paths.add(source["path"])
+            expected_sources.append(source)
+
+        node_sources = [source for source in expected_sources if source["path"].endswith("nodejs_releases_2026-11-03.md")]
+        python_sources = [source for source in expected_sources if source["path"].endswith("python_releases_2026-11-03.md")]
+        if len(node_sources) != 1 or len(python_sources) != 1:
+            return _result("unscorable", "source_files must pin the official Node.js and Python release snapshots")
+
+        events = [event for event in trace.get("events", []) if isinstance(event, dict)]
+        starts = sorted(
+            [event for event in events if event.get("event_type") == "action_started"],
+            key=lambda event: event.get("event_index", 0),
+        )
+        completions = [event for event in events if event.get("event_type") == "action_executed"]
+        usage = trace.get("usage", {})
+        expected_tool_sequence = [
+            "mcp__GitHub__fetch_file",
+            "mcp__GitHub__fetch_file",
+            "mcp__GitHub__create_file",
+            "mcp__GitHub__fetch_file",
+            "mcp__GitHub__compare_commits",
+        ]
+        observed_tool_sequence = [event.get("tool_id") for event in starts]
+        if (
+            len(starts) != 5 or len(completions) != 5
+            or observed_tool_sequence != expected_tool_sequence
+            or len(starts) < minimum or len(starts) > maximum
+            or usage.get("tool_calls") != len(starts)
+            or usage.get("provider_credits_spent") != 0
+            or trace.get("final_artifacts") is None
+            or len(trace.get("final_artifacts", [])) != 1
+        ):
+            return _result("fail", "cross-runtime report requires exactly two source reads, one report create, one readback and one compare, with zero provider credits and one read artifact", {
+                "observed_tool_sequence": observed_tool_sequence,
+                "action_completions": len(completions),
+                "declared_tool_calls": usage.get("tool_calls"),
+                "provider_credits_spent": usage.get("provider_credits_spent"),
+                "final_artifact_count": len(trace.get("final_artifacts", [])),
+            })
+
+        def matching_completion(start_event: dict, tool_id: str) -> dict | None:
+            action_id = start_event.get("action_id")
+            matches = [
+                event for event in completions
+                if event.get("action_id") == action_id
+                and event.get("tool_id") == tool_id
+            ]
+            if len(matches) != 1:
+                return None
+            done_event = matches[0]
+            if (
+                not isinstance(action_id, str) or not action_id
+                or done_event.get("event_index", 0) <= start_event.get("event_index", 0)
+                or done_event.get("arguments") != start_event.get("arguments")
+            ):
+                return None
+            return done_event
+
+        base_state = starts[0].get("observed_state_before")
+        if not isinstance(base_state, dict):
+            return _result("fail", "source reads must begin from an observed pinned fixture state")
+        source_contents = {}
+        source_completions = []
+        for index, source in enumerate(expected_sources):
+            start_event = starts[index]
+            path = source["path"]
+            expected_args = {
+                "repository_full_name": repository,
+                "path": path,
+                "ref": base_commit,
+            }
+            done_event = matching_completion(start_event, "mcp__GitHub__fetch_file")
+            if (
+                start_event.get("side_effect_class") != "read_only"
+                or start_event.get("arguments") != expected_args
+                or done_event is None
+                or done_event.get("actual_tool_result", {}).get("ok") is not True
+                or start_event.get("observed_state_before") != base_state
+                or done_event.get("observed_state_before") != base_state
+                or done_event.get("observed_state_after") != base_state
+            ):
+                return _result("fail", f"pinned source read {path!r} is not an exact successful read-only fetch")
+            source_result = done_event.get("actual_tool_result", {}).get("result")
+            source_content = source_result.get("content") if isinstance(source_result, dict) else None
+            expected_url = f"https://github.com/{repository}/blob/{base_commit}/{path}"
+            if (
+                not isinstance(source_result, dict)
+                or not isinstance(source_content, str)
+                or source_result.get("sha") != source["blob_sha"]
+                or _git_blob_sha(source_content) != source["blob_sha"]
+                or source_result.get("display_url") != expected_url
+            ):
+                return _result("fail", f"pinned source {path!r} does not match its expected Git blob/content/ref", {
+                    "expected_blob": source["blob_sha"],
+                    "actual_blob": source_result.get("sha") if isinstance(source_result, dict) else None,
+                    "content_blob": _git_blob_sha(source_content) if isinstance(source_content, str) else None,
+                })
+            source_text = _normalize_fact_text(source_content)
+            missing_source_values = [
+                value for value in source["required_values"]
+                if _normalize_fact_text(value) not in source_text
+            ]
+            if missing_source_values:
+                return _result("fail", f"pinned source {path!r} omits required release-state facts", {
+                    "missing_source_values": missing_source_values,
+                })
+            source_contents[path] = source_content
+            source_completions.append(done_event)
+
+        expected_source_actions_complete = max(event.get("event_index", 0) for event in source_completions)
+        write_start = starts[2]
+        write_done = matching_completion(write_start, "mcp__GitHub__create_file")
+        write_args = write_start.get("arguments")
+        if (
+            write_start.get("event_index", 0) <= expected_source_actions_complete
+            or write_start.get("side_effect_class") != "sandbox_write"
+            or not isinstance(write_args, dict)
+            or write_args.get("repository_full_name") != repository
+            or write_args.get("path") != report_path
+            or write_args.get("branch") != branch
+            or not isinstance(write_args.get("content"), str)
+            or not isinstance(write_args.get("message"), str) or not write_args["message"].strip()
+            or write_done is None
+            or write_done.get("actual_tool_result", {}).get("ok") is not True
+        ):
+            return _result("fail", "report create_file must be the only write, target the exact task branch/path, and follow both pinned source reads")
+
+        report_content = write_args["content"]
+        missing_report_phrases = [
+            phrase for phrase in required_report_phrases
+            if phrase.casefold() not in report_content.casefold()
+        ]
+        forbidden_report_found = [
+            phrase for phrase in forbidden_report_phrases
+            if phrase.casefold() in report_content.casefold()
+        ]
+        if missing_report_phrases or forbidden_report_found:
+            return _result("fail", "report content omits pinned cross-runtime facts or contains an unsafe release-state claim", {
+                "missing_report_phrases": missing_report_phrases,
+                "forbidden_report_phrases": forbidden_report_found,
+            })
+
+        write_result = write_done.get("actual_tool_result", {}).get("result")
+        write_commit = write_result.get("commit_sha") if isinstance(write_result, dict) else None
+        if not isinstance(write_commit, str) or re.fullmatch(r"[a-f0-9]{40}", write_commit) is None:
+            return _result("fail", "successful create_file result does not return a valid commit SHA")
+        before_write = write_start.get("observed_state_before")
+        after_write = write_done.get("observed_state_after")
+        expected_after = dict(before_write) if isinstance(before_write, dict) else {}
+        expected_after[report_path] = _sha256_text(report_content)
+        write_effects = write_done.get("actual_effects")
+        if (
+            not isinstance(before_write, dict)
+            or before_write != base_state
+            or report_path in before_write
+            or after_write != expected_after
+            or not isinstance(write_effects, dict)
+            or write_effects.get("added_paths") != [report_path]
+            or write_effects.get("modified_paths") != []
+            or write_effects.get("deleted_paths") != []
+            or write_effects.get("changed_paths") != [report_path]
+        ):
+            return _result("fail", "report write changed anything other than the single allowed new report path")
+
+        read_start = starts[3]
+        expected_read_args = {
+            "repository_full_name": repository,
+            "path": report_path,
+            "ref": branch,
+        }
+        read_done = matching_completion(read_start, "mcp__GitHub__fetch_file")
+        read_result = read_done.get("actual_tool_result", {}).get("result") if read_done else None
+        expected_report_url = f"https://github.com/{repository}/blob/{branch}/{report_path}"
+        if (
+            read_start.get("event_index", 0) <= write_done.get("event_index", 0)
+            or read_start.get("side_effect_class") != "read_only"
+            or read_start.get("arguments") != expected_read_args
+            or read_done is None
+            or read_done.get("actual_tool_result", {}).get("ok") is not True
+            or read_start.get("observed_state_before") != expected_after
+            or read_done.get("observed_state_before") != expected_after
+            or read_done.get("observed_state_after") != expected_after
+            or not isinstance(read_result, dict)
+            or read_result.get("content") != report_content
+            or read_result.get("sha") != _git_blob_sha(report_content)
+            or read_result.get("display_url") != expected_report_url
+        ):
+            return _result("fail", "report fetch_file readback is not a successful exact-content/blob fetch from the task branch")
+
+        artifact_events = _events_of_type(trace, "artifact_readback")
+        artifacts = _artifacts(trace)
+        if len(artifact_events) != 1 or len(artifacts) != 1:
+            return _result("fail", "exactly one report artifact_readback and final artifact are required")
+        artifact_event = artifact_events[0]
+        artifact_data = artifact_event.get("artifact_readback")
+        artifact = artifacts[0]
+        report_blob = _git_blob_sha(report_content)
+        if (
+            not isinstance(artifact_data, dict)
+            or artifact_data.get("path") != report_path
+            or artifact_data.get("repository_full_name") != repository
+            or artifact_data.get("ref") != branch
+            or artifact_data.get("status") != "verified"
+            or artifact_data.get("source_action_id") != "write-report"
+            or artifact_data.get("sha256") != _sha256_text(report_content)
+            or artifact_data.get("blob_sha") != report_blob
+            or artifact_data.get("source_ref") != expected_report_url
+            or artifact.get("path") != report_path
+            or artifact.get("content") != report_content
+            or artifact.get("sha256") != _sha256_text(report_content)
+            or artifact.get("blob_sha") != report_blob
+            or artifact.get("status") != "read"
+            or artifact.get("source_event_index") != artifact_event.get("event_index")
+            or artifact.get("source_ref") != expected_report_url
+            or artifact_event.get("event_index", 0) <= read_done.get("event_index", 0)
+        ):
+            return _result("fail", "final report artifact is not linked to the exact successful fetched readback")
+
+        compare_start = starts[4]
+        expected_compare_args = {
+            "repo_full_name": repository,
+            "base": base_commit,
+            "head": write_commit,
+        }
+        compare_done = matching_completion(compare_start, "mcp__GitHub__compare_commits")
+        compare_result = compare_done.get("actual_tool_result", {}).get("result") if compare_done else None
+        if (
+            compare_start.get("event_index", 0) <= artifact_event.get("event_index", 0)
+            or compare_start.get("side_effect_class") != "read_only"
+            or compare_start.get("arguments") != expected_compare_args
+            or compare_done is None
+            or compare_done.get("actual_tool_result", {}).get("ok") is not True
+            or compare_start.get("observed_state_before") != expected_after
+            or compare_done.get("observed_state_before") != expected_after
+            or compare_done.get("observed_state_after") != expected_after
+            or not isinstance(compare_result, dict)
+            or compare_result.get("repository_full_name") != repository
+            or compare_result.get("base") != base_commit
+            or compare_result.get("head") != write_commit
+            or compare_result.get("status") != "ahead"
+            or compare_result.get("ahead_by") != 1
+            or compare_result.get("behind_by") != 0
+            or compare_result.get("total_commits") != 1
+        ):
+            return _result("fail", "compare_commits did not successfully compare the task branch from the pinned base to the report commit")
+
+        files = compare_result.get("files")
+        if (
+            not isinstance(files, list) or len(files) != 1
+            or not isinstance(files[0], dict)
+            or files[0].get("filename") != report_path
+            or files[0].get("status") != "added"
+            or not isinstance(files[0].get("additions"), int)
+            or isinstance(files[0].get("additions"), bool)
+            or files[0].get("additions") < 1
+            or files[0].get("deletions") != 0
+            or files[0].get("changes") != files[0].get("additions")
+        ):
+            return _result("fail", "compare_commits must confirm exactly one newly added runtime report and no other changed path", files)
+
+        answer = trace.get("final_answer")
+        if not isinstance(answer, str) or not answer.strip():
+            return _result("fail", "final answer must confirm report creation, readback and one-path comparison")
+        missing_answer = [
+            phrase for phrase in required_answer_phrases
+            if phrase.casefold() not in answer.casefold()
+        ]
+        if missing_answer:
+            return _result("fail", "final answer omits report path or verified completion details", {
+                "missing_answer_phrases": missing_answer,
+            })
+
+        closures = _events_of_type(trace, "task_closed")
+        if (
+            len(closures) != 1
+            or closures[0].get("closure_status") != "success"
+            or closures[0].get("event_index", 0) <= compare_done.get("event_index", 0)
+            or trace.get("closure", {}).get("status") != "success"
+        ):
+            return _result("fail", "cross-runtime report task is not successfully closed after diff verification")
+
+        return _result("pass", "both pinned runtime sources support the report; the exact report was written, fetched back and compare-verified as the only new branch path", {
+            "sources": sorted(source_contents),
+            "report_path": report_path,
+            "report_blob_sha": report_blob,
+            "write_commit": write_commit,
+            "diff": files,
+            "tool_calls": len(starts),
+            "provider_credits_spent": 0,
+        })
 
     if kind == "github_write_prediction_closure":
         repository = condition.get("repository_full_name")
