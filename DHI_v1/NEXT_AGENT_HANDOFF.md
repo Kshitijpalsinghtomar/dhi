@@ -83,7 +83,7 @@ Next unrun manifest task: **S08-002 — Firecrawl fallback recovery**.
 - Do not retry the broad query blindly. Do not execute the paid provider. Report discovery cost separately from execution cost.
 - Existing condition is `discovery_sequence`; add a separate S08-002 task-specific test file for demonstrated false-accepts in fallback candidate/continuation linkage, order, costs, or provider execution. Keep it offline and fixture-backed.
 
-## 7. Repository maintenance audit — 2026-11-15
+## Repository maintenance audit — 2026-11-15
 
 See [RESEARCH_STATUS_TREE.md](RESEARCH_STATUS_TREE.md) for the consolidated research tree, open questions, roadmap and complete branch-role table.
 
@@ -92,6 +92,7 @@ See [RESEARCH_STATUS_TREE.md](RESEARCH_STATUS_TREE.md) for the consolidated rese
 - Issue #2 remains the only open issue and is the Study 0 control tracker. Keep it open and current; do not create a second research tracker.
 - Branch review found the non-main branches are task-specific baselines, sandbox snapshots or reference outputs. The manifest and task handoff identify their roles. No branch was deleted because deleting a pinned fixture would reduce reproducibility.
 - No PR was merged or closed. main was not modified.
+- Maintenance record commits: report 7f99b458ed1a51623ead5162bc54b893e1dbb84e; workspace reconciliation 457132b1d07933d5c6457c31453ab12316151823; this handoff update began at fa59f0b42ac4e593e587ec2d976dde3bdb9cf472.
 - Current research status: Stage A 30/120, Stage B 0/120 sealed; 20/30 deterministic grader checks pass; 10 remain not_run; 1 family accepted and 29 not_reviewed; all 30 executions not_run and all model_runs_allowed=false.
 - Latest integrated deterministic regression: 134/134 passed in Deepnote run cda896d9-1462-421d-b1c5-9248ef945b48. Exact manifest validation: run 4d41b975-c1be-4f0a-8938-86db3a27192e, valid=true, 30 tasks, zero errors; compileall exit 0.
 - Next task remains ORBIT-A-S08-002. Do not let repository cleanup displace the benchmark gate or trigger model inference/training.
