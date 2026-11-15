@@ -1,0 +1,76 @@
+{
+  "experiment_id": "ORBIT-S09-002-BASELINE-CONTAMINATION-001",
+  "task_id": "ORBIT-A-S09-002",
+  "repository": "Kshitijpalsinghtomar/dhi",
+  "branch": "orbit/plugin-benchmark-fixture",
+  "date": "2026-11-05",
+  "pinned_snapshot": {
+    "path": "DHI_v1/benchmark/fixtures/plugin_ecology/effect_forecast/branch_state_before.json",
+    "blob_sha": "13c10e86d20e7c8c13e93e133712b9533e7dbd27",
+    "captured_on": "2026-11-03",
+    "captured_branch_count": 3
+  },
+  "current_state": {
+    "observed_branch_count": 11,
+    "branches": [
+      {
+        "name": "main",
+        "head_sha": "c640e7152885e8c4e0171afd69b9a50ec711636a"
+      },
+      {
+        "name": "orbit/effect-forecast-check",
+        "head_sha": "af6c0d31fcf2e3232cb427c421850536139e3b3a"
+      },
+      {
+        "name": "orbit/effect-forecast-update",
+        "head_sha": "a24a2c3999d18dc2f2d1c876d5785a77b1539652"
+      },
+      {
+        "name": "orbit/plugin-benchmark-fixture",
+        "head_sha": "27835f5171b7395ea6343b251485af8e01e9ab7d"
+      },
+      {
+        "name": "orbit/plugin-resume-sandbox",
+        "head_sha": "d3f7ca37a8623ef6e5f5b3ed4e60f88a2a8efb1c"
+      },
+      {
+        "name": "orbit/sandbox/orbit-a-s06-001",
+        "head_sha": "60d02d29220d4f85a007f9677f1d26e4c31a8e0a"
+      },
+      {
+        "name": "orbit/sandbox/orbit-a-s07-001",
+        "head_sha": "ee4215bf6f71e3d901987465fc1cf7eee10a2456"
+      },
+      {
+        "name": "orbit/sandbox/orbit-a-s07-002",
+        "head_sha": "a9c95537f42c992ba0ec5f9321c6b37304ca5910"
+      },
+      {
+        "name": "orbit/sandbox/orbit-a-s09-001",
+        "head_sha": "a2df221f0eeaf1ec5fb8f5f116d8144de6d315f5"
+      },
+      {
+        "name": "orbit/sandbox/orbit-a-s09-003",
+        "head_sha": "c168564457562ed01a621349b82ae41fe6a2f668"
+      },
+      {
+        "name": "orbit/tool-ecosystem-audit",
+        "head_sha": "466d2bfef06dbf87729ff625f9f27688ce500321"
+      }
+    ],
+    "target_branch": "orbit/effect-forecast-check",
+    "target_branch_exists": true,
+    "target_branch_head": "af6c0d31fcf2e3232cb427c421850536139e3b3a"
+  },
+  "result": "blocked_by_stale_environment_baseline",
+  "mutations": {
+    "branches_created": 0,
+    "branches_deleted": 0,
+    "branches_reset": 0,
+    "files_written": 0
+  },
+  "next_action": "Rebaseline branch_state_before.json against the current repository branch set and choose a target branch name not present in that baseline; recompute environment.state_sha256 and task_instance_sha256 before any task execution.",
+  "model_execution": "not_run",
+  "model_runs_allowed": false,
+  "evidence_boundary": "Read-only GitHub branch inventory comparison. No ORBIT trajectory or capability claim."
+}

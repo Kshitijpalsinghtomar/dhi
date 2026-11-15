@@ -177,7 +177,11 @@
         "stage_split_unit",
         "cross_stage_family_overlap_allowed",
         "deduplication_policy",
-        "freeze_requirements"
+        "freeze_requirements",
+        "trace_schema_path",
+        "trace_grader_path",
+        "trace_schema_sha256",
+        "trace_grader_sha256"
       ],
       "properties": {
         "hash_algorithm": {
@@ -204,6 +208,18 @@
             "type": "string",
             "minLength": 10
           }
+        },
+        "trace_schema_path": {
+          "const": "DHI_v1/benchmark/plugin_trace.schema.json"
+        },
+        "trace_grader_path": {
+          "const": "DHI_v1/benchmark/plugin_trace.py"
+        },
+        "trace_schema_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "trace_grader_sha256": {
+          "$ref": "#/$defs/sha256"
         }
       }
     },
@@ -831,7 +847,8 @@
           "required": [
             "partition",
             "family_fingerprint_sha256",
-            "holdout_sealed"
+            "holdout_sealed",
+            "task_instance_sha256"
           ],
           "properties": {
             "partition": {

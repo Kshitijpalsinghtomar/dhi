@@ -1,0 +1,49 @@
+{
+  "experiment_id": "ORBIT-VERIFY-010",
+  "status": "complete",
+  "evidence_class": "exploratory",
+  "branch": "orbit/plugin-benchmark-fixture",
+  "code_under_test": "e045e43d41a5cd125f81dbfdac105937f3a161af",
+  "deepnote": {
+    "project_id": "6415944e-8d6c-432c-a7cf-3bbaa997799c",
+    "notebook_id": "3639f9a98ce5435fa4cd0168eaaca3a1",
+    "run_id": "3d2f4a00-32e6-422c-b14e-50b158a89e31",
+    "verifier_block_id": "4c65dea71add40e4bf2165b8a81878e6"
+  },
+  "environment": {
+    "python": "3.13.18",
+    "platform": "Linux-6.18.57-talos-x86_64-with-glibc2.36"
+  },
+  "results": {
+    "manifest_valid": true,
+    "tasks": 30,
+    "stage_a": 30,
+    "stage_b": 0,
+    "pytest_passed": 207,
+    "pytest_failed": 0,
+    "compileall": true,
+    "import_smoke": true,
+    "plugin_loader_plans": 30,
+    "model_runs_enabled": 0,
+    "all_passed": true
+  },
+  "external_effects": {
+    "live_github_requests": 0,
+    "github_writes": 0,
+    "tinyfish_requests": 0,
+    "model_inference_calls": 0,
+    "training_jobs": 0,
+    "dataset_generation_jobs": 0
+  },
+  "interpretation": "Exact-head offline engineering regression passed. This validates the harness and its current tests only; it is not model capability evidence, task validation, a benchmark result, or training authorization.",
+  "remaining_gaps": [
+    "Fail-closed manifest precondition evaluation before the first model call, including branch_head_equals.",
+    "Final artifacts grounded in independently read-back provider results and trace.final_artifacts population.",
+    "Live GitHub runtime credential/configuration and live request verification.",
+    "Independent review and validation of all Stage A tasks; Stage B remains sealed.",
+    "Comparable untouched-model inference access; OpenRouter balance was previously observed as zero."
+  ],
+  "next_action": "Implement and test precondition evaluation and independently verified final-artifact capture in the plugin runner; preserve model_runs_allowed=false.",
+  "raw_report_path": "results/verification-report.json",
+  "finished_at_utc": "2026-11-03T18:26:55Z"
+}

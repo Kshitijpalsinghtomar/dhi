@@ -1,0 +1,713 @@
+from __future__ import annotations
+
+import hashlib
+import json
+from dataclasses import replace
+from pathlib import Path
+
+import pytest
+
+from DHI_v1.benchmark.plugin_task_loader import load_plugin_task
+from DHI_v1.benchmark.plugin_github_runtime import (
+    GitHubTaskRuntimeError,
+    build_github_plugin_runtime,
+)
+from DHI_v1.environment.github_client import (
+    CREATE_FILE_TOOL_ID,
+    FETCH_FILE_TOOL_ID,
+    UPDATE_FILE_TOOL_ID,
+)
+
+
+ROOT = Path(__file__).resolve().parents[3]
+MANIFEST = ROOT / "DHI_v1" / "benchmark" / "task_manifest.json"
+REGISTRY = ROOT / "DHI_v1" / "benchmark" / "fixtures" / "plugin_ecology" / "plugin_tool_registry.json"
+REPOSITORY = "Kshitijpalsinghtomar/dhi"
+TASK_ID = "ORBIT-A-S06-001"
+BASE_COMMIT = "af6c0d31fcf2e3232cb427c421850536139e3b3a"
+EXPECTED_BRANCH = "orbit/sandbox/orbit-a-s06-001"
+REPORT_PATH = "DHI_v1/benchmark/fixtures/plugin_ecology/reports/release-readiness.md"
+REPORT = "# Release readiness\n8 not Done; 35 estimated hours; 4 Open; 19 hours.\n"
+
+
+def _blob_sha(content: str) -> str:
+    data = content.encode("utf-8")
+    return hashlib.sha1(b"blob " + str(len(data)).encode("ascii") + b"\0" + data).hexdigest()
+
+
+def _plan():
+    plan = load_plugin_task(MANIFEST, REGISTRY, TASK_ID)
+    return replace(plan, model_runs_allowed=True)
+
+
+class FakeGitHubClient:
+    enable_writes = True
+    allowed_repositories = frozenset({REPOSITORY})
+
+    def __init__(self):
+        self.branch_sha = BASE_COMMIT
+        self.returned_ref = f"refs/heads/{EXPECTED_BRANCH}"
+        self.files = {}
+        self.created = []
+        self.fetches = []
+        self.file_reads = []
+        self.created_branches = []
+        self.updated_files = []
+        self.branches = [
+            {"name": "main", "head_sha": "1" * 40},
+            {"name": "orbit/plugin-benchmark-fixture", "head_sha": "2" * 40},
+            {"name": "orbit/plugin-resume-sandbox", "head_sha": "3" * 40},
+        ]
+
+    def tool_handlers(self):
+        return {
+            FETCH_FILE_TOOL_ID: self.fetch_file,
+            CREATE_FILE_TOOL_ID: self.create_file,
+            "mcp__GitHub__compare_commits": self.compare_commits,
+            "mcp__GitHub__fetch": self.fetch,
+            "mcp__GitHub__create_branch": self.create_branch,
+            UPDATE_FILE_TOOL_ID: self.update_file,
+        }
+
+    def compare_commits(self, arguments):
+        assert arguments["repo_full_name"] == REPOSITORY
+        assert arguments["base"] == BASE_COMMIT
+        assert arguments["head"] == EXPECTED_BRANCH
+        return {
+            "repository_full_name": REPOSITORY,
+            "base": BASE_COMMIT,
+            "head": EXPECTED_BRANCH,
+            "files": [
+                {"filename": path, "status": "added", "sha": _blob_sha(content)}
+                for path, content in sorted(self.files.items())
+            ],
+        }
+
+    def fetch(self, arguments):
+        self.fetches.append(dict(arguments))
+        url = arguments.get("url", "")
+        if "/git/ref/heads/" in url:
+            return {
+                "content": json.dumps({
+                    "ref": self.returned_ref,
+                    "object": {"sha": self.branch_sha},
+                }),
+                "url": url,
+            }
+        return {
+            "content": json.dumps({"repository_state": {"branches": list(self.branches)}}),
+            "url": url,
+        }
+
+    def fetch_file(self, arguments):
+        self.file_reads.append(dict(arguments))
+        content = self.files[arguments["path"]]
+        return {
+            "content": content,
+            "sha": _blob_sha(content),
+            "display_url": (
+                f"https://github.com/{arguments['repository_full_name']}/blob/"
+                f"{arguments['ref']}/{arguments['path']}"
+            ),
+        }
+
+
+    def create_branch(self, arguments):
+        self.created_branches.append(dict(arguments))
+        self.branches.append({
+            "name": arguments["branch_name"],
+            "head_sha": arguments["sha"],
+        })
+        return {"branch": arguments["branch_name"]}
+
+    def update_file(self, arguments):
+        self.updated_files.append(dict(arguments))
+        self.files[arguments["path"]] = arguments["content"]
+        return {"commit_sha": "d" * 40, "content_sha": _blob_sha(arguments["content"])}
+
+    def create_file(self, arguments):
+        self.created.append(dict(arguments))
+        self.files[arguments["path"]] = arguments["content"]
+        return {"commit_sha": "c" * 40}
+
+
+def test_runtime_refuses_model_execution_when_manifest_flag_is_false():
+    plan = load_plugin_task(MANIFEST, REGISTRY, TASK_ID)
+    client = FakeGitHubClient()
+    with pytest.raises(GitHubTaskRuntimeError, match="model_runs_allowed=false"):
+        build_github_plugin_runtime(plan, client, repository_full_name=REPOSITORY)
+
+
+def test_runtime_binds_precondition_readback_and_write_to_one_pinned_sandbox_branch():
+    client = FakeGitHubClient()
+    runtime = build_github_plugin_runtime(
+        _plan(), client, repository_full_name=REPOSITORY
+    )
+
+    observation = runtime.precondition_observer(
+        {"task_id": TASK_ID},
+        {"condition": {"type": "branch_head_equals", "commit": BASE_COMMIT}},
+    )
+    assert observation == {"branch_name": EXPECTED_BRANCH, "head_sha": BASE_COMMIT}
+    assert runtime.expected_branch == EXPECTED_BRANCH
+    assert runtime.expected_base_commit == BASE_COMMIT
+
+
+def test_runtime_denies_write_to_another_branch_or_repository():
+    client = FakeGitHubClient()
+    runtime = build_github_plugin_runtime(_plan(), client, repository_full_name=REPOSITORY)
+    name = runtime.prepared.tool_name_by_id[CREATE_FILE_TOOL_ID]
+
+    with pytest.raises(Exception, match="write guard denied"):
+        runtime.prepared.dispatch(name, {
+            "repository_full_name": REPOSITORY,
+            "path": REPORT_PATH,
+            "content": REPORT,
+            "message": "create report",
+            "branch": "main",
+        })
+    assert client.created == []
+
+
+def test_runtime_denies_any_path_outside_manifest_output_allowlist():
+    client = FakeGitHubClient()
+    runtime = build_github_plugin_runtime(_plan(), client, repository_full_name=REPOSITORY)
+    name = runtime.prepared.tool_name_by_id[CREATE_FILE_TOOL_ID]
+
+    with pytest.raises(Exception, match="write guard denied"):
+        runtime.prepared.dispatch(name, {
+            "repository_full_name": REPOSITORY,
+            "path": "README.md",
+            "content": REPORT,
+            "message": "create report",
+            "branch": EXPECTED_BRANCH,
+        })
+    assert client.created == []
+
+
+def test_runtime_artifact_readback_is_locked_to_expected_branch_and_allowed_path():
+    client = FakeGitHubClient()
+    runtime = build_github_plugin_runtime(_plan(), client, repository_full_name=REPOSITORY)
+    client.files[REPORT_PATH] = REPORT
+
+    evidence = runtime.artifact_reader(REPOSITORY, REPORT_PATH, EXPECTED_BRANCH)
+
+    assert evidence["content"] == REPORT
+    assert evidence["sha"] == _blob_sha(REPORT)
+    assert client.file_reads == [{
+        "repository_full_name": REPOSITORY,
+        "path": REPORT_PATH,
+        "ref": EXPECTED_BRANCH,
+    }]
+
+
+def test_runtime_rejects_wrong_repository_and_wrong_branch_readback():
+    client = FakeGitHubClient()
+    runtime = build_github_plugin_runtime(_plan(), client, repository_full_name=REPOSITORY)
+
+    with pytest.raises(GitHubTaskRuntimeError, match="outside"):
+        runtime.artifact_reader("other/repo", REPORT_PATH, EXPECTED_BRANCH)
+    with pytest.raises(GitHubTaskRuntimeError, match="outside"):
+        runtime.artifact_reader(REPOSITORY, REPORT_PATH, "main")
+
+
+def test_runtime_precondition_fails_closed_when_git_ref_payload_returns_another_branch():
+    client = FakeGitHubClient()
+    client.returned_ref = "refs/heads/main"
+    runtime = build_github_plugin_runtime(_plan(), client, repository_full_name=REPOSITORY)
+
+    with pytest.raises(GitHubTaskRuntimeError, match="did not match"):
+        runtime.precondition_observer(
+            {"task_id": TASK_ID},
+            {"condition": {"type": "branch_head_equals", "commit": BASE_COMMIT}},
+        )
+
+
+def test_runtime_refuses_when_github_write_configuration_is_not_enabled():
+    client = FakeGitHubClient()
+    client.enable_writes = False
+
+    with pytest.raises(GitHubTaskRuntimeError, match="write"):
+        build_github_plugin_runtime(_plan(), client, repository_full_name=REPOSITORY)
+
+
+def test_runtime_refuses_repository_outside_client_write_allowlist():
+    client = FakeGitHubClient()
+    client.allowed_repositories = frozenset({"somewhere/else"})
+
+    with pytest.raises(GitHubTaskRuntimeError, match="allowlist"):
+        build_github_plugin_runtime(_plan(), client, repository_full_name=REPOSITORY)
+
+
+class DirectAnswerModel:
+    def __init__(self, before_complete=None):
+        self.calls = 0
+        self.before_complete = before_complete
+
+    def complete(self, *, messages, tools, temperature=0.0):
+        self.calls += 1
+        if self.before_complete is not None:
+            self.before_complete()
+        return {"choices": [{"message": {"role": "assistant", "content": "I will not claim the report is complete."}}]}
+
+
+def _task_record():
+    manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    record = next(task for task in manifest["tasks"] if task["task_id"] == TASK_ID)
+    # In-memory test authorization only. The committed source manifest stays false.
+    record["execution"]["model_runs_allowed"] = True
+    return record
+
+
+def test_runtime_bound_runner_checks_real_branch_precondition_before_model_call():
+    from DHI_v1.benchmark.plugin_github_runtime import run_github_plugin_task
+
+    client = FakeGitHubClient()
+    client.branch_sha = "d" * 40
+    runtime = build_github_plugin_runtime(_plan(), client, repository_full_name=REPOSITORY)
+    model = DirectAnswerModel()
+
+    result = run_github_plugin_task(
+        _task_record(),
+        runtime,
+        model,
+    )
+
+    assert model.calls == 0
+    assert result.stopped_reason == "precondition_blocked"
+    assert result.trace["closure"]["status"] == "blocked"
+    checked = [event for event in result.trace["events"] if event["event_type"] == "precondition_checked"]
+    assert len(checked) == 1
+    assert checked[0]["precondition_status"] == "fail"
+    assert result.trace_validation_errors == []
+
+
+def test_runtime_bound_runner_passes_branch_precondition_before_model_call():
+    from DHI_v1.benchmark.plugin_github_runtime import run_github_plugin_task
+
+    client = FakeGitHubClient()
+    runtime = build_github_plugin_runtime(_plan(), client, repository_full_name=REPOSITORY)
+    model = DirectAnswerModel(before_complete=lambda: (
+        None if client.fetches else (_ for _ in ()).throw(AssertionError("model called before trusted branch observation"))
+    ))
+
+    result = run_github_plugin_task(
+        _task_record(),
+        runtime,
+        model,
+    )
+
+    assert model.calls == 1
+    checked = next(event for event in result.trace["events"] if event["event_type"] == "precondition_checked")
+    assert checked["precondition_status"] == "pass"
+    assert client.fetches == [{
+        "url": f"https://api.github.com/repos/{REPOSITORY}/git/ref/heads/{EXPECTED_BRANCH}"
+    }]
+    assert result.trace_validation_errors == []
+
+
+def test_runtime_owns_independent_full_branch_diff_state_observer():
+    client = FakeGitHubClient()
+    runtime = build_github_plugin_runtime(_plan(), client, repository_full_name=REPOSITORY)
+
+    assert runtime.state_observer() == {}
+    client.files[REPORT_PATH] = REPORT
+    state = runtime.state_observer()
+
+    assert set(state) == {REPORT_PATH}
+    assert len(state[REPORT_PATH]) == 64
+    assert state[REPORT_PATH] == hashlib.sha256(
+        json.dumps(
+            {"blob_sha": _blob_sha(REPORT), "status": "added"},
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
+    ).hexdigest()
+
+
+def test_runtime_diff_observer_rejects_malformed_provider_status_metadata():
+    client = FakeGitHubClient()
+    runtime = build_github_plugin_runtime(_plan(), client, repository_full_name=REPOSITORY)
+    client.compare_commits = lambda arguments: {
+        "repository_full_name": REPOSITORY,
+        "base": BASE_COMMIT,
+        "head": EXPECTED_BRANCH,
+        "files": [{"filename": REPORT_PATH, "status": [], "sha": _blob_sha(REPORT)}],
+    }
+
+    with pytest.raises(GitHubTaskRuntimeError, match="invalid path or status"):
+        runtime.state_observer()
+
+
+def test_runtime_verifies_pinned_github_file_blob_precondition_at_exact_commit():
+    client = FakeGitHubClient()
+    runtime = build_github_plugin_runtime(_plan(), client, repository_full_name=REPOSITORY)
+    checkpoint_path = "DHI_v1/benchmark/fixtures/plugin_ecology/checkpoints/resume-task-A.md"
+    client.files[checkpoint_path] = REPORT
+    condition = {
+        "condition": {
+            "type": "github_file_blob",
+            "path": checkpoint_path,
+            "commit": BASE_COMMIT,
+            "blob_sha": _blob_sha(REPORT),
+        }
+    }
+
+    observed = runtime.precondition_observer({"task_id": TASK_ID}, condition)
+
+    assert observed == {
+        "path": checkpoint_path,
+        "commit": BASE_COMMIT,
+        "blob_sha": _blob_sha(REPORT),
+    }
+    assert client.file_reads == [{
+        "repository_full_name": REPOSITORY,
+        "path": checkpoint_path,
+        "ref": BASE_COMMIT,
+    }]
+
+
+def test_runtime_rejects_pinned_file_blob_hash_mismatch():
+    client = FakeGitHubClient()
+    runtime = build_github_plugin_runtime(_plan(), client, repository_full_name=REPOSITORY)
+    checkpoint_path = "DHI_v1/benchmark/fixtures/plugin_ecology/checkpoints/resume-task-A.md"
+    client.files[checkpoint_path] = REPORT
+    with pytest.raises(GitHubTaskRuntimeError, match="blob SHA"):
+        runtime.precondition_observer(
+            {"task_id": TASK_ID},
+            {"condition": {
+                "type": "github_file_blob",
+                "path": checkpoint_path,
+                "commit": BASE_COMMIT,
+                "blob_sha": "0" * 40,
+            }},
+        )
+
+
+
+def _plan_for(task_id: str):
+    return replace(
+        load_plugin_task(MANIFEST, REGISTRY, task_id),
+        model_runs_allowed=True,
+    )
+
+
+def test_runtime_derives_resume_branch_and_base_from_s07_checkpoint_contract():
+    plan = _plan_for("ORBIT-A-S07-001")
+    client = FakeGitHubClient()
+    runtime = build_github_plugin_runtime(plan, client, repository_full_name=REPOSITORY)
+
+    assert runtime.expected_branch == "orbit/sandbox/orbit-a-s07-001"
+    assert runtime.expected_base_commit == "04d0e12f48067b3b3a3de3ffe10944b7ef594984"
+
+    checkpoint_path = "DHI_v1/benchmark/fixtures/plugin_ecology/checkpoints/resume-task-A.md"
+    checkpoint_text = (
+        "# ORBIT resume sandbox — checkpoint A\n"
+        "Fixture base: 04d0e12f48067b3b3a3de3ffe10944b7ef594984\n"
+    )
+    client.files[checkpoint_path] = checkpoint_text
+    condition = {
+        "condition": {
+            "type": "github_file_blob",
+            "path": checkpoint_path,
+            "blob_sha": _blob_sha(checkpoint_text),
+        }
+    }
+    observed = runtime.precondition_observer({"task_id": "ORBIT-A-S07-001"}, condition)
+    assert observed == {
+        "path": checkpoint_path,
+        "commit": "04d0e12f48067b3b3a3de3ffe10944b7ef594984",
+        "blob_sha": _blob_sha(checkpoint_text),
+    }
+
+
+def test_runtime_scopes_branch_creation_to_s09_registered_target_and_base():
+    plan = _plan_for("ORBIT-A-S09-002")
+    client = FakeGitHubClient()
+    runtime = build_github_plugin_runtime(plan, client, repository_full_name=REPOSITORY)
+    assert runtime.expected_base_commit == "af6c0d31fcf2e3232cb427c421850536139e3b3a"
+    assert runtime.allowed_paths == frozenset()
+
+    name = runtime.prepared.tool_name_by_id["mcp__GitHub__create_branch"]
+    runtime.prepared.dispatch(name, {
+        "repository_full_name": REPOSITORY,
+        "branch_name": "orbit/effect-forecast-check",
+        "sha": "af6c0d31fcf2e3232cb427c421850536139e3b3a",
+    })
+    assert client.created_branches == [{
+        "repository_full_name": REPOSITORY,
+        "branch_name": "orbit/effect-forecast-check",
+        "sha": "af6c0d31fcf2e3232cb427c421850536139e3b3a",
+    }]
+    with pytest.raises(Exception, match="write guard denied"):
+        runtime.prepared.dispatch(name, {
+            "repository_full_name": REPOSITORY,
+            "branch_name": "orbit/unapproved",
+            "sha": "af6c0d31fcf2e3232cb427c421850536139e3b3a",
+        })
+
+
+def test_s09_branch_runtime_does_not_use_file_compare_state_observer():
+    plan = _plan_for("ORBIT-A-S09-002")
+    runtime = build_github_plugin_runtime(plan, FakeGitHubClient(), repository_full_name=REPOSITORY)
+    assert runtime.state_observer() == {}
+
+
+
+def test_runtime_binds_s09_001_report_creation_to_task_scoped_branch_and_path():
+    plan = _plan_for("ORBIT-A-S09-001")
+    runtime = build_github_plugin_runtime(plan, FakeGitHubClient(), repository_full_name=REPOSITORY)
+    expected_path = "DHI_v1/benchmark/fixtures/plugin_ecology/reports/effect-check.md"
+    assert runtime.expected_base_commit == BASE_COMMIT
+    assert runtime.expected_branch == "orbit/sandbox/orbit-a-s09-001"
+    assert runtime.allowed_paths == frozenset({expected_path})
+
+
+def test_runtime_binds_s09_003_update_to_seeded_blob_and_task_scoped_branch():
+    plan = _plan_for("ORBIT-A-S09-003")
+    client = FakeGitHubClient()
+    path = "DHI_v1/benchmark/fixtures/plugin_ecology/reports/effect-forecast-existing-file.md"
+    seed = (
+        "# Existing benchmark report\n\n"
+        "Status: draft\n\n"
+        "This file exists before the effect-forecast action. The task is to replace its complete contents "
+        "with a verified statement that exactly three acceptance tests passed and the remaining states "
+        "are blocked, not run, and failed.\n"
+    )
+    client.files[path] = seed
+    runtime = build_github_plugin_runtime(plan, client, repository_full_name=REPOSITORY)
+    assert runtime.expected_base_commit == "c168564457562ed01a621349b82ae41fe6a2f668"
+    assert runtime.expected_branch == "orbit/sandbox/orbit-a-s09-003"
+    assert runtime.allowed_paths == frozenset({path})
+
+    observed = runtime.precondition_observer({"task_id": "ORBIT-A-S09-003"}, plan.preconditions[0])
+    assert observed == {
+        "path": path,
+        "commit": "c168564457562ed01a621349b82ae41fe6a2f668",
+        "blob_sha": "2e3b558e9ab54d876d9c4c685a4d0545822a1a02",
+    }
+
+    name = runtime.prepared.tool_name_by_id[UPDATE_FILE_TOOL_ID]
+    runtime.prepared.dispatch(name, {
+        "repository_full_name": REPOSITORY,
+        "path": path,
+        "content": "Updated report",
+        "sha": "2e3b558e9ab54d876d9c4c685a4d0545822a1a02",
+        "message": "update report",
+        "branch": runtime.expected_branch,
+    })
+    assert client.updated_files[0]["path"] == path
+    assert client.updated_files[0]["branch"] == runtime.expected_branch
+    with pytest.raises(Exception, match="write guard denied"):
+        runtime.prepared.dispatch(name, {
+            "repository_full_name": REPOSITORY,
+            "path": "README.md",
+            "content": "forbidden",
+            "sha": "2e3b558e9ab54d876d9c4c685a4d0545822a1a02",
+            "message": "update",
+            "branch": runtime.expected_branch,
+        })
+
+
+
+def test_runtime_verifies_s07_002_tool_ecosystem_checkpoint_blob_at_declared_commit():
+    plan = _plan_for("ORBIT-A-S07-002")
+    client = FakeGitHubClient()
+    runtime = build_github_plugin_runtime(plan, client, repository_full_name=REPOSITORY)
+
+    checkpoint_path = "DHI_v1/benchmark/fixtures/plugin_ecology/checkpoints/tool-ecosystem-audit-A.md"
+    checkpoint_text = (ROOT / checkpoint_path).read_text(encoding="utf-8")
+    expected_blob = "be8dd3e8cc57cdbe881103702e7ba7815400d3c8"
+    assert _blob_sha(checkpoint_text) == expected_blob
+    client.files[checkpoint_path] = checkpoint_text
+
+    observed = runtime.precondition_observer({"task_id": "ORBIT-A-S07-002"}, plan.preconditions[0])
+
+    assert observed == {
+        "path": checkpoint_path,
+        "commit": "8c6295255c88b0baea04529a475af8f85a946cd6",
+        "blob_sha": expected_blob,
+    }
+    assert client.file_reads[-1] == {
+        "repository_full_name": REPOSITORY,
+        "path": checkpoint_path,
+        "ref": "8c6295255c88b0baea04529a475af8f85a946cd6",
+    }
+
+
+
+def test_fresh_s07_runner_records_linked_pinned_checkpoint_rehydration_event():
+    from DHI_v1.benchmark.plugin_github_runtime import run_github_plugin_task
+
+    task_id = "ORBIT-A-S07-001"
+    plan = _plan_for(task_id)
+    client = FakeGitHubClient()
+    checkpoint_path = "DHI_v1/benchmark/fixtures/plugin_ecology/checkpoints/resume-task-A.md"
+    checkpoint_text = (ROOT / checkpoint_path).read_text(encoding="utf-8")
+    checkpoint_blob = "c1a32746e5b2dbdb02aa9fa2fd3c9b9e66b79827"
+    checkpoint_commit = "04d0e12f48067b3b3a3de3ffe10944b7ef594984"
+    assert _blob_sha(checkpoint_text) == checkpoint_blob
+    client.files[checkpoint_path] = checkpoint_text
+    report_path = "DHI_v1/benchmark/fixtures/plugin_ecology/reports/resume-release-review.md"
+    client.files[report_path] = "# Resume report fixture\n"
+    client.compare_commits = lambda arguments: {
+        "repository_full_name": REPOSITORY,
+        "base": arguments["base"],
+        "head": arguments["head"],
+        "files": [],
+    }
+    runtime = build_github_plugin_runtime(plan, client, repository_full_name=REPOSITORY)
+
+    task_record = next(
+        task for task in json.loads(MANIFEST.read_text(encoding="utf-8"))["tasks"]
+        if task["task_id"] == task_id
+    )
+    task_record["execution"]["model_runs_allowed"] = True
+
+    class CheckpointReadModel:
+        def __init__(self):
+            self.calls = 0
+
+        def complete(self, *, messages, tools, temperature=0.0):
+            self.calls += 1
+            if self.calls == 1:
+                return {"choices": [{"message": {
+                    "role": "assistant",
+                    "tool_calls": [{
+                        "id": "checkpoint-read-call",
+                        "type": "function",
+                        "function": {
+                            "name": runtime.prepared.tool_name_by_id[FETCH_FILE_TOOL_ID],
+                            "arguments": json.dumps({
+                                "repository_full_name": REPOSITORY,
+                                "path": checkpoint_path,
+                                "ref": checkpoint_commit,
+                            }),
+                        },
+                    }],
+                }}]}
+            return {"choices": [{"message": {"role": "assistant", "content": "Checkpoint re-read."}}]}
+
+    result = run_github_plugin_task(
+        task_record,
+        runtime,
+        CheckpointReadModel(),
+        trajectory_id="traj-s07-fresh-context-checkpoint",
+    )
+    resumed = [
+        event for event in result.trace["events"]
+        if event["event_type"] == "checkpoint_resumed"
+    ]
+    assert len(resumed) == 1
+    event = resumed[0]
+    assert event["checkpoint_ref"] == checkpoint_path
+    assert event["checkpoint_commit"] == checkpoint_commit
+    assert event["checkpoint_blob_sha"] == checkpoint_blob
+    assert event["action_id"]
+    assert event["source_ref"] == (
+        f"https://github.com/{REPOSITORY}/blob/{checkpoint_commit}/{checkpoint_path}"
+    )
+    action = next(
+        item for item in result.trace["events"]
+        if item["event_type"] == "action_executed" and item["action_id"] == event["action_id"]
+    )
+    assert action["actual_tool_result"]["ok"] is True
+    assert action["actual_tool_result"]["result"]["sha"] == checkpoint_blob
+    assert event["event_index"] > action["event_index"]
+
+
+
+def test_s09_runner_records_structured_prediction_before_write_and_grades_it():
+    from DHI_v1.benchmark.plugin_github_runtime import run_github_plugin_task
+
+    task_id = "ORBIT-A-S09-001"
+    plan = _plan_for(task_id)
+    client = FakeGitHubClient()
+    target_path = "DHI_v1/benchmark/fixtures/plugin_ecology/reports/effect-check.md"
+
+    def compare(arguments):
+        assert arguments["repo_full_name"] == REPOSITORY
+        assert arguments["base"] == BASE_COMMIT
+        assert arguments["head"] == "orbit/sandbox/orbit-a-s09-001"
+        return {
+            "repository_full_name": REPOSITORY,
+            "base": arguments["base"],
+            "head": arguments["head"],
+            "files": [
+                {"filename": name, "status": "added", "sha": _blob_sha(content)}
+                for name, content in sorted(client.files.items())
+            ],
+        }
+
+    client.compare_commits = compare
+    runtime = build_github_plugin_runtime(plan, client, repository_full_name=REPOSITORY)
+    task_record = next(
+        task for task in json.loads(MANIFEST.read_text(encoding="utf-8"))["tasks"]
+        if task["task_id"] == task_id
+    )
+    task_record["execution"]["model_runs_allowed"] = True
+    report = "Passed: 3\nBlocked: 1\nNot Run: 1\nFailed: 1\n"
+    expected_effects = {
+        "added_paths": [target_path],
+        "modified_paths": [],
+        "deleted_paths": [],
+        "changed_paths": [target_path],
+        "unchanged_paths": [],
+    }
+
+    class ForecastingModel:
+        def __init__(self):
+            self.calls = 0
+
+        def complete(self, *, messages, tools, temperature=0.0):
+            self.calls += 1
+            if self.calls == 1:
+                return {"choices": [{"message": {
+                    "role": "assistant",
+                    "tool_calls": [{
+                        "id": "forecasted-create",
+                        "type": "function",
+                        "function": {
+                            "name": runtime.prepared.tool_name_by_id[CREATE_FILE_TOOL_ID],
+                            "arguments": json.dumps({
+                                "repository_full_name": REPOSITORY,
+                                "path": target_path,
+                                "content": report,
+                                "message": "Add verified acceptance summary",
+                                "branch": "orbit/sandbox/orbit-a-s09-001",
+                                "__dhi_expected_effects": expected_effects,
+                            }),
+                        },
+                    }],
+                }}]}
+            return {"choices": [{"message": {"role": "assistant", "content": "Created and verified the report."}}]}
+
+    result = run_github_plugin_task(
+        task_record,
+        runtime,
+        ForecastingModel(),
+        trajectory_id="traj-s09-prediction-adapter",
+    )
+    events = result.trace["events"]
+    prediction = next(event for event in events if event["event_type"] == "assistant_prediction")
+    action_start = next(
+        event for event in events
+        if event["event_type"] == "action_started" and event["tool_id"] == CREATE_FILE_TOOL_ID
+    )
+    action_done = next(
+        event for event in events
+        if event["event_type"] == "action_executed" and event["tool_id"] == CREATE_FILE_TOOL_ID
+    )
+    assert prediction["event_index"] < action_start["event_index"] < action_done["event_index"]
+    assert prediction["expected_effects"] == expected_effects
+    assert "__dhi_expected_effects" not in action_done["arguments"]
+    assert client.created == [{
+        "repository_full_name": REPOSITORY,
+        "path": target_path,
+        "content": report,
+        "message": "Add verified acceptance summary",
+        "branch": "orbit/sandbox/orbit-a-s09-001",
+    }]
+    assert action_done["actual_effects"]["added_paths"] == [target_path]
+    assert result.trace_validation_errors == []
+    assert result.grade["status"] == "pass"

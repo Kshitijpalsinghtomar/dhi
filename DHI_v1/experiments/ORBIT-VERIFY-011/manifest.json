@@ -1,0 +1,49 @@
+{
+  "experiment_id": "ORBIT-VERIFY-011",
+  "status": "complete",
+  "evidence_class": "exploratory",
+  "branch": "orbit/plugin-benchmark-fixture",
+  "code_under_test": "cbcccd15be56df159351ac88b4580f07f98e9312",
+  "deepnote": {
+    "project_id": "6415944e-8d6c-432c-a7cf-3bbaa997799c",
+    "notebook_id": "3639f9a98ce5435fa4cd0168eaaca3a1",
+    "full_verifier_block_id": "89c005b54269422d892c78584471717a",
+    "full_run_id": "0987fae8-a416-4fb5-96d7-522d36b17202",
+    "focused_red_run_id": "88ee8db4-d085-4ca0-898e-f96fb9b3bfa3",
+    "focused_green_run_id": "27fef662-603f-44dd-b590-2b11a0048395"
+  },
+  "environment": {
+    "python": "3.13.18",
+    "platform": "linux"
+  },
+  "results": {
+    "manifest_valid": true,
+    "task_count": 30,
+    "stage_a": 30,
+    "stage_b": 0,
+    "pytest_passed": 209,
+    "pytest_failed": 0,
+    "compileall": true,
+    "entrypoint_import_smoke": true,
+    "plugin_loader_plans": 30,
+    "model_runs_enabled": 0,
+    "all_passed": true
+  },
+  "external_effects": {
+    "live_github_requests": 0,
+    "github_writes": 0,
+    "tinyfish_requests": 0,
+    "model_inference_calls": 0,
+    "training_jobs": 0,
+    "dataset_generation_jobs": 0
+  },
+  "interpretation": "Exact-head offline engineering regression passed after implementing fail-closed preconditions and independently read-back final artifacts. This is harness verification, not ORBIT model capability or task-validation evidence.",
+  "remaining_gaps": [
+    "Trusted production runtime factory must bind observer, write guard and artifact reader to the same fixture-pinned sandbox branch and approved task paths.",
+    "Live GitHub credentials, write-enable flag and repository allowlist were unavailable; no provider request was made.",
+    "All 30 Stage A tasks remain ready_for_validation; Stage B remains sealed and empty.",
+    "No untouched-model inference, capability score or training result exists."
+  ],
+  "next_action": "Implement a trusted task-scoped runtime factory bound to the fixture's pinned sandbox branch and approved path set; exercise it against a fake GitHub server and preserve model_runs_allowed=false.",
+  "finished_at_utc": "2026-11-05T07:11:56Z"
+}

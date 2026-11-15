@@ -1,0 +1,87 @@
+{
+  "experiment_id": "ORBIT-VERIFY-007",
+  "code_under_test": "28a0753c283cd0105d103ee4da11ac0847af0014",
+  "python": "3.13.18 (main, Oct 28 2026, 14:29:13) [GCC 12.2.0]",
+  "platform": "Linux-6.18.57-talos-x86_64-with-glibc2.36",
+  "commands": [
+    {
+      "name": "manifest_validator",
+      "command": [
+        "/root/venv/bin/python",
+        "-m",
+        "DHI_v1.benchmark.validate_task_manifest",
+        "--json"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 21.939,
+      "output": "{\n  \"valid\": true,\n  \"task_count\": 30,\n  \"stage_counts\": {\n    \"A\": 30,\n    \"B\": 0\n  },\n  \"errors\": []\n}\n"
+    },
+    {
+      "name": "full_pytest",
+      "command": [
+        "/root/venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "DHI_v1/benchmark/tests",
+        "DHI_v1/environment/tests"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 390.936,
+      "output": "\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m [ 40%]\n\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m [ 80%]\n\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m                                       [100%]\u001b[0m\n\u001b[32m\u001b[32m\u001b[1m178 passed\u001b[0m\u001b[32m in 343.92s (0:05:43)\u001b[0m\u001b[0m\n"
+    },
+    {
+      "name": "compileall",
+      "command": [
+        "/root/venv/bin/python",
+        "-m",
+        "compileall",
+        "-q",
+        "DHI_v1/benchmark",
+        "DHI_v1/environment"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 67.086,
+      "output": ""
+    },
+    {
+      "name": "entrypoint_import_smoke",
+      "command": [
+        "/root/venv/bin/python",
+        "-c",
+        "from DHI_v1.environment.agent_runner import run_agent_task, client_from_env; from DHI_v1.environment.adaption_responses import AdaptionResponsesClient; from DHI_v1.benchmark.runner import run_pilot_benchmark; from DHI_v1.benchmark.plugin_task_loader import load_all_plugin_tasks; from DHI_v1.benchmark.plugin_execution import prepare_plugin_execution; from DHI_v1.environment.tinyfish_client import tinyfish_plugin_bundle_from_env; print('entrypoint imports: ok')"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 28.628,
+      "output": "entrypoint imports: ok\n"
+    },
+    {
+      "name": "plugin_manifest_loader_smoke",
+      "command": [
+        "/root/venv/bin/python",
+        "-c",
+        "\nfrom DHI_v1.benchmark.plugin_task_loader import load_all_plugin_tasks\nplans = load_all_plugin_tasks(\n    \"DHI_v1/benchmark/task_manifest.json\",\n    \"DHI_v1/benchmark/fixtures/plugin_ecology/plugin_tool_registry.json\",\n)\nassert len(plans) == 30\nassert all(set(plan.required_tool_ids).issubset(plan.allowed_tool_ids) for plan in plans)\nassert not any(plan.model_runs_allowed for plan in plans)\nprint(\"plugin task plans:\", len(plans), \"model runs enabled:\", sum(plan.model_runs_allowed for plan in plans))\n"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 2.153,
+      "output": "plugin task plans: 30 model runs enabled: 0\n"
+    },
+    {
+      "name": "actual_tinyfish_runtime_no_network_preflight",
+      "command": [
+        "/root/venv/bin/python",
+        "-c",
+        "\nfrom dataclasses import replace\nfrom DHI_v1.environment.tinyfish_client import tinyfish_plugin_bundle_from_env\nfrom DHI_v1.benchmark.plugin_task_loader import load_plugin_task\nfrom DHI_v1.benchmark.plugin_execution import prepare_plugin_execution\n\nschemas, handlers = tinyfish_plugin_bundle_from_env()\nprint(\"TINYFISH_API_KEY_PRESENT=\" + str(bool(handlers)))\nprint(\"SCHEMA_IDS=\" + \",\".join(sorted(schemas)))\nprint(\"HANDLER_IDS=\" + \",\".join(sorted(handlers)))\n\nbase = load_plugin_task(\n    \"DHI_v1/benchmark/task_manifest.json\",\n    \"DHI_v1/benchmark/fixtures/plugin_ecology/plugin_tool_registry.json\",\n    \"ORBIT-A-S02-001\",\n)\nassert base.model_runs_allowed is False\n# This copy exercises bundle preparation only; do not call dispatch or a provider.\nplan = replace(base, model_runs_allowed=True)\nprepared = prepare_plugin_execution(plan, schemas=schemas, handlers=handlers)\nassert set(prepared.tool_name_by_id) == {\n    \"mcp__TinyFish__search\", \"mcp__TinyFish__fetch_content\"\n}\nprint(\"PREPARED_TOOL_IDS=\" + \",\".join(sorted(prepared.tool_name_by_id)))\nprint(\"LIVE_MANIFEST_MODEL_RUNS_ALLOWED=\" + str(base.model_runs_allowed))\nprint(\"EXTERNAL_CALLS=0\")\n"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 5.206,
+      "output": "TINYFISH_API_KEY_PRESENT=True\nSCHEMA_IDS=mcp__TinyFish__fetch_content,mcp__TinyFish__search\nHANDLER_IDS=mcp__TinyFish__fetch_content,mcp__TinyFish__search\nPREPARED_TOOL_IDS=mcp__TinyFish__fetch_content,mcp__TinyFish__search\nLIVE_MANIFEST_MODEL_RUNS_ALLOWED=False\nEXTERNAL_CALLS=0\n"
+    }
+  ],
+  "dependency_bootstrap": {
+    "missing_before_install": [],
+    "status": "already_installed"
+  },
+  "all_passed": true,
+  "finished_at_utc": "2026-11-03T16:03:19Z"
+}

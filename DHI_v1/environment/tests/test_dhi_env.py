@@ -182,6 +182,54 @@ def test_prediction_detects_unexpected_change_to_protected_file(tmp_path):
     assert result.prediction_comparison["unchanged_path_violations"] == ["README.md"]
 
 
+def test_repository_state_prediction_is_preserved_but_not_mis_scored_as_workspace_match(tmp_path):
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    (workspace / "README.md").write_text("# Demo\\n", encoding="utf-8")
+    env = DHIEnvironment(workspace)
+    env.begin_task(make_task())
+    expected = {
+        "repository_state": {
+            "added_branches": [],
+            "modified_branches": [],
+            "deleted_branches": [],
+            "unchanged_branches": [{"name": "main", "head_sha": "a" * 40}],
+        }
+    }
+
+    result = env.run_action({
+        "tool_id": "fs.read_file",
+        "arguments": {"path": "README.md"},
+        "expected_effects": expected,
+    })
+
+    assert result.ok is True
+    assert result.prediction_comparison["status"] == "requires_external_state_verifier"
+    executed = [event for event in env.events if event.get("event_type") == "action_executed"]
+    assert executed[0]["expected_effects"] == expected
+
+
+def test_repository_state_prediction_rejects_invalid_branch_sha(tmp_path):
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    (workspace / "README.md").write_text("# Demo\\n", encoding="utf-8")
+    env = DHIEnvironment(workspace)
+    env.begin_task(make_task())
+    with pytest.raises(ValueError, match="invalid head SHA"):
+        env.run_action({
+            "tool_id": "fs.read_file",
+            "arguments": {"path": "README.md"},
+            "expected_effects": {
+                "repository_state": {
+                    "added_branches": [{"name": "main", "head_sha": "not-a-sha"}],
+                    "modified_branches": [],
+                    "deleted_branches": [],
+                    "unchanged_branches": [],
+                }
+            },
+        })
+
+
 def test_tool_schema_rejects_unknown_arguments(tmp_path):
     env = DHIEnvironment(tmp_path)
     env.begin_task(make_task())

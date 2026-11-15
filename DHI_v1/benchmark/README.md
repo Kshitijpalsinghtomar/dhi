@@ -135,3 +135,37 @@ The current cases use these checks to:
 Five regression tests cover substring false positives, whole-answer matching, missing line-number evidence, unrequested file mutation, and malformed regex rejection.
 
 The pattern logic was checked in isolation. The full pytest/compileall suite has not yet been executed against this revision: the available Hugging Face CPU job service returned HTTP 402 before starting a job, and the local environment could not resolve GitHub to clone the repository. Do not treat the regression suite as passed until it runs in a normal development environment or CI.
+
+## ORBIT task manifest integrity validation
+
+The plugin-native task register has a separate cross-record validator in addition to its JSON Schema. The schema validates individual task records; the validator checks the panel as a whole.
+
+Run from the repository root:
+
+```bash
+python -m DHI_v1.benchmark.validate_task_manifest
+python -m pytest -q DHI_v1/benchmark/tests/test_task_manifest_validator.py
+```
+
+Before a panel freeze, run the complete suite and bytecode compilation:
+
+```bash
+python -m pytest -q DHI_v1/environment/tests DHI_v1/benchmark/tests
+python -m compileall -q DHI_v1/environment DHI_v1/benchmark
+python -m DHI_v1.benchmark.validate_task_manifest --require-frozen
+```
+
+The validator checks:
+- JSON Schema compliance and ten-stratum identity;
+- declared/actual total and per-stage counts, unique canonical task IDs and gap-free per-stratum ordinals;
+- one-to-one task-family registration and cross-stage family/independence separation;
+- deterministic family fingerprints and full task-instance hashes;
+- exact tool IDs, allowed-to-use flags and the canonical tool-registry digest;
+- required tools are visible or discoverable;
+- every referenced external snapshot, tool inventory and grader rubric exists inside the repository;
+- Stage B task bodies cannot be present while the panel says the holdout is sealed or restricted;
+- exact 12-per-stage-per-stratum quotas, accepted family reviews and validated graders are required before a panel can be frozen.
+
+A partial `authoring` manifest may have fewer than 12 tasks per stratum. It must still reconcile all actual counts and preserve split integrity. `--require-frozen` intentionally fails until the complete 240-task panel has passed all freeze gates.
+
+See [the integrity checkpoint](PANEL_INTEGRITY_VALIDATION_2026-11-03.md) for the current static inspection and runtime-test limitation.

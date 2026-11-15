@@ -1,0 +1,45 @@
+{
+  "experiment_id": "ORBIT-VERIFY-002",
+  "date": "2026-11-03",
+  "status": "passed",
+  "tested_code_commit": "421955df46975d8b20fba63f8922949a49b4551c",
+  "branch": "orbit/plugin-benchmark-fixture",
+  "runner": {
+    "platform": "Deepnote isolated verifier project",
+    "project_id": "6415944e-8d6c-432c-a7cf-3bbaa997799c",
+    "notebook_id": "3639f9a98ce5435fa4cd0168eaaca3a1",
+    "run_id": "52254373-656f-4d0c-841d-c3a2c621d7cc",
+    "python": "3.13.18"
+  },
+  "checks": [
+    {
+      "name": "DHI_v1.benchmark.validate_task_manifest --json",
+      "returncode": 0,
+      "valid": true,
+      "task_count": 30,
+      "stage_counts": {
+        "A": 30,
+        "B": 0
+      },
+      "errors": []
+    },
+    {
+      "name": "pytest task manifest + plugin trace grader",
+      "returncode": 0,
+      "tests_passed": 44,
+      "tests_failed": 0,
+      "elapsed_seconds": 113.42
+    },
+    {
+      "name": "compileall DHI_v1/benchmark",
+      "returncode": 0,
+      "elapsed_seconds": 22.4
+    }
+  ],
+  "overall_pass": true,
+  "evidence_boundary": {
+    "confirms": "The authored manifest, cross-record hashes/references, plugin trace schema/grader, and their focused regression tests are valid at the tested commit.",
+    "does_not_confirm": "No benchmark task has been executed by a DHI model; no model-generated trajectory, model capability score, training result, Stage A freeze, Stage B validation, or deployment readiness is established."
+  },
+  "follow_up": "Run the remaining benchmark test modules as regression, then independently review and materialize the remaining 90 Stage A tasks. Model inference remains blocked by zero OpenRouter credits."
+}
