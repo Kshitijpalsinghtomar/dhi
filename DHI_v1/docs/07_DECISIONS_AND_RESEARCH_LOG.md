@@ -637,3 +637,549 @@ The first task-record schema review found two panel-integrity requirements that 
 - Grader metadata must explicitly state `llm_judge_sole_source=false`.
 
 This is schema hardening only. No task instances were added and no benchmark execution was started.
+
+## 2026-11-03 — Begin plugin-native ORBIT benchmark authoring
+
+### User direction
+The benchmark must use the connected plugin tools. The local deterministic file-workspace harness is retained for the cases it covers, but it is no longer treated as the ceiling of the benchmark environment.
+
+### Execution surfaces inspected
+Pinned the actual connected tool descriptions and input contracts for 15 selected actions across GitHub, TinyFish, Firecrawl, Deepnote, Consensus, Scite and Wolfram in:
+- `DHI_v1/benchmark/fixtures/plugin_ecology/plugin_tool_registry.json`
+
+The task profile records strict boundaries:
+- GitHub writes only to dedicated benchmark branches; no issue, source, configuration, deployment, deletion or merge actions are used.
+- TinyFish is used for public current-source verification.
+- Firecrawl `firecrawl_find_tools` is used for free capability discovery. The discovered `packages/package` action costs one credit and was not executed.
+- Deepnote remains blocked by the previously recorded workspace project concurrency quota; no project was stopped or restarted.
+- Consensus search returned its monthly free usage cap (100% used; reset 2026-12-01); no retry was attempted.
+- Adaption dataset/training actions were not invoked.
+
+### Actual plugin-backed reference work
+1. Created a synthetic Northstar Workbench fixture on `orbit/plugin-benchmark-fixture`, with project policy, release notes, component map, work-item CSV, acceptance-test CSV and an untrusted imported issue body.
+2. Fetched seven source files through GitHub and verified their returned blob identifiers.
+3. Used TinyFish search and fetch on the official Node.js release page. The 2026-11-03 snapshot records v27 Alpha and v26/v24/v22 LTS; the production-use guidance excludes Alpha.
+4. Used free Firecrawl tool discovery to locate `package-registry-metadata-download-stats/packages/package`, its required `registry` and `name` inputs, and its one-credit execution cost.
+5. Created a release-readiness report on the dedicated branch, fetched it back, and verified all required sections and evidence.
+6. Created a separate resume sandbox from the fixture base, wrote a persistent checkpoint, resumed from that checkpoint in later tool calls, re-read all seven source files, created the final review, and fetched it back. The diff from checkpoint to final commit contains only the report path.
+7. Reproduced a real GitHub 404 for the incorrect `data/work-items.csv` path, inspected the directory, discovered `data/work_items.csv`, then fetched the correct file and matched its pinned blob.
+
+### Task authoring
+Added 10 Stage A task records, one per stratum:
+- S01 no-tool arithmetic restraint;
+- S02 time-sensitive official-source verification;
+- S03 free tool/capability discovery with a cost boundary;
+- S04 read-versus-write tool selection;
+- S05 exact GitHub tool argument/path contract;
+- S06 dependent multi-file release-readiness workflow;
+- S07 persistent checkpoint/resume workflow;
+- S08 404 error recovery and replanning;
+- S09 pre-action effect prediction and verified write closure;
+- S10 untrusted issue-content handling and permission restraint.
+
+The manifest now records 10/120 Stage A task instances and 0/120 Stage B task instances. Ten family fingerprints are recorded; Stage B remains sealed. All tasks are `ready_for_validation`, not `validated`; model execution is disabled in every record.
+
+### Current limitations
+- S07 has a working persistent GitHub checkpoint and a verified scripted resume reference, but a DHI model-run interruption trace remains pending.
+- S09 has working write/readback/diff operations, but the plugin runtime must capture the model's pre-action expected effects before the mutation; it remains partial.
+- The ten initial task graders have not yet undergone independent review or model-run validation.
+- Consensus search is quota-blocked for this month; Firecrawl paid capability execution has not been authorized; Deepnote project quota remains blocked.
+
+### Artifacts
+- `DHI_v1/benchmark/PLUGIN_NATIVE_EXECUTION_PROFILE.md`
+- `DHI_v1/benchmark/task_manifest.json` — 10 Stage A tasks, 0 Stage B tasks
+- `DHI_v1/benchmark/fixtures/plugin_ecology/plugin_tool_registry.json`
+- `DHI_v1/benchmark/fixtures/plugin_ecology/plugin_execution_evidence.json`
+- `DHI_v1/benchmark/fixtures/plugin_ecology/` — sources, external snapshots, checkpoint and verified reports
+
+### Decision
+Continue authoring and validating the plugin-native Stage A panel. Do not fabricate tool outcomes or claim model capability from these scripted reference actions. Keep Stage B sealed, and do not start candidate model comparisons until the panel and matched inference path are ready.
+
+## 2026-11-03 — Add second independent current-source and security-tool discovery tasks
+
+### New source evidence
+- TinyFish searched and fetched the official Python downloads pages on 2026-11-03. The pinned snapshot records Python 3.15.2 as the latest listed stable release (2026-10-25), Python 3.16 as a future planned pre-release, and Python 3.10 as end-of-life.
+- Firecrawl free discovery returned three security-related provider capabilities: GitHub Advisory record lookup, OSV package/version vulnerability query, and GitHub Advisory search. Each provider execution was listed as 5 credits. No paid provider was executed.
+
+### Added task instances
+- `ORBIT-A-S02-002`: independent Python current-release and maintenance-channel verification task.
+- `ORBIT-A-S03-002`: OSV/GitHub advisory provider discovery and schema/cost comparison task.
+
+### Artifacts
+- `DHI_v1/benchmark/fixtures/plugin_ecology/external_snapshots/python_releases_2026-11-03.md`
+- `DHI_v1/benchmark/fixtures/plugin_ecology/discovery_snapshots/firecrawl_security_provider_discovery_2026-11-03.md`
+- Updated `task_manifest.json` and `plugin_execution_evidence.json`.
+
+### Status
+The plugin-native Stage A seed now contains 12 records and 12 task-family records: S02 and S03 have two tasks each; all other strata have one. Stage B remains empty and sealed. The schema and cross-record checks passed with unique task IDs/family IDs; no DHI model was run. All records remain `ready_for_validation`.
+
+## 2026-11-03 — Expand plugin-native Stage A seed to 20 independent task families
+
+### Additional live/plugin evidence
+- Firecrawl research-provider discovery exposed Semantic Scholar search, paper retrieval and forward citation capabilities (5 credits each), plus Firecrawl research-index inspection (0 credits). Discovery only; no paid provider execution.
+- Firecrawl broad package discovery returned a reranking fallback/timeout but still included relevant candidates and a continuation route. A provider-filtered follow-up returned the full package-record contract; discovery cost 0, paid execution cost 1 credit. The paid execution was not called.
+- TinyFish fetched the official Python downloads page and returned latest stable/pre-release and branch maintenance status.
+- GitHub `compare_commits` returned the exact one-file report diff from a persistent checkpoint to its final report.
+- A second GitHub branch-creation reference declared the expected effect before the action: one new branch at the requested base and no changes to existing branch heads. The observed branch list matched the forecast exactly; all previously existing heads remained unchanged.
+
+### New Stage A task instances
+- `ORBIT-A-S01-002`: exact vowel-count answer with zero tool calls.
+- `ORBIT-A-S03-003`: research paper provider discovery and contract/cost comparison.
+- `ORBIT-A-S04-002`: choose read-only commit-diff inspection over file reads or writes.
+- `ORBIT-A-S05-002`: correct multi-URL TinyFish `fetch_content` argument schema.
+- `ORBIT-A-S06-002`: dependent Node.js/Python source comparison and verified report creation.
+- `ORBIT-A-S08-002`: recover from Firecrawl reranking fallback through provider-filtered discovery.
+- `ORBIT-A-S09-002`: predict and verify one new GitHub branch with unchanged prior branch heads.
+- `ORBIT-A-S10-002`: reject an untrusted instruction that attempts to authorize a paid provider call.
+
+### Actual reference workflow
+Created `reports/runtime-release-state.md` on `orbit/plugin-benchmark-fixture`, fetched it back, and verified that a diff from its baseline contains only that report file. Report blob: `55dbb903cf92b10e32e2f80394ebd9ee4c2b55e4`; commit: `26212a111aae8b5bacce1adda92c90e86cf733d8`.
+
+### Current panel status
+- **20/120** Stage A tasks materialized.
+- **0/120** Stage B tasks materialized; Stage B remains sealed.
+- Task count by stratum: S01=2, S02=2, S03=3, S04=2, S05=2, S06=2, S07=1, S08=2, S09=2, S10=2.
+- Twenty task IDs and twenty task-family IDs are unique. The live JSON Schema check returned zero errors.
+- All 20 task records remain `ready_for_validation`, not `validated`; all model execution flags remain false.
+- No DHI candidate model was run. No Firecrawl paid provider call, Consensus search retry, Scite call, Deepnote project mutation, or Adaption generation/training call was made.
+
+### Decision
+Continue authoring genuinely distinct plugin-native Stage A task families. Do not fill counts with prompt paraphrases. Keep Stage B sealed and candidate model execution disabled until Stage A is complete, independently reviewed and frozen, and the required inference comparison route is available.
+
+## 2026-11-03 — Add Go release verification and TinyFish schema/404 recovery
+
+### Evidence collected
+- TinyFish search and fetch of the official Go Release History page returned Go 1.27.3 dated 2026-10-19 as the latest listed 1.27 minor revision and the general support rule (a major release is supported until two newer major releases).
+- The Go page does not state an explicit Go 1.27 end-of-support date; the task requires the model to preserve this uncertainty rather than invent one.
+- A TinyFish `fetch_content` invocation without `page_metadata` was rejected by the live connector schema before dispatch. The corrected request returned HTTP 404 for an intentionally wrong Go page path. TinyFish search recovered the canonical official URL, and a fully schema-correct fetch succeeded.
+
+### New task instances
+- `ORBIT-A-S02-003`: official Go release/version/support-policy verification.
+- `ORBIT-A-S08-003`: TinyFish argument-schema correction, 404 interpretation and official-source recovery.
+
+### Artifacts
+- `DHI_v1/benchmark/fixtures/plugin_ecology/external_snapshots/go_releases_2026-11-03.md`
+- `DHI_v1/benchmark/fixtures/plugin_ecology/external_snapshots/go_release_recovery_2026-11-03.md`
+- Updated task manifest and plugin execution evidence.
+
+### Panel status
+Stage A now contains **22/120** task instances; Stage B remains **0/120**, unmaterialized and sealed. Per-stratum counts: S01=2, S02=3, S03=3, S04=2, S05=2, S06=2, S07=1, S08=3, S09=2, S10=2. All tasks remain ready_for_validation, and no DHI model inference or score has been produced.
+
+## 2026-11-03 — Adopt an evidence-first ORBIT research method from autoresearch references
+
+### Sources reviewed
+- `karpathy/autoresearch` at `228791fb499afffb54b46200aca536f79142f117`: README, `program.md`, `prepare.py`, and `train.py`. Core method: frozen evaluation/data preparation, narrow mutable surface, baseline first, fixed run budget, one change per experiment, commit-before-run, and durable results ledger.
+- `uditgoenka/autoresearch` at `7bddd056dfd0b0ded8360588d8101b1ecb5c0baa`: skill dispatcher, planning, research discovery, evaluation, regression, adversarial reasoning, security, blind-judge, behavior-preservation, and fork-and-flush protocols.
+
+### Decision
+Adopt the combined and DHI-specific protocol in [13_ORBIT_RESEARCH_METHOD.md](13_ORBIT_RESEARCH_METHOD.md), with the per-experiment contract in [EXPERIMENT_RECORD_TEMPLATE.md](../experiments/EXPERIMENT_RECORD_TEMPLATE.md).
+
+### Adaptations and limits
+- Adopt baseline-first, frozen conditions, one bounded intervention, commit-before-run, explicit failure logging, regression guards, held-out confirmation and durable ledgers.
+- Add ORBIT-specific requirements for actual tool traces, pre-action effect predictions, independently observed state deltas, postcondition verification, permission boundaries, and separating model capability from harness capability.
+- Use adversarial critics and blind reviewers to test explanations, not to substitute consensus for empirical evidence.
+- Restrict fork-and-flush to budgeted exploratory candidate generation. It cannot touch sealed Stage B, authorize paid actions, establish significance, or auto-merge.
+- Do not copy Karpathy's five-minute budget or val_bpb; those are specific to its training setup.
+- Do not copy upstream autonomy or hook assumptions as a security boundary. ORBIT retains explicit authorization and Git-first controls.
+
+### Current state
+- Method and template committed on `orbit/plugin-benchmark-fixture`.
+- The branch contains 30 Stage A task instances; Stage B remains 0/120 and sealed.
+- All task records remain ready_for_validation; no DHI model inference, capability score, or training run is claimed.
+- This decision changes the research operating method, not the benchmark scope, model candidates, or training authorization.
+
+## 2026-11-03 — Implement cross-record ORBIT task manifest integrity validation
+
+### Defects found and repaired
+- Three task records referenced `mcp__GitHub__update_file`, but the pinned plugin registry listed only 15 tools and omitted that exact contract. Added the exact connected tool description, bringing the registry to 16 tools, and recomputed the canonical registry digest.
+- Five task evidence references pointed to checkpoint/report files that had been created on separate experiment branches. Copied the exact source blobs onto the active plugin benchmark branch so every task reference resolves within the branch used for review.
+- The workspace had stale 22-task counts even though the manifest contained 30. The current checkpoint is corrected to 30/120 Stage A.
+
+### Integrity contract
+- Added `task_instance_sha256` to required schema fields.
+- Recomputed deterministic `family_fingerprint_sha256` from the substantive task definition: stratum, task contract, environment, tool inventory, capabilities, horizon, preconditions, postconditions, grader and policy.
+- Recomputed task-instance hashes from the full task record excluding only its own hash field.
+- Canonical hash serialization is UTF-8 JSON with sorted keys and compact separators; SHA-256 is used throughout.
+- Added `validate_task_manifest.py` to check JSON Schema plus cross-record counts, task ID numbering, family registration, stage/independence split, hashes, tool registry membership/digest, required-tool visibility, repository evidence references and Stage B secrecy.
+- Added 17 unittest regression cases in `tests/test_task_manifest_validator.py` for valid authoring state, partial quotas, count drift, duplicate IDs, identity mismatch, family/hash drift, unregistered tools, missing evidence, undiscoverable required tools, sealed Stage B exposure, incomplete freeze gates and deterministic serialization.
+
+### Static inspection
+At GitHub commit `3d57cc876dcd3f1f82c9d3ff884665de52c7f290`, an independent static check recomputed all 30 task-instance hashes and 30 family fingerprints, verified all 16 task tool contracts and the registry digest, confirmed every referenced evidence file exists, confirmed no Stage B body is present, and returned zero structural integrity errors.
+
+### Runtime test limitation
+GitHub Actions run `41594301494` for the branch ended in failure before a runner was allocated. The job API reported `runner_id=0` and no steps; log retrieval returned no artifact. Therefore the validator module, pytest tests, and compileall were **not executed** by that CI run. This is recorded as an infrastructure execution blocker, not a code test failure or pass. The repeatable commands are in `benchmark/README.md`.
+
+### Current decision
+Keep the manifest at `status=authoring`; do not mark any task validated or freeze the panel. Next, execute the validator/tests on a working Python runner, continue the 90 remaining Stage A tasks with distinct families, and preserve Stage B outside this shared public repository until the confirmation release gate is authorized.
+
+
+## 2026-11-03 — Verify ORBIT manifest integrity and plugin trace grader
+
+### Result
+
+At code commit `421955df46975d8b20fba63f8922949a49b4551c`, an isolated Deepnote runner completed all checks:
+- Cross-record manifest validator: `valid=true`, 30 tasks, Stage A=30, Stage B=0, zero errors.
+- Focused tests: **44 passed, 0 failed** (20 manifest-validator tests and 24 plugin trace-grader tests).
+- `compileall -q DHI_v1/benchmark`: exit code 0.
+
+Runner: Python 3.13.18. Deepnote run: `52254373-656f-4d0c-841d-c3a2c621d7cc`. Machine-readable record: [ORBIT-VERIFY-002](../experiments/ORBIT-VERIFY-002/).
+
+### Scope boundary
+
+This verifies manifest, hash, evidence-reference and deterministic trace-grader integrity. It does not mean any of the 30 tasks has been model-executed, independently validated, or frozen. The 30 task records remain `ready_for_validation`; Stage A is 30/120 and Stage B is sealed at 0/120.
+
+## 2026-11-03 — Separate OpenRouter inference availability from Adaption training access
+
+### Decision and evidence
+
+The connected OpenRouter catalogue exposes both selected untouched-base candidates:
+- `qwen/qwen3.6-35b-a3b` — PrimeIntellect fp8 endpoint, tool calling supported.
+- `openai/gpt-oss-20b` — PrimeIntellect fp4 endpoint, tool calling supported.
+
+Both advertise `tool_choice=auto`. The PrimeIntellect route is the common named-provider route; the GPT-OSS endpoint does not advertise `tool_choice=required`, so the initial matched protocol must use only shared supported modes. The live OpenRouter credit audit returned **$0 total credits**. A price-free endpoint query returned no free endpoint for either exact model. No inference call was made.
+
+Adaption's training registry separately lists Qwen3.6, GPT-OSS-20B and Gemma 4 31B as trainable models. Registry/training support is not hosted inference access. See [INFER-002](../experiments/INFER-002/).
+
+### Consequence
+
+A matched base-model smoke is now technically routable but financially blocked on OpenRouter. Do not silently switch providers, compare unmatched quantizations, or use a single-candidate run as a model-selection result. No DHI model capability result is claimed.
+
+## 2026-11-03 — Hold DHI training pending dataset lineage audit
+
+### Evidence
+
+- Adaption's Qwen3.6-35B-A3B recommender requires at least 10,000 effective training rows and returned a LoRA configuration for dataset `843888da-28e2-420e-909e-88b203d16404`.
+- That dataset metadata declares 10,000 rows and prompt/completion columns `rephrased_prompt` / `enhanced_completion`. Its evaluation record, however, names the separate 300-row dataset `c1f4df14-b12c-430c-91ad-e10b559d1cee` as both input path and config source, and records a 100-row sample. The A grade cannot be attributed to the 10K export without reconciliation.
+- The 300-row ORBIT pilot has null prompt/completion mapping and only partial previous row review; the 120-row task-spec dataset scored Grade C / 6.6 with completion quality at the 2.2nd percentile.
+- Historical Qwen3.5-4B DPO run `5f16632f-f4d4-49da-a5ce-5faf66a47d80` reached best_win_rate 0.4609 against a 0.99 target; it is not release evidence.
+
+### Decision
+
+No training, augmentation, or data-generation job is authorized from this audit. Retrieve the actual private 10K export, inspect row semantics and duplicates, reconcile evaluation lineage, produce a clean train/validation split, and obtain cost information before any paid run. Keep intent-arbitration instruction data separate from ORBIT task contracts and real tool-execution trajectories.
+
+Machine-readable record: [TRAINING-ACCESS-002](../experiments/TRAINING-ACCESS-002/).
+
+
+## 2026-11-03 — Extend ORBIT verification to the environment and model-runner layer
+
+### Verified prior result
+
+The latest completed full benchmark-only regression run, `7da82150-e44d-415d-ac00-206b112cf811`, passed **82 benchmark tests**, and the manifest validator and benchmark compile check passed at code commit `421955df46975d8b20fba63f8922949a49b4551c`. This is broader than the earlier 44 focused tests, but it does not cover the environment test modules.
+
+### Combined verification started
+
+A combined verification was started in the existing isolated Deepnote verifier. It includes the manifest validator, both benchmark and environment test directories (136 declared test functions at source inspection), compileall for both packages, and an import smoke for the runner and adapters. Run ID: `f661f5ad-7c5e-48b9-9af6-afda1e6f021b`. Its durable record is [ORBIT-VERIFY-003](../experiments/ORBIT-VERIFY-003/).
+
+At the last status check, the run remained `running` and had no terminal snapshot. No pass/fail count is claimed.
+
+### Process deviation and boundary
+
+The combined run was launched before its experiment manifest was committed, contrary to the commit-before-run rule. This has been recorded in ORBIT-VERIFY-003. The tested code revision is pinned; this was a regression check only. No model inference, training, data generation, provider-credit spend, task-validation status change, or model-capability claim occurred.
+
+
+## 2026-11-03 — Correction: ORBIT-VERIFY-003 completed successfully
+
+The earlier entry recorded the combined regression as running. This is the terminal result:
+
+- Deepnote run `f661f5ad-7c5e-48b9-9af6-afda1e6f021b`: `success`.
+- Manifest validator: valid; 30 task records; Stage A=30; Stage B=0; zero errors.
+- Combined benchmark and environment test suites: **136 passed, 0 failed**.
+- `compileall -q DHI_v1/benchmark DHI_v1/environment`: exit code 0.
+- Import smoke for `agent_runner`, `adaption_responses`, and `benchmark.runner`: passed.
+- Runner: Python 3.13.18.
+- Exact output and command timings are archived at [ORBIT-VERIFY-003/results/verification-report.json](../experiments/ORBIT-VERIFY-003/results/verification-report.json).
+
+The tested code commit remains `421955df46975d8b20fba63f8922949a49b4551c`; intervening branch commits are documentation-only. This pass confirms benchmark/environment code health. It does not validate the 30 authored task instances, establish model capability, approve training, or open model execution.
+
+
+## 2026-11-03 — Plugin benchmark grader and model-runner integration gate
+
+### Grader work
+
+ORBIT-GRADER-FIX-001 added deterministic support for discovery recovery and repository branch-state prediction. The runner tool schema now allows structured branch-state predictions, the local environment preserves those predictions in the pre-action event and refuses to label them matched based only on file-workspace evidence. The grader compares the pre-action forecast with independently fetched before/after branch inventories.
+
+Focused verification passed: **46 tests**, manifest validator, and benchmark compilation. Full regression on the current branch head `92bec2c3485220eec6c80a7fe8ae41865a4ef54e` is running as Deepnote run `43e0726e-e16d-428c-b2dd-f18332e2f882`. Do not claim full-suite success until its terminal output is inspected.
+
+### Model execution gap discovered
+
+Code inspection confirmed `DHI_v1/environment/agent_runner.py` does not yet execute the remote GitHub/TinyFish/Firecrawl tools defined in the plugin-native task register. It builds tool schemas from the local DHI environment catalogue and exposes Adaption catalogue search only as a discovery-only meta-tool. The connected plugin actions used for reference evidence are therefore not proof that the candidate model can invoke those tools.
+
+### Decision
+
+Prioritize a policy-enforcing remote plugin gateway and normalized trace adapter before expanding the benchmark panel or attempting model-facing plugin tasks. The gateway must bind exact registered tool contracts, permissions, approvals and cost boundaries; record pre-action prediction, invocation, raw response, independent state readback and closure; and preserve checkpoint/resume events. No model execution, training, or Stage A validation status promotion is authorized by this decision.
+
+
+## 2026-11-03 — Full regression adjudication
+
+The full regression run `43e0726e-e16d-428c-b2dd-f18332e2f882` completed against `92bec2c3485220eec6c80a7fe8ae41865a4ef54e`. Manifest validation passed for 30 Stage A tasks and zero Stage B tasks. Pytest reported 141 passed and one failure: a runner schema test expected a nested `$defs` object although the emitted schema uses inline branch item definitions. The active branch corrected the test assertion to inspect the inline schema. This correction has not yet been executed: Deepnote rejected the rerun because its parallel-project quota was exceeded; the DHI verifier machine was stopped and no other project was stopped. Compileall and import smoke did not run in the failed combined gate. Keep the full verification gate open until a rerun passes. The current task panel remains 30/120 Stage A; all 30 have unique task-family and independence-group IDs and remain `ready_for_validation`, not model-validated.
+
+### Execution route constraint
+
+The current Adaption Responses adapter supports model inference with caller-supplied function tools and separately supports read-only connector-catalogue discovery. It does not currently turn catalogue entries into executable remote connector actions. The deterministic DHI environment intentionally exposes only file-workspace tools plus discovery. The plugin-native task profile records connected GitHub/TinyFish/Firecrawl evidence, but those ChatGPT-connected actions are not callable by the DHI model runner through the current adapter. Do not assume Adaption Responses supports remote MCP execution without a documented contract and an integration test. Keep the external-plugin model execution gate closed until such a contract is verified and a policy-enforcing adapter exists.
+
+
+## 2026-11-03 — Correction: ORBIT-GRADER-FIX-001 full regression passed
+
+This entry supersedes the earlier open-gate conclusion in the same-day full-regression adjudication. The corrected runner-schema assertion was executed as part of the complete regression.
+
+### Verified result
+
+- Deepnote run `34ca752c-e864-4a3d-9388-957d2c3e1859` completed with terminal status `success` against code commit `cba8421d4f4c6c4f929d5f4c3196eb83f98f7351`.
+- Cross-record manifest validator: valid; 30 tasks; Stage A=30; Stage B=0; zero errors.
+- Combined benchmark and environment test suites: **142 passed, 0 failed**.
+- `compileall -q DHI_v1/benchmark DHI_v1/environment`: exit code 0.
+- Import smoke for `agent_runner`, `adaption_responses`, and `benchmark.runner`: passed.
+- All four commands returned exit code 0.
+
+### Raw evidence
+
+The run snapshot is available in Deepnote project `6415944e-8d6c-432c-a7cf-3bbaa997799c`, notebook `3639f9a98ce5435fa4cd0168eaaca3a1`, output block `43e281b25689485a9ff1c31e7cbfcbdc`. The machine-readable raw report is `grader-fix-full-report-final.json`; run ID `34ca752c-e864-4a3d-9388-957d2c3e1859`; block content hash `sha256:4a6a556b2ed08feb83f3119939e2642756b5701b36f85d1645f176b66aad25b5`. The detailed run record is in [ORBIT-GRADER-FIX-001](../experiments/ORBIT-GRADER-FIX-001/).
+
+### Current-head equivalence
+
+The branch head at adjudication was `43608791494e445b17556e1ec8fc08b8a9f2f455`. GitHub comparison from tested code commit `cba8421d4f4c6c4f929d5f4c3196eb83f98f7351` to that head shows six commits, with changes only to `DHI_v1/WORKSPACE.md`, this decision log, and the ORBIT-GRADER-FIX-001 README/manifest. No runtime or test source changed after the passing run.
+
+### Retry failures and interpretation
+
+The later notebook run `220cc301-c5de-4c33-b507-784d456935d6` stopped without output. Run `b401c21c-d586-4a69-8e69-80c6cf02ae43` failed before pytest collection because the cell omitted installation of `DHI_v1/environment/requirements-dev.txt` and the detached environment had no `pytest` module. These are verifier bootstrap failures, not code regressions; they do not supersede the completed full pass.
+
+### Decision
+
+Close the runtime/test regression gate at code commit `cba8421d4f4c6c4f929d5f4c3196eb83f98f7351`; the current branch remains code-equivalent. This proves harness/code health only. It does not validate the 30 task instances through a candidate model, establish model capability, authorize training, or authorize paid model/provider actions. The next research bottleneck is the documented, policy-enforcing remote-plugin execution interface.
+
+## 2026-11-03 — PLUGIN-GATEWAY-001 provider execution feasibility audit
+
+### Question
+
+Can the exact GitHub, TinyFish and Firecrawl actions in plugin_tool_registry.json be invoked by the DHI runtime through documented remote MCP interfaces, with least-privilege credentials, task-level allowlists, cost controls, prediction-before-action traces, and independent readback?
+
+### Evidence reviewed
+
+- GitHub official remote MCP documentation identifies https://api.githubcopilot.com/mcp/ and a /readonly surface. The remote server requires a valid bearer token obtained by the client; it does not itself provide authentication. OAuth 2.1 or a PAT is supported; dynamic client registration is not supported by the remote server. Sources: https://github.com/github/github-mcp-server/blob/main/docs/remote-server.md and https://github.com/github/github-mcp-server/blob/main/docs/host-integration.md
+- TinyFish official MCP documentation identifies https://agent.tinyfish.ai/mcp. Its official proxy reads TINYFISH_API_KEY from the process environment and forwards it upstream as X-API-Key. Its published examples classify search and fetch_content as free, while browser automation is metered per step. Sources: https://github.com/tinyfish-io/tinyfish-mcp-server and https://github.com/tinyfish-io/tinyfish-mcp-server/blob/main/docs/examples.md
+- Firecrawl's standard hosted MCP documentation describes generic scrape/search/parse tools and separate authenticated hosted surfaces. This does not establish that its standard server exposes the exact Alexandria firecrawl_find_tools tool contract captured in the connected-plugin registry. The registry's Alexandria firecrawl_scrape is explicitly excluded as paid. Source: https://github.com/firecrawl/firecrawl-mcp-server
+- MCP Streamable HTTP uses POST JSON-RPC requests and permits JSON or SSE responses; the latest protocol version adds required mirrored request headers and changed session behavior. The gateway must negotiate compatibility rather than assume every provider implements the newest revision. Source: https://github.com/modelcontextprotocol/modelcontextprotocol/blob/main/docs/specification/2026-07-28/basic/transports/streamable-http.mdx
+
+### Runtime check and constraints
+
+The isolated DHI verifier project's integration inventory is empty. That proves no provider integration is attached to that Deepnote project, but does not establish whether manually configured process environment variables exist. No key or token values were read, emitted, or logged. No provider MCP request, remote action, model inference, paid call, or write was made.
+
+A same-named remote MCP function is not proof of semantic/schema equivalence to the registered connector action. In particular, the Firecrawl Alexandria contract must not be mapped to a generic page scrape by name alone.
+
+### Decision
+
+**Blocked before implementation.** Documented remote MCP transport exists for all three providers, but the DHI runtime has neither a verified credential path nor provider-native tool-schema attestation. TinyFish is the first candidate for a read-only smoke because its registered search and fetch_content actions are read-only and documented free.
+
+No model-facing remote tool has been added; no task has been promoted from ready_for_validation; no provider credit has been spent. The next gate is a secure TinyFish credential check and read-only MCP initialize/tools/list smoke, followed by an independent source readback.
+
+## 2026-11-03 — PLUGIN-GATEWAY-001 redacted credential presence probe
+
+A temporary Deepnote notebook cell ran a presence-only check in the DHI verifier runtime. It checked 12 conventional variable names across TinyFish, GitHub and Firecrawl:
+
+- TinyFish: `TINYFISH_API_KEY`, `DHI_TINYFISH_API_KEY`, `MCP_TINYFISH_API_KEY`, `TINYFISH_OAUTH_ACCESS_TOKEN`
+- GitHub: `GITHUB_PERSONAL_ACCESS_TOKEN`, `GITHUB_TOKEN`, `GH_TOKEN`, `DHI_GITHUB_TOKEN`, `MCP_GITHUB_TOKEN`
+- Firecrawl: `FIRECRAWL_API_KEY`, `DHI_FIRECRAWL_API_KEY`, `FIRECRAWL_OAUTH_TOKEN`
+
+All 12 were absent. The code evaluated boolean presence only; no secret values were read, printed, hashed, serialized or persisted. The run sent zero remote requests. The temporary cell was deleted and the verifier machine stopped after the probe.
+
+- Deepnote run: `712a9c26-d126-4cc0-bfdb-a564dd29e3d1` (success)
+- Notebook: `3639f9a98ce5435fa4cd0168eaaca3a1`
+- Output block: `a8b57e8a508349a3a50a144ceeb4313b`
+- Output hash: `sha256:e5a473f06e7d1e78ce66cbbf9e2f157ad6cafb3b353d3c14549019ca0766367c`
+- Project integrations attached: none
+
+This only establishes that the 12 conventional names were not present in that runtime at probe time. It does not rule out a differently named variable or an OAuth mechanism configured elsewhere.
+
+**Decision:** keep PLUGIN-GATEWAY-001 blocked before implementation. The next step is to provision `TINYFISH_API_KEY` through the Deepnote project secret store (or set up a supported OAuth connection) without sharing the credential in chat or committing it. Then perform a read-only TinyFish MCP `initialize`/`tools/list` smoke and an independently verified bounded search/fetch. No model-facing remote tool, provider request, paid action or model inference is authorized yet.
+
+
+## 2026-11-03 — Current branch code equivalence resolved by direct blob audit
+
+A broad GitHub compare summary listed implementation/test files in its aggregate file list after the passing 142-test commit, so the branch-equivalence claim was checked file by file rather than relying on the aggregate summary. Direct reads at tested commit `cba8421d4f4c6c4f929d5f4c3196eb83f98f7351` and current branch ref `orbit/plugin-benchmark-fixture` returned identical Git blob SHAs for all 11 relevant runtime, benchmark, schema, manifest and test files. The complete path/hash list is in [PLUGIN-GATEWAY-001](../experiments/PLUGIN-GATEWAY-001/README.md).
+
+This confirms the 142-test result applies to the current runtime/benchmark code contents. It is not a fresh test execution. No implementation code was changed during the gateway feasibility or credential-probe work.
+
+
+## 2026-11-03 — User-reported TinyFish secret setup; verification blocked by Deepnote quota
+
+The user reported that `TINYFISH_API_KEY` had been added to the DHI verifier project's secret store. This is a user-reported configuration change, not a runtime-verified secret.
+
+A temporary presence-only probe cell was created in the existing verifier notebook. Deepnote rejected both the project machine start and a detached read-only run before execution with the parallel-project quota error: `Your plan quota for parallel running projects has been exceeded. Please stop one of your running projects.`
+
+The temporary cell was deleted. The existing regression cell was left untouched. The verifier machine remains stopped. No credential values were read or printed; no TinyFish MCP `initialize`, `tools/list`, or `tools/call` request was sent.
+
+**Decision:** keep the TinyFish execution gate blocked. After a Deepnote run slot is available, repeat the presence-only `TINYFISH_API_KEY` check. Only if that check succeeds should the read-only MCP handshake and bounded `search`/`fetch_content` test proceed. Do not paste the secret into chat or stop another project through this agent.
+
+
+## 2026-11-03 — Second TinyFish credential recheck blocked by Deepnote quota
+
+The user requested a fresh check of the reported `TINYFISH_API_KEY` project secret. A temporary presence-only probe was created in the existing verifier notebook; the existing regression block was not modified. A detached read-only run was rejected before execution with:
+
+`Your plan quota for parallel running projects has been exceeded. Please stop one of your running projects.`
+
+The temporary probe block `c2f3037678ba404282f745ad39f6a935` was deleted. The verifier machine remained stopped. No secret value was read or emitted, and no TinyFish or other provider request was sent. A separate notebook could not be created because the project permits only one notebook, so the temporary cell was used and removed in the existing notebook.
+
+**Decision:** credential presence remains unverified; keep the gateway blocked. Do not stop another project to free capacity. Repeat the presence-only check only after a Deepnote run slot is available; proceed to TinyFish read-only MCP initialization and tool-schema inspection only if the key is present.
+
+
+## 2026-11-03 — Corrected TinyFish integration attachment; runtime probe still blocked
+
+A fresh Deepnote workspace inventory found the `TINYFISH` environment integration (ID `cf58b868-fdea-46d7-a821-512aa413e007`). It existed at workspace scope but was not attached to the DHI verifier project. The integration was attached to project `6415944e-8d6c-432c-a7cf-3bbaa997799c`, and `get_project` readback confirmed the `TINYFISH` env integration is now attached. No integration credential/config values were inspected.
+
+The first post-attachment detached run (`34ec5435-ed95-4057-bb34-9cbf489a482d`) failed in the existing regression cell with `ModuleNotFoundError: No module named 'pytest'` before the presence-only cell executed. A live run selecting only the presence block was then rejected by Deepnote's parallel-project quota. A separate one-cell temporary project was also rejected by the same quota and then deleted. The original regression cell was preserved; all temporary probe blocks were deleted. A workspace machine snapshot showed one other project machine running while the DHI verifier was stopped; it was left untouched.
+
+**Decision:** the integration-attachment issue is corrected, but `TINYFISH_API_KEY` presence remains unknown and no TinyFish MCP request has been sent. Do not infer absence or successful authentication. Retry only after a run slot is available, using the isolated presence-only cell. No other project may be stopped by this agent to create capacity.
+
+
+## 2026-11-03 — TinyFish credential and read-only MCP route verified from DHI runtime
+
+The previously discovered workspace `TINYFISH` env integration was attached to the DHI verifier project. A one-cell presence-only probe returned `TINYFISH_API_KEY_PRESENT=yes` in Deepnote run `1615aa6b-df74-4457-acdb-ae4775e71f56`. No secret characters were emitted.
+
+A direct Streamable HTTP client then succeeded against `https://agent.tinyfish.ai/mcp`:
+
+- `initialize`: HTTP 200; negotiated protocol `2025-11-25`; server `tinyfish` version `0.1.1`.
+- `tools/list`: HTTP 200; 41 provider-native tools. The exact registered read-only tools `search` and `fetch_content` were present. Their input-schema fingerprints are recorded in PLUGIN-GATEWAY-001.
+- One bounded `search` returned HTTP 200 and selected the official TinyFish MCP repository.
+- One `fetch_content` call returned HTTP 200 and extracted the official repository page.
+- An independent direct HTTPS GET to the raw official README returned HTTP 200 and corroborated the API-key header and registered tool markers. This is marker-level corroboration, not byte equality.
+
+Deepnote evidence: initialize/tools/list run `38cb9d2e-fe8d-4272-83c9-4a2d3de5f6d5`; read-only search/fetch and independent readback run `04dbee0a-6c4b-4547-8e8f-0303ba3a8bf1`. The full experiment record includes block IDs and output hashes.
+
+**Decision:** close the provider credential/transport feasibility gate for TinyFish. Do not expose the provider's full 41-tool inventory: only the two task-registered read-only tools are in scope. This proves runtime connectivity and provider tool behavior, not a policy-enforcing DHI adapter, model-facing capability, or ORBIT model performance. Next is a test-first adapter with exact schema pins, fixed HTTPS host, env-only auth, task-level allowlist, safe argument validation, no retries, bounded timeout and secret redaction. No browser automation, paid tool, monitor, dataset action, provider write, model inference, or training was run.
+
+
+## 2026-11-03 — TinyFish REST adapter implemented; direct tests pass, pytest runner unresolved
+
+The connected TinyFish app was used directly to inspect official provider documentation. The official docs distinguish direct REST API authentication (`X-API-Key`) from the standard MCP client OAuth 2.1 flow. DHI therefore uses the documented REST Search and Fetch surfaces, rather than depending on the observed API-key behavior of a raw MCP smoke:
+
+- Search: `GET https://api.search.tinyfish.ai` — [official reference](https://docs.tinyfish.ai/search-api/reference).
+- Fetch: `POST https://api.fetch.tinyfish.ai` — [official reference](https://docs.tinyfish.ai/fetch-api/reference).
+- Authentication: [official TinyFish authentication guide](https://docs.tinyfish.ai/authentication).
+
+Committed a DHI-owned client and integrated it into the environment/runner:
+
+- `DHI_v1/environment/tinyfish_client.py`: fixed endpoint hosts, env-only API key, strict argument validation, public HTTP(S) fetch validation, bounded timeout, no retry, redacted errors; only two read-only tools.
+- `DHI_v1/environment/dhi_env.py`: handler-backed tool registration and explicit per-task `allowed_tool_ids` gate; the two TinyFish tools remain invisible and uncallable unless a task explicitly allows them.
+- `DHI_v1/environment/agent_runner.py`: environment-backed handler wiring.
+- `DHI_v1/benchmark/runner.py`: per-case allowlist propagation.
+- `DHI_v1/benchmark/run_model_pilot.py`: passes approved provider handlers to the model pilot.
+- `DHI_v1/environment/tests/test_tinyfish_client.py`: mocked request, strict schema, URL-safety, no retry, redaction, handler-factory and explicit-allowlist tests.
+
+The provider MCP server exposes 41 native tools. DHI exposes exactly `tinyfish.search` and `tinyfish.fetch_content`; the remaining 39 tools are excluded. No browser automation, wallet, monitor, dataset, deep research, or write operation is wired into DHI.
+
+Verification:
+
+- Direct committed-test invocation: Deepnote run `76e3e48b-2a71-424a-a59d-b651ca42a21b`; **14 invocations passed, 0 failed**. The test module was imported and each function called directly, including all six parameterized URL-safety cases. HTTP was mocked; these tests made no provider requests.
+- Pytest discovery: runs `fed1e171-9ce0-4b72-b771-c260cbc5c2e5` and `07559432-6472-492f-a965-b7a68f70e6a0` timed out before collection. The latter used a clean temporary project with exact branch files, then the temporary project was deleted.
+- Syntax check: run `d2b4d227-9f9d-4d20-a293-0c560e266e41` was interrupted during the first `py_compile` bytecode write. No compileall success is claimed.
+
+**Decision:** provider credentials/transport are verified and the DHI adapter is implemented with explicit task allowlists. The 14 direct assertions are passing, but the adapter is not yet fully validated: pytest collection, syntax/compile, and the full regression remain open because the current Deepnote runner stalls before collection/writing. Continue with a reliable runner; do not start model inference/training or mark tasks validated until those gates pass.
+
+## 2026-11-03 — TinyFish model-facing scripted trace and timeout assertions passed
+
+A further focused integration test traverses the DHI task permission gate, model-facing tool schema, runner, TinyFish REST client and action trace. It uses a scripted model client and mocked HTTP; it is a scripted-integration evidence class, not an ORBIT model-generated trajectory.
+
+The task explicitly allowlisted tinyfish.search and did not allow tinyfish.fetch_content. The runner correctly presented the always-visible catalog.search discovery meta-tool plus the allowlisted TinyFish Search tool; it did not present Fetch. The scripted model issued one Search call. The test verified:
+
+- the request used the fixed TinyFish Search endpoint and runtime key header;
+- the external response was captured in the action event;
+- the pre-action no-workspace-change forecast matched the observed workspace delta;
+- the task final answer and independent postcondition/protected-path checks passed;
+- the API key string was absent from the serialized trajectory;
+- the non-allowlisted Fetch operation was not exposed to the model.
+
+A transport-timeout test also proves the configured bound is passed to the request, a timeout is not retried, and the key is not echoed in the error.
+
+Final focused verification: Deepnote run c2d0bac2-7679-4e33-8462-a820d02be2b3, on the notebook DHI ORBIT exact-head verifier. Output: DIRECT_ASSERTION_INVOCATIONS_PASSED=16; IN_MEMORY_COMPILE_PASSED=6. The six changed Python files were compiled in memory without writing bytecode. HTTP was mocked; these unit/integration tests made zero TinyFish network calls. A first version of the model-facing test incorrectly expected the catalogue discovery meta-tool to be hidden; after observing the runner's deliberate always-visible discovery behavior, the test was corrected. No production code change was needed for that correction.
+
+Decision: accept the focused adapter/runner contract as a limited pass. Do not call the adapter fully validated: pytest collection and the complete environment/benchmark regression remain unverified because Deepnote pytest times out before collection. No model inference/training, provider write, browser automation or paid TinyFish operation occurred.
+
+## 2026-11-03 — Alternate local full-suite runner blocked by DNS
+
+After focused TinyFish adapter assertions and in-memory compilation passed, an alternate local runner was attempted to execute the full pytest/environment/benchmark suite from the exact active branch. The command `git ls-remote https://github.com/Kshitijpalsinghtomar/dhi.git refs/heads/orbit/plugin-benchmark-fixture` failed before checkout with `Could not resolve host: github.com`. No local checkout was created and no tests ran in that container.
+
+Decision: keep the full pytest/regression gate open. This is a runner network/DNS limitation, not evidence of a code failure or a test pass. The next full-suite run requires an environment with GitHub network access and an exact checkout of orbit/plugin-benchmark-fixture.
+
+## 2026-11-11 — Reset DHI-v1 research direction around joint task/ecosystem belief
+
+### Decision
+Stop treating benchmark expansion and connector/runtime hardening as the primary workstream. The active research question is whether a learned agent can maintain and update a **joint belief over task/world state and dynamic tool-ecosystem state**, reason about multi-tool capability coverage and feasibility, predict effects on both state spaces, recover from tool/schema/permission drift, and independently verify goal closure.
+
+### Why this is a reset rather than a novelty claim
+Recent prior art closes off several broad claims:
+- AutoTool (ICML 2026) already trains dynamic multi-step tool selection and reports generalization to unseen tools.
+- ToolDriftBench / ToolDriftGuard (IEEE SmartIoT 2026) already formalizes schema, semantic, and capability drift in MCP catalogues and evaluates index recovery.
+- ANTE (2026 preprint) already trains pre-action belief prediction verified by real execution in coding agents.
+- Qwen-AgentWorld (2026) already trains language world models for next-state/environment simulation across agentic domains.
+- Agent Planning Benchmark (2026) already measures long-horizon planning, broken/extraneous tools, and unsolvable tasks.
+
+The tentative DHI gap is the *joint interaction* of task-world belief, tool-ecosystem belief, capability composition/feasibility, permission/schema drift, action effects, replanning, and verified closure over long horizons. This is a hypothesis requiring a broader primary-literature review and controlled comparison. No novelty or superiority claim is accepted by this decision.
+
+### Experiment design direction
+Compare, on the same base model and identical task/tool/permission/environment conditions:
+1. Native tool policy without an explicit joint belief (B0).
+2. Current-catalogue retrieval followed by planning (B1).
+3. Retrieval/planning plus a separate action-effect predictor (B2).
+4. DHI joint task/world + tool-ecosystem belief and joint effect prediction (candidate).
+
+The experiment must independently vary availability, schema, capability, permission and world-state drift; include feasible, recoverable, permission-blocked and truly infeasible tasks; and hold out tool names, schemas and capability combinations. Measure verified closure, calibrated feasibility/abstention, drift recovery, held-out transfer, invalid/unauthorized calls, forecast correctness, redundant actions, latency and cost. Safety and false closure remain hard failures.
+
+### Operational consequence
+The active execution pointer is [14_RESEARCH_DIRECTION_RESET_2026-11-11.md](14_RESEARCH_DIRECTION_RESET_2026-11-11.md), and the workspace entrypoint was updated on this date. Older next-action lists in this append-only log are historical and are superseded by the reset until a later dated decision changes direction.
+
+No model inference or training was authorized. The OpenRouter balance was zero on 2026-11-11, the Deepnote verifier project had no model-provider integration, all task-manifest model-run flags remain false, and the existing datasets remain ineligible/quarantined. The permitted immediate work is no-cost research and a minimal deterministic mechanism test; model experiments require explicit user authorization and a funded/approved route.
+
+### Primary references
+- AutoTool, ICML 2026, PMLR 306: https://proceedings.mlr.press/v306/zou26p.html
+- ToolDriftBench / ToolDriftGuard, IEEE SmartIoT 2026: https://ieeexplore.ieee.org/abstract/document/11677805
+- ANTE, arXiv:2610.15368: https://arxiv.org/abs/2610.15368
+- Qwen-AgentWorld, arXiv:2606.24597: https://arxiv.org/abs/2606.24597
+- Agent Planning Benchmark, arXiv:2606.04874: https://arxiv.org/abs/2606.04874
+
+## 2026-11-11 — Reject lifecycle-acquisition novelty candidate; restore DHI model-development sequence
+
+### Decision
+The tool-acquisition/lifecycle novelty candidate is rejected as insufficiently distinct. Stop trying to narrow that candidate into a novelty claim. DHI-v1 returns to its original programme: empirically develop and evaluate a learned tool-aware, long-horizon predictive agent.
+
+The central empirical question is whether training on real, independently verified tool-execution trajectories improves general tool-aware task execution over untouched base models, and whether explicit action-effect prediction and goal-closure supervision add measurable gains.
+
+### Prior-art basis
+The following direct overlaps were checked and added to `docs/15_PRIOR_ART_AND_NOVELTY_GATE_2026-11-11.md`:
+- CostBench (ACL 2026): multi-turn cost-optimal plans and replanning under tool bans, tool removal, cost changes and preference changes.
+- CAM-DF: cost-aware one-shot tool acquisition stopping under heterogeneous costs.
+- MCP-Zero and ToolQP: active multi-round tool request/query retrieval.
+- Plan-or-Retrieve-First and the 2026 multi-tool completeness study: complexity-dependent retrieval strategies, prerequisite failures and retrieval cost.
+- Tool Recommendation: production-scale catalogue access through a small fixed meta-tool interface, with consent and per-user authorization controls.
+- BATS/CATS: budget-aware allocation of token and tool-call resources.
+- AutoTool: dynamic multi-step selection and unseen-tool generalization.
+- Qwen-AgentWorld, ANTE and RWML: environment/world modelling and execution-checked action-effect prediction.
+- SafeMCP: predictive tool acquisition/action-set filtering for safety.
+- CreativityBench: affordance-based physical object repurposing (adjacent, not equivalent to software/API tools).
+
+The joint-state observer remains a measurement mechanism only. No unique DHI model architecture or novel method is claimed.
+
+### Active experimental sequence
+1. **Study 0 — untouched base-model screen:** Qwen3.6-35B-A3B primary; GPT-OSS-20B mandatory challenger; Gemma 4 only for executable multimodal tasks. Use the existing DHI pilot/Stage A subset only after task graders and exact-head harness pass. The 30 materialized Stage A tasks are screening-only, not confirmatory.
+2. **Study 1 — verified trajectory SFT:** real model-generated actions and observations, independently computed state deltas and postconditions; no scripted/synthetic traces as successful execution data.
+3. **Study 2 — prediction/closure ablations:** ordinary agentic SFT vs SFT plus pre-action effects and real state deltas vs that plus explicit goal-closure labels.
+4. **Study 3 — held-out transfer and dynamic robustness:** unseen tool names/schemas/families and controlled changes in availability, permissions and environment state, comparing prior methods as baselines.
+
+Change one causal factor per study and preserve the exact model, data, task, environment, grader and resource provenance.
+
+### Operational boundary
+No model run or training was authorized. All task-manifest `model_runs_allowed` flags remain false. OpenRouter showed zero credits on 2026-11-11 and the Deepnote verifier has no model-provider integration. Do not swap in a free endpoint or alternate candidate. The next action is to verify the existing DHI task/harness gate for Study 0, without expanding the benchmark or writing another provider adapter.
+
+### References
+- CostBench, ACL 2026: https://aclanthology.org/2026.acl-long.584/
+- CAM-DF: https://arxiv.org/abs/2607.27083
+- ToolQP, Findings ACL 2026: https://aclanthology.org/2026.findings-acl.2090/
+- Plan or Retrieve First, EMNLP 2026 Industry Track: https://aclanthology.org/2026.emnlp-industry.19/
+- Tool Recommendation: https://arxiv.org/abs/2610.23707
+- BATS/CATS: https://arxiv.org/abs/2511.17006
+- AutoTool: https://proceedings.mlr.press/v306/zou26p.html
+- Qwen-AgentWorld: https://arxiv.org/abs/2606.24597
+- ANTE: https://arxiv.org/abs/2610.15368
+- RWML: https://arxiv.org/abs/2602.05842
+- SafeMCP: https://aclanthology.org/2026.acl-long.522/
+- CreativityBench: https://arxiv.org/abs/2605.02910
+

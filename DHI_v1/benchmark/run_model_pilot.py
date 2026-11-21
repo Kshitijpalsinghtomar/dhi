@@ -20,7 +20,7 @@ from pathlib import Path
 
 def main() -> int:
     from DHI_v1.benchmark.runner import run_pilot_benchmark
-    from DHI_v1.environment.agent_runner import client_from_env
+    from DHI_v1.environment.agent_runner import client_from_env, tool_handlers_from_client
 
     project_root = Path(__file__).resolve().parents[2]
     dhi_root = project_root / "DHI_v1"
@@ -37,6 +37,7 @@ def main() -> int:
         output_root=output_root,
         max_model_turns=int(os.environ.get("DHI_MAX_MODEL_TURNS", "16")),
         max_tool_calls=int(os.environ.get("DHI_MAX_TOOL_CALLS", "48")),
+        tool_handlers=tool_handlers_from_client(client),
     )
     print(json.dumps({
         "benchmark_id": report["benchmark_id"],

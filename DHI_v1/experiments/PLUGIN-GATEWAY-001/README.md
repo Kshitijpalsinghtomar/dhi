@@ -1,0 +1,278 @@
+# PLUGIN-GATEWAY-001 — remote execution contract feasibility
+
+**Status:** blocked before implementation; provider protocols are documented, but the DHI runtime has no verified credentialed provider connection and two provider surfaces do not yet match the pinned task contracts.
+**Date:** 2026-11-03
+**Branch:** `orbit/plugin-benchmark-fixture`
+**Scope:** GitHub, TinyFish, and Firecrawl only.
+
+## Research question
+
+Can ORBIT's current DHI runtime invoke the exact GitHub, TinyFish, and Firecrawl actions pinned in the task registry through documented remote MCP interfaces, while preserving per-task permissions, cost controls, prediction traces, independent readback, and verified closure?
+
+## Decision-relevant result
+
+**There is a feasible transport direction, but no verified end-to-end runtime path yet. Do not implement or claim a working gateway until the provider-specific tool mappings and credentials are proven.**
+
+The providers publish remote Streamable HTTP MCP servers, but the surfaces and auth are not interchangeable:
+
+- **GitHub:** the official remote server is `https://api.githubcopilot.com/mcp/` and has a read-only `/readonly` surface. Every remote request requires a valid GitHub access token in the Authorization header. GitHub says the remote MCP server does not provide auth; the client must obtain the token. OAuth 2.1 is recommended, PATs are accepted, and dynamic client registration is not supported by the remote server. The pinned benchmark tools are connector-wrapper contracts; no live `tools/list` call has established a one-to-one mapping to the official remote server's current tool schemas.
+- **TinyFish:** the official hosted MCP URL is `https://agent.tinyfish.ai/mcp`. The official package documents a local Streamable HTTP proxy, with `TINYFISH_API_KEY` read from its environment and forwarded upstream as `X-API-Key`. Its documented `search` and `fetch_content` actions are free; browser automation is charged per step. These names align with the two TinyFish IDs in the pinned registry, but exact schema equivalence and live auth are not verified from the DHI runtime.
+- **Firecrawl:** the current official MCP server offers generic web scrape/search/parse tools. Its documented hosted search-only endpoint exposes six read-only search/research tools. Neither documentation surface establishes that the pinned Alexandria-specific `firecrawl_find_tools` contract is available through that server. The same-named generic `firecrawl_scrape` is not accepted as equivalent to the excluded, paid Alexandria provider-execution contract. Do not substitute it or call a paid provider.
+
+The isolated Deepnote verifier project has no attached project integrations. A separate presence-only probe then checked 12 conventional TinyFish, GitHub and Firecrawl credential variable names in the DHI verifier runtime: all 12 were absent. The probe checked only booleans; it never read, printed, hashed or persisted secret values. Its run succeeded, sent zero remote requests, and the temporary notebook block was deleted immediately afterward; the machine was stopped. The result is scoped to those 12 names and does not rule out a differently named credential or an external OAuth flow.
+
+## Registered action boundary
+
+The pinned registry is `benchmark/fixtures/plugin_ecology/plugin_tool_registry.json` (registry ID `ORBIT-PLUGIN-REGISTRY-2026-11-03`; 16 tools).
+
+| Provider | Registry actions in scope | Registry side-effect class | Status |
+|---|---|---|---|
+| GitHub | `fetch`, `fetch_file`, `compare_commits` | read-only | Documented remote endpoint; credential and native tool-schema mapping unverified |
+| GitHub | `create_branch`, `create_file`, `update_file` | sandbox_write | Same auth/mapping blocker; writes must be confined to a disposable per-run repository/branch |
+| GitHub | `delete_file`, `merge_pull_request` | excluded | Never expose to the model |
+| TinyFish | `search`, `fetch_content` | read-only | Documented hosted MCP; matching names; live DHI auth/schema test still required |
+| Firecrawl | `firecrawl_find_tools` | read-only | Alexandria discovery contract; remote MCP equivalence is unverified |
+| Firecrawl | `firecrawl_scrape` | excluded, paid | No call without exact contract proof and explicit credit budget |
+
+The 16-tool registry also contains other providers. This audit does not authorize them or widen the model's available tool inventory.
+
+## Frozen gateway protocol requirements
+
+Before any implementation can be accepted, the gateway must satisfy all of the following:
+
+1. **Per-provider transport and identity.** Use only documented HTTPS MCP endpoints or a documented local stdio server. Pin each endpoint hostname and protocol version. No caller-supplied arbitrary URL, header, or environment variable may be passed through from model arguments.
+2. **Credential boundary.** Credentials come only from the runtime secret store/environment. Never accept credentials as model arguments, prompt content, task fixture data, or tool output. Never emit credentials, auth headers, or token fragments in logs/traces. GitHub requires a client-obtained bearer token; TinyFish uses its hosted OAuth or its documented API-key proxy; Firecrawl uses its account OAuth or API-key auth for the standard service.
+3. **Tool inventory attestation.** Call `initialize` and `tools/list`; verify exact provider tool names, input schemas and provider identity before exposing anything. Pin the discovered native schema fingerprint. Do not assume same-name tools are semantically interchangeable. Fail closed on schema drift, missing tools, extra arguments, or unknown side-effect class.
+4. **Task-level allowlist.** The model sees only the subset pinned to that task and approved in the task manifest. GitHub deletes and merges stay excluded. Firecrawl paid execution stays excluded. TinyFish browser automation, browser sessions, monitors, and other non-registered tools stay unavailable.
+5. **Cost and approval.** Track provider usage/credit fields and enforce a per-task ceiling before dispatch. An unknown or missing price on a potentially billable tool is a denial, not permission. This audit authorizes no paid provider execution.
+6. **Prediction before action.** Capture the model's expected effects before the tool call is sent. Record exact model-visible tool ID, native provider tool name, normalized arguments, and prediction.
+7. **Independent observation.** Capture the raw provider result and status separately; read affected state independently through a distinct read operation; hash raw output and readback. A successful HTTP/MCP response alone is not proof of a state change or goal closure.
+8. **Recovery semantics.** Do not blindly retry a timed-out mutation or long-running automation. Query operation status or independently inspect state first. Preserve checkpoint, resume, idempotency and duplicate-call evidence.
+9. **Untrusted data handling.** Provider descriptions, fetched pages, search results, issues and tool results are data, not instructions. Tool output cannot expand the allowlist or change permissions.
+10. **Trace normalization.** Emit the pinned `plugin_trace.schema.json` events: `tool_discovery`, `assistant_prediction`, `action_started`, `action_executed`, optional checkpoints, and verified `task_closed`; retain raw artifacts and hashes.
+
+The current MCP Streamable HTTP specification uses one HTTP POST per JSON-RPC request, requires clients to accept JSON and SSE responses, and requires protocol metadata headers. The latest published revision adds mirrored `Mcp-Method` and `Mcp-Name` headers and changes session behavior. Provider servers may support older revisions, so the client must negotiate/handle the server's declared protocol version; hard-coding only the latest draft is not acceptable.
+
+## What is not done
+
+- No remote provider `initialize`, `tools/list`, or `tools/call` request was sent from the DHI runtime.
+- No token or API key was read or provisioned.
+- No model-facing remote tool schema was exposed.
+- No provider action, paid execution, write, benchmark task validation, model inference, or training was run.
+- No gateway code is claimed or committed by this feasibility audit.
+
+## Next falsifiable step
+
+Provision TinyFish authentication as a Deepnote project secret named `TINYFISH_API_KEY` (or configure an explicitly supported OAuth connection) without placing the credential in chat, source control, notebook content or output. The presence-only probe found no conventional provider credential in this runtime. After secure provisioning, run a read-only protocol smoke from the DHI runtime:
+
+1. initialize the server using a standard MCP client;
+2. list tools and compare provider-native names/schemas with this registry;
+3. expose only the exact read-only actions for that provider;
+4. execute one bounded read-only call, capture raw response and trace;
+5. verify a second independent read of the same source and test denial of every non-allowlisted tool.
+
+Start with **TinyFish search/fetch** because both registered actions are read-only, their native names align, and provider documentation says those two actions are free. Do not run automation. If that smoke succeeds, implement the adapter with failing contract tests first. GitHub follows after a sandbox-only token/permission plan; Firecrawl remains deferred until its Alexandria contract is available through a documented endpoint.
+
+## Sources checked on 2026-11-03
+
+- GitHub official remote MCP server and toolset endpoints: https://github.com/github/github-mcp-server/blob/main/docs/remote-server.md
+- GitHub remote MCP authentication requirements: https://github.com/github/github-mcp-server/blob/main/docs/host-integration.md
+- GitHub MCP server remote endpoint registration: https://github.com/github/github-mcp-server/blob/main/server.json
+- TinyFish official hosted/local MCP integration: https://github.com/tinyfish-io/tinyfish-mcp-server
+- TinyFish free search/fetch vs metered automation: https://github.com/tinyfish-io/tinyfish-mcp-server/blob/main/docs/examples.md
+- Firecrawl official MCP server auth and hosted tool surfaces: https://github.com/firecrawl/firecrawl-mcp-server
+- MCP Streamable HTTP protocol: https://github.com/modelcontextprotocol/modelcontextprotocol/blob/main/docs/specification/2026-07-28/basic/transports/streamable-http.mdx
+
+## Adjudication
+
+**Decision:** `blocked` (before implementation).
+
+The transport is feasible in principle, but provider-native tool mapping and DHI runtime credential access have not been verified. The initial 0/12 credential-presence probe predates the user's subsequent report that `TINYFISH_API_KEY` was added. A post-provision probe was blocked before execution by Deepnote's parallel-project quota, so current secret presence and authentication remain unverified. The next step is a presence-only check after a run slot is available, followed by a TinyFish read-only runtime smoke only if the key is present—not speculative adapter code or wider task authoring.
+
+## Verified current-branch code equivalence — 2026-11-03
+
+A subsequent broad GitHub compare summary listed implementation files in its aggregate change list even though their file blobs were unchanged. To avoid relying on that ambiguous compare summary, each relevant runtime, benchmark, task-manifest, schema and test file was fetched directly from both the tested commit `cba8421d4f4c6c4f929d5f4c3196eb83f98f7351` and the current branch ref `orbit/plugin-benchmark-fixture`. All 11 blob SHA values were identical:
+
+- `DHI_v1/environment/agent_runner.py` — `79534ce8d207c682614d6be314920855d7fba043`
+- `DHI_v1/environment/dhi_env.py` — `4118054bef062ad863155a863c8039dcb4b27fca`
+- `DHI_v1/environment/tests/test_agent_runner.py` — `269e5c9c3f7c678d0da56529b4d36798daca404e`
+- `DHI_v1/environment/tests/test_dhi_env.py` — `a4e933b211a1562d35e01e3163e423e7f7df86da`
+- `DHI_v1/benchmark/plugin_trace.py` — `acde2688f218169e720db530b7ec0b2f706767bf`
+- `DHI_v1/benchmark/plugin_trace.schema.json` — `41eb08a112847c0ba3237fa9b2fa74ccd2af45d4`
+- `DHI_v1/benchmark/tests/test_plugin_trace_grader.py` — `7a40b10feb5e23d39205ff9af9bacc219f5df577`
+- `DHI_v1/benchmark/tests/test_task_manifest_validator.py` — `dabda3a4a0dcf8e2e8257d04874f667fac7bb988`
+- `DHI_v1/benchmark/validate_task_manifest.py` — `c3c7eadf17a051abb01275a92961f58349995ce4`
+- `DHI_v1/benchmark/task_manifest.json` — `f1a73f4cc377f0ea72a37f7d2f9a3e7476ffe033`
+- `DHI_v1/benchmark/task_manifest.schema.json` — `d581c2be8a26b9a447ab8163b365cf2370d426f0`
+
+This covers the runner/environment implementation, runner/environment tests, plugin grader and schema, manifest validator and tests, and both task-manifest files. Therefore the 142-test and validator result remains code-equivalent for these benchmark/runtime files. This is a content-hash check, not a new test execution. All later branch work remains record/documentation changes; do not claim a new runtime test run.
+
+
+### Credential-probe execution reference
+
+The presence-only probe completed successfully in Deepnote run `712a9c26-d126-4cc0-bfdb-a564dd29e3d1` using notebook `3639f9a98ce5435fa4cd0168eaaca3a1`. Output block `a8b57e8a508349a3a50a144ceeb4313b` has content hash `sha256:e5a473f06e7d1e78ce66cbbf9e2f157ad6cafb3b353d3c14549019ca0766367c`. It returned `present_count=0`, `total_checked=12`, and `remote_requests_sent=0`. The temporary block was deleted; the verifier machine was stopped after execution.
+
+
+## Post-provision TinyFish verification attempt — 2026-11-03
+
+The user reported that `TINYFISH_API_KEY` had been added to the DHI Deepnote project. This is a user-reported configuration change; the runtime did not verify it.
+
+A temporary presence-only probe cell was added to the existing verifier notebook. Both attempts to obtain execution capacity were rejected by Deepnote with:
+
+`Your plan quota for parallel running projects has been exceeded. Please stop one of your running projects.`
+
+- Project machine start: rejected before the machine started.
+- Detached read-only notebook run: rejected before execution.
+- No credential value was read or printed.
+- No TinyFish endpoint was contacted; no MCP `initialize`, `tools/list`, or `tools/call` request was sent.
+- Temporary probe cell `550ba693a4b24a3a86a60a576af375ab` was deleted.
+- Existing notebook regression cell was left untouched.
+- Verifier machine is stopped.
+
+**Interpretation:** credential provisioning is reported but unverified. The earlier 0/12 result was captured before this latest reported configuration and must not be used to infer the current secret state. The next step is to free a Deepnote parallel-run slot (without stopping another user's project from this agent), then rerun the presence-only check and proceed to the read-only TinyFish handshake only if the key is present.
+
+
+## Second post-provision credential recheck — 2026-11-03
+
+The user asked for a fresh check after the earlier quota rejection. The existing verifier machine was stopped, and the original verifier notebook contained only its original regression cell. A second presence-only probe was added temporarily and a detached read-only run was attempted. Deepnote again rejected execution before the notebook started:
+
+`Your plan quota for parallel running projects has been exceeded. Please stop one of your running projects.`
+
+- Temporary probe block: `c2f3037678ba404282f745ad39f6a935`; deleted immediately after the rejection.
+- Original regression block `43e281b25689485a9ff1c31e7cbfcbdc` was not changed.
+- No secret value was read, emitted, hashed, or persisted.
+- No TinyFish endpoint or other provider was contacted; zero remote requests.
+- The verifier project's machine remained stopped.
+- An attempt to create a separate temporary notebook was rejected because this is a single-notebook project; the existing notebook was used only for the temporary probe and restored afterward.
+
+**Result:** still blocked before execution. The reported `TINYFISH_API_KEY` setup remains unverified. The prior 0/12 probe predates the user's setup report and is not evidence of the current secret state. Do not stop another project to free quota. Retry only after a Deepnote run slot is available.
+
+
+## Corrected Deepnote integration attachment and isolated recheck — 2026-11-03
+
+A fresh workspace inventory found a **workspace integration named `TINYFISH` (type `env`)**. The integration existed, but it was not attached to the DHI verifier project. This was the setup issue missed by the earlier checks.
+
+- Integration ID: `cf58b868-fdea-46d7-a821-512aa413e007`
+- Verifier project: `6415944e-8d6c-432c-a7cf-3bbaa997799c`
+- Attachment succeeded; a subsequent `get_project` readback showed `TINYFISH` attached as an `env` integration.
+- No integration secret/configuration values were inspected.
+
+The first detached run, `34ec5435-ed95-4057-bb34-9cbf489a482d`, was accepted after attachment, but it ran the pre-existing regression cell first. That cell failed with `ModuleNotFoundError: No module named 'pytest'`, so the presence-only cell later in the notebook did **not** execute. The original regression cell was not modified.
+
+A live run selecting only the presence cell was then rejected with:
+
+`Your plan quota for parallel running projects has been exceeded. Please stop one of your running projects.`
+
+To keep the regression notebook untouched, a separate temporary standard project and one-cell notebook were created and attached to the same integration. Its detached run was also rejected with the same quota error. The temporary project was deleted in full. The temporary probe block in the original verifier notebook was deleted as well; a final notebook readback showed only the original regression cell remains.
+
+A workspace machine snapshot showed 10 projects in total, with one other project machine running and the DHI verifier stopped. No other project was stopped or modified by this check.
+
+**Corrected conclusion:** the TINYFISH workspace integration is now attached to the DHI verifier, but the value-presence check has not completed. Do not say the key is absent or present. No secret value was read/emitted and no TinyFish MCP request was sent. The next gate is one available parallel-project slot, then the one-cell presence-only probe; only after a positive result may read-only MCP initialization proceed.
+
+
+## Successful TinyFish credential and read-only MCP smoke — 2026-11-03
+
+The workspace `TINYFISH` environment integration was attached to the verifier project and the credential-presence check completed successfully.
+
+### Credential presence
+
+- Deepnote run: `1615aa6b-df74-4457-acdb-ae4775e71f56`
+- Notebook: `DHI ORBIT exact-head verifier` (`3639f9a98ce5435fa4cd0168eaaca3a1`)
+- Probe block: `70976f07d11f4d9bb5d037bbced4598e`
+- Result: `TINYFISH_API_KEY_PRESENT=yes`
+- The code evaluated only boolean presence; no key characters were printed, hashed or persisted.
+
+### MCP protocol and tool inventory
+
+A direct Streamable HTTP client was run from the DHI verifier runtime against the fixed endpoint `https://agent.tinyfish.ai/mcp`. It read the secret only from `os.environ['TINYFISH_API_KEY']` and sent it in the documented `X-API-Key` header.
+
+- Deepnote run: `38cb9d2e-fe8d-4272-83c9-4a2d3de5f6d5`
+- Probe block: `269abaaf016b4a1cbdca91156379bb47`
+- MCP `initialize`: HTTP 200, negotiated protocol `2025-11-25`
+- Server: `tinyfish` version `0.1.1`
+- `tools/list`: HTTP 200, 41 native tools returned
+- Registered read-only tools present: `search`, `fetch_content`
+- Native schema SHA-256: `search=b2ee8cd67760d54416c5339c25fa6f68f63edf744498555a0f9a44149850ec64`; `fetch_content=ff34d9c4b4e0e6442d3a38b2ca79c126824200aec29e8cecfcf40f9ecbd49c51`.
+
+The server exposes far more than the DHI task registry needs. The DHI boundary must permit only these two registered read-only tools; the other 39 native tools are not approved for model exposure.
+
+### Read-only tool call and independent readback
+
+- Deepnote run: `04dbee0a-6c4b-4547-8e8f-0303ba3a8bf1`
+- Probe block: `d66ae17c83684665911adafd3016bdaa`
+- TinyFish `search`: HTTP 200, no MCP error; bounded to GitHub; returned the official repository URL `https://github.com/tinyfish-io/tinyfish-mcp-server`.
+- TinyFish `fetch_content`: HTTP 200, no MCP error; extracted 10,723 characters. Normalized-result SHA-256: `eafb2a4607a436dcfb4da1f29696daf1413f46f0d3fd7e53ee0203cb22e764e8`.
+- Independent non-MCP readback: plain HTTPS GET of the same official README from `raw.githubusercontent.com`; HTTP 200; SHA-256 `6af64d6f344818d642c79f3888522a838098e62913523e5a1d7785d0d2ef050c`.
+- Both representations independently contained the markers `TINYFISH_API_KEY`, `X-API-Key`, `search`, `fetch_content`, and `@tiny-fish/mcp`.
+
+The readback is marker-level corroboration, not a byte-for-byte equality claim between the MCP extraction and raw README. Official provider examples classify Search and Fetch as free; this smoke did not invoke automation, browser sessions, monitors, datasets, deep research, wallet actions or any paid feature. No provider write, model inference or training was run.
+
+### Decision and boundary
+
+**Confirmed:** the DHI verifier can access the configured credential, initialize TinyFish MCP, discover the live tool schema, and execute its two registered read-only operations. This closes the provider credential/transport feasibility gate.
+
+**Not yet implemented:** a DHI-owned policy-enforcing adapter; tool schema fingerprint enforcement; task-scoped tool filtering; model-facing remote tools; normalized agent prediction/action traces; or any ORBIT model evaluation. A 41-tool native inventory must never be exposed wholesale. Next work is a test-first client/adapter that pins the `search` and `fetch_content` schemas and denies all other provider tools, with env-only auth, no secret logging, bounded timeouts, no automatic retries, and per-task allowlists.
+
+One initial attempt at the search/fetch cell failed locally before dispatch because the notebook cell had deleted the endpoint variable; no provider request was sent by that attempt. The corrected selected-cell run above completed successfully.
+
+
+## DHI-owned TinyFish REST adapter implemented — 2026-11-03
+
+The connected TinyFish app was used directly to retrieve and inspect the official provider documentation. This clarified an important auth distinction:
+
+- [TinyFish Authentication](https://docs.tinyfish.ai/authentication) says direct REST requests use `X-API-Key`; its MCP client integration uses OAuth 2.1 for standard assistant clients.
+- [TinyFish MCP Integration](https://docs.tinyfish.ai/mcp-integration) documents the hosted MCP endpoint and its OAuth flow. The earlier DHI runtime MCP handshake using `X-API-Key` did succeed, but the DHI-owned adapter does **not** depend on that auth ambiguity.
+- [Search API Reference](https://docs.tinyfish.ai/search-api/reference): `GET https://api.search.tinyfish.ai`.
+- [Fetch API Reference](https://docs.tinyfish.ai/fetch-api/reference): `POST https://api.fetch.tinyfish.ai`.
+
+DHI now uses the documented Search and Fetch REST endpoints directly, with `TINYFISH_API_KEY` read only from the runtime environment and sent in the `X-API-Key` header. No key is hardcoded, serialized into traces, or emitted in errors.
+
+### Committed implementation
+
+- `DHI_v1/environment/tinyfish_client.py`: stdlib REST client for only `tinyfish.search` and `tinyfish.fetch_content`; fixed HTTPS hosts; strict argument validation; public HTTP(S) URL validation; private/loopback/link-local/reserved IP and embedded-credential rejection; 1–10 fetch URLs; bounded timeout; no automatic retries; safe error messages.
+- `DHI_v1/environment/dhi_env.py`: adds these two tools to the catalogue, but only exposes handler-backed tools and hides both unless the task carries an explicit `allowed_tool_ids` entry.
+- `DHI_v1/environment/agent_runner.py`: wires in the two env-backed handlers while preserving Adaption discovery.
+- `DHI_v1/benchmark/runner.py`: propagates per-case `allowed_tool_ids` into `TaskSpec`.
+- `DHI_v1/benchmark/run_model_pilot.py`: passes approved provider handlers into the model pilot.
+- `DHI_v1/environment/tests/test_tinyfish_client.py`: request construction, key header, strict args, URL safety, no retry/secret redaction, environment factory, explicit task allowlist and runner wiring tests.
+
+The provider's native MCP tools/list returns 41 tools. This adapter exposes exactly two read-only actions to DHI; the other 39 native tools remain inaccessible. Browser automation, agent runs, monitors, datasets, research, wallet actions and all write/mutation tools are outside the adapter.
+
+### Verification evidence and limits
+
+- Deepnote project/notebook: `DHI ORBIT exact-head verifier` / `3639f9a98ce5435fa4cd0168eaaca3a1`.
+- Direct test invocation: run `76e3e48b-2a71-424a-a59d-b651ca42a21b`; 14 committed test invocations passed, 0 failed. The module was imported and each test function was called directly; all six parameterized URL-safety cases were exercised. HTTP requests were mocked, so the unit tests themselves made no provider calls.
+- The declared development requirements installed successfully (`pytest 9.2.0`; `jsonschema 4.23.0`). However, pytest discovery timed out before collection in both the main verifier and a clean temporary project (runs `fed1e171-9ce0-4b72-b771-c260cbc5c2e5` and `07559432-6472-492f-a965-b7a68f70e6a0`). This is an execution-runner limitation, not a reported assertion failure.
+- A separate `py_compile` check was interrupted during the first bytecode write (run `d2b4d227-9f9d-4d20-a293-0c560e266e41`). No compileall pass is claimed for the adapter commit.
+- The disposable test project was deleted. The primary verifier notebook's original regression block was preserved; temporary diagnostics/test-launch cells were removed. The verifier machine was left stopped.
+
+**Decision:** the credential and provider route are verified, and the policy-limited adapter is implemented. Fourteen direct assertions pass. Full pytest discovery, syntax/compile gate and full regression remain open; do not describe the adapter as fully validated until those gates run in a reliable environment. No model inference or training was performed.
+
+## Scripted model-facing trace and timeout verification — 2026-11-03
+
+The next test traverses the DHI task permission gate, model-facing tool schema, runner, TinyFish REST client and action trace. It uses a scripted model client and mocked HTTP; it is a harness integration test, not an ORBIT model inference result.
+
+- Deepnote project/notebook: DHI ORBIT exact-head verifier / 3639f9a98ce5435fa4cd0168eaaca3a1.
+- Final run: c2d0bac2-7679-4e33-8462-a820d02be2b3.
+- Result: DIRECT_ASSERTION_INVOCATIONS_PASSED=16; IN_MEMORY_COMPILE_PASSED=6.
+- The model-facing schema included the always-visible catalog.search discovery meta-tool plus the explicitly allowlisted tinyfish.search. It did not include tinyfish.fetch_content.
+- The scripted model made one tinyfish.search call. The REST request used the fixed Search endpoint with the runtime key in the header; the response was mocked and this unit/integration test made no external TinyFish request.
+- The action event recorded the selected tool, provider result, pre-action forecast and matched observed workspace delta. The task final response and protected README postcondition were independently checked.
+- The key string was absent from the serialized trajectory.
+- A transport timeout test confirms the configured timeout is passed through, a timeout is not retried, and the key is not echoed in the error.
+
+The first run of the model-facing test failed because its initial test assumption omitted catalog.search, which DHI intentionally always exposes for dynamic tool discovery. The test was corrected to expect catalog.search plus the explicitly allowed TinyFish search tool. No production-code change was needed for that correction. The corrected focused run passed 15 direct invocations; the timeout test then brought the total to 16.
+
+The six changed Python files also passed in-memory compilation with compile(source_text, filename, 'exec'). This checks Python syntax without writing bytecode. It is not the same as compileall or a full test-suite pass.
+
+Remaining verification gate: pytest discovery has timed out before collection in the Deepnote execution environment. The complete benchmark/environment regression has not been rerun on the adapter commit. The 16 direct assertions and in-memory compile are useful focused evidence, but do not substitute for the full pytest gate. The test-only notebook cells were deleted after capturing the run; the original regression block and earlier TinyFish provider-smoke evidence cells remain. The verifier machine was stopped.
+
+## Alternate local test-runner attempt — 2026-11-03
+
+An alternate local container runner was attempted after Deepnote pytest collection timed out. The exact branch remote could not be reached:
+
+- Command: git ls-remote https://github.com/Kshitijpalsinghtomar/dhi.git refs/heads/orbit/plugin-benchmark-fixture
+- Result: failed before checkout with DNS error, Could not resolve host: github.com.
+- No local checkout was created and no tests ran in that environment.
+
+This is an execution-environment/network limitation, not a code or test failure. The next full-suite attempt requires a runner that can access GitHub and check out the exact branch.

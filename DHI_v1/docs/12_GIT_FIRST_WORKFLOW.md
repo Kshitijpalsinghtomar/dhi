@@ -13,7 +13,7 @@ Do not wait until the end of a session to write a handover. Record work as it ha
 
 1. Read `DHI_v1/WORKSPACE.md` first. It is the live continuation pointer.
 2. Fetch the latest `main` commit and confirm the workspace file's recorded head/status is not stale.
-3. Read the controlling plan, relevant method/benchmark/data protocol, decision log, and the exact experiment record needed for the next action.
+3. Read the [ORBIT Research Method](13_ORBIT_RESEARCH_METHOD.md), controlling plan, relevant benchmark/data protocol, decision log, and exact experiment record needed for the next action.
 4. Check the latest commits and repository changes before editing. Never overwrite a newer update based on an old local copy.
 5. Keep DHI-v0, GBA/DPAK, and unrelated projects separate unless a committed DHI decision explicitly links them.
 
@@ -23,7 +23,7 @@ For each meaningful unit of work, update and commit the relevant records before 
 
 - **Code change:** commit implementation, its regression tests, and the corresponding documentation update. State exactly what changed and what was not changed.
 - **Experiment:** record the question, status, protocol/version, model and revision, data and split hashes, environment, configuration, seed, execution command, timestamps, raw output locations, metrics, uncertainty, failures, interpretation, limitations, decision, and next step.
-- **Research/reference review:** record the source/version/date, what was checked, relevant findings, how it affects the existing DHI decision, and any uncertainty. Do not silently convert a source into a new project hypothesis.
+- **Research/reference review:** record the source/version/date, upstream commit/blob, what was checked, relevant findings, how it affects the existing DHI decision, and uncertainty. Apply the ORBIT Research Method; do not silently convert a source into a new project hypothesis.
 - **Decision:** append a dated entry to `DHI_v1/docs/07_DECISIONS_AND_RESEARCH_LOG.md`. Preserve old entries; corrections must be labelled as corrections.
 - **Failed or inconclusive work:** record it too. A failed run, blocker, unavailable endpoint, invalid dataset, or interrupted experiment is part of the research record.
 - **Long-running task:** before launch, commit the intended run ID, frozen settings, expected outputs, and status=`running`. After it ends or is interrupted, commit the actual status and evidence. Never report a run as complete from a launch response alone.
@@ -46,6 +46,8 @@ For each meaningful unit of work, update and commit the relevant records before 
 Update the workspace at every meaningful checkpoint and at session end. Do not use it as a replacement for detailed experiment records or the append-only decision log.
 
 ## Experiment record structure
+
+Use [the ORBIT Experiment Record Template](../experiments/EXPERIMENT_RECORD_TEMPLATE.md) and follow [the ORBIT Research Method](13_ORBIT_RESEARCH_METHOD.md) for every new experiment.
 
 When an experiment starts, create a stable directory under `DHI_v1/experiments/<experiment-id>/` with:
 

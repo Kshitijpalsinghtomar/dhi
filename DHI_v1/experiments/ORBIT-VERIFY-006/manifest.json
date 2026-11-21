@@ -1,0 +1,95 @@
+{
+  "experiment_id": "ORBIT-VERIFY-006",
+  "date": "2026-11-03",
+  "status": "passed",
+  "code_under_test": "410d1113231cef020dc72292ccf2496e580f803e",
+  "branch": "orbit/plugin-benchmark-fixture",
+  "hypothesis": "The new plugin execution boundary and all prior benchmark/environment functionality pass exact-head regression.",
+  "intervention": "Add plugin_execution preparation/dispatch boundary and eight focused tests; no provider runtime or model inference.",
+  "source_identity": {
+    "exact_match_files": [
+      "DHI_v1/benchmark/plugin_execution.py",
+      "DHI_v1/benchmark/tests/test_plugin_execution.py",
+      "DHI_v1/benchmark/plugin_task_loader.py",
+      "DHI_v1/benchmark/tests/test_plugin_task_loader.py",
+      "DHI_v1/benchmark/fixtures/plugin_ecology/plugin_tool_registry.json",
+      "DHI_v1/benchmark/plugin_trace.py",
+      "DHI_v1/benchmark/plugin_trace.schema.json",
+      "DHI_v1/environment/agent_runner.py",
+      "DHI_v1/environment/dhi_env.py",
+      "DHI_v1/environment/tinyfish_client.py"
+    ],
+    "task_manifest_blob_sha": "f1a73f4cc377f0ea72a37f7d2f9a3e7476ffe033",
+    "task_manifest_identical_to_verify_005": true
+  },
+  "commands": [
+    "python -m DHI_v1.benchmark.validate_task_manifest --json",
+    "python -m pytest -q DHI_v1/benchmark/tests DHI_v1/environment/tests",
+    "python -m compileall -q DHI_v1/benchmark DHI_v1/environment",
+    "entrypoint and plugin manifest/dispatch smoke tests"
+  ],
+  "guards": [
+    "No model inference or training.",
+    "No external provider calls or provider credits spent.",
+    "No GitHub write or repository mutation from the verifier.",
+    "No execution of the original saved regression block or provider-probe cells.",
+    "All live manifest tasks remain model_runs_allowed=false."
+  ],
+  "focused_runs": {
+    "red": "fbfaa878-9d54-4262-8ca0-a4e8a0e5cbcc",
+    "first_green_attempt": "3320182b-af56-4b49-adb7-0f3bea45da47",
+    "corrected_focused_green": "71251b83-84ba-4f7e-83a7-f87e8acd1a3c"
+  },
+  "full_run": "6591b36d-6233-4443-b9e0-fbf4b0ac1197",
+  "decision": "pass_engineering_plugin_dispatch_regression_only",
+  "evidence_boundary": "The canonical manifest loader and generic fail-closed dispatch boundary pass the full regression and synthetic-handler smoke. It is not yet wired into the full model loop and does not establish real provider execution, benchmark task validation, model capability or training readiness.",
+  "result": {
+    "manifest_validator": {
+      "passed": true,
+      "valid": true,
+      "task_count": 30,
+      "stage_counts": {
+        "A": 30,
+        "B": 0
+      },
+      "errors": []
+    },
+    "full_pytest": {
+      "passed": 174,
+      "failed": 0,
+      "elapsed_seconds": 384.86,
+      "pytest_reported_duration_seconds": 339.47
+    },
+    "compileall": {
+      "passed": true,
+      "returncode": 0,
+      "elapsed_seconds": 58.551
+    },
+    "entrypoint_import_smoke": {
+      "passed": true,
+      "returncode": 0,
+      "elapsed_seconds": 27.233
+    },
+    "plugin_manifest_loader_smoke": {
+      "passed": true,
+      "task_plans": 30,
+      "required_tool_ids_within_allowlist": true,
+      "model_runs_enabled": 0,
+      "elapsed_seconds": 2.162
+    },
+    "synthetic_plugin_dispatch_smoke": {
+      "passed": true,
+      "canonical_tools": [
+        "mcp__TinyFish__fetch_content",
+        "mcp__TinyFish__search"
+      ],
+      "external_provider_calls": 0,
+      "elapsed_seconds": 3.865
+    },
+    "python": "3.13.18",
+    "platform": "Linux-6.18.57-talos-x86_64-with-glibc2.36",
+    "provider_calls": 0,
+    "training_jobs": 0
+  },
+  "raw_result_path": "DHI_v1/experiments/ORBIT-VERIFY-006/results/verification-report.json"
+}

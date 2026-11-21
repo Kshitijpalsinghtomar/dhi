@@ -1,0 +1,55 @@
+{
+  "experiment_id": "ORBIT-VERIFY-012",
+  "status": "complete",
+  "evidence_class": "exploratory",
+  "branch": "orbit/plugin-benchmark-fixture",
+  "code_under_test": "7f244bf76ccbccec5477b0055d23da5a5931e27a",
+  "deepnote": {
+    "project_id": "6415944e-8d6c-432c-a7cf-3bbaa997799c",
+    "notebook_id": "3639f9a98ce5435fa4cd0168eaaca3a1",
+    "verifier_block_id": "d76385ef1ba24707ae3f97b7bef2987e",
+    "full_run_id": "3f2f3b31-86db-46f3-a731-f9f4c502435d",
+    "focused_runtime_run_id": "9bd9c829-ff96-49a4-8eee-82b6b0bc4ba8"
+  },
+  "environment": {
+    "python": "3.13.18",
+    "platform": "linux"
+  },
+  "results": {
+    "manifest_valid": true,
+    "tasks": 30,
+    "stage_a": 30,
+    "stage_b": 0,
+    "pytest_passed": 224,
+    "pytest_failed": 0,
+    "compileall": true,
+    "entrypoint_import_smoke": true,
+    "plugin_loader_plans": 30,
+    "model_runs_enabled": 0,
+    "all_passed": true
+  },
+  "command_timings_seconds": {
+    "manifest_validator": 29.398,
+    "full_pytest": 467.996,
+    "compileall": 80.397,
+    "entrypoint_import_smoke": 28.934,
+    "plugin_manifest_loader_smoke": 2.087
+  },
+  "external_effects": {
+    "live_github_requests": 0,
+    "github_writes": 0,
+    "tinyfish_requests": 0,
+    "model_inference_calls": 0,
+    "training_jobs": 0,
+    "dataset_generation_jobs": 0
+  },
+  "interpretation": "Full exact-head offline engineering regression passed for the trusted task-scoped GitHub runtime. It validates harness/adapter integration through unit tests and fake HTTP only; it does not establish ORBIT model capability, live provider access or benchmark task validation.",
+  "remaining_gaps": [
+    "Deepnote still lacks project-scoped GitHub token, explicit write-enable configuration and repository allowlist; no live provider request occurred.",
+    "Dedicated task sandbox branch must be provisioned/reset to its manifest-pinned base SHA before S06 execution.",
+    "All 30 Stage A tasks remain ready_for_validation; Stage B remains sealed and empty.",
+    "No untouched-model inference, model-generated trajectories, capability score or training result exists."
+  ],
+  "next_action": "After explicit access approval, provision the task-scoped sandbox branch and perform one controlled S06 live provider smoke test; keep all manifest model_runs_allowed flags false.",
+  "finished_at_utc": "2026-11-05T07:48:16Z"
+}

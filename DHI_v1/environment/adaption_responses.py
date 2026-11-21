@@ -161,7 +161,6 @@ class AdaptionResponsesClient:
     def _request(self, method: str, path: str, body: dict[str, Any] | None = None) -> dict[str, Any]:
         url = f"{self.base_url}/api/v1/{path.lstrip('/')}"
         headers = {
-            "Authorization": f"Bearer {self.api_key}",
             "Accept": "application/json",
         }
         if body is not None:
@@ -170,6 +169,9 @@ class AdaptionResponsesClient:
             headers["X-Organization-Id"] = self.organization_id
         data = json.dumps(body).encode("utf-8") if body is not None else None
         request = urllib.request.Request(url, data=data, headers=headers, method=method)
+        # urllib's redirect handler copies Request.headers; keep bearer auth in
+        # unredirected_hdrs so a redirect cannot forward this credential.
+        request.add_unredirected_header("Authorization", f"Bearer {self.api_key}")
         try:
             with urllib.request.urlopen(request, timeout=self.timeout_seconds) as response:
                 payload = response.read()

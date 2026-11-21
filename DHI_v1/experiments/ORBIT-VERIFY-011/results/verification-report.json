@@ -1,0 +1,73 @@
+{
+  "experiment_id": "ORBIT-VERIFY-011",
+  "branch": "orbit/plugin-benchmark-fixture",
+  "code_under_test": "cbcccd15be56df159351ac88b4580f07f98e9312",
+  "python": "3.13.18 (main, Oct 28 2026, 14:29:13) [GCC 12.2.0]",
+  "platform": "linux",
+  "commands": [
+    {
+      "name": "manifest_validator",
+      "command": [
+        "/root/venv/bin/python",
+        "-m",
+        "DHI_v1.benchmark.validate_task_manifest",
+        "--json"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 6.84,
+      "output": "{\n  \"valid\": true,\n  \"task_count\": 30,\n  \"stage_counts\": {\n    \"A\": 30,\n    \"B\": 0\n  },\n  \"errors\": []\n}\n"
+    },
+    {
+      "name": "full_pytest",
+      "command": [
+        "/root/venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "DHI_v1/benchmark/tests",
+        "DHI_v1/environment/tests"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 443.893,
+      "output": "\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m [ 34%]\n\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m [ 68%]\n\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m        [100%]\u001b[0m\n\u001b[32m\u001b[32m\u001b[1m209 passed\u001b[0m\u001b[32m in 397.88s (0:06:37)\u001b[0m\u001b[0m\n"
+    },
+    {
+      "name": "compileall",
+      "command": [
+        "/root/venv/bin/python",
+        "-m",
+        "compileall",
+        "-q",
+        "DHI_v1/benchmark",
+        "DHI_v1/environment"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 83.511,
+      "output": ""
+    },
+    {
+      "name": "entrypoint_import_smoke",
+      "command": [
+        "/root/venv/bin/python",
+        "-c",
+        "from DHI_v1.environment.agent_runner import run_agent_task, client_from_env, OpenAICompatibleChatClient; from DHI_v1.environment.adaption_responses import AdaptionResponsesClient; from DHI_v1.environment.tinyfish_client import TinyFishReadOnlyClient; from DHI_v1.environment.github_client import GitHubReadWriteClient; from DHI_v1.benchmark.plugin_runner import run_plugin_task; from DHI_v1.benchmark.plugin_trace import validate_trace, grade_task; print('entrypoint imports: ok')"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 31.911,
+      "output": "entrypoint imports: ok\n"
+    },
+    {
+      "name": "plugin_manifest_loader_smoke",
+      "command": [
+        "/root/venv/bin/python",
+        "-c",
+        "from DHI_v1.benchmark.plugin_task_loader import load_all_plugin_tasks; p=load_all_plugin_tasks('DHI_v1/benchmark/task_manifest.json','DHI_v1/benchmark/fixtures/plugin_ecology/plugin_tool_registry.json'); assert len(p)==30; assert all(set(x.required_tool_ids).issubset(x.allowed_tool_ids) for x in p); assert not any(x.model_runs_allowed for x in p); print('plugin plans:',len(p),'model runs enabled:',sum(x.model_runs_allowed for x in p))"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 2.388,
+      "output": "plugin plans: 30 model runs enabled: 0\n"
+    }
+  ],
+  "all_passed": true,
+  "finished_at_utc": "2026-11-05T07:11:56Z"
+}

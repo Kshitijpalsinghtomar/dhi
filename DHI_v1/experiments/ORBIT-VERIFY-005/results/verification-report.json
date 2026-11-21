@@ -1,0 +1,76 @@
+{
+  "experiment_id": "ORBIT-VERIFY-005",
+  "code_under_test": "ea3269aec35527386804ac357a953933de31fbf0",
+  "python": "3.13.18 (main, Oct 28 2026, 14:29:13) [GCC 12.2.0]",
+  "platform": "Linux-6.18.57-talos-x86_64-with-glibc2.36",
+  "commands": [
+    {
+      "name": "manifest_validator",
+      "command": [
+        "/root/venv/bin/python",
+        "-m",
+        "DHI_v1.benchmark.validate_task_manifest",
+        "--json"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 28.846,
+      "output": "{\n  \"valid\": true,\n  \"task_count\": 30,\n  \"stage_counts\": {\n    \"A\": 30,\n    \"B\": 0\n  },\n  \"errors\": []\n}\n"
+    },
+    {
+      "name": "full_pytest",
+      "command": [
+        "/root/venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "DHI_v1/benchmark/tests",
+        "DHI_v1/environment/tests"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 384.195,
+      "output": "\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m [ 43%]\n\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m [ 86%]\n\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m                                                   [100%]\u001b[0m\n\u001b[32m\u001b[32m\u001b[1m166 passed\u001b[0m\u001b[32m in 337.40s (0:05:37)\u001b[0m\u001b[0m\n"
+    },
+    {
+      "name": "compileall",
+      "command": [
+        "/root/venv/bin/python",
+        "-m",
+        "compileall",
+        "-q",
+        "DHI_v1/benchmark",
+        "DHI_v1/environment"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 57.936,
+      "output": ""
+    },
+    {
+      "name": "entrypoint_import_smoke",
+      "command": [
+        "/root/venv/bin/python",
+        "-c",
+        "from DHI_v1.environment.agent_runner import run_agent_task, client_from_env; from DHI_v1.environment.adaption_responses import AdaptionResponsesClient; from DHI_v1.benchmark.runner import run_pilot_benchmark; from DHI_v1.benchmark.plugin_task_loader import load_all_plugin_tasks; print('entrypoint imports: ok')"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 27.745,
+      "output": "entrypoint imports: ok\n"
+    },
+    {
+      "name": "plugin_manifest_loader_smoke",
+      "command": [
+        "/root/venv/bin/python",
+        "-c",
+        "from DHI_v1.benchmark.plugin_task_loader import load_all_plugin_tasks; plans = load_all_plugin_tasks('DHI_v1/benchmark/task_manifest.json', 'DHI_v1/benchmark/fixtures/plugin_ecology/plugin_tool_registry.json'); assert len(plans) == 30; assert all(set(p.required_tool_ids).issubset(p.allowed_tool_ids) for p in plans); assert not any(p.model_runs_allowed for p in plans); print('plugin task plans:', len(plans), 'model runs enabled:', sum(p.model_runs_allowed for p in plans))"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 2.5,
+      "output": "plugin task plans: 30 model runs enabled: 0\n"
+    }
+  ],
+  "dependency_bootstrap": {
+    "missing_before_install": [],
+    "status": "already_installed"
+  },
+  "all_passed": true,
+  "finished_at_utc": "2026-11-03T15:27:17Z"
+}

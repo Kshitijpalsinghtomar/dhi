@@ -1,0 +1,66 @@
+{
+  "experiment_id": "ORBIT-VERIFY-005",
+  "date": "2026-11-03",
+  "status": "passed",
+  "code_under_test": "ea3269aec35527386804ac357a953933de31fbf0",
+  "branch": "orbit/plugin-benchmark-fixture",
+  "question": "Does the full benchmark/environment suite pass with the canonical plugin task loader and explicit policy mapping?",
+  "hypothesis": "The loader and its tests do not regress existing benchmark/environment behaviour.",
+  "intervention": "Add loader module and eight focused policy/registry/manifest tests; no provider execution or model inference.",
+  "source_identity": {
+    "checked_exact": [
+      "DHI_v1/benchmark/plugin_task_loader.py",
+      "DHI_v1/benchmark/tests/test_plugin_task_loader.py",
+      "DHI_v1/benchmark/fixtures/plugin_ecology/plugin_tool_registry.json",
+      "DHI_v1/environment/agent_runner.py",
+      "DHI_v1/environment/dhi_env.py",
+      "DHI_v1/environment/tinyfish_client.py"
+    ],
+    "manifest_blob_sha256": "f1a73f4cc377f0ea72a37f7d2f9a3e7476ffe033",
+    "manifest_lines": 4704,
+    "manifest_chunks": 19,
+    "manifest_all_chunks_match": true
+  },
+  "runs": {
+    "red_module_missing": "a06e4d42-2093-42c2-90f4-83af4f85b52f",
+    "first_path_error": "de8dfff9-4fc6-4ff1-839d-a4def647fa44",
+    "unknown_tool_message_order": "9abb2f74-819c-4c46-a6af-7f92a232a698",
+    "unrelated_permission_red": "39c767ed-d15f-45f7-9a81-869422c9461a",
+    "focused_green": "0578c28c-9144-421e-87c0-ff7ca639ba31",
+    "full_regression": "384fec58-6f67-407a-b599-301b3b9de74a"
+  },
+  "result": {
+    "manifest_validator": {
+      "passed": true,
+      "valid": true,
+      "tasks": 30,
+      "stage_a": 30,
+      "stage_b": 0,
+      "errors": []
+    },
+    "pytest": {
+      "passed": 166,
+      "failed": 0,
+      "elapsed_seconds": 384.195,
+      "reported_duration_seconds": 337.4
+    },
+    "compileall": {
+      "passed": true,
+      "returncode": 0
+    },
+    "entrypoint_import_smoke": {
+      "passed": true,
+      "returncode": 0
+    },
+    "plugin_manifest_loader_smoke": {
+      "passed": true,
+      "plans": 30,
+      "model_runs_enabled": 0
+    },
+    "python": "3.13.18",
+    "platform": "Linux-6.18.57-talos-x86_64-with-glibc2.36"
+  },
+  "raw_result_path": "DHI_v1/experiments/ORBIT-VERIFY-005/results/verification-report.json",
+  "decision": "pass_engineering_loader_regression_only",
+  "evidence_boundary": "The task loader resolves 30 authored tasks against the registry and enforces its permission mapping. It does not wire provider handlers into the agent runner, establish task execution, establish model capability, or authorize inference or training."
+}

@@ -1,0 +1,65 @@
+{
+  "experiment_id": "INFER-003",
+  "date": "2026-11-03",
+  "status": "blocked",
+  "evidence_class": "read_only_live_route_and_runtime_readiness_audit",
+  "model_calls": 0,
+  "training_jobs": 0,
+  "paid_requests": 0,
+  "openrouter_account": {
+    "total_credits_usd": 0,
+    "total_usage_usd": 0.20190338
+  },
+  "candidate_routes": [
+    {
+      "model": "qwen/qwen3.6-35b-a3b",
+      "provider": "PrimeIntellect",
+      "quantization": "fp8",
+      "input_price_usd_per_million": 0.011,
+      "output_price_usd_per_million": 0.1,
+      "supports_tools": true,
+      "supports_tool_choice_auto": true,
+      "supports_tool_choice_required": true,
+      "uptime_1d_percent": 100
+    },
+    {
+      "model": "openai/gpt-oss-20b",
+      "provider": "PrimeIntellect",
+      "quantization": "fp4",
+      "input_price_usd_per_million": 0.016,
+      "output_price_usd_per_million": 0.069,
+      "supports_tools": true,
+      "supports_tool_choice_auto": true,
+      "supports_tool_choice_required": false,
+      "uptime_1d_percent": 99.93045897079277
+    }
+  ],
+  "frozen_common_tool_choice": "auto",
+  "runtime": {
+    "deepnote_project_id": "6415944e-8d6c-432c-a7cf-3bbaa997799c",
+    "attached_integrations": ["TINYFISH"],
+    "openrouter_environment_integration_found": false,
+    "client_exists": "OpenAICompatibleChatClient",
+    "provider_routing_pinned_in_request_body": false,
+    "required_secret": "DHI_MODEL_API_KEY",
+    "required_base_url": "https://openrouter.ai/api/v1"
+  },
+  "cost_scenario": {
+    "tasks_per_model": 120,
+    "input_tokens_per_task": 40000,
+    "output_tokens_per_task": 12000,
+    "qwen_estimate_usd": 0.1968,
+    "gpt_oss_estimate_usd": 0.17616,
+    "both_models_estimate_usd": 0.37296,
+    "note": "Illustrative calculation only; excludes additional conversation growth, reasoning, tool turns and retries."
+  },
+  "decision": "Do not call inference until exact-head regression, provider pin, secure runtime credential and measured cost cap are complete.",
+  "evidence": {
+    "openrouter_credit_response": "total_credits=0; total_usage=0.20190338",
+    "endpoint_queries": [
+      "qwen/qwen3.6-35b-a3b",
+      "openai/gpt-oss-20b"
+    ],
+    "deepnote_integration_search": "OPENROUTER returned no integrations"
+  }
+}

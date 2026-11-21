@@ -1,0 +1,69 @@
+{
+  "experiment_id": "ORBIT-VERIFY-009",
+  "title": "GitHub adapter security and full regression",
+  "date": "2026-11-03",
+  "status": "passed",
+  "code_under_test": "cca077e9c5c6b50fffee94ea3c74576c89c34462",
+  "branch_snapshot": "eb0f681d13b333b6b4c03b5b14f9555ca624a6ef",
+  "deepnote": {
+    "project_id": "6415944e-8d6c-432c-a7cf-3bbaa997799c",
+    "notebook_id": "3639f9a98ce5435fa4cd0168eaaca3a1",
+    "run_id": "a249a76e-6454-4ca8-b9c4-64ca6a098c2f",
+    "report_path": "DHI_v1/experiments/ORBIT-VERIFY-009/results/verification-report.json"
+  },
+  "checks": {
+    "manifest_validator": {
+      "status": "passed",
+      "valid": true,
+      "task_count": 30,
+      "stage_counts": {
+        "A": 30,
+        "B": 0
+      },
+      "errors": []
+    },
+    "full_pytest": {
+      "status": "passed",
+      "passed": 203,
+      "failed": 0,
+      "elapsed_seconds": 379.573
+    },
+    "compileall": {
+      "status": "passed",
+      "returncode": 0,
+      "elapsed_seconds": 79.837
+    },
+    "entrypoint_import_smoke": {
+      "status": "passed",
+      "returncode": 0
+    },
+    "plugin_manifest_loader_smoke": {
+      "status": "passed",
+      "task_plans": 30,
+      "model_runs_enabled": 0
+    }
+  },
+  "focused_adapter_tests": {
+    "status": "passed",
+    "passed": 21,
+    "failed": 0,
+    "run_id": "5855c01e-c3cc-4248-be3a-5ae165d2f70f",
+    "elapsed_seconds": 112.39
+  },
+  "security_changes": [
+    "Reject HTTP redirects before following them in both GitHub REST and public fetch transports, preventing bearer-token forwarding.",
+    "Restrict bundle-test handlers to the task-visible tool IDs.",
+    "Fix late-bound test lambdas by capturing each tool ID at definition time.",
+    "Use a synthetic disposable sandbox branch name in the S06 write-guard test."
+  ],
+  "boundaries": {
+    "live_github_requests": 0,
+    "github_writes": 0,
+    "model_calls": 0,
+    "training_jobs": 0,
+    "all_manifest_model_runs_allowed": false,
+    "task_validation_status": "ready_for_validation",
+    "note": "This verifies deterministic harness and adapter mechanics with fake HTTP. It does not establish ORBIT learned capability or end-to-end GitHub task success."
+  },
+  "finished_at_utc": "2026-11-03T18:10:20Z"
+}

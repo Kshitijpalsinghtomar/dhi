@@ -1,0 +1,128 @@
+{
+  "experiment_id": "ORBIT-S06-LIVE-SMOKE-001",
+  "started_at_utc": "2026-11-05T08:38:28.751Z",
+  "report_commit": "3b9b8be6a4c5d2ad22306e67288e7ba1dc975d0f",
+  "completed_at_utc": "2026-11-05T08:43:31.068Z",
+  "branch": "orbit/sandbox/orbit-a-s06-001",
+  "base_commit": "af6c0d31fcf2e3232cb427c421850536139e3b3a",
+  "output_path": "DHI_v1/benchmark/fixtures/plugin_ecology/reports/release-readiness.md",
+  "report_blob_sha": "cca5127e66bc698f5c9cdfd8135a33ab45c8d985",
+  "branch_diff": {
+    "status": "ahead",
+    "ahead_by": 1,
+    "behind_by": 0,
+    "files": [
+      {
+        "filename": "DHI_v1/benchmark/fixtures/plugin_ecology/reports/release-readiness.md",
+        "status": "added",
+        "additions": 51,
+        "deletions": 0
+      }
+    ]
+  },
+  "source_files_verified": 7,
+  "required_metrics": {
+    "not_done": 8,
+    "not_done_hours": 35,
+    "open": 4,
+    "open_hours": 19,
+    "passed": 3,
+    "blocked": 1,
+    "not_run": 1,
+    "failed": 1
+  },
+  "token_preflight": {
+    "repo_get": 200,
+    "pinned_commit_get": 200,
+    "create_ref_post": 403,
+    "contents_put": 403,
+    "error": "Resource not accessible by personal access token",
+    "recheck_after_user_update": {
+      "run_id": "652a27e7-954d-4583-9bec-30a8573f346d",
+      "branch_ref_write_probe_http": 403,
+      "contents_update_wrong_sha_probe_http": 403,
+      "github_message": "Resource not accessible by personal access token",
+      "branch_head_unchanged": true,
+      "report_blob_unchanged": true,
+      "repository_mutations": 0,
+      "token_value_exposed": false
+    },
+    "final_permission_diagnostic": {
+      "run_id": "907a8bfa-6aa9-4468-b726-55de63229c29",
+      "user_endpoint_http": 200,
+      "authenticated_user_matches_repository_owner": true,
+      "branch_read_http": 200,
+      "duplicate_ref_write_http": 403,
+      "accepted_permissions_header": "contents=write; contents=write,workflows=write",
+      "no_repository_mutation": true
+    },
+    "post_user_update_contents_write_preflight": {
+      "run_id": "3c722666-6e68-46c6-ae57-ccf76b256dbd",
+      "verifier_block_id": "e4c9f16ba86540d992e67c1392b5304e",
+      "deliberate_stale_sha_put_http": 409,
+      "github_response": "does not match 0000000000000000000000000000000000000000",
+      "effective_contents_write_permission": "confirmed",
+      "branch_head_unchanged": true,
+      "report_blob_unchanged": true,
+      "repository_mutations": 0,
+      "token_value_exposed": false
+    },
+    "deepnote_contents_write_permission_preflight": {
+      "run_id": "3c722666-6e68-46c6-ae57-ccf76b256dbd",
+      "deliberate_stale_sha_put_http": 409,
+      "effective_contents_write_permission": "confirmed",
+      "repository_mutations": 0
+    }
+  },
+  "actions": {
+    "sandbox_branch_provisioned_by": "connected GitHub repository integration",
+    "report_created_by": "connected GitHub repository integration",
+    "readback_and_diff_verified_by": [
+      "connected GitHub repository integration",
+      "Deepnote GITHUB_TOKEN read-only client"
+    ]
+  },
+  "model_calls": 0,
+  "training_calls": 0,
+  "issue_source_configuration_deployment_mutations": 0,
+  "manifest_model_runs_allowed": false,
+  "all_artifact_assertions_passed": true,
+  "deepnote_token_write_path_passed": true,
+  "end_to_end_token_backed_runtime_smoke_passed": false,
+  "contents_write_permission_preflight_passed": true,
+  "permission_probe_interpretation": "The Deepnote token now passes Contents-write authorization. The deliberately invalid SHA causes HTTP 409 before any file update; no valid token-backed write was performed.",
+  "token_write": {
+    "run_id": "cc7686cc-a9cf-4bae-8b90-76dc36826b46",
+    "http_status": 200,
+    "previous_blob_sha": "cca5127e66bc698f5c9cdfd8135a33ab45c8d985",
+    "new_blob_sha": "39e2ad46c72899ffcf47c283b5323ff8fc4456bd",
+    "commit_sha": "60d02d29220d4f85a007f9677f1d26e4c31a8e0a",
+    "independent_readback_exact": true,
+    "only_approved_path_changed": true,
+    "compare_ahead_by": 2,
+    "compare_behind_by": 0,
+    "changed_path_count": 1
+  },
+  "adjudication": {
+    "run_id": "7d0c8261-5edb-4cdf-a578-01ecc4edf72a",
+    "status": "passed",
+    "checks_passed": 11,
+    "checks_total": 11,
+    "pinned_source_files_verified": 7,
+    "report_blob_sha": "39e2ad46c72899ffcf47c283b5323ff8fc4456bd",
+    "model_execution": "not_run",
+    "training": "not_authorized"
+  },
+  "manifest_record": {
+    "run_id": "be30e5c8-d408-451c-9743-12afe3a2b1ff",
+    "commit_sha": "7850e9f6efadd2aaa4236c4a612980e8b8d46a53",
+    "blob_sha": "541106e544f80ed2fcd2b1d8ecbe63006acb6464",
+    "validator_valid": true,
+    "task_status": "ready_for_validation",
+    "contract_check": "pass",
+    "environment_check": "pass",
+    "grader_check": "pass",
+    "family_review_status": "accepted",
+    "model_runs_allowed": false
+  }
+}
