@@ -1,9 +1,9 @@
 # DHI-v1 / ORBIT — Research Status Tree
 
-**As of:** 2026-11-15  
+**As of:** 2026-11-21  
 **Repository:** Kshitijpalsinghtomar/dhi  
 **Active branch:** orbit/plugin-benchmark-fixture  
-**Branch head at audit:** 28ed57fe4a320aee387f0d5d9ca1c3cdb2837a1c  
+**S08 verified code head before status-document updates:** 276b5278e43f421abb15209d67a1c2c5536c7fcc  
 **Default branch:** main at c640e7152885e8c4e0171afd69b9a50ec711636a
 
 > Scope is DHI-v1 / ORBIT only. This report does not combine GBA/DPAK, Oriael, FDLT, TENS or other programmes. GitHub remains the source of truth. No merge to main, model inference, training or provider-credit spending is authorized.
@@ -23,7 +23,7 @@
         ├── B. Study 0 — untouched base-model capability screen [CURRENT GATE]
         │   ├── Stage A: 30 / 120 tasks materialized
         │   ├── Stage B: 0 / 120; sealed and unmaterialized
-        │   ├── Deterministic grader checks: 20 / 30 pass; 10 not_run
+        │   ├── Deterministic grader checks: 21 / 30 pass; 9 not_run
         │   ├── Independent family review: 1 accepted; 29 not_reviewed
         │   ├── Model executions: 0 / 30
         │   └── Model-run permissions: 0 / 30 enabled
@@ -44,9 +44,11 @@
 
 - The plugin-native Stage A manifest contains 30 task instances across 10 strata.
 - The tool registry, pinned synthetic environment/source fixtures, task contracts, trace grader and cross-record manifest validator are implemented.
-- Twenty task-specific deterministic grader checks are recorded as passing; ten remain not_run.
-- The latest integrated deterministic regression passed **134/134** in Deepnote run cda896d9-1462-421d-b1c5-9248ef945b48.
-- Exact committed-manifest validation passed: Deepnote run 4d41b975-c1be-4f0a-8938-86db3a27192e, 30 tasks, zero validation errors; benchmark/environment compileall exit code 0.
+- Twenty-one task-specific deterministic grader checks are recorded as passing; nine remain not_run.
+- S08-002 focused regression passed **13/13** in Deepnote run `1024f4d8-ae89-4f1f-bad6-a672793a4d97`.
+- Exact manifest validation passed in Deepnote run `486295ef-c9b1-4e52-b62a-e833711ad105`: valid=true, 30 tasks, zero errors; benchmark `compileall` exit code 0.
+- The broader integrated deterministic regression remains **134/134** in run cda896d9-1462-421d-b1c5-9248ef945b48 (historical integrated suite, separate from S08's 13 tests).
+- The active branch's `plugin_trace.py` SHA-256 is now pinned accurately in the manifest as `3c46fdf482603a8114a00bc03039d67e4ad7fd3a940cc49844d65dab736cb2e8`; the previous manifest digest `38b6bb...` was stale.
 - The research observer / joint-state measurement package passed 22/22 focused tests and compileall in run ca0c1e0e-bace-4927-ae65-5d83528eb59a.
 - S06-002 cross-source report closure is integrated: two pinned sources, exact report readback and one-path compare. S07-001 checkpoint/resume and S09-001 effect-prediction verifier work are also covered by focused/integrated deterministic regressions.
 
@@ -54,19 +56,22 @@
 
 ## 3. What is open / what we are solving now
 
-**Immediate task: ORBIT-A-S08-002 — Firecrawl fallback recovery.**
+**Completed gate: ORBIT-A-S08-002 — Firecrawl fallback recovery.**
 
-Test the actual discovery decision chain using the pinned fixture:
-1. Detect that the broad catalogue response contains a reranking fallback/timeout but still returns useful candidate items and nextTool.
-2. Use the returned candidate/continuation evidence to make the provider-filtered packages/package discovery call.
-3. Verify exact provider, capability, required inputs, ordering and discovery cost.
-4. Keep execution cost separate from discovery cost. Do not execute the one-credit paid provider.
-5. Add task-specific adversarial tests for false accepts before changing the grader.
+- The strict `discovery_sequence` contract binds the exact Firecrawl discovery tool, broad query/arguments, provider-filtered continuation, required output fields, required/forbidden answer claims, and discovery-versus-execution costs.
+- The task-specific fixture tests were repaired: imported helper aliased to avoid recursive self-calling; immutable manifest load cached with per-test deep copies; positive fixture wording no longer contains the forbidden `no matches` substring.
+- Focused deterministic tests: **13/13 passed** in Deepnote run `1024f4d8-ae89-4f1f-bad6-a672793a4d97`.
+- Exact manifest validation: Deepnote run `486295ef-c9b1-4e52-b62a-e833711ad105`, valid=true, 30 tasks, zero errors; benchmark `compileall` exit 0.
+- Task state: `grader_check=pass`, `review_status=not_reviewed`, execution `not_run`, `model_runs_allowed=false`. This is verifier-only evidence; no model or paid Firecrawl provider execution occurred.
 
-After S08-002, the manifest still lists these ten grader checks as not_run:
-S08-002, S09-002, S10-002, S02-003, S08-003, S06-003, S04-003, S07-002, S09-003, S06-004.
+**Next manifest entry: ORBIT-A-S09-002 — blocked by a stale environment baseline.**
 
-The 29 unreviewed task families remain a separate admission blocker. Do not convert grader-test passes into task-family acceptance. All 30 task executions remain not_run.
+Its pinned `branch_state_before.json` was captured on 2026-11-03 with only three branches and expects `orbit/effect-forecast-check` to be absent. The live 2026-11-21 branch inventory has 13 branches; `orbit/effect-forecast-check` already exists at the exact requested base SHA `af6c0d31fcf2e3232cb427c421850536139e3b3a`. The existing read-only finding is `DHI_v1/experiments/ORBIT-S09-002-BASELINE-CONTAMINATION-001/`. Do not execute this task, create a duplicate branch, or delete/reset the retained fixture. Rebaseline the complete environment snapshot and hashes or use an isolated repository fixture first.
+
+The manifest still has these nine grader checks as `not_run`:
+S09-002, S10-002, S02-003, S08-003, S06-003, S04-003, S07-002, S09-003, S06-004.
+
+The 29 unreviewed task families remain a separate admission blocker. Do not convert grader-test passes into task-family acceptance. All 30 task executions remain `not_run`.
 
 ## 4. Open research questions — not conclusions
 
@@ -84,7 +89,7 @@ These are falsifiable candidates from the research reset, not accepted novelty c
 | Order | Gate | Current status | Exit condition |
 |---|---|---|---|
 | 1 | Benchmark implementation and deterministic regression | Verified | Graders, schemas, manifest and runtime checks pass |
-| 2 | Finish remaining grader checks | In progress; 20/30 | All selected task graders validated with source-bound tests |
+| 2 | Finish remaining grader checks | In progress; 21/30 | All selected task graders validated with source-bound tests |
 | 3 | Independent task-family review | Blocked; 1/30 accepted | Every admitted task reviewed or explicitly excluded |
 | 4 | Freeze a genuine multi-task Stage A subset and matched protocol | Not ready | Exact tasks, graders, permissions, model revisions, seeds and budgets frozen |
 | 5 | Study 0 untouched base-model screen | Not started / unauthorized | Approved funded route and explicit authorization; raw traces preserved |
@@ -93,7 +98,7 @@ These are falsifiable candidates from the research reset, not accepted novelty c
 | 8 | Study 2 prediction / closure ablations | Planned | Matched A/B/C interventions; one factor changed at a time |
 | 9 | Study 3 held-out transfer and drift robustness | Planned | Independent held-out evaluation and safety/cost analysis |
 
-**How far along are we?** The evaluation infrastructure is materially built, but the scientific experiment has not begun. Stage A authoring is 25% of its 120-task target; deterministic grader checks are 20/30; independent family review is 1/30. Model inference, model-generated trajectories, capability scoring and training are all at zero. There is no defensible overall project-completion percentage yet.
+**How far along are we?** The evaluation infrastructure is materially built, but the scientific experiment has not begun. Stage A authoring is 25% of its 120-task target; deterministic grader checks are 21/30; independent family review is 1/30. Model inference, model-generated trajectories, capability scoring and training are all at zero. There is no defensible overall project-completion percentage yet.
 
 ## 6. Detours and decisions
 
@@ -137,6 +142,7 @@ No branch was deleted: the sandbox/reference branches preserve reproducible task
 - Do not merge or modify main.
 - Keep the task-specific reference/sandbox branches unchanged.
 - Do not run model inference, training, paid provider execution or spend provider credits.
+- Do not execute ORBIT-A-S09-002 until its stale branch-state baseline has been rebaselined or an isolated repository fixture has been prepared.
 - Keep all task execution states not_run and all model_runs_allowed=false.
 - Do not mark a task validated or a family accepted from synthetic trace fixtures or grader tests alone.
 - Record each meaningful change, test result and next action in GitHub before moving to another work unit.
