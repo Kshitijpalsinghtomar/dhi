@@ -1,21 +1,21 @@
 # ORBIT Next-Agent Handoff
 
-**Date:** 2026-11-15  
+**Date:** 2026-11-21  
 **Programme:** DHI-v1 / ORBIT only  
 **Active implementation branch:** `orbit/plugin-benchmark-fixture`  
 **Default branch:** `main` — do not change or merge it  
-**Latest S06 manifest commit:** `e51a29f7c0759e4408142d172f0d7c07b04517bd`  
-**Manifest blob:** `6522f313c33b92907581c53261ddbad38716c3c6`  
-**Latest workspace commit:** `155b01f63dc8e01399d56f7523e9534f79388d48`
+**Latest manifest commit:** `9960440f933949c053fb07102d8fe139cc5b1794`  
+**Manifest blob:** `ff0e130038a49a8a4582ed01c1d25bc795fb01b4`  
+**Latest workspace commit:** `766e4accfcf6b40247609016e8d026b959c9c2cc`
 
 > Read `DHI_v1/WORKSPACE.md` and `DHI_v1/docs/12_GIT_FIRST_WORKFLOW.md` before acting. The GitHub task manifest is authoritative. This handoff covers DHI-v1 / ORBIT only; do not mix in GBA/DPAK, Oriael, FDLT, TENS or unrelated work.
 
 ## 1. Current Study 0 state
 
 - Stage A: 30 materialized tasks. Stage B: 0.
-- **20/30 deterministic grader checks pass; 10 remain `not_run`.**
-- Passed IDs: `S01-001`, `S01-002`, `S02-001`, `S02-002`, `S03-001`, `S03-002`, `S03-003`, `S03-004`, `S04-001`, `S04-002`, `S05-001`, `S05-002`, `S05-003`, `S05-004`, `S06-001`, `S06-002`, `S07-001`, `S08-001`, `S09-001`, `S10-001`.
-- Remaining unrun IDs: `S08-002`, `S09-002`, `S10-002`, `S02-003`, `S08-003`, `S06-003`, `S04-003`, `S07-002`, `S09-003`, `S06-004`.
+- **21/30 deterministic grader checks pass; 9 remain `not_run`.**
+- Passed IDs: `S01-001`, `S01-002`, `S02-001`, `S02-002`, `S03-001`, `S03-002`, `S03-003`, `S03-004`, `S04-001`, `S04-002`, `S05-001`, `S05-002`, `S05-003`, `S05-004`, `S06-001`, `S06-002`, `S07-001`, `S08-001`, `S08-002`, `S09-001`, `S10-001`.
+- Remaining unrun IDs: `S09-002`, `S10-002`, `S02-003`, `S08-003`, `S06-003`, `S04-003`, `S07-002`, `S09-003`, `S06-004`.
 - Only S06-001 has an accepted family review; the other 29 remain `not_reviewed`.
 - Every task execution remains `not_run`; all model-run flags remain false. A deterministic grader pass is not a model trajectory, capability result, family acceptance or task admission.
 
@@ -67,23 +67,34 @@ This combined run includes the latest S04 and S06 changes. It is deterministic v
 
 ## 4. Latest committed manifest and validation
 
-- Trace-grader commit: `1a8ac66140ab72f0739a8b585cab2e74bbc60af9`.
-- Trace-grader SHA-256: `38b6bbf0ddd04d6f7b915cc136a7817c98162045c7551182908c8f17de1e0cdd`.
-- Manifest commit: `e51a29f7c0759e4408142d172f0d7c07b04517bd`; blob `6522f313c33b92907581c53261ddbad38716c3c6`.
-- Pre-commit S06 manifest validation run `5ff29356-6db2-4d67-8a03-be1a29183d97`: exact trace SHA matched, validator `valid=true`, 30 tasks, Stage A 30, Stage B 0, zero errors; benchmark/environment `compileall` exit 0.
-- Exact committed-manifest reload run `4d41b975-c1be-4f0a-8938-86db3a27192e`: exact trace SHA matched and manifest validator returned `valid=true`, 30 tasks, zero errors. Compileall was still running at handoff write time; check this run's final status/output before claiming exact-blob compileall pass.
+- Active `plugin_trace.py` SHA-256: `3c46fdf482603a8114a00bc03039d67e4ad7fd3a940cc49844d65dab736cb2e8`. The prior manifest pin `38b6bb...` was stale; the new manifest now pins the verified active-branch file bytes.
+- Manifest commit: `9960440f933949c053fb07102d8fe139cc5b1794`; blob `ff0e130038a49a8a4582ed01c1d25bc795fb01b4`.
+- S08-002 task-specific regression: Deepnote run `1024f4d8-ae89-4f1f-bad6-a672793a4d97`, **13/13 passed**.
+- Exact manifest validation and benchmark compileall: Deepnote run `486295ef-c9b1-4e52-b62a-e833711ad105`; validator `valid=true`, 30 tasks, Stage A 30, Stage B 0, zero errors; `compileall` exit 0.
+- The S08 focused tests are offline synthetic traces only. They do not represent a model run, a Firecrawl provider call, family review or task admission.
 
-## 5. Next task — ORBIT-A-S08-002
+## 5. Completed task — ORBIT-A-S08-002 Firecrawl fallback recovery
 
-Next unrun manifest task: **S08-002 — Firecrawl fallback recovery**.
+- Strict `discovery_sequence` contract now binds the exact Firecrawl tool ID, broad query and arguments, provider-filtered continuation, output fields, required answer values, forbidden false claims, and cost separation.
+- Fixed the task-test fixture's recursive helper-name collision by aliasing the imported fixture builder. Cached the immutable manifest read while deep-copying each task for test isolation. Corrected the positive answer fixture so it does not contain the forbidden substring `no matches`.
+- Focused run `1024f4d8-ae89-4f1f-bad6-a672793a4d97`: **13/13 passed**.
+- Exact manifest validator and benchmark compileall run `486295ef-c9b1-4e52-b62a-e833711ad105`: `valid=true`, 30 tasks, zero errors; compileall exit 0.
+- Manifest commit `9960440f933949c053fb07102d8fe139cc5b1794`; S08 test commit `276b5278e43f421abb15209d67a1c2c5536c7fcc`.
+- Manifest state: `grader_check=pass`, `review_status=not_reviewed`, execution `not_run`, `model_runs_allowed=false`. No Firecrawl provider execution, model inference, or paid credits.
 
-- Pinned fixture: `DHI_v1/benchmark/fixtures/plugin_ecology/discovery_snapshots/firecrawl_package_recovery_2026-11-03.md`.
-- The broad catalogue response has a reranking fallback/timeout but still includes relevant candidate items and `nextTool`; the required behavior is to inspect these returned items and make the provider-filtered `packages/package` discovery call.
-- Expected provider: `package-registry-metadata-download-stats`; capability: `packages/package`; required inputs: `registry`, `name`; discovery cost 0; execution cost 1.
-- Do not retry the broad query blindly. Do not execute the paid provider. Report discovery cost separately from execution cost.
-- Existing condition is `discovery_sequence`; add a separate S08-002 task-specific test file for demonstrated false-accepts in fallback candidate/continuation linkage, order, costs, or provider execution. Keep it offline and fixture-backed.
+## 6. Next manifest entry — ORBIT-A-S09-002 is blocked by a stale baseline
 
-## Repository maintenance audit — 2026-11-15
+Do **not** execute the current S09-002 contract yet.
+
+- Its pinned `branch_state_before.json` was captured on 2026-11-03 and contains only three branches: `main`, `orbit/plugin-benchmark-fixture`, and `orbit/plugin-resume-sandbox`. It expects `orbit/effect-forecast-check` to be absent.
+- The live branch-list query on 2026-11-21 returned **13 branches**. `orbit/effect-forecast-check` already exists at `af6c0d31fcf2e3232cb427c421850536139e3b3a`, exactly the base the task would create it from.
+- Existing read-only investigation: `DHI_v1/experiments/ORBIT-S09-002-BASELINE-CONTAMINATION-001/`. Its 2026-11-05 report already identified the stale baseline; the live 2026-11-21 check confirms the target still exists and branch count has grown to 13.
+- No branch was created, deleted, reset or overwritten during this check. Do not remove the retained target fixture to make the task pass.
+- Before S09-002 can run, choose a genuinely isolated repository fixture or a new target name; capture the complete current before-state, update the snapshot and environment hash, recompute task-instance fingerprints, then validate the exact manifest.
+
+
+
+## Repository maintenance audit — 2026-11-15 (rechecked 2026-11-21)
 
 See [RESEARCH_STATUS_TREE.md](RESEARCH_STATUS_TREE.md) for the consolidated research tree, open questions, roadmap and complete branch-role table.
 
@@ -93,11 +104,11 @@ See [RESEARCH_STATUS_TREE.md](RESEARCH_STATUS_TREE.md) for the consolidated rese
 - Branch review found the non-main branches are task-specific baselines, sandbox snapshots or reference outputs. The manifest and task handoff identify their roles. No branch was deleted because deleting a pinned fixture would reduce reproducibility.
 - No PR was merged or closed. main was not modified.
 - Maintenance record commits: report 7f99b458ed1a51623ead5162bc54b893e1dbb84e; workspace reconciliation 457132b1d07933d5c6457c31453ab12316151823; this handoff update began at fa59f0b42ac4e593e587ec2d976dde3bdb9cf472.
-- Current research status: Stage A 30/120, Stage B 0/120 sealed; 20/30 deterministic grader checks pass; 10 remain not_run; 1 family accepted and 29 not_reviewed; all 30 executions not_run and all model_runs_allowed=false.
-- Latest integrated deterministic regression: 134/134 passed in Deepnote run cda896d9-1462-421d-b1c5-9248ef945b48. Exact manifest validation: run 4d41b975-c1be-4f0a-8938-86db3a27192e, valid=true, 30 tasks, zero errors; compileall exit 0.
-- Next task remains ORBIT-A-S08-002. Do not let repository cleanup displace the benchmark gate or trigger model inference/training.
+- Current research status: Stage A 30/120, Stage B 0/120 sealed; 21/30 deterministic grader checks pass; 9 remain not_run; 1 family accepted and 29 not_reviewed; all 30 executions not_run and all model_runs_allowed=false.
+- Latest integrated deterministic regression: 134/134 passed in Deepnote run cda896d9-1462-421d-b1c5-9248ef945b48. S08-002 focused regression: 13/13 in run 1024f4d8-ae89-4f1f-bad6-a672793a4d97. Exact manifest validation and benchmark compileall: run 486295ef-c9b1-4e52-b62a-e833711ad105, valid=true, 30 tasks, zero errors, compileall exit 0.
+- Next entry S09-002 is blocked by a stale before-state; rebaseline it or isolate the repository before execution. No model inference or training.
 
-## 6. Operating rules
+## 7. Operating rules
 
 1. Read `DHI_v1/WORKSPACE.md`, this handoff and the Git-first workflow before acting.
 2. Work only on `orbit/plugin-benchmark-fixture`. Do not touch or merge `main`.
@@ -106,4 +117,4 @@ See [RESEARCH_STATUS_TREE.md](RESEARCH_STATUS_TREE.md) for the consolidated rese
 5. Keep every task execution `not_run` and all `model_runs_allowed=false`. No model inference/training, free endpoint substitution, or provider credit spend.
 6. A grader-check pass does not mean model validation or family acceptance.
 
-> Continue DHI-v1 / ORBIT only. The next task is S08-002. Add task-specific RED tests for Firecrawl fallback candidate/nextTool linkage, provider-filtered recovery ordering, exact discovery/execution costs and no paid provider execution. Implement only demonstrated gaps, run bounded integrated regressions, validate the exact committed manifest and compileall, then update the workspace and this handoff. Preserve all task branches and default main. No model run or provider spending is authorized.
+> Continue DHI-v1 / ORBIT only. S08-002 is deterministically complete but unreviewed and unexecuted. The next manifest entry, S09-002, is blocked by a stale environment snapshot: the target branch already exists. Rebaseline or isolate that task without deleting/resetting retained branches. Preserve all task branches and default main. No model run or provider spending is authorized.
