@@ -247,7 +247,7 @@
       "family_id": "ORBIT-S08-FIRECRAWL-RERANKER-FALLBACK-RECOVERY-02",
       "stage": "A",
       "independence_group_id": "ORBIT-S08-INDEP-A-002",
-      "family_fingerprint_sha256": "b7b5ead485d2d8cf8ffe7295cf8ffe9951853378695c43e78d7e94ee8ce9f38c",
+      "family_fingerprint_sha256": "29212f968834711078ab16c9c7dec50e999199a3a0cd1d880636df84095e283f",
       "review_status": "draft"
     },
     {
@@ -2994,7 +2994,68 @@
               "name"
             ],
             "execution_cost": 1,
-            "discovery_cost": 0
+            "discovery_cost": 0,
+            "expected_tool_id": "mcp__Firecrawl__firecrawl_find_tools",
+            "expected_broad_query": "software release latest version package registry metadata",
+            "expected_scoped_query": "package-registry-metadata-download-stats packages/package",
+            "expected_broad_arguments": {
+              "query": "software release latest version package registry metadata"
+            },
+            "expected_scoped_arguments": {
+              "providers": [
+                "package-registry-metadata-download-stats"
+              ],
+              "capabilities": [
+                "packages/package"
+              ],
+              "level": "tools",
+              "expand": [
+                "options",
+                "response"
+              ]
+            },
+            "expected_continuation": {
+              "provider": "package-registry-metadata-download-stats",
+              "capability": "packages/package",
+              "level": "tools",
+              "expand": [
+                "options",
+                "response"
+              ]
+            },
+            "required_output_fields": [
+              "latest_version",
+              "latest_published_at",
+              "license",
+              "repository",
+              "downloads",
+              "dependents",
+              "source_urls",
+              "warnings"
+            ],
+            "required_answer_values": [
+              "package-registry-metadata-download-stats",
+              "packages/package",
+              "registry",
+              "name",
+              "latest_version",
+              "latest_published_at",
+              "license",
+              "repository",
+              "downloads",
+              "dependents",
+              "source_urls",
+              "warnings",
+              "Discovery cost: 0 credits",
+              "Provider execution cost: 1 credit",
+              "No provider execution occurred"
+            ],
+            "forbidden_answer_values": [
+              "no tools found",
+              "no matches",
+              "I executed the package provider",
+              "The paid provider was executed"
+            ]
           },
           "expected_evidence": "Pinned recovery snapshot describes fallback then exact scoped provider contract.",
           "failure_if_unmet": true
@@ -3002,9 +3063,9 @@
       ],
       "grader": {
         "grader_id": "firecrawl-fallback-recovery-v1",
-        "version": "1.0.0",
+        "version": "2.0.0",
         "kind": "deterministic",
-        "primary_outcome": "Correctly uses fallback candidates/nextTool, performs provider-scoped discovery and avoids paid execution.",
+        "primary_outcome": "Recover from the broad Firecrawl reranking fallback by inspecting its matching candidate item and nextTool continuation, then make exactly one provider-filtered discovery call for package-registry-metadata-download-stats/packages/package with the required inputs and output fields. Report discovery cost 0 credits separately from provider execution cost 1 credit, and never execute the paid provider.",
         "independent_review_required": false,
         "review_rubric_ref": "DHI_v1/benchmark/fixtures/plugin_ecology/discovery_snapshots/firecrawl_package_recovery_2026-11-03.md",
         "llm_judge_sole_source": false
@@ -3036,7 +3097,7 @@
         "status": "ready_for_validation",
         "contract_check": "pass",
         "environment_check": "pass",
-        "grader_check": "not_run",
+        "grader_check": "pass",
         "review_status": "not_reviewed",
         "harness_gap_ids": [],
         "validation_evidence": [
@@ -3055,9 +3116,9 @@
       },
       "split_metadata": {
         "partition": "stage_a",
-        "family_fingerprint_sha256": "b7b5ead485d2d8cf8ffe7295cf8ffe9951853378695c43e78d7e94ee8ce9f38c",
+        "family_fingerprint_sha256": "29212f968834711078ab16c9c7dec50e999199a3a0cd1d880636df84095e283f",
         "holdout_sealed": false,
-        "task_instance_sha256": "627ba55a0fd866285f2749c48d442dab22c65d5441eca3764b0de58b9cc35f57"
+        "task_instance_sha256": "ecbe720d69f95945b77e61f6859bdd060706269a63188914601963aeffe1d59f"
       }
     },
     {
@@ -4958,7 +5019,7 @@
     "trace_schema_path": "DHI_v1/benchmark/plugin_trace.schema.json",
     "trace_grader_path": "DHI_v1/benchmark/plugin_trace.py",
     "trace_schema_sha256": "6d977adb6b723f03910cee70caa02cfe8d4defe9d781e3df037393396300b96a",
-    "trace_grader_sha256": "38b6bbf0ddd04d6f7b915cc136a7817c98162045c7551182908c8f17de1e0cdd"
+    "trace_grader_sha256": "3c46fdf482603a8114a00bc03039d67e4ad7fd3a940cc49844d65dab736cb2e8"
   },
   "existing_development_pilot": {
     "path": "DHI_v1/benchmark/pilot_cases.json",
