@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 import copy
+from functools import lru_cache
 import json
 import unittest
 from pathlib import Path
 
 from DHI_v1.benchmark.plugin_trace import grade_task
-from test_plugin_trace_grader import make_trace
+from test_plugin_trace_grader import make_trace as make_base_trace
 
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -30,8 +31,8 @@ OUTPUT_FIELDS = [
     "downloads", "dependents", "source_urls", "warnings",
 ]
 ANSWER = (
-    "The broad discovery did not return no matches: it timed out during reranking but "
-    "returned a matching candidate and nextTool continuation. I followed that continuation "
+    "The broad discovery timed out during reranking but returned a matching candidate "
+    "and its nextTool continuation. I followed that continuation "
     "with provider-filtered discovery for package-registry-metadata-download-stats / "
     "packages/package. Required inputs: registry and name. Output fields: latest_version, "
     "latest_published_at, license, repository, downloads, dependents, source_urls and warnings. "
@@ -39,8 +40,13 @@ ANSWER = (
 )
 
 
+@lru_cache(maxsize=1)
+def _load_manifest() -> dict:
+    return json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
+
+
 def load_task() -> dict:
-    manifest = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
+    manifest = _load_manifest()
     task = copy.deepcopy(next(item for item in manifest["tasks"] if item["task_id"] == TASK_ID))
     task["task_instance_sha256"] = task["split_metadata"]["task_instance_sha256"]
     return task
@@ -101,7 +107,7 @@ def make_trace(
     tool_calls: int = 0,
 ) -> dict:
     task = load_task()
-    base = make_trace()
+    base = make_base_trace()
     events = [copy.deepcopy(base["events"][0])]
     first = {
         "event_id": "s08-broad",
